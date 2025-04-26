@@ -1,0 +1,27 @@
+{
+	"name": "example-with-unocss",
+	"type": "module",
+	"scripts": {
+		"dev": "vinxi dev",
+		"build": "vinxi build",
+		"start": "vinxi start",
+		"preview": "pnpm run build && npx wrangler dev",
+		"deploy": "pnpm run build && wrangler deploy"
+	},
+	"dependencies": {
+		"@solidjs/router": "^0.15.0",
+		"@solidjs/start": "^1.1.0",
+		"@unocss/reset": "^0.65.1",
+		"solid-js": "^1.9.5",
+		"unocss": "^0.65.1",
+		"vinxi": "^0.5.3"
+	},
+	"engines": {
+		"node": ">=22"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20250426.0",
+		"nitropack": "^2.11.9",
+		"wrangler": "^4.13.2"
+	}
+}

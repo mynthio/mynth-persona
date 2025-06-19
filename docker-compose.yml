@@ -1,0 +1,48 @@
+# Use the modern Docker Compose specification.
+services:
+  # This is the name of our service.
+  postgres:
+    # We're using the official PostgreSQL 17 image.
+    # The '-alpine' tag uses a smaller base image, which is great for dev.
+    image: postgres:17-alpine
+
+    # Container name for easier identification.
+    container_name: persona-postgres
+
+    # Environment variables for PostgreSQL configuration.
+    # IMPORTANT: For local use only. Do not commit this file with secrets to Git.
+    # Consider using a .env file for better security (see example below).
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=persona
+
+    # This section maps a port from your local machine to the container.
+    # Format: "HOST_PORT:CONTAINER_PORT"
+    # You can connect to your database on 'localhost:5432'.
+    # If you have another service using port 5432, you can change the host port,
+    # e.g., "5433:5432".
+    ports:
+      - "5432:5432"
+
+    # This defines the named volume for data persistence.
+    # The data in '/var/lib/postgresql/data' inside the container will be
+    # stored in the 'pgdata' volume on your host machine.
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+    # This policy ensures the container restarts automatically unless you
+    # explicitly stop it.
+    restart: unless-stopped
+
+    # A healthcheck to ensure the database is ready to accept connections.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# This top-level key defines the named volumes used by the services.
+# Docker manages this volume for you.
+volumes:
+  pgdata:

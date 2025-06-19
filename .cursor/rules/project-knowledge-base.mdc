@@ -1,0 +1,19 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+What is Persona?
+
+Persona is an app, that allows users to generate AI Personas with different AI models.
+
+Users can continue working on Personas by editing the details, expanding information or adding new information, as well as generating the images of Personas.
+
+Users creates Personas in chat like fashion, writing about what to create initially, then writing a comments on what to change, what expand etc.
+
+
+# Costs and generation restrictions
+
+- Anonymous users, get access to 1 generation per day, without edits or image generation.
+- Registered users are rewarded with daily tokens to spend on generation and edits.
+- Users can buy tokens, that can be later used to generate personas, edit them or create images. Better models costs more tokens. 

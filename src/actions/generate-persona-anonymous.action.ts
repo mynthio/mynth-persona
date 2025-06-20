@@ -8,9 +8,17 @@ import { streamObject } from "ai";
 import { createStreamableValue } from "ai/rsc";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
+import { logger } from "@/lib/logger";
 
 export async function generatePersonaAnonymousAction(prompt: string) {
   "use server";
+
+  logger.debug(
+    {
+      prompt,
+    },
+    "Generating persona anonymous"
+  );
 
   // const ip = await getIpAddress();
   // await personaAnonymousGenerateRatelimit.limit(ip);
@@ -18,7 +26,7 @@ export async function generatePersonaAnonymousAction(prompt: string) {
   const stream = createStreamableValue();
 
   (async () => {
-    const model = google("gemini-2.5-flash-preview-04-17");
+    const model = google("gemini-2.5-flash-lite-preview-06-17");
 
     const { partialObjectStream } = streamObject({
       model,
@@ -26,40 +34,54 @@ export async function generatePersonaAnonymousAction(prompt: string) {
         "You are a creative character generator. Create detailed, engaging personas based on user requests. Always fill all fields with rich, descriptive content that brings the character to life.",
       prompt,
       schema: z.object({
-        name: z.string().describe("Character's full name or alias"),
-        age: z
+        note_for_user: z
           .string()
-          .describe("Can be specific number, descriptive, or unknown"),
-        universe: z
-          .string()
-          .describe("Time period, location, and genre context"),
-        species: z.string().describe("What type of being they are"),
-        appearance: z
-          .string()
+          .optional()
           .describe(
-            "Physical description including build, features, clothing style, distinctive marks"
+            "Optional, short note for the user. It can explain how you approched the prompt, and can suggest a follow up actions and proposals for user."
           ),
-        personality: z
-          .string()
-          .describe(
-            "Character traits, temperament, how they interact with others, emotional patterns"
-          ),
-        background: z
-          .string()
-          .describe(
-            "Personal history, upbringing, major life events, how they became who they are"
-          ),
-        occupation: z
-          .string()
-          .describe(
-            "What they do for work/role in society, can include secret occupations"
-          ),
+        persona: z.object({
+          name: z.string().describe("Character's full name or alias"),
+          age: z
+            .string()
+            .describe("Can be specific number, descriptive, or unknown"),
+          gender: z.string().describe("Gender of the character"),
+          universe: z
+            .string()
+            .describe("Time period, location, and genre context"),
+          appearance: z
+            .string()
+            .describe(
+              "Physical description including build, features, clothing style, distinctive marks"
+            ),
+          personality: z
+            .string()
+            .describe(
+              "Character traits, temperament, how they interact with others, emotional patterns"
+            ),
+          background: z
+            .string()
+            .describe(
+              "Personal history, upbringing, major life events, how they became who they are"
+            ),
+          occupation: z
+            .string()
+            .describe(
+              "What they do for work/role in society, can include secret occupations"
+            ),
+          other: z
+            .string()
+            .optional()
+            .describe(
+              "Optional field, that should be used only if user asked for something specific that does not belong to any of other categoried"
+            ),
+        }),
       }),
       onFinish: (object) => {
-        console.log(object);
+        logger.debug({ object }, "Persona anonymous generated");
       },
       onError: (error) => {
-        console.error(error);
+        logger.error({ error }, "Error generating persona anonymous");
       },
     });
 

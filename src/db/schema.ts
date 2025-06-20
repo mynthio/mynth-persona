@@ -1,4 +1,16 @@
-import { integer, text, boolean, pgTable, timestamp, jsonb, varchar, foreignKey, pgEnum } from "drizzle-orm/pg-core";
+import "server-only";
+
+import {
+  integer,
+  text,
+  boolean,
+  pgTable,
+  timestamp,
+  jsonb,
+  varchar,
+  foreignKey,
+  pgEnum,
+} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 // Users table - references Clerk auth
@@ -11,7 +23,9 @@ export const users = pgTable("users", {
 // Personas table - basic metadata only
 export const personas = pgTable("personas", {
   id: text("id").primaryKey(),
-  userId: varchar("user_id", { length: 255 }).notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   title: text("title"),
   currentVersionId: text("current_version_id"),
   profileImageId: text("profile_image_id"),
@@ -22,7 +36,9 @@ export const personas = pgTable("personas", {
 // Persona versions - actual persona data and versions
 export const personaVersions = pgTable("persona_versions", {
   id: text("id").primaryKey(),
-  personaId: text("persona_id").notNull().references(() => personas.id, { onDelete: "cascade" }),
+  personaId: text("persona_id")
+    .notNull()
+    .references(() => personas.id, { onDelete: "cascade" }),
   versionNumber: integer("version_number").notNull(), // For ordering and display
   personaData: jsonb("persona_data").notNull(), // Generated persona JSON data
   aiModel: varchar("ai_model", { length: 100 }).notNull(), // AI model used
@@ -42,10 +58,16 @@ export const eventTypeEnum = pgEnum("event_type_enum", [
 // Events table - pure chat/interaction timeline
 export const personaEvents = pgTable("persona_events", {
   id: text("id").primaryKey(),
-  personaId: text("persona_id").notNull().references(() => personas.id, { onDelete: "cascade" }),
-  userId: varchar("user_id", { length: 255 }).notNull().references(() => users.id, { onDelete: "cascade" }),
+  personaId: text("persona_id")
+    .notNull()
+    .references(() => personas.id, { onDelete: "cascade" }),
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   eventType: eventTypeEnum("event_type").notNull(), // 'generation', 'edit', 'image', 'revert'
-  versionId: text("version_id").references(() => personaVersions.id, { onDelete: "set null" }), // Link to version (only for generation/edit)
+  versionId: text("version_id").references(() => personaVersions.id, {
+    onDelete: "set null",
+  }), // Link to version (only for generation/edit)
   userMessage: text("user_message"), // User's input message
   aiNote: text("ai_note"), // AI's note/response for chat display
   tokensCost: integer("tokens_cost").notNull().default(0), // Tokens spent on this operation
@@ -55,9 +77,15 @@ export const personaEvents = pgTable("persona_events", {
 // Images table - tracks generated images for gallery
 export const images = pgTable("images", {
   id: text("id").primaryKey(),
-  personaId: text("persona_id").notNull().references(() => personas.id, { onDelete: "cascade" }),
-  userId: varchar("user_id", { length: 255 }).notNull().references(() => users.id, { onDelete: "cascade" }),
-  eventId: text("event_id").references(() => personaEvents.id, { onDelete: "set null" }), // Optional link to generation event
+  personaId: text("persona_id")
+    .notNull()
+    .references(() => personas.id, { onDelete: "cascade" }),
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  eventId: text("event_id").references(() => personaEvents.id, {
+    onDelete: "set null",
+  }), // Optional link to generation event
   url: text("url").notNull(),
   altText: text("alt_text"),
   aiModel: varchar("ai_model", { length: 100 }).notNull(),
@@ -68,15 +96,21 @@ export const images = pgTable("images", {
 // Ratings table - user feedback on generations
 export const ratings = pgTable("ratings", {
   id: text("id").primaryKey(),
-  userId: varchar("user_id", { length: 255 }).notNull().references(() => users.id, { onDelete: "cascade" }),
-  eventId: text("event_id").notNull().references(() => personaEvents.id, { onDelete: "cascade" }),
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  eventId: text("event_id")
+    .notNull()
+    .references(() => personaEvents.id, { onDelete: "cascade" }),
   rating: integer("rating").notNull(), // e.g., 1 for bad, 5 for good, or boolean 0/1
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // User tokens - current balance and daily grants
 export const userTokens = pgTable("user_tokens", {
-  userId: varchar("user_id", { length: 255 }).primaryKey().references(() => users.id, { onDelete: "cascade" }),
+  userId: varchar("user_id", { length: 255 })
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
   balance: integer("balance").notNull().default(0), // Current token balance
   dailyTokens: integer("daily_tokens").notNull().default(0), // Daily granted tokens remaining
   lastDailyGrant: timestamp("last_daily_grant"), // When daily tokens were last granted
@@ -88,12 +122,16 @@ export const userTokens = pgTable("user_tokens", {
 // Token transactions - complete audit trail (NO CASCADE - preserve for accounting)
 export const tokenTransactions = pgTable("token_transactions", {
   id: text("id").primaryKey(),
-  userId: varchar("user_id", { length: 255 }).notNull().references(() => users.id), // NO CASCADE - preserve audit trail
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id), // NO CASCADE - preserve audit trail
   type: varchar("type", { length: 20 }).notNull(), // 'purchase', 'daily_grant', 'spend', 'refund'
   amount: integer("amount").notNull(), // Positive for add, negative for spend
   balanceAfter: integer("balance_after").notNull(), // Balance after this transaction
   description: text("description").notNull(), // "Generated persona with GPT-4", "Daily grant", etc.
-  eventId: text("event_id").references(() => personaEvents.id, { onDelete: "set null" }), // Preserve transaction even if event deleted
+  eventId: text("event_id").references(() => personaEvents.id, {
+    onDelete: "set null",
+  }), // Preserve transaction even if event deleted
   paymentId: varchar("payment_id", { length: 255 }), // Stripe/payment provider ID
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -126,34 +164,40 @@ export const personasRelations = relations(personas, ({ one, many }) => ({
   }),
 }));
 
-export const personaVersionsRelations = relations(personaVersions, ({ one, many }) => ({
-  persona: one(personas, {
-    fields: [personaVersions.personaId],
-    references: [personas.id],
-  }),
-  events: many(personaEvents),
-}));
+export const personaVersionsRelations = relations(
+  personaVersions,
+  ({ one, many }) => ({
+    persona: one(personas, {
+      fields: [personaVersions.personaId],
+      references: [personas.id],
+    }),
+    events: many(personaEvents),
+  })
+);
 
-export const personaEventsRelations = relations(personaEvents, ({ one, many }) => ({
-  persona: one(personas, {
-    fields: [personaEvents.personaId],
-    references: [personas.id],
-  }),
-  user: one(users, {
-    fields: [personaEvents.userId],
-    references: [users.id],
-  }),
-  version: one(personaVersions, {
-    fields: [personaEvents.versionId],
-    references: [personaVersions.id],
-  }),
-  ratings: many(ratings),
-  images: many(images),
-  tokenTransaction: one(tokenTransactions, {
-    fields: [personaEvents.id],
-    references: [tokenTransactions.eventId],
-  }),
-}));
+export const personaEventsRelations = relations(
+  personaEvents,
+  ({ one, many }) => ({
+    persona: one(personas, {
+      fields: [personaEvents.personaId],
+      references: [personas.id],
+    }),
+    user: one(users, {
+      fields: [personaEvents.userId],
+      references: [users.id],
+    }),
+    version: one(personaVersions, {
+      fields: [personaEvents.versionId],
+      references: [personaVersions.id],
+    }),
+    ratings: many(ratings),
+    images: many(images),
+    tokenTransaction: one(tokenTransactions, {
+      fields: [personaEvents.id],
+      references: [tokenTransactions.eventId],
+    }),
+  })
+);
 
 export const imagesRelations = relations(images, ({ one }) => ({
   persona: one(personas, {
@@ -189,14 +233,16 @@ export const userTokensRelations = relations(userTokens, ({ one, many }) => ({
   transactions: many(tokenTransactions),
 }));
 
-export const tokenTransactionsRelations = relations(tokenTransactions, ({ one }) => ({
-  user: one(users, {
-    fields: [tokenTransactions.userId],
-    references: [users.id],
-  }),
-  event: one(personaEvents, {
-    fields: [tokenTransactions.eventId],
-    references: [personaEvents.id],
-  }),
-}));
-
+export const tokenTransactionsRelations = relations(
+  tokenTransactions,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [tokenTransactions.userId],
+      references: [users.id],
+    }),
+    event: one(personaEvents, {
+      fields: [tokenTransactions.eventId],
+      references: [personaEvents.id],
+    }),
+  })
+);

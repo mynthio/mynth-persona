@@ -28,6 +28,8 @@ export default function PersonaDetails(props: PersonaDetailsProps) {
       <p>{props.personaData.background}</p>
       <h3>Occupation</h3>
       <p>{props.personaData.occupation}</p>
+      <h3>Other</h3>
+      <p>{props.personaData.other}</p>
     </article>
   );
 }

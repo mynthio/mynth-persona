@@ -3,7 +3,7 @@ import { personas } from "@/db/schema";
 import { Persona } from "@/types/persona.type";
 import { nanoid } from "nanoid";
 
-export const createPersona = async (persona: Omit<Persona, "id">) => {
+export const createPersonaEvent = async (persona: Omit<Persona, "id">) => {
   const id = `prs_${nanoid()}`;
 
   return db

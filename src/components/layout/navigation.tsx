@@ -1,14 +1,49 @@
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
-import Link from "next/link";
+"use client";
 
-export default async function Navigation() {
+import { UserBalance } from "@/types/balance.type";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { Chip } from "@heroui/chip";
+import { PokerChipIcon, UsersThreeIcon } from "@phosphor-icons/react/dist/ssr";
+import Link from "next/link";
+import useSWR from "swr";
+import { Tooltip } from "@heroui/tooltip";
+import { useQueryState } from "nuqs";
+import { Button } from "@heroui/button";
+import { Image } from "@heroui/image";
+
+export default function Navigation() {
+  const { data: balance } = useSWR<UserBalance>("/api/me/balance");
+
+  const [isLibraryOpen, setIsLibraryOpen] = useQueryState("library");
+
   return (
     <div className="flex items-center justify-between h-nav px-12">
       <div>
-        <Link href={"/"}>Peronsa</Link>
-        <Link href={"/tokens"}>Tokens</Link>
+        <Link href={"/"}>
+          <Image
+            width={60}
+            height={60}
+            src={"https://persona-mynth-prod.b-cdn.net/persona-logo-1.webp"}
+          />
+        </Link>
       </div>
-      <div>
+      <div className="flex items-center gap-2">
+        {balance && (
+          <div className="flex items-center gap-2">
+            <Tooltip content="Tokens" placement="bottom">
+              <Link href={"/tokens"}>
+                <Chip variant="bordered" startContent={<PokerChipIcon />}>
+                  {balance.balance}
+                </Chip>
+              </Link>
+            </Tooltip>
+          </div>
+        )}
+
+        <Button isIconOnly onPress={() => setIsLibraryOpen("1")}>
+          <UsersThreeIcon />
+        </Button>
+
         <SignedIn>
           <UserButton />
         </SignedIn>

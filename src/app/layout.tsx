@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import Navigation from "@/components/layout/navigation";
+import { lazy, Suspense } from "react";
+
+const LibraryModal = lazy(() => import("@/components/library/library-modal"));
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +36,10 @@ export default function RootLayout({
           <Navigation />
 
           {children}
+
+          <Suspense fallback={null}>
+            <LibraryModal />
+          </Suspense>
         </Providers>
       </body>
     </html>

@@ -18,7 +18,7 @@ export const createCheckoutAction = async () => {
   });
 
   const checkout = await api.checkouts.create({
-    products: ["2ff15d2a-a75c-48fd-bf7c-26dc3cd7244e"],
+    products: ["401f6067-e6aa-4ce9-ba34-b406b6aa9ce4"],
     externalCustomerId: user.id,
     // successUrl: `${process.env.NEXT_PUBLIC_APP_URL}/tokens`,
   });

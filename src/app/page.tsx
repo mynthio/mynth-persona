@@ -6,6 +6,7 @@ import type { PersonaData } from "@/types/persona-version.type";
 import { Button } from "@heroui/button";
 import { Textarea } from "@heroui/input";
 import {
+  CaretRightIcon,
   DotsSixVerticalIcon,
   ShootingStarIcon,
 } from "@phosphor-icons/react/ssr";
@@ -21,18 +22,49 @@ import {
   PanelResizeHandle,
 } from "react-resizable-panels";
 import PersonaPanel from "./_components/persona-panel";
+import { useAuth } from "@clerk/nextjs";
+import { generatePersonaAction } from "@/actions/generate-persona.action";
+import useSWR, { useSWRConfig } from "swr";
+import {
+  PersonaEvent,
+  PersonaEventWithVersion,
+} from "@/types/persona-event.type";
+import { Card } from "@heroui/card";
+import { Chip } from "@heroui/chip";
+import { Divider } from "@heroui/divider";
+import Link from "next/link";
+import { enhancePersonaAction } from "@/actions/enhance-persona.action";
 
 export default function Home() {
+  const { isSignedIn } = useAuth();
+  const { mutate } = useSWRConfig();
   const [generation, setGeneration] = useState<any>({});
   const [personaData, setPersonaData] = useState<PersonaData | null>(null);
 
-  const [personaId, setPersonaId] = useQueryState("personaId");
+  const [personaId, setPersonaId] = useQueryState("persona_id");
   const [personaVersionId, setPersonaVersionId] =
-    useQueryState("personaVersionId");
+    useQueryState("persona_version_id");
 
+  const [isPersonaPanelOpen, setIsPersonaPanelOpen] = useQueryState("panel");
   const [isGenerating, setIsGenerating] = useState(false);
 
   const [prompt, setPrompt] = useState("");
+
+  const { data: persona } = useSWR(
+    personaId && isSignedIn ? `/api/personas/${personaId}` : null,
+    {
+      onSuccess: (data) => {
+        setPersonaData(data.currentVersion?.personaData || null);
+        setIsPersonaPanelOpen("1");
+      },
+    }
+  );
+
+  console.log("I'm re-rendering");
+
+  const { data: personaEvents } = useSWR<PersonaEventWithVersion[]>(
+    personaId && isSignedIn ? `/api/personas/${personaId}/events` : null
+  );
 
   return (
     <>
@@ -43,14 +75,87 @@ export default function Home() {
           className="h-full"
         >
           <Panel id="chat" minSize={25} className="p-6">
-            <div className="w-full h-full flex items-center justify-center">
+            <div
+              className={`w-full mx-auto overflow-auto max-w-3xl h-full flex items-center ${
+                personaId
+                  ? "flex-col items-center justify-between"
+                  : "flex-row items-center"
+              }`}
+            >
+              {personaId && (
+                <>
+                  <div className="space-y-6 mb-8 w-full">
+                    {personaEvents?.map((personaEvent) => (
+                      <div
+                        className="space-y-8 flex flex-col items-end"
+                        key={personaEvent.id}
+                      >
+                        <Card className="max-w-2xl w-fit bg-violet-600 text-white p-4 text-right text-balance">
+                          {personaEvent.userMessage}
+                        </Card>
+
+                        <div className="max-w-2xl w-fit self-start space-y-6">
+                          {/* Version Selector Card */}
+                          <Link
+                            prefetch={false}
+                            href={`/?persona_id=${personaEvent.personaId}&persona_version_id=${personaEvent.versionId}&panel=1`}
+                          >
+                            <Card
+                              shadow="sm"
+                              className="px-4 py-3 bg-background"
+                            >
+                              <div className="flex items-center justify-between w-full gap-4">
+                                <div className="flex items-center gap-3 flex-1">
+                                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-sm">
+                                    <span className="text-white font-semibold text-xs">
+                                      V{personaEvent?.version?.versionNumber}
+                                    </span>
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-sm font-semibold text-default-800 leading-tight">
+                                      Version{" "}
+                                      {personaEvent?.version?.versionNumber}
+                                      {personaEvent?.version?.title &&
+                                        ` • ${personaEvent.version.title}`}
+                                    </p>
+                                    <p className="text-xs text-left text-default-500 mt-0.5">
+                                      Click to view details
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="w-4 h-4 text-default-400 flex-shrink-0">
+                                  <CaretRightIcon />
+                                </div>
+                              </div>
+                            </Card>
+                          </Link>
+
+                          {/* AI Message */}
+                          <Card
+                            className="py-4 mt-1 bg-transparent"
+                            shadow="none"
+                          >
+                            <p className="text-sm text-default-600 leading-relaxed">
+                              {personaEvent.aiNote}
+                            </p>
+                          </Card>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
               <div className="w-full max-w-3xl">
                 <Textarea
                   value={prompt}
                   onValueChange={setPrompt}
                   minRows={1}
                   size="lg"
-                  placeholder="Write about your persona"
+                  placeholder={
+                    personaId
+                      ? "Enhance your persona"
+                      : "Write about your persona"
+                  }
                   endContent={
                     <Button
                       isIconOnly
@@ -64,44 +169,60 @@ export default function Home() {
                           return;
                         }
 
+                        if (!isSignedIn && personaId) {
+                          return;
+                        }
+
                         setIsGenerating(true);
 
-                        const { object } = await generatePersonaAnonymousAction(
-                          prompt
-                        );
+                        const { object, ...savedPersonaIds } = isSignedIn
+                          ? personaId
+                            ? await enhancePersonaAction(personaId, prompt)
+                            : await generatePersonaAction(prompt)
+                          : await generatePersonaAnonymousAction(prompt);
 
-                        setPersonaId("some_id");
-                        setPersonaVersionId("some_version_id");
+                        // @ts-ignore
+                        setPersonaId(savedPersonaIds.personaId);
 
-                        // setPersonaData({
-                        //   name: "Kenji Tanaka",
-                        //   age: "Late 20s",
-                        //   universe:
-                        //     "Modern-day Japanese high school, typical of slice-of-life or comedy anime genres.",
-                        //   species: "Human",
-                        //   appearance:
-                        //     "Medium height with a lean build. His black hair is perpetually slightly messy, often falling into his eyes, which are framed by slightly thick-rimmed glasses that he constantly pushes up. He typically wears a slightly rumpled suit jacket over a casual button-down shirt, sometimes with a tie that's either loosened or missing entirely. He often carries a stack of papers or a well-worn textbook. His most distinctive feature is his bright, often overly enthusiastic smile.",
-                        //   personality:
-                        //     "Energetic, passionate, and slightly eccentric. Kenji is incredibly enthusiastic about his subject, often getting lost in dramatic retellings of historical events. He genuinely cares about his students' learning and well-being, though he can be easily flustered by their antics or unexpected questions. He tries to be a cool, relatable teacher but often comes across as endearingly awkward. He's prone to sudden bursts of energy, philosophical tangents, and occasionally forgetting where he put his chalk.",
-                        //   background:
-                        //     "From a young age, Kenji was a history buff, devouring books on ancient civilizations and historical events. He struggled with social anxiety during his own high school years but found a sense of purpose and confidence when explaining historical concepts to friends. Inspired by a particularly passionate history teacher, he decided to pursue education, hoping to make history come alive for a new generation. Despite his classroom energy, he remains a bit awkward in purely social situations.",
-                        //   occupation:
-                        //     "High School History Teacher and advisor for the (small) History Club.",
-                        // });
+                        setPersonaVersionId(null);
 
-                        // setTimeout(() => {
-                        //   setIsGenerating(false);
-                        // }, 5000);
+                        mutate("/api/me/balance");
+
+                        // For enhancement, start with current persona data and merge changes
+                        if (personaId && persona?.currentVersion?.personaData) {
+                          setPersonaData(persona.currentVersion.personaData);
+                        }
 
                         for await (const partialObject of readStreamableValue(
                           object
                         )) {
                           if (partialObject) {
-                            setPersonaData(partialObject?.persona || {});
+                            if (
+                              personaId &&
+                              persona?.currentVersion?.personaData
+                            ) {
+                              // Enhancement: merge partial changes with existing data
+                              setPersonaData((currentData) => {
+                                const baseData =
+                                  currentData ||
+                                  persona.currentVersion.personaData;
+                                return {
+                                  ...baseData,
+                                  ...partialObject?.persona,
+                                };
+                              });
+                            } else {
+                              // New generation: use the streamed data directly
+                              setPersonaData(partialObject?.persona || {});
+                            }
                           }
                         }
 
                         setIsGenerating(false);
+                        mutate(
+                          // @ts-ignore
+                          `/api/personas/${savedPersonaIds.personaId}/events`
+                        );
                       }}
                     >
                       <ShootingStarIcon />
@@ -111,7 +232,7 @@ export default function Home() {
               </div>
             </div>
           </Panel>
-          {personaVersionId && personaData && (
+          {personaData && isPersonaPanelOpen && (
             <>
               <PanelResizeHandle className="flex items-center justify-center cursor-grab active:cursor-grabbing group">
                 <div className="w-2 h-32 rounded-xl bg-default-200 group-hover:bg-default-300 group-hover:scale-105 transition-all duration-300" />
@@ -130,12 +251,6 @@ export default function Home() {
           )}
         </PanelGroup>
       </main>
-      <Aurora
-        colorStops={["#BB87E0", "#E2C9F4", "#DE98DD"]}
-        blend={0.6}
-        amplitude={0.3}
-        speed={0.4}
-      />
     </>
   );
 }

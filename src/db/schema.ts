@@ -1,4 +1,4 @@
-import "server-only";
+// import "server-only";
 
 import {
   integer,
@@ -16,6 +16,7 @@ import { relations } from "drizzle-orm";
 // Users table - references Clerk auth
 export const users = pgTable("users", {
   id: varchar("id", { length: 255 }).primaryKey(), // Use Clerk user ID directly
+  polarCustomerId: varchar("polar_customer_id", { length: 255 }), // Polar customer ID
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -39,6 +40,7 @@ export const personaVersions = pgTable("persona_versions", {
   personaId: text("persona_id")
     .notNull()
     .references(() => personas.id, { onDelete: "cascade" }),
+  title: text("title"),
   versionNumber: integer("version_number").notNull(), // For ordering and display
   personaData: jsonb("persona_data").notNull(), // Generated persona JSON data
   aiModel: varchar("ai_model", { length: 100 }).notNull(), // AI model used
@@ -106,14 +108,14 @@ export const ratings = pgTable("ratings", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// User tokens - current balance and daily grants
+// User tokens - current balance and daily usage tracking
 export const userTokens = pgTable("user_tokens", {
   userId: varchar("user_id", { length: 255 })
     .primaryKey()
     .references(() => users.id, { onDelete: "cascade" }),
   balance: integer("balance").notNull().default(0), // Current token balance
-  dailyTokens: integer("daily_tokens").notNull().default(0), // Daily granted tokens remaining
-  lastDailyGrant: timestamp("last_daily_grant"), // When daily tokens were last granted
+  dailyTokensUsed: integer("daily_tokens_used").notNull().default(0), // Daily free tokens used today
+  lastDailyReset: timestamp("last_daily_reset"), // When daily usage was last reset
   totalPurchased: integer("total_purchased").notNull().default(0), // Lifetime purchased tokens
   totalSpent: integer("total_spent").notNull().default(0), // Lifetime spent tokens
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -125,14 +127,11 @@ export const tokenTransactions = pgTable("token_transactions", {
   userId: varchar("user_id", { length: 255 })
     .notNull()
     .references(() => users.id), // NO CASCADE - preserve audit trail
-  type: varchar("type", { length: 20 }).notNull(), // 'purchase', 'daily_grant', 'spend', 'refund'
+  type: varchar("type", { length: 20 }).notNull(), // 'purchase'
   amount: integer("amount").notNull(), // Positive for add, negative for spend
   balanceAfter: integer("balance_after").notNull(), // Balance after this transaction
-  description: text("description").notNull(), // "Generated persona with GPT-4", "Daily grant", etc.
-  eventId: text("event_id").references(() => personaEvents.id, {
-    onDelete: "set null",
-  }), // Preserve transaction even if event deleted
-  paymentId: varchar("payment_id", { length: 255 }), // Stripe/payment provider ID
+  orderId: varchar("order_id", { length: 255 }), // Stripe/payment provider ID
+  checkoutId: varchar("checkout_id", { length: 255 }), // Polar checkout ID
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -192,10 +191,6 @@ export const personaEventsRelations = relations(
     }),
     ratings: many(ratings),
     images: many(images),
-    tokenTransaction: one(tokenTransactions, {
-      fields: [personaEvents.id],
-      references: [tokenTransactions.eventId],
-    }),
   })
 );
 
@@ -239,10 +234,6 @@ export const tokenTransactionsRelations = relations(
     user: one(users, {
       fields: [tokenTransactions.userId],
       references: [users.id],
-    }),
-    event: one(personaEvents, {
-      fields: [tokenTransactions.eventId],
-      references: [personaEvents.id],
     }),
   })
 );

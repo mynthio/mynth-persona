@@ -15,6 +15,7 @@ export async function GET(request: Request) {
     where: eq(personas.userId, userId),
     with: {
       currentVersion: true,
+      profileImage: true,
     },
   });
 

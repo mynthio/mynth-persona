@@ -17,7 +17,7 @@ export default function Navigation() {
   const [isLibraryOpen, setIsLibraryOpen] = useQueryState("library");
 
   return (
-    <div className="flex items-center justify-between h-nav px-12">
+    <div className="flex items-center justify-between gap-2 h-nav px-12">
       <div>
         <Link href={"/"}>
           <Image
@@ -27,12 +27,16 @@ export default function Navigation() {
           />
         </Link>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-4">
         {balance && (
           <div className="flex items-center gap-2">
             <Tooltip content="Tokens" placement="bottom">
               <Link href={"/tokens"}>
-                <Chip variant="bordered" startContent={<PokerChipIcon />}>
+                <Chip
+                  variant="faded"
+                  color="secondary"
+                  startContent={<PokerChipIcon />}
+                >
                   {balance.balance}
                 </Chip>
               </Link>
@@ -40,9 +44,15 @@ export default function Navigation() {
           </div>
         )}
 
-        <Button isIconOnly onPress={() => setIsLibraryOpen("1")}>
-          <UsersThreeIcon />
-        </Button>
+        <Tooltip content="Library" placement="bottom">
+          <Button
+            variant="light"
+            isIconOnly
+            onPress={() => setIsLibraryOpen("1")}
+          >
+            <UsersThreeIcon />
+          </Button>
+        </Tooltip>
 
         <SignedIn>
           <UserButton />

@@ -13,6 +13,7 @@ import {
 import { readStreamableValue } from "ai/rsc";
 import { useQueryState } from "nuqs";
 import { useState } from "react";
+import { Badge } from "@heroui/badge";
 import {
   getPanelElement,
   getPanelGroupElement,
@@ -22,6 +23,7 @@ import {
   PanelResizeHandle,
 } from "react-resizable-panels";
 import PersonaPanel from "./_components/persona-panel";
+import PersonaStack from "./_components/persona-stack";
 import { useAuth } from "@clerk/nextjs";
 import { generatePersonaAction } from "@/actions/generate-persona.action";
 import useSWR, { useSWRConfig } from "swr";
@@ -79,7 +81,7 @@ export default function Home() {
               className={`w-full mx-auto overflow-auto max-w-3xl h-full flex items-center ${
                 personaId
                   ? "flex-col items-center justify-between"
-                  : "flex-row items-center"
+                  : "flex-col items-center justify-center"
               }`}
             >
               {personaId && (
@@ -145,90 +147,132 @@ export default function Home() {
                   </div>
                 </>
               )}
-              <div className="w-full max-w-3xl">
-                <Textarea
-                  value={prompt}
-                  onValueChange={setPrompt}
-                  minRows={1}
-                  size="lg"
-                  placeholder={
-                    personaId
-                      ? "Enhance your persona"
-                      : "Write about your persona"
-                  }
-                  endContent={
-                    <Button
-                      isIconOnly
-                      isLoading={isGenerating}
-                      onPress={async () => {
-                        if (!prompt || prompt.trim() === "") {
-                          return;
-                        }
 
-                        if (isGenerating) {
-                          return;
-                        }
+              {!personaId && <PersonaStack />}
 
-                        if (!isSignedIn && personaId) {
-                          return;
-                        }
+              <div className="w-full max-w-3xl px-4">
+                <Card shadow="sm" className="p-2">
+                  <Textarea
+                    classNames={{
+                      mainWrapper: "hover:bg-transparent hover:bg-none",
+                      inputWrapper:
+                        "bg-transparent border-none shadow-none hover:bg-none data-[hover=true]:bg-transparent data-[hover=true]:bg-none data-[focus=true]:bg-transparent data-[focus=true]:bg-none",
+                    }}
+                    value={prompt}
+                    onValueChange={setPrompt}
+                    minRows={1}
+                    size="lg"
+                    placeholder={
+                      personaId
+                        ? "Enhance your persona"
+                        : "Write about your persona"
+                    }
+                  />
 
-                        setIsGenerating(true);
+                  <div className="w-full flex items-center justify-between p-2">
+                    <div className="flex items-center gap-4">
+                      {/* <Badge
+                        content="Soon"
+                        size="sm"
+                        color="warning"
+                        variant="flat"
+                      >
+                        <Button isDisabled={true} variant="bordered" size="sm">
+                          Style
+                        </Button>
+                      </Badge>
+                      <Badge
+                        content="Soon"
+                        size="sm"
+                        color="warning"
+                        variant="flat"
+                      >
+                        <Button isDisabled={true} variant="bordered" size="sm">
+                          Quality
+                        </Button>
+                      </Badge> */}
+                    </div>
+                    <div>
+                      <Button
+                        isDisabled={!prompt || prompt.trim() === ""}
+                        isIconOnly
+                        size="lg"
+                        variant="solid"
+                        color="secondary"
+                        isLoading={isGenerating}
+                        onPress={async () => {
+                          if (!prompt || prompt.trim() === "") {
+                            return;
+                          }
 
-                        const { object, ...savedPersonaIds } = isSignedIn
-                          ? personaId
-                            ? await enhancePersonaAction(personaId, prompt)
-                            : await generatePersonaAction(prompt)
-                          : await generatePersonaAnonymousAction(prompt);
+                          if (isGenerating) {
+                            return;
+                          }
 
-                        // @ts-ignore
-                        setPersonaId(savedPersonaIds.personaId);
+                          if (!isSignedIn && personaId) {
+                            return;
+                          }
 
-                        setPersonaVersionId(null);
+                          setIsGenerating(true);
 
-                        mutate("/api/me/balance");
+                          const { object, ...savedPersonaIds } = isSignedIn
+                            ? personaId
+                              ? await enhancePersonaAction(personaId, prompt)
+                              : await generatePersonaAction(prompt)
+                            : await generatePersonaAnonymousAction(prompt);
 
-                        // For enhancement, start with current persona data and merge changes
-                        if (personaId && persona?.currentVersion?.personaData) {
-                          setPersonaData(persona.currentVersion.personaData);
-                        }
+                          // @ts-ignore
+                          setPersonaId(savedPersonaIds.personaId);
 
-                        for await (const partialObject of readStreamableValue(
-                          object
-                        )) {
-                          if (partialObject) {
-                            if (
-                              personaId &&
-                              persona?.currentVersion?.personaData
-                            ) {
-                              // Enhancement: merge partial changes with existing data
-                              setPersonaData((currentData) => {
-                                const baseData =
-                                  currentData ||
-                                  persona.currentVersion.personaData;
-                                return {
-                                  ...baseData,
-                                  ...partialObject?.persona,
-                                };
-                              });
-                            } else {
-                              // New generation: use the streamed data directly
-                              setPersonaData(partialObject?.persona || {});
+                          setPersonaVersionId(null);
+
+                          mutate("/api/me/balance");
+
+                          // For enhancement, start with current persona data and merge changes
+                          if (
+                            personaId &&
+                            persona?.currentVersion?.personaData
+                          ) {
+                            setPersonaData(persona.currentVersion.personaData);
+                          }
+
+                          for await (const partialObject of readStreamableValue(
+                            object
+                          )) {
+                            if (partialObject) {
+                              if (
+                                personaId &&
+                                persona?.currentVersion?.personaData
+                              ) {
+                                // Enhancement: merge partial changes with existing data
+                                setPersonaData((currentData) => {
+                                  const baseData =
+                                    currentData ||
+                                    persona.currentVersion.personaData;
+                                  return {
+                                    ...baseData,
+                                    ...partialObject?.persona,
+                                  };
+                                });
+                              } else {
+                                // New generation: use the streamed data directly
+                                setPersonaData(partialObject?.persona || {});
+                              }
                             }
                           }
-                        }
 
-                        setIsGenerating(false);
-                        mutate(
-                          // @ts-ignore
-                          `/api/personas/${savedPersonaIds.personaId}/events`
-                        );
-                      }}
-                    >
-                      <ShootingStarIcon />
-                    </Button>
-                  }
-                />
+                          setIsGenerating(false);
+                          mutate(
+                            // @ts-ignore
+                            `/api/personas/${savedPersonaIds.personaId}/events`
+                          );
+                        }}
+                      >
+                        <ShootingStarIcon />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
               </div>
             </div>
           </Panel>

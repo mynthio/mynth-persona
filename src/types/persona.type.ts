@@ -10,6 +10,11 @@ export type Persona = typeof Persona.infer;
 
 export type PersonaWithCurrentVersion = typeof Persona.infer & {
   currentVersion: PersonaVersion;
+  profileImage?: {
+    id: string;
+    url: string;
+    altText: string | null;
+  } | null;
 };
 
 export type PersonaWithVersion = typeof Persona.infer & {

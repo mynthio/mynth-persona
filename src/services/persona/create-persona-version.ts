@@ -14,6 +14,7 @@ type CreatePersonaVersionPayload = {
   aiNote?: string;
   versionNumber?: number;
   title?: string;
+  changedProperties?: string[];
 };
 
 export const createPersonaVersion = async (
@@ -44,6 +45,7 @@ export const createPersonaVersion = async (
       aiModel: payload.aiModel,
       systemPromptId: payload.systemPromptId,
       title: payload.title,
+      changedProperties: payload.changedProperties,
     });
 
     await tx

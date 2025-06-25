@@ -98,17 +98,6 @@ export async function spendTokens(
         },
       });
 
-    // Create transaction record for audit trail
-    const transactionId = `tnt_${nanoid()}`;
-    await tx.insert(tokenTransactions).values({
-      id: transactionId,
-      userId,
-      type: "spend",
-      amount: -tokensToUse, // Negative for spending
-      balanceAfter: newPurchasedBalance,
-      createdAt: now,
-    });
-
     return {
       success: true,
       tokensUsed: tokensToUse,

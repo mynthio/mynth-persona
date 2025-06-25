@@ -73,7 +73,7 @@ export default function PersonaPanel(props: PersonaPanelProps) {
       </CardHeader>
 
       {(props.personaData || personaVersion?.personaData) && (
-        <CardBody className="min-h-0 h-auto max-h-full">
+        <CardBody className="min-h-0 h-auto">
           <ScrollShadow size={80} offset={10}>
             <PersonaDetails
               personaData={
@@ -81,6 +81,7 @@ export default function PersonaPanel(props: PersonaPanelProps) {
                   ? props.personaData!
                   : personaVersion.personaData!
               }
+              changedProperties={personaVersion?.changedProperties}
             />
           </ScrollShadow>
         </CardBody>

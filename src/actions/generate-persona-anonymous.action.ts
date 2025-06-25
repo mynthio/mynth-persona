@@ -2,13 +2,11 @@
 
 import "server-only";
 
-import { personaAnonymousGenerateRatelimit } from "@/utils/rate-limitting";
-import { getIpAddress } from "@/utils/headers-utils";
 import { streamObject } from "ai";
 import { createStreamableValue } from "ai/rsc";
-import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { logger } from "@/lib/logger";
+import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 
 export async function generatePersonaAnonymousAction(prompt: string) {
   "use server";
@@ -25,10 +23,32 @@ export async function generatePersonaAnonymousAction(prompt: string) {
 
   const stream = createStreamableValue();
 
+  const openrouter = createOpenRouter({
+    apiKey: process.env.OPEN_ROUTER_API_KEY!,
+    compatibility: "strict",
+  });
+
   (async () => {
-    const model = google("gemini-2.5-flash-lite-preview-06-17");
+    const model = openrouter("mistralai/mistral-small-3.2-24b-instruct:free");
+
+    // const testRes = await generateObject({
+    //   model,
+    //   system:
+    //     "You are a creative character generator. Create detailed, engaging personas based on user requests. Always fill all fields with rich, descriptive content that brings the character to life.",
+    //   prompt,
+    //   schema: z.object({
+    //     persona: z.object({
+    //       name: z.string().describe("Character's full name or alias"),
+    //     }),
+    //   }),
+    //   mode: "json",
+    // });
+
+    // console.log("Test res", { testRes });
+    // throw new Error("test");
 
     const { partialObjectStream } = streamObject({
+      mode: "json",
       model,
       system:
         "You are a creative character generator. Create detailed, engaging personas based on user requests. Always fill all fields with rich, descriptive content that brings the character to life.",

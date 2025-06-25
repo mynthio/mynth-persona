@@ -28,6 +28,14 @@ export async function GET(
           title: true,
         },
       },
+      imageGeneration: {
+        columns: {
+          id: true,
+          status: true,
+          runId: true,
+          imageId: true,
+        },
+      },
     },
   });
 

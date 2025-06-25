@@ -1,11 +1,16 @@
 import { PersonaData } from "@/types/persona-version.type";
-import { PersonIcon } from "@phosphor-icons/react/dist/ssr";
+import { Badge } from "@heroui/badge";
+import { Chip } from "@heroui/chip";
+import { PersonIcon, StarIcon } from "@phosphor-icons/react/dist/ssr";
 
 type PersonaDetailsProps = {
   personaData: PersonaData;
+  changedProperties?: string[];
 };
 
 export default function PersonaDetails(props: PersonaDetailsProps) {
+  const { changedProperties } = props;
+
   return (
     <article className="prose">
       <h1>{props.personaData.name}</h1>
@@ -18,17 +23,30 @@ export default function PersonaDetails(props: PersonaDetailsProps) {
           <p>{props.personaData.gender}</p>
         </div>
       </div>
-      <h3>Universe</h3>
+      <h3>Universe {changedProperties?.includes("universe") && "changed"}</h3>
       <p>{props.personaData.universe}</p>
-      <h3>Appearance</h3>
+      <h3 className="flex items-start gap-2">
+        Appearance{" "}
+        {changedProperties?.includes("appearance") && (
+          <Chip size="sm" color="warning" variant="flat">
+            Updated
+          </Chip>
+        )}
+      </h3>
       <p>{props.personaData.appearance}</p>
-      <h3>Personality</h3>
+      <h3>
+        Personality {changedProperties?.includes("personality") && "changed"}
+      </h3>
       <p>{props.personaData.personality}</p>
-      <h3>Background</h3>
+      <h3>
+        Background {changedProperties?.includes("background") && "changed"}
+      </h3>
       <p>{props.personaData.background}</p>
-      <h3>Occupation</h3>
+      <h3>
+        Occupation {changedProperties?.includes("occupation") && "changed"}
+      </h3>
       <p>{props.personaData.occupation}</p>
-      <h3>Other</h3>
+      <h3>Other {changedProperties?.includes("other") && "changed"}</h3>
       <p>{props.personaData.other}</p>
     </article>
   );

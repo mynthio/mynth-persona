@@ -43,6 +43,7 @@ export const personaVersions = pgTable("persona_versions", {
   title: text("title"),
   versionNumber: integer("version_number").notNull(), // For ordering and display
   personaData: jsonb("persona_data").notNull(), // Generated persona JSON data
+  changedProperties: text("changed_properties").array(),
   aiModel: varchar("ai_model", { length: 100 }).notNull(), // AI model used
   systemPromptId: varchar("system_prompt_id", { length: 100 }).notNull(), // System prompt identifier
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -70,10 +71,40 @@ export const personaEvents = pgTable("persona_events", {
   versionId: text("version_id").references(() => personaVersions.id, {
     onDelete: "set null",
   }), // Link to version (only for generation/edit)
+  imageGenerationId: text("image_generation_id").references(
+    () => imageGenerations.id,
+    {
+      onDelete: "set null",
+    }
+  ), // Link to image generation (only for image_generate events)
   userMessage: text("user_message"), // User's input message
   aiNote: text("ai_note"), // AI's note/response for chat display
   tokensCost: integer("tokens_cost").notNull().default(0), // Tokens spent on this operation
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Image generations table - tracks the AI generation process/request
+export const imageGenerations = pgTable("image_generations", {
+  id: text("id").primaryKey(),
+  personaId: text("persona_id")
+    .notNull()
+    .references(() => personas.id, { onDelete: "cascade" }),
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  runId: varchar("run_id", { length: 255 }), // Trigger.dev run ID for job tracking
+  prompt: text("prompt").notNull(), // The actual prompt sent to AI
+  aiModel: varchar("ai_model", { length: 100 }).notNull(),
+  systemPromptId: varchar("system_prompt_id", { length: 100 }).notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("pending"), // pending, processing, completed, failed
+  tokensCost: integer("tokens_cost").notNull().default(0),
+  errorMessage: text("error_message"), // If generation failed
+  metadata: jsonb("metadata"), // Additional generation parameters, AI response metadata
+  imageId: text("image_id").references(() => images.id, {
+    onDelete: "set null",
+  }), // Link to the generated image (one-to-one)
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
 });
 
 // Images table - tracks generated images for gallery
@@ -82,16 +113,7 @@ export const images = pgTable("images", {
   personaId: text("persona_id")
     .notNull()
     .references(() => personas.id, { onDelete: "cascade" }),
-  userId: varchar("user_id", { length: 255 })
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  eventId: text("event_id").references(() => personaEvents.id, {
-    onDelete: "set null",
-  }), // Optional link to generation event
   url: text("url").notNull(),
-  altText: text("alt_text"),
-  aiModel: varchar("ai_model", { length: 100 }).notNull(),
-  systemPromptId: varchar("system_prompt_id", { length: 100 }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -139,7 +161,7 @@ export const tokenTransactions = pgTable("token_transactions", {
 export const usersRelations = relations(users, ({ one, many }) => ({
   personas: many(personas),
   events: many(personaEvents),
-  images: many(images),
+  imageGenerations: many(imageGenerations),
   ratings: many(ratings),
   tokens: one(userTokens),
   tokenTransactions: many(tokenTransactions),
@@ -156,6 +178,7 @@ export const personasRelations = relations(personas, ({ one, many }) => ({
   }),
   versions: many(personaVersions),
   events: many(personaEvents),
+  imageGenerations: many(imageGenerations),
   images: many(images),
   profileImage: one(images, {
     fields: [personas.profileImageId],
@@ -189,8 +212,29 @@ export const personaEventsRelations = relations(
       fields: [personaEvents.versionId],
       references: [personaVersions.id],
     }),
+    imageGeneration: one(imageGenerations, {
+      fields: [personaEvents.imageGenerationId],
+      references: [imageGenerations.id],
+    }),
     ratings: many(ratings),
-    images: many(images),
+  })
+);
+
+export const imageGenerationsRelations = relations(
+  imageGenerations,
+  ({ one, many }) => ({
+    persona: one(personas, {
+      fields: [imageGenerations.personaId],
+      references: [personas.id],
+    }),
+    user: one(users, {
+      fields: [imageGenerations.userId],
+      references: [users.id],
+    }),
+    image: one(images, {
+      fields: [imageGenerations.imageId],
+      references: [images.id],
+    }),
   })
 );
 
@@ -198,14 +242,6 @@ export const imagesRelations = relations(images, ({ one }) => ({
   persona: one(personas, {
     fields: [images.personaId],
     references: [personas.id],
-  }),
-  user: one(users, {
-    fields: [images.userId],
-    references: [users.id],
-  }),
-  event: one(personaEvents, {
-    fields: [images.eventId],
-    references: [personaEvents.id],
   }),
 }));
 

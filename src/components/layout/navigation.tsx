@@ -17,49 +17,53 @@ export default function Navigation() {
   const [isLibraryOpen, setIsLibraryOpen] = useQueryState("library");
 
   return (
-    <div className="flex items-center justify-between gap-2 h-nav px-12">
+    <div className="flex items-center justify-between gap-2 h-nav px-12 lg:px-16">
       <div>
         <Link href={"/"}>
           <Image
             width={60}
             height={60}
-            src={"https://persona-mynth-prod.b-cdn.net/persona-logo-1.webp"}
+            src={"https://persona-mynth-prod.b-cdn.net/persona-logo-2.webp"}
           />
         </Link>
       </div>
       <div className="flex items-center gap-4">
-        {balance && (
-          <div className="flex items-center gap-2">
-            <Tooltip content="Tokens" placement="bottom">
-              <Link href={"/tokens"}>
-                <Chip
-                  variant="faded"
-                  color="secondary"
-                  startContent={<PokerChipIcon />}
-                >
-                  {balance.balance}
-                </Chip>
-              </Link>
-            </Tooltip>
-          </div>
-        )}
+        <SignedIn>
+          {balance && (
+            <div className="flex items-center gap-2">
+              <Tooltip content="Tokens" placement="bottom">
+                <Link href={"/tokens"}>
+                  <Chip
+                    variant="faded"
+                    color="secondary"
+                    startContent={<PokerChipIcon />}
+                  >
+                    {balance.balance}
+                  </Chip>
+                </Link>
+              </Tooltip>
+            </div>
+          )}
 
-        <Tooltip content="Library" placement="bottom">
-          <Button
-            variant="light"
-            isIconOnly
-            onPress={() => setIsLibraryOpen("1")}
-          >
-            <UsersThreeIcon />
-          </Button>
-        </Tooltip>
+          <Tooltip content="Library" placement="bottom">
+            <Button
+              variant="light"
+              isIconOnly
+              onPress={() => setIsLibraryOpen("1")}
+            >
+              <UsersThreeIcon />
+            </Button>
+          </Tooltip>
+        </SignedIn>
 
         <SignedIn>
           <UserButton />
         </SignedIn>
 
         <SignedOut>
-          <SignInButton>Signin</SignInButton>
+          <SignInButton mode="modal">
+            <Button>Sign in</Button>
+          </SignInButton>
         </SignedOut>
       </div>
     </div>

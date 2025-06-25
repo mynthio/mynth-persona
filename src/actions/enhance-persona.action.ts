@@ -203,6 +203,8 @@ Respond with ONLY the properties that need to be changed based on the user's req
             (currentPersonaData.other ? currentPersonaData.other : undefined),
         };
 
+        const changedProperties = Object.keys(object.object.persona);
+
         // Create new persona version with merged data
         await createPersonaVersion({
           aiModel: "gemini-2.5-flash-lite-preview-06-17",
@@ -212,6 +214,7 @@ Respond with ONLY the properties that need to be changed based on the user's req
           personaData: mergedPersonaData,
           systemPromptId: "persona-enhancer",
           aiNote: object.object?.note_for_user,
+          changedProperties,
         });
 
         userLogger.debug(

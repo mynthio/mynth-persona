@@ -17,9 +17,12 @@ import { Image } from "@heroui/react";
 import Link from "next/link";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Chip } from "@heroui/chip";
+import { useRouter } from "next/navigation";
 
 export default function LibraryModal() {
   const [isOpen, setIsOpen] = useQueryState("library");
+
+  const { push } = useRouter();
 
   const { data: personas } = useSWR<PersonaWithCurrentVersion[]>(
     isOpen ? "/api/personas" : null
@@ -68,7 +71,7 @@ export default function LibraryModal() {
                         key={persona.id}
                         isPressable
                         onClick={() => {
-                          window.location.href = `/?persona_id=${persona.id}`;
+                          push(`/?persona_id=${persona.id}`);
                         }}
                       >
                         <CardBody className="p-4">

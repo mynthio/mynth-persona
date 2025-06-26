@@ -1,10 +1,8 @@
-import { db } from "@/db/drizzle";
-import { personas } from "@/db/schema";
+import { getPersonaWithCurrentVersion } from "@/services/persona/get-persona-with-version";
 import { auth } from "@clerk/nextjs/server";
-import { eq, and } from "drizzle-orm";
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ personaId: string }> }
 ) {
   const { userId } = await auth();
@@ -15,11 +13,9 @@ export async function GET(
 
   const { personaId } = await params;
 
-  const persona = await db.query.personas.findFirst({
-    where: and(eq(personas.id, personaId), eq(personas.userId, userId)),
-    with: {
-      currentVersion: true,
-    },
+  const persona = await getPersonaWithCurrentVersion({
+    userId,
+    personaId,
   });
 
   if (!persona) {

@@ -1,11 +1,8 @@
-import { db } from "@/db/drizzle";
-import { personas, personaVersions } from "@/db/schema";
-import { logger } from "@/lib/logger";
+import { getPersonaWithSpecificVersion } from "@/services/persona/get-persona-with-version";
 import { auth } from "@clerk/nextjs/server";
-import { eq, and } from "drizzle-orm";
 
 export async function GET(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ personaId: string; versionId: string }> }
 ) {
   const { userId } = await auth();
@@ -16,25 +13,15 @@ export async function GET(
 
   const { personaId, versionId } = await params;
 
-  const personaVersion = await db.query.personaVersions.findFirst({
-    where: and(
-      eq(personaVersions.id, versionId),
-      eq(personaVersions.personaId, personaId)
-    ),
-    with: {
-      persona: true,
-    },
+  const persona = await getPersonaWithSpecificVersion({
+    userId,
+    personaId,
+    versionId,
   });
 
-  if (!personaVersion) {
+  if (!persona) {
     return new Response("Persona not found", { status: 404 });
   }
 
-  if (personaVersion.persona.userId !== userId) {
-    return new Response("Unauthorized", { status: 401 });
-  }
-
-  logger.debug(personaVersion, "Persona Version API");
-
-  return Response.json(personaVersion);
+  return Response.json(persona);
 }

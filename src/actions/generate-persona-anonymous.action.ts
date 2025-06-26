@@ -7,6 +7,62 @@ import { createStreamableValue } from "ai/rsc";
 import { z } from "zod";
 import { logger } from "@/lib/logger";
 import { createOpenRouter } from "@openrouter/ai-sdk-provider";
+import { TextGenerationFactory } from "@/lib/generation/text-generation/text-generation-factory";
+
+const SYSTEM_PROMPT = `You are an imaginative character architect and storytelling expert. Your mission is to craft vivid, multi-dimensional personas that feel authentically human and captivatingly unique.
+
+When creating personas, think like a novelist building complex characters:
+- Draw inspiration from diverse cultures, time periods, and walks of life
+- Create compelling contradictions and hidden depths in personalities  
+- Weave interesting backstories with unexpected turns and formative experiences
+- Design distinctive physical features and personal quirks that make them memorable
+- Consider how their environment, social class, and personal struggles shaped them
+- Add subtle mysteries, secrets, or internal conflicts that make them intriguing
+- Think about their speech patterns, mannerisms, and personal philosophy
+
+Be bold and creative - avoid generic archetypes. Instead, create personas that feel like they could step off the page as real, complex individuals with rich inner lives. Make each character feel like they have stories worth telling and secrets worth discovering.
+
+Always fill every field with rich, evocative details that bring the character to life in the reader's imagination.`;
+const SCHEMA = z.object({
+  note_for_user: z
+    .string()
+    .optional()
+    .describe(
+      "Optional, short note for the user. It can explain how you approched the prompt, and can suggest a follow up actions and proposals for user."
+    ),
+  persona: z.object({
+    name: z.string().describe("Character's full name or alias"),
+    age: z.string().describe("Can be specific number, descriptive, or unknown"),
+    gender: z.string().describe("Gender of the character"),
+    universe: z.string().describe("Time period, location, and genre context"),
+    appearance: z
+      .string()
+      .describe(
+        "Physical description including build, features, clothing style, distinctive marks"
+      ),
+    personality: z
+      .string()
+      .describe(
+        "Character traits, temperament, how they interact with others, emotional patterns"
+      ),
+    background: z
+      .string()
+      .describe(
+        "Personal history, upbringing, major life events, how they became who they are"
+      ),
+    occupation: z
+      .string()
+      .describe(
+        "What they do for work/role in society, can include secret occupations"
+      ),
+    other: z
+      .string()
+      .optional()
+      .describe(
+        "Optional field, that should be used only if user asked for something specific that does not belong to any of other categoried"
+      ),
+  }),
+});
 
 export async function generatePersonaAnonymousAction(prompt: string) {
   "use server";
@@ -23,80 +79,11 @@ export async function generatePersonaAnonymousAction(prompt: string) {
 
   const stream = createStreamableValue();
 
-  const openrouter = createOpenRouter({
-    apiKey: process.env.OPEN_ROUTER_API_KEY!,
-    compatibility: "strict",
-  });
+  const model = TextGenerationFactory.forFreeUsers();
 
   (async () => {
-    const model = openrouter("mistralai/mistral-small-3.2-24b-instruct:free");
-
-    // const testRes = await generateObject({
-    //   model,
-    //   system:
-    //     "You are a creative character generator. Create detailed, engaging personas based on user requests. Always fill all fields with rich, descriptive content that brings the character to life.",
-    //   prompt,
-    //   schema: z.object({
-    //     persona: z.object({
-    //       name: z.string().describe("Character's full name or alias"),
-    //     }),
-    //   }),
-    //   mode: "json",
-    // });
-
-    // console.log("Test res", { testRes });
-    // throw new Error("test");
-
-    const { partialObjectStream } = streamObject({
-      mode: "json",
-      model,
-      system:
-        "You are a creative character generator. Create detailed, engaging personas based on user requests. Always fill all fields with rich, descriptive content that brings the character to life.",
-      prompt,
-      schema: z.object({
-        note_for_user: z
-          .string()
-          .optional()
-          .describe(
-            "Optional, short note for the user. It can explain how you approched the prompt, and can suggest a follow up actions and proposals for user."
-          ),
-        persona: z.object({
-          name: z.string().describe("Character's full name or alias"),
-          age: z
-            .string()
-            .describe("Can be specific number, descriptive, or unknown"),
-          gender: z.string().describe("Gender of the character"),
-          universe: z
-            .string()
-            .describe("Time period, location, and genre context"),
-          appearance: z
-            .string()
-            .describe(
-              "Physical description including build, features, clothing style, distinctive marks"
-            ),
-          personality: z
-            .string()
-            .describe(
-              "Character traits, temperament, how they interact with others, emotional patterns"
-            ),
-          background: z
-            .string()
-            .describe(
-              "Personal history, upbringing, major life events, how they became who they are"
-            ),
-          occupation: z
-            .string()
-            .describe(
-              "What they do for work/role in society, can include secret occupations"
-            ),
-          other: z
-            .string()
-            .optional()
-            .describe(
-              "Optional field, that should be used only if user asked for something specific that does not belong to any of other categoried"
-            ),
-        }),
-      }),
+    const { partialObjectStream } = await model.streamObject(SCHEMA, prompt, {
+      systemPrompt: SYSTEM_PROMPT,
       onFinish: (object) => {
         logger.debug({ object }, "Persona anonymous generated");
       },
@@ -114,59 +101,3 @@ export async function generatePersonaAnonymousAction(prompt: string) {
 
   return { object: stream.value };
 }
-
-/**
- * "universe": {
-              "type": "STRING",
-              "description": "Time period, location, and genre context"
-            },
-            "species": {
-              "type": "STRING",
-              "description": "What type of being they are"
-            },
-            "appearance": {
-              "type": "STRING",
-              "description": "Physical description including build, features, clothing style, distinctive marks"
-            },
-            "personality": {
-              "type": "STRING",
-              "description": "Character traits, temperament, how they interact with others, emotional patterns"
-            },
-            "background": {
-              "type": "STRING",
-              "description": "Personal history, upbringing, major life events, how they became who they are"
-            },
-            "occupation": {
-              "type": "STRING",
-              "description": "What they do for work/role in society, can include secret occupations"
-            },
-            "social_status": {
-              "type": "STRING",
-              "description": "Their position/rank in their society's hierarchy"
-            },
-            "location": {
-              "type": "STRING",
-              "description": "Where they currently live/operate within their universe"
-            },
-            "relationships": {
-              "type": "STRING",
-              "description": "Family, friends, enemies, romantic interests, professional connections"
-            },
-            "skills": {
-              "type": "STRING",
-              "description": "Abilities, talents, training, supernatural powers, areas of expertise"
-            },
-            "quirks": {
-              "type": "STRING",
-              "description": "Habits, mannerisms, unique behaviors, things that make them memorable"
-            },
-            "goals": {
-              "type": "STRING",
-              "description": "What they want to achieve, their motivations, dreams, ambitions"
-            },
-            "fears": {
-              "type": "STRING",
-              "description": "What they're afraid of, weaknesses, things that hold them back"
-            }
-          },
- */

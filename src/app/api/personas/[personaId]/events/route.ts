@@ -1,8 +1,10 @@
 import { db } from "@/db/drizzle";
 import { personaEvents, personas } from "@/db/schema";
 import { logger } from "@/lib/logger";
+import { getPersonaEventsById } from "@/services/persona-events/get-persona-events-by-id";
 import { auth } from "@clerk/nextjs/server";
 import { eq, and } from "drizzle-orm";
+import "server-only";
 
 export async function GET(
   request: Request,
@@ -16,30 +18,14 @@ export async function GET(
 
   const { personaId } = await params;
 
-  const personaEventsData = await db.query.personaEvents.findMany({
-    where: and(
-      eq(personaEvents.personaId, personaId),
-      eq(personaEvents.userId, userId)
-    ),
-    with: {
-      version: {
-        columns: {
-          versionNumber: true,
-          title: true,
-        },
-      },
-      imageGeneration: {
-        columns: {
-          id: true,
-          status: true,
-          runId: true,
-          imageId: true,
-        },
-      },
-    },
+  const personaEventsData = await getPersonaEventsById({
+    personaId,
+    userId,
   });
-
-  logger.debug(personaEventsData, "Persona Events API");
 
   return Response.json(personaEventsData);
 }
+
+export type GetPersonaEventsByIdResponse = Awaited<
+  ReturnType<typeof getPersonaEventsById>
+>;

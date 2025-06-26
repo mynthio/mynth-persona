@@ -16,7 +16,6 @@ import { relations } from "drizzle-orm";
 // Users table - references Clerk auth
 export const users = pgTable("users", {
   id: varchar("id", { length: 255 }).primaryKey(), // Use Clerk user ID directly
-  polarCustomerId: varchar("polar_customer_id", { length: 255 }), // Polar customer ID
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -49,13 +48,23 @@ export const personaVersions = pgTable("persona_versions", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Suggestion: Define an enum for event types for better type safety.
+// Enums for better type safety
 export const eventTypeEnum = pgEnum("event_type_enum", [
   "persona_create",
   "persona_edit",
   "image_generate",
   "persona_revert",
   "persona_clone",
+]);
+
+export const imageGenerationStatusEnum = pgEnum(
+  "image_generation_status_enum",
+  ["pending", "processing", "completed", "failed"]
+);
+
+export const transactionTypeEnum = pgEnum("transaction_type_enum", [
+  "purchase",
+  "refund",
 ]);
 
 // Events table - pure chat/interaction timeline
@@ -71,12 +80,6 @@ export const personaEvents = pgTable("persona_events", {
   versionId: text("version_id").references(() => personaVersions.id, {
     onDelete: "set null",
   }), // Link to version (only for generation/edit)
-  imageGenerationId: text("image_generation_id").references(
-    () => imageGenerations.id,
-    {
-      onDelete: "set null",
-    }
-  ), // Link to image generation (only for image_generate events)
   userMessage: text("user_message"), // User's input message
   aiNote: text("ai_note"), // AI's note/response for chat display
   tokensCost: integer("tokens_cost").notNull().default(0), // Tokens spent on this operation
@@ -92,11 +95,14 @@ export const imageGenerations = pgTable("image_generations", {
   userId: varchar("user_id", { length: 255 })
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  eventId: text("event_id")
+    .notNull()
+    .references(() => personaEvents.id, { onDelete: "cascade" }),
   runId: varchar("run_id", { length: 255 }), // Trigger.dev run ID for job tracking
   prompt: text("prompt").notNull(), // The actual prompt sent to AI
   aiModel: varchar("ai_model", { length: 100 }).notNull(),
   systemPromptId: varchar("system_prompt_id", { length: 100 }).notNull(),
-  status: varchar("status", { length: 20 }).notNull().default("pending"), // pending, processing, completed, failed
+  status: imageGenerationStatusEnum("status").notNull().default("pending"),
   tokensCost: integer("tokens_cost").notNull().default(0),
   errorMessage: text("error_message"), // If generation failed
   metadata: jsonb("metadata"), // Additional generation parameters, AI response metadata
@@ -149,7 +155,7 @@ export const tokenTransactions = pgTable("token_transactions", {
   userId: varchar("user_id", { length: 255 })
     .notNull()
     .references(() => users.id), // NO CASCADE - preserve audit trail
-  type: varchar("type", { length: 20 }).notNull(), // 'purchase'
+  type: transactionTypeEnum("type").notNull(),
   amount: integer("amount").notNull(), // Positive for add, negative for spend
   balanceAfter: integer("balance_after").notNull(), // Balance after this transaction
   orderId: varchar("order_id", { length: 255 }), // Stripe/payment provider ID
@@ -212,10 +218,7 @@ export const personaEventsRelations = relations(
       fields: [personaEvents.versionId],
       references: [personaVersions.id],
     }),
-    imageGeneration: one(imageGenerations, {
-      fields: [personaEvents.imageGenerationId],
-      references: [imageGenerations.id],
-    }),
+    imageGenerations: many(imageGenerations),
     ratings: many(ratings),
   })
 );
@@ -230,6 +233,10 @@ export const imageGenerationsRelations = relations(
     user: one(users, {
       fields: [imageGenerations.userId],
       references: [users.id],
+    }),
+    event: one(personaEvents, {
+      fields: [imageGenerations.eventId],
+      references: [personaEvents.id],
     }),
     image: one(images, {
       fields: [imageGenerations.imageId],

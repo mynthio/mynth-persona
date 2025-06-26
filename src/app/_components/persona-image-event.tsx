@@ -16,23 +16,24 @@ import {
 } from "@heroui/modal";
 import { useState } from "react";
 import { Button } from "@heroui/button";
+import { GetPersonaEventsByIdResponse } from "../api/personas/[personaId]/events/route";
 
 export function PersonaImageEvent({
   personaEvent,
 }: {
-  personaEvent: PersonaEventWithVersion;
+  personaEvent: GetPersonaEventsByIdResponse[number];
 }) {
-  if (personaEvent.imageGeneration?.status === "pending")
+  if (personaEvent.imageGenerations[0]?.status === "pending")
     return (
       <PendingImageEvent
-        runId={personaEvent.imageGeneration.runId}
+        runId={personaEvent.imageGenerations[0].runId!}
         // @ts-expect-error - TODO: fix this
-        publicAccessToken={personaEvent.imageGeneration.accessToken}
+        publicAccessToken={personaEvent.imageGenerations[0].accessToken!}
         personaId={personaEvent.personaId}
       />
     );
 
-  return <ImageCard imageId={personaEvent.imageGeneration!.imageId} />;
+  return <ImageCard imageId={personaEvent.imageGenerations[0].imageId!} />;
 }
 
 function PendingImageEvent({

@@ -64,13 +64,15 @@ export const generatePersonaImage = async (personaId: string) => {
     remainingBalance: canUserExecuteAction.remainingBalance,
     event: {
       ...event,
-      imageGeneration: {
-        id: taskHandle.id,
-        status: "pending",
-        runId: taskHandle.id,
-        imageId: "",
-        accessToken: taskHandle.publicAccessToken,
-      },
+      imageGenerations: [
+        {
+          id: taskHandle.id,
+          status: "pending",
+          runId: taskHandle.id,
+          imageId: "",
+          accessToken: taskHandle.publicAccessToken,
+        },
+      ],
     },
   };
 };

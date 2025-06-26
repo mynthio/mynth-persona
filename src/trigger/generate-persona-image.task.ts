@@ -78,6 +78,7 @@ export const generatePersonaImageTask = task({
       prompt: persona.currentVersion?.personaData?.appearance,
       userId: payload.userId,
       personaId: persona.id,
+      eventId: payload.eventId,
       status: "pending",
       tokensCost: 5,
       runId: ctx.run.id,
@@ -148,7 +149,6 @@ export const generatePersonaImageTask = task({
       .update(personaEvents)
       .set({
         aiNote: "Image generated",
-        imageGenerationId,
       })
       .where(eq(personaEvents.id, payload.eventId));
 

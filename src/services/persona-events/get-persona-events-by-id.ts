@@ -21,6 +21,7 @@ export const getPersonaEventsById = async ({
     with: {
       version: {
         columns: {
+          id: true,
           versionNumber: true,
           title: true,
         },

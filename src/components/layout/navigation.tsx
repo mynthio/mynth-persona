@@ -17,7 +17,7 @@ export default function Navigation() {
   const [isLibraryOpen, setIsLibraryOpen] = useQueryState("library");
 
   return (
-    <div className="flex items-center justify-between gap-2 h-nav px-12 lg:px-16">
+    <div className="flex absolute top-0 left-0 right-0 items-center justify-between gap-2 h-nav px-12 lg:px-16">
       <div>
         <Link href={"/"}>
           <Image

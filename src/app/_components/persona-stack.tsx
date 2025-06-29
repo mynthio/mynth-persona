@@ -44,7 +44,7 @@ export default function PersonaStack() {
         <h2 className="text-2xl font-semibold text-default-800 flex items-start justify-center">
           Craft Your Unique Persona
           <Chip className="ml-2" size="sm" variant="shadow" color="warning">
-            BETA
+            2.0 BETA
           </Chip>
         </h2>
         <p className="text-default-600 max-w-md">

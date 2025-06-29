@@ -71,7 +71,7 @@ export default function LibraryModal() {
                         key={persona.id}
                         isPressable
                         onClick={() => {
-                          push(`/?persona_id=${persona.id}`);
+                          push(`/?persona_id=${persona.id}&panel=true`);
                         }}
                       >
                         <CardBody className="p-4">

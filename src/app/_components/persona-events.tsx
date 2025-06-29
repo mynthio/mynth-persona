@@ -10,6 +10,10 @@ import { Chip } from "@heroui/chip";
 import { usePersonaVersionId } from "@/hooks/use-persona-version-id.hook";
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
 import { useIsPersonaPanelOpened } from "@/hooks/use-is-persona-panel-opened.hook";
+import { Image } from "@heroui/image";
+import { useMemo } from "react";
+import { usePersonaStore } from "@/providers/persona-store-provider";
+import { useRealtimeRun } from "@trigger.dev/react-hooks";
 
 export default function PersonaEvents() {
   const [personaId] = usePersonaId();
@@ -45,6 +49,8 @@ function PersonaEvent({
   switch (event.eventType) {
     case "persona_create":
       return <PersonaCreatorEvent event={event} />;
+    case "persona_edit":
+      return <PersonaCreatorEvent event={event} />;
     case "image_generate":
       return <PersonaImageEvent event={event} />;
   }
@@ -73,9 +79,70 @@ function PersonaImageEvent({
 }: {
   event: GetPersonaEventsByIdResponse[number];
 }) {
+  const imageGeneration = useMemo(
+    () => event.imageGenerations[0] ?? null,
+    [event.imageGenerations]
+  );
+
   return (
     <div>
       <UserMessage message={event.userMessage ?? ""} />
+
+      {imageGeneration && imageGeneration.status === "completed" && (
+        <Image
+          width={120}
+          src={`https://mynth-persona-dev.b-cdn.net/personas/${imageGeneration.imageId}.webp`}
+          alt="Persona Image"
+        />
+      )}
+      {imageGeneration &&
+        (imageGeneration.status === "pending" ||
+          imageGeneration.status === "processing") && (
+          <PersonaImageInProgress imageGeneration={imageGeneration} />
+        )}
+    </div>
+  );
+}
+
+function PersonaImageInProgress({ imageGeneration }: { imageGeneration: any }) {
+  const personaStore = usePersonaStore((state) => state);
+
+  const run = useMemo(
+    () => personaStore.imageGenerationRuns[imageGeneration.id],
+    [personaStore.imageGenerationRuns, imageGeneration.id]
+  );
+
+  const { run: realtimeRun } = useRealtimeRun(run.runId, {
+    accessToken: run.publicAccessToken,
+    stopOnCompletion: true,
+  });
+
+  if (!run)
+    return (
+      <div>
+        Something went wrong, please refresh the page after some time and check
+        if the image is generated.
+      </div>
+    );
+
+  if (realtimeRun?.status !== "COMPLETED") {
+    return <Spinner />;
+  }
+
+  return (
+    <div>
+      {realtimeRun?.output?.imageUrl ? (
+        <Image
+          width={120}
+          src={realtimeRun.output.imageUrl}
+          alt="Persona Image"
+        />
+      ) : (
+        <p>
+          Something went wrong, please refresh the page after some time and
+          check if the image is generated.
+        </p>
+      )}
     </div>
   );
 }

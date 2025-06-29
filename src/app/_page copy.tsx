@@ -209,7 +209,7 @@ export default function Home() {
 
   return (
     <>
-      <main className="w-full min-h-screen-minus-nav">
+      <main className="w-full min-h-full">
         <PanelGroup
           autoSaveId="conditional"
           direction="horizontal"

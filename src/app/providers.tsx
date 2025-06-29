@@ -22,7 +22,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
             revalidateOnReconnect: false,
           }}
         >
-          <HeroUIProvider className="w-full h-full" navigate={router.push}>
+          <HeroUIProvider
+            className="w-full h-full overflow-auto"
+            navigate={router.push}
+          >
             <ToastProvider />
             {children}
           </HeroUIProvider>

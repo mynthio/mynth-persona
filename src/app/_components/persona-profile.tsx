@@ -1,22 +1,79 @@
 import { usePersonaStore } from "@/providers/persona-store-provider";
-import { Card } from "@heroui/card";
+import { Chip } from "@heroui/chip";
+import { Spacer } from "@heroui/spacer";
+import { PersonIcon } from "@phosphor-icons/react/dist/ssr";
 import { useMemo } from "react";
 
 export default function PersonaProfile() {
   const persona = usePersonaStore((state) => state.data);
+  const isLoadingData = usePersonaStore((state) => state.isLoadingData);
 
   const personaData = useMemo(() => {
+    console.log("persona", persona);
     if (!persona) return null;
     return persona.version.personaData;
   }, [persona]);
 
+  if (isLoadingData) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-pulse text-default-500">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!personaData) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="text-default-500">No persona</div>
+      </div>
+    );
+  }
+
   return (
-    <>
-      <Card>
-        <article>
-          <h1>{personaData?.name}</h1>
-        </article>
-      </Card>
-    </>
+    <div className="w-full">
+      <div className="mb-6">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-2xl font-bold">{personaData.name}</h1>
+          <div className="flex items-start gap-4 text-default-600">
+            <span>Age: {personaData.age}</span>
+            <div className="flex items-center gap-1">
+              <PersonIcon size={16} />
+              <span>{personaData.gender}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        <ProfileSection title="Universe" content={personaData.universe} />
+
+        <ProfileSection title="Appearance" content={personaData.appearance} />
+
+        <ProfileSection title="Personality" content={personaData.personality} />
+
+        <ProfileSection title="Background" content={personaData.background} />
+
+        <ProfileSection title="Occupation" content={personaData.occupation} />
+
+        {personaData.other && (
+          <ProfileSection title="Other" content={personaData.other} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+type ProfileSectionProps = {
+  title: string;
+  content: string;
+};
+
+function ProfileSection({ title, content }: ProfileSectionProps) {
+  return (
+    <div className="space-y-2">
+      <h3 className="text-lg font-semibold text-default-800">{title}</h3>
+      <p className="text-default-700 leading-relaxed">{content}</p>
+    </div>
   );
 }

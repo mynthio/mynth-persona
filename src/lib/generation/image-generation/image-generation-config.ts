@@ -10,12 +10,6 @@ export const imageGenerationConfig: Array<ImageGenerationConfigModel> = [
     isAvailableToFreeUsers: true,
     isDepracated: false,
   },
-  {
-    id: CloudflareLykonDreamshaper8Lcm.ID,
-    quality: "low",
-    isAvailableToFreeUsers: true,
-    isDepracated: false,
-  },
 ];
 
 export const imageGenerationModels: Record<

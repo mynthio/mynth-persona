@@ -21,6 +21,7 @@ import {
   DropdownSection,
   DropdownItem,
 } from "@heroui/dropdown";
+import { useAuth } from "@clerk/nextjs";
 
 type PersonaPanelProps = {
   isGenerating: boolean;
@@ -82,11 +83,12 @@ export default function PersonaPanel(props: PersonaPanelProps) {
 
   const [personaId] = useQueryState("persona_id");
 
+  const { isSignedIn } = useAuth();
   const [isPersonaPanelOpen, setIsPersonaPanelOpen] = useQueryState("panel");
 
   const { data: personaVersion, isLoading: isPersonaVersionLoading } =
     useSWR<PersonaVersion>(
-      !props.isGenerating && personaId && personaVersionId
+      !props.isGenerating && personaId && personaVersionId && isSignedIn
         ? `/api/personas/${personaId}/versions/${personaVersionId}`
         : null
     );

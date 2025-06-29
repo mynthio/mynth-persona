@@ -10,6 +10,8 @@ import { generatePersonaImageTask } from "@/trigger/generate-persona-image.task"
 import { spendTokens } from "@/services/token/token-manager.service";
 import { nanoid } from "nanoid";
 
+const IMAGE_GENERATION_COST = 0;
+
 export const generatePersonaImage = async (personaId: string) => {
   const { userId } = await auth();
 
@@ -28,10 +30,20 @@ export const generatePersonaImage = async (personaId: string) => {
     throw new Error("Persona not found");
   }
 
-  const canUserExecuteAction = await spendTokens(userId, 5);
+  let canUserExecuteAction;
 
-  if (canUserExecuteAction.success === false) {
-    throw new Error("Not enough tokens");
+  if (IMAGE_GENERATION_COST > 0) {
+    canUserExecuteAction = await spendTokens(userId, IMAGE_GENERATION_COST);
+
+    if (canUserExecuteAction.success === false) {
+      throw new Error("Not enough tokens");
+    }
+  } else {
+    // Free generation - no token spending needed
+    canUserExecuteAction = {
+      success: true,
+      remainingBalance: 0, // We don't need to fetch actual balance for free generation
+    };
   }
 
   const [event] = await db
@@ -52,7 +64,7 @@ export const generatePersonaImage = async (personaId: string) => {
       // @ts-expect-error - TODO: fix this
       persona,
       userId,
-      cost: 5,
+      cost: IMAGE_GENERATION_COST,
       eventId: event.id,
     }
   );
@@ -60,7 +72,7 @@ export const generatePersonaImage = async (personaId: string) => {
   return {
     taskId: taskHandle.id,
     publicAccessToken: taskHandle.publicAccessToken,
-    cost: 5,
+    cost: IMAGE_GENERATION_COST,
     remainingBalance: canUserExecuteAction.remainingBalance,
     event: {
       ...event,

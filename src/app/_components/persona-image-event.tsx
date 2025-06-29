@@ -1,22 +1,12 @@
 "use client";
 
-import { PersonaEventWithVersion } from "@/types/persona-event.type";
 import { Card } from "@heroui/card";
 import { Image } from "@heroui/image";
 import { Spinner } from "@heroui/spinner";
 import { useRealtimeRun } from "@trigger.dev/react-hooks";
 import { useSWRConfig } from "swr";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
-} from "@heroui/modal";
-import { useState } from "react";
-import { Button } from "@heroui/button";
 import { GetPersonaEventsByIdResponse } from "../api/personas/[personaId]/events/route";
+import ImagePreviewDialog from "@/components/persona/image-preview-dialog";
 
 export function PersonaImageEvent({
   personaEvent,
@@ -68,35 +58,21 @@ function PendingImageEvent({
 }
 
 function ImageCard({ imageId }: { imageId: string }) {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
   return (
-    <>
-      <Card isPressable onPress={onOpen}>
-        <Image
-          width={124}
-          src={`https://mynth-persona-dev.b-cdn.net/personas/${imageId}.webp`}
-          alt="Persona Image"
-        />
-      </Card>
-      <Modal size="3xl" isOpen={isOpen} onOpenChange={onOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">Image</ModalHeader>
-              <ModalBody>
-                <Image
-                  src={`https://mynth-persona-dev.b-cdn.net/personas/${imageId}.webp`}
-                  alt="Persona Image"
-                />
-              </ModalBody>
-              <ModalFooter>
-                <Button onPress={onClose}>Close</Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    </>
+    <ImagePreviewDialog
+      src={`https://mynth-persona-dev.b-cdn.net/personas/${imageId}.webp`}
+      alt="Persona Image"
+      title="Generated Image"
+      downloadFileName={`persona-${imageId}.webp`}
+      trigger={
+        <Card isPressable className="hover:shadow-md transition-shadow">
+          <Image
+            width={124}
+            src={`https://mynth-persona-dev.b-cdn.net/personas/${imageId}.webp`}
+            alt="Persona Image"
+          />
+        </Card>
+      }
+    />
   );
 }

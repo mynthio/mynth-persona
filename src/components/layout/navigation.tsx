@@ -10,9 +10,13 @@ import { Tooltip } from "@heroui/tooltip";
 import { useQueryState } from "nuqs";
 import { Button } from "@heroui/button";
 import { Image } from "@heroui/image";
+import { useAuth } from "@clerk/nextjs";
 
 export default function Navigation() {
-  const { data: balance } = useSWR<UserBalance>("/api/me/balance");
+  const { isSignedIn } = useAuth();
+  const { data: balance } = useSWR<UserBalance>(
+    isSignedIn ? "/api/me/balance" : null
+  );
 
   const [isLibraryOpen, setIsLibraryOpen] = useQueryState("library");
 

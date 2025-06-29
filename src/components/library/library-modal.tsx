@@ -18,14 +18,16 @@ import Link from "next/link";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Chip } from "@heroui/chip";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 
 export default function LibraryModal() {
   const [isOpen, setIsOpen] = useQueryState("library");
+  const { isSignedIn } = useAuth();
 
   const { push } = useRouter();
 
   const { data: personas } = useSWR<PersonaWithCurrentVersion[]>(
-    isOpen ? "/api/personas" : null
+    isOpen && isSignedIn ? "/api/personas" : null
   );
 
   const getPersonaInitials = (name: string) => {

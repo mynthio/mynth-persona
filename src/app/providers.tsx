@@ -1,6 +1,6 @@
 "use client";
 
-import { ClerkProvider } from "@clerk/nextjs";
+import { ClerkProvider, useAuth } from "@clerk/nextjs";
 import { HeroUIProvider } from "@heroui/system";
 import { SWRConfig } from "swr";
 import { NuqsAdapter } from "nuqs/adapters/next/app";

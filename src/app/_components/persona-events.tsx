@@ -14,12 +14,15 @@ import { Image } from "@heroui/image";
 import { useMemo } from "react";
 import { usePersonaStore } from "@/providers/persona-store-provider";
 import { useRealtimeRun } from "@trigger.dev/react-hooks";
+import ImagePreviewDialog from "@/components/persona/image-preview-dialog";
+import { useAuth } from "@clerk/nextjs";
 
 export default function PersonaEvents() {
   const [personaId] = usePersonaId();
+  const { isSignedIn } = useAuth();
 
   const { data, isLoading, error } = useSWR<GetPersonaEventsByIdResponse>(
-    personaId ? `/api/personas/${personaId}/events` : null
+    isSignedIn && personaId ? `/api/personas/${personaId}/events` : null
   );
 
   if (isLoading) return <Loading />;
@@ -89,10 +92,19 @@ function PersonaImageEvent({
       <UserMessage message={event.userMessage ?? ""} />
 
       {imageGeneration && imageGeneration.status === "completed" && (
-        <Image
-          width={120}
+        <ImagePreviewDialog
           src={`https://mynth-persona-dev.b-cdn.net/personas/${imageGeneration.imageId}.webp`}
           alt="Persona Image"
+          title="Generated Persona Image"
+          downloadFileName={`persona-${imageGeneration.imageId}.webp`}
+          trigger={
+            <Image
+              width={120}
+              src={`https://mynth-persona-dev.b-cdn.net/personas/${imageGeneration.imageId}.webp`}
+              alt="Persona Image"
+              className="cursor-pointer hover:opacity-80 transition-opacity"
+            />
+          }
         />
       )}
       {imageGeneration &&
@@ -132,10 +144,19 @@ function PersonaImageInProgress({ imageGeneration }: { imageGeneration: any }) {
   return (
     <div>
       {realtimeRun?.output?.imageUrl ? (
-        <Image
-          width={120}
+        <ImagePreviewDialog
           src={realtimeRun.output.imageUrl}
           alt="Persona Image"
+          title="Generated Persona Image"
+          downloadFileName={`persona-${imageGeneration.id}.webp`}
+          trigger={
+            <Image
+              width={120}
+              src={realtimeRun.output.imageUrl}
+              alt="Persona Image"
+              className="cursor-pointer hover:opacity-80 transition-opacity"
+            />
+          }
         />
       ) : (
         <p>

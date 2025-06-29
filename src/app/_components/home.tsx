@@ -54,6 +54,7 @@ export default function Home() {
   const isLargeScreen = useMediaQuery("(min-width: 768px)", {
     defaultValue: true,
   });
+  const { isSignedIn } = useAuth();
   const [personaId] = usePersonaId();
   const [personaVersionId] = usePersonaVersionId();
 
@@ -62,7 +63,7 @@ export default function Home() {
   );
 
   const { isLoading, data: personaData } = useSWR<PersonaWithVersion>(
-    personaId
+    isSignedIn && personaId
       ? personaVersionId
         ? `/api/personas/${personaId}/versions/${personaVersionId}`
         : `/api/personas/${personaId}`
@@ -111,8 +112,8 @@ function PersonaChat() {
                 Create account
               </button>
             </SignUpButton>{" "}
-            to save your persona, get higher rate limits, image generationp and
-            free dailpy topkens
+            to save your persona, get higher rate limits, image generation, and
+            free daily tokens
           </p>
         </SignedOut>
       </div>
@@ -133,8 +134,8 @@ function Create() {
                 Create account
               </button>
             </SignUpButton>{" "}
-            to save your persona, get higher rate limits, image generationp and
-            free dailpy topkens
+            to save your persona, get higher rate limits, image generation, and
+            free daily tokens
           </p>
         </SignedOut>
       </div>
@@ -146,10 +147,6 @@ function PersonaPrompt() {
   const [generationMode] = useGenerationMode();
   const [prompt, setPrompt] = useState("");
   const personaStore = usePersonaStore((state) => state);
-
-  const generate = async () => {
-    console.log("generate", prompt);
-  };
 
   return (
     <div
@@ -177,7 +174,10 @@ function EnhancePersonaPrompt() {
   const [personaId] = usePersonaId();
   const { mutate } = useSWRConfig();
 
+  const { isSignedIn } = useAuth();
   if (!personaId) return null;
+
+  if (!isSignedIn) return <p>Sign in to enhance your persona</p>;
 
   const generate = async () => {
     const { object, personaEventId } = await enhancePersonaAction(
@@ -223,9 +223,15 @@ function EnhancePersonaPrompt() {
 
       <div className="flex items-center justify-between">
         <div>
-          <Chip variant="flat" startContent={<PokerChipIcon />} color="primary">
-            1 token
-          </Chip>
+          {isSignedIn && (
+            <Chip
+              variant="flat"
+              startContent={<PokerChipIcon />}
+              color="primary"
+            >
+              1 token
+            </Chip>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
@@ -306,7 +312,7 @@ function ImaginePrompt() {
       <div className="flex items-center justify-between">
         <div>
           <Chip variant="flat" startContent={<PokerChipIcon />} color="primary">
-            5 tokens
+            0 tokens
           </Chip>
         </div>
 
@@ -330,6 +336,10 @@ function ImaginePrompt() {
           </Button>
         </div>
       </div>
+      <p className="text-sm text-center text-default-700 mt-2">
+        During beta testing, image generation is free for all users but uses
+        basic models. Higher quality models will be available soon.
+      </p>
     </>
   );
 }
@@ -378,7 +388,7 @@ function CreatePropmpt() {
     });
 
     setIsPanelOpen(true, { history: "replace" });
-    setPersonaId(personaId ?? "1", { history: "replace" });
+    setPersonaId(personaId ?? "new", { history: "replace" });
 
     const { object } = response;
 
@@ -477,7 +487,7 @@ function DesktopLayout() {
                       {(personaStore.isGenerationInProgress ||
                         personaStore.isLoadingData) && <Spinner />}
 
-                      {version && (
+                      {version && version.versionNumber > 0 && (
                         <Chip>
                           Version {version.versionNumber}: {version.title}
                         </Chip>
@@ -531,11 +541,12 @@ function MobilePersonaDrawer() {
       isOpen={isOpen}
       onOpenChange={setIsOpen}
       placement="bottom"
-      size="4xl"
+      className="max-h-full h-11/12"
       backdrop="blur"
+      scrollBehavior="inside"
     >
       <DrawerContent>
-        <DrawerBody>
+        <DrawerBody className="overflow-y-auto">
           <PersonaProfile />
         </DrawerBody>
       </DrawerContent>

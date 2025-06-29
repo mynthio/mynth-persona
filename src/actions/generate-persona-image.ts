@@ -61,7 +61,7 @@ export const generatePersonaImage = async (personaId: string) => {
   const taskHandle = await tasks.trigger<typeof generatePersonaImageTask>(
     "generate-persona-image",
     {
-      persona,
+      persona: { ...persona, version: persona.currentVersion as any },
       userId,
       cost: IMAGE_GENERATION_COST,
       eventId: event.id,

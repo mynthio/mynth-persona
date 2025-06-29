@@ -20,7 +20,7 @@ export const createCheckoutAction = async () => {
   const checkout = await api.checkouts.create({
     products: [process.env.POLAR_PRODUCT_ID_100_TOKENS!],
     externalCustomerId: user.id,
-    // successUrl: `${process.env.NEXT_PUBLIC_APP_URL}/tokens`,
+    successUrl: `${process.env.NEXT_PUBLIC_URL}/tokens`,
   });
 
   // Redirect to checkout.url

@@ -6,36 +6,22 @@ import useSWR, { mutate, useSWRConfig } from "swr";
 import { usePersonaId } from "@/hooks/use-persona-id.hook";
 import { useEffect, useMemo, useState } from "react";
 import { PersonaWithVersion } from "@/types/persona.type";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerBody,
-  DrawerFooter,
-} from "@heroui/drawer";
+import { Drawer, DrawerContent, DrawerBody } from "@heroui/drawer";
 import { useIsPersonaPanelOpened } from "@/hooks/use-is-persona-panel-opened.hook";
-import {
-  getPanelElement,
-  getPanelGroupElement,
-  getResizeHandleElement,
-  Panel,
-  PanelGroup,
-  PanelResizeHandle,
-} from "react-resizable-panels";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useMediaQuery } from "@/hooks/use-media-query.hook";
 import PersonaProfile from "./persona-profile";
 import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Textarea } from "@heroui/input";
 import { Button } from "@heroui/button";
 import {
-  CopyIcon,
   ImageIcon,
   PaperPlaneTiltIcon,
   PencilIcon,
   PokerChipIcon,
   XIcon,
 } from "@phosphor-icons/react/dist/ssr";
-import { SignedOut, SignUp, SignUpButton, useAuth } from "@clerk/nextjs";
+import { SignedOut, SignUpButton, useAuth } from "@clerk/nextjs";
 
 import { generatePersonaAnonymousAction } from "@/actions/generate-persona-anonymous.action";
 import { generatePersonaAction } from "@/actions/generate-persona.action";
@@ -49,6 +35,7 @@ import { enhancePersonaAction } from "@/actions/enhance-persona.action";
 import { usePersonaVersionId } from "@/hooks/use-persona-version-id.hook";
 import { generatePersonaImage } from "@/actions/generate-persona-image";
 import { GetPersonaEventsByIdResponse } from "../api/personas/[personaId]/events/route";
+import { addToast } from "@heroui/toast";
 
 export default function Home() {
   const isLargeScreen = useMediaQuery("(min-width: 768px)", {
@@ -183,7 +170,20 @@ function EnhancePersonaPrompt() {
     const { object, personaEventId } = await enhancePersonaAction(
       personaId,
       prompt
-    );
+    ).catch((error) => {
+      console.log("error", error);
+      if (error.message && error.message.includes("Insufficient tokens")) {
+        addToast({
+          title: "Insufficient tokens",
+          description:
+            "You don't have enough tokens to enhance your persona. Please try again tomorrow or buy more tokens.",
+          color: "danger",
+        });
+      }
+
+      personaStore.setIsGenerationInProgress(false);
+      throw new Error("Error");
+    });
 
     for await (const partialObject of readStreamableValue(object)) {
       if (!partialObject) continue;
@@ -205,6 +205,7 @@ function EnhancePersonaPrompt() {
     mutate(`/api/personas/${personaId}`);
     mutate(`/api/personas/${personaId}/events`);
     mutate(`/api/personas`);
+    mutate(`/api/me/balance`);
   };
 
   return (
@@ -466,7 +467,7 @@ function DesktopLayout() {
               ?.style.setProperty("width", `${size}%`);
           }}
         >
-          <div className="p-4 pb-36">
+          <div className="p-4 pb-64">
             <PersonaChat />
           </div>
         </Panel>

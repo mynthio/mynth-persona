@@ -68,8 +68,8 @@ export async function spendTokens(
     }
 
     // Deduct tokens (prioritize free tokens first, then purchased)
-    let tokensFromFree = Math.min(tokensToUse, dailyFreeTokensRemaining);
-    let tokensFromPurchased = tokensToUse - tokensFromFree;
+    const tokensFromFree = Math.min(tokensToUse, dailyFreeTokensRemaining);
+    const tokensFromPurchased = tokensToUse - tokensFromFree;
 
     const newDailyTokensUsed = dailyTokensUsed + tokensFromFree;
     const newPurchasedBalance = purchasedBalance - tokensFromPurchased;

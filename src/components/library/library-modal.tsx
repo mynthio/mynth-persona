@@ -1,20 +1,11 @@
 "use client";
 
-import { Persona, PersonaWithCurrentVersion } from "@/types/persona.type";
-import { Button } from "@heroui/button";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
-} from "@heroui/modal";
+import { PersonaWithCurrentVersion } from "@/types/persona.type";
+import { Modal, ModalContent, ModalBody } from "@heroui/modal";
 import { useQueryState } from "nuqs";
-import { Card, CardHeader, CardBody } from "@heroui/card";
+import { Card, CardBody } from "@heroui/card";
 import useSWR from "swr";
 import { Image } from "@heroui/react";
-import Link from "next/link";
 import { Tabs, Tab } from "@heroui/tabs";
 import { Chip } from "@heroui/chip";
 import { useRouter } from "next/navigation";
@@ -78,11 +69,11 @@ export default function LibraryModal() {
                       >
                         <CardBody className="p-4">
                           <div className="flex items-center gap-3 mb-3">
-                            {persona.profileImage ? (
+                            {persona.profileImageId ? (
                               <Image
                                 alt={`${persona.currentVersion.data.name} profile`}
                                 className="object-cover rounded-full flex-shrink-0"
-                                src={persona.profileImage.url}
+                                src={`https://mynth-persona-dev.b-cdn.net/personas/${persona.profileImageId}.webp`}
                                 width={40}
                                 height={40}
                               />
@@ -117,13 +108,9 @@ export default function LibraryModal() {
                               <h4 className="font-semibold text-foreground truncate">
                                 {persona.currentVersion.data.name}
                               </h4>
-                              {persona.currentVersion.data
-                                .occupation && (
+                              {persona.currentVersion.data.occupation && (
                                 <p className="text-sm text-default-500 truncate">
-                                  {
-                                    persona.currentVersion.data
-                                      .occupation
-                                  }
+                                  {persona.currentVersion.data.occupation}
                                 </p>
                               )}
                             </div>
@@ -137,8 +124,8 @@ export default function LibraryModal() {
                                 color="primary"
                                 className="text-xs"
                               >
-                                {persona.currentVersion.data.universe
-                                  .length > 20
+                                {persona.currentVersion.data.universe.length >
+                                20
                                   ? `${persona.currentVersion.data.universe.slice(
                                       0,
                                       20

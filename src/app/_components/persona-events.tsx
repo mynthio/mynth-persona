@@ -3,7 +3,6 @@
 import { usePersonaId } from "@/hooks/use-persona-id.hook";
 import useSWR from "swr";
 import { GetPersonaEventsByIdResponse } from "../api/personas/[personaId]/events/route";
-import { Skeleton } from "@heroui/skeleton";
 import { Spinner } from "@heroui/spinner";
 import { Card } from "@heroui/card";
 import { Chip } from "@heroui/chip";
@@ -100,7 +99,7 @@ function PersonaImageEvent({
           trigger={
             <Image
               width={120}
-              src={`https://mynth-persona-dev.b-cdn.net/personas/${imageGeneration.imageId}.webp`}
+              src={`https://mynth-persona-dev.b-cdn.net/personas/${imageGeneration.imageId}_thumb.webp`}
               alt="Persona Image"
               className="cursor-pointer hover:opacity-80 transition-opacity"
             />

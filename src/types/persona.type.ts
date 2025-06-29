@@ -1,4 +1,4 @@
-import { personaVersions } from "@/db/schema";
+import { personas, personaVersions } from "@/db/schema";
 import { createSelectSchema } from "drizzle-arktype";
 import { type } from "arktype";
 
@@ -20,10 +20,16 @@ export const PersonaVersion = createSelectSchema(personaVersions, {
   data: PersonaData,
 });
 
+export type Persona = typeof personas.$inferSelect;
+
 export type PersonaVersion = typeof PersonaVersion.infer;
 
-export type PersonaWithVersion = Selectable<typeof personas> & {
-  currentVersion: Selectable<typeof personaVersions> & {
+export type PersonaWithVersion = typeof personas.$inferSelect & {
+  version: typeof personaVersions.$inferSelect & {
     data: PersonaData;
   };
+};
+
+export type PersonaWithCurrentVersion = Persona & {
+  currentVersion: PersonaVersion;
 };

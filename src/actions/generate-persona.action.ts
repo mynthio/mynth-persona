@@ -1,10 +1,6 @@
 "use server";
 
-import { personaAnonymousGenerateRatelimit } from "@/utils/rate-limitting";
-import { getIpAddress } from "@/utils/headers-utils";
-import { streamObject } from "ai";
 import { createStreamableValue } from "ai/rsc";
-import { google, GoogleGenerativeAIProviderOptions } from "@ai-sdk/google";
 import { z } from "zod";
 import { logger } from "@/lib/logger";
 import { auth } from "@clerk/nextjs/server";

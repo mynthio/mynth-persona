@@ -1,3 +1,9 @@
 onlyBuiltDependencies:
+  - '@clerk/shared'
+  - '@heroui/shared-utils'
+  - '@tailwindcss/oxide'
+  - core-js
   - esbuild
   - protobufjs
+  - sharp
+  - unrs-resolver

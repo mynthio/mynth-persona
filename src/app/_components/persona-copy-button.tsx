@@ -40,9 +40,9 @@ const formatPersonaAsJSON = (data: PersonaData): string => {
 };
 
 const formatPersonaAsSystemPrompt = (data: PersonaData): string => {
-  return `You are ${data.name}, a ${data.age}-year-old ${
-    data.gender
-  } from ${data.universe}.
+  return `You are ${data.name}, a ${data.age}-year-old ${data.gender} from ${
+    data.universe
+  }.
 
 Appearance: ${data.appearance}
 

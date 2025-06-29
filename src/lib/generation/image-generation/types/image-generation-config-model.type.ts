@@ -1,4 +1,4 @@
-import { ModelQuality } from "./types/model-quality.type";
+import { ModelQuality } from "./model-quality.type";
 
 export type ImageGenerationConfigModel = {
   id: string;

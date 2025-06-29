@@ -6,6 +6,7 @@ import { auth } from "@clerk/nextjs/server";
 import { and, eq } from "drizzle-orm";
 import Home from "./_components/home";
 import { getPersonaWithVersion } from "@/services/persona/get-persona-with-version";
+import { Suspense } from "react";
 
 type HomePageProps = {
   searchParams: Promise<{
@@ -34,8 +35,10 @@ export default async function HomePage(props: HomePageProps) {
   logger.debug(personaWithVersion);
 
   return (
-    <PersonaStoreProvider initialData={personaWithVersion}>
-      <Home />
-    </PersonaStoreProvider>
+    <Suspense>
+      <PersonaStoreProvider initialData={personaWithVersion}>
+        <Home />
+      </PersonaStoreProvider>
+    </Suspense>
   );
 }

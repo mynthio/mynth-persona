@@ -2,11 +2,9 @@
 
 import "server-only";
 
-import { streamObject } from "ai";
 import { createStreamableValue } from "ai/rsc";
 import { z } from "zod";
 import { logger } from "@/lib/logger";
-import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { TextGenerationFactory } from "@/lib/generation/text-generation/text-generation-factory";
 
 const SYSTEM_PROMPT = `You are an imaginative character architect and storytelling expert. Your mission is to craft vivid, multi-dimensional personas that feel authentically human and captivatingly unique.

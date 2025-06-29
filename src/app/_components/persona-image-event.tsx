@@ -65,14 +65,12 @@ function ImageCard({ imageId }: { imageId: string }) {
       title="Generated Image"
       downloadFileName={`persona-${imageId}.webp`}
       trigger={
-        <Card isPressable className="hover:shadow-md transition-shadow">
-          <Image
-            loading="lazy"
-            width={124}
-            src={`https://mynth-persona-dev.b-cdn.net/personas/${imageId}.webp`}
-            alt="Persona Image"
-          />
-        </Card>
+        <Image
+          loading="lazy"
+          width={124}
+          src={`https://mynth-persona-dev.b-cdn.net/personas/${imageId}_thumb.webp`}
+          alt="Persona Image"
+        />
       }
     />
   );

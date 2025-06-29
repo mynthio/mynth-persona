@@ -3,20 +3,19 @@ import {
   imageGenerations,
   images,
   personaEvents,
-  personas,
   tokenTransactions,
   userTokens,
 } from "@/db/schema";
-import { logger, metadata, task, wait } from "@trigger.dev/sdk/v3";
-import { and, eq, sql } from "drizzle-orm";
+import { metadata, task } from "@trigger.dev/sdk/v3";
+import { eq, sql } from "drizzle-orm";
 import sharp from "sharp";
 import { nanoid } from "nanoid";
 
 import { ImageGenerationFactory } from "@/lib/generation/image-generation/image-generation-factory";
-import { PersonaWithCurrentVersion } from "@/types/persona.type";
+import { PersonaWithVersion } from "@/types/persona.type";
 
 type GeneratePersonaImageTaskPayload = {
-  persona: PersonaWithCurrentVersion;
+  persona: PersonaWithVersion;
   cost: number;
   userId: string;
   eventId: string;
@@ -76,7 +75,7 @@ export const generatePersonaImageTask = task({
       id: imageGenerationId,
       aiModel: "bytedance/stable-diffusion-xl-lightning",
       systemPromptId: "1",
-      prompt: persona.currentVersion?.data?.appearance,
+      prompt: persona.version?.data?.appearance,
       userId: payload.userId,
       personaId: persona.id,
       eventId: payload.eventId,
@@ -90,33 +89,67 @@ export const generatePersonaImageTask = task({
     const imageGeneration = ImageGenerationFactory.byQuality("low");
 
     const result = await imageGeneration.generate(
-      persona.currentVersion?.data?.appearance
+      persona.version?.data?.appearance
     );
 
     const processedImageWebp = await sharp(result.image).webp().toBuffer();
+    const processedThumbnailWebp = await sharp(result.image)
+      .resize(240, 240, { fit: "cover", position: "center" })
+      .webp({
+        quality: 80,
+        effort: 4,
+      })
+      .toBuffer();
 
     // Upload to Bunny.net storage using fetch API
     const imageId = `img-${nanoid()}`;
-    const filePath = `personas/${imageId}.webp`;
-    const uploadUrl = `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/${filePath}`;
+    const mainFilePath = `personas/${imageId}.webp`;
+    const thumbnailFilePath = `personas/${imageId}_thumb.webp`;
 
-    const uploadResponse = await fetch(uploadUrl, {
-      method: "PUT",
-      headers: {
-        AccessKey: process.env.BUNNY_STORAGE_ZONE_KEY!,
-        "Content-Type": "application/octet-stream",
-        accept: "application/json",
-      },
-      body: processedImageWebp,
-    });
+    const uploadMainImage = fetch(
+      `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/${mainFilePath}`,
+      {
+        method: "PUT",
+        headers: {
+          AccessKey: process.env.BUNNY_STORAGE_ZONE_KEY!,
+          "Content-Type": "application/octet-stream",
+          accept: "application/json",
+        },
+        body: processedImageWebp,
+      }
+    );
 
-    if (!uploadResponse.ok) {
+    const uploadThumbnailImage = fetch(
+      `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/${thumbnailFilePath}`,
+      {
+        method: "PUT",
+        headers: {
+          AccessKey: process.env.BUNNY_STORAGE_ZONE_KEY!,
+          "Content-Type": "application/octet-stream",
+          accept: "application/json",
+        },
+        body: processedThumbnailWebp,
+      }
+    );
+
+    const [mainResponse, thumbnailResponse] = await Promise.all([
+      uploadMainImage,
+      uploadThumbnailImage,
+    ]);
+
+    if (!mainResponse.ok) {
       throw new Error(
-        `Failed to upload image: ${uploadResponse.status} ${uploadResponse.statusText}`
+        `Failed to upload main image: ${mainResponse.status} ${mainResponse.statusText}`
       );
     }
 
-    const imageUrl = `https://${process.env.BUNNY_STORAGE_ZONE}.b-cdn.net/${filePath}`;
+    if (!thumbnailResponse.ok) {
+      throw new Error(
+        `Failed to upload thumbnail image: ${thumbnailResponse.status} ${thumbnailResponse.statusText}`
+      );
+    }
+
+    const imageUrl = `https://${process.env.BUNNY_STORAGE_ZONE}.b-cdn.net/${mainFilePath}`;
 
     await db.insert(images).values({
       id: imageId,

@@ -8,17 +8,12 @@ import { useQueryState } from "nuqs";
 import { Spinner } from "@heroui/spinner";
 import PersonaDetails from "@/components/persona/persona-details";
 import { ScrollShadow } from "@heroui/scroll-shadow";
-import {
-  PersonaWithCurrentVersion,
-  PersonaWithVersion,
-} from "@/types/persona.type";
 import useSWR from "swr";
 import { Chip } from "@heroui/chip";
 import {
   Dropdown,
   DropdownTrigger,
   DropdownMenu,
-  DropdownSection,
   DropdownItem,
 } from "@heroui/dropdown";
 import { useAuth } from "@clerk/nextjs";
@@ -54,9 +49,9 @@ const formatPersonaAsJSON = (data: PersonaData): string => {
 };
 
 const formatPersonaAsSystemPrompt = (data: PersonaData): string => {
-  return `You are ${data.name}, a ${data.age}-year-old ${
-    data.gender
-  } from ${data.universe}.
+  return `You are ${data.name}, a ${data.age}-year-old ${data.gender} from ${
+    data.universe
+  }.
 
 Appearance: ${data.appearance}
 

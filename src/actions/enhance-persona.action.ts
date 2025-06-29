@@ -1,14 +1,11 @@
 "use server";
 
-import { personaAnonymousGenerateRatelimit } from "@/utils/rate-limitting";
-import { getIpAddress } from "@/utils/headers-utils";
 import { streamObject } from "ai";
 import { createStreamableValue } from "ai/rsc";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { logger } from "@/lib/logger";
 import { auth } from "@clerk/nextjs/server";
-import { createPersona } from "@/services/persona/create-persona";
 import { createPersonaVersion } from "@/services/persona/create-persona-version";
 import { spendTokens } from "@/services/token/token-manager.service";
 import { db } from "@/db/drizzle";
@@ -188,8 +185,7 @@ Respond with ONLY the properties that need to be changed based on the user's req
           name: object.object.persona.name ?? currentData.name,
           age: object.object.persona.age ?? currentData.age,
           gender: object.object.persona.gender ?? currentData.gender,
-          universe:
-            object.object.persona.universe ?? currentData.universe,
+          universe: object.object.persona.universe ?? currentData.universe,
           appearance:
             object.object.persona.appearance ?? currentData.appearance,
           personality:

@@ -1,6 +1,4 @@
 import { usePersonaStore } from "@/providers/persona-store-provider";
-import { Chip } from "@heroui/chip";
-import { Spacer } from "@heroui/spacer";
 import { PersonIcon } from "@phosphor-icons/react/dist/ssr";
 import { useMemo } from "react";
 
@@ -56,9 +54,7 @@ export default function PersonaProfile() {
 
         <ProfileSection title="Occupation" content={data.occupation} />
 
-        {data.other && (
-          <ProfileSection title="Other" content={data.other} />
-        )}
+        {data.other && <ProfileSection title="Other" content={data.other} />}
       </div>
     </div>
   );

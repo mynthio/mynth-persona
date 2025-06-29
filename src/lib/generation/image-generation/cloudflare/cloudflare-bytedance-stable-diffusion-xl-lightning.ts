@@ -12,7 +12,7 @@ export class CloudflareBytedanceStableDiffusionXLLightning extends ImageGenerati
 
   async generate(prompt: string): Promise<ImageGenerationResult> {
     const result = await fetch(
-      `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/mynth-persona-local/workers-ai/${CloudflareBytedanceStableDiffusionXLLightning.ID}`,
+      `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/${process.env.CLOUDFLARE_GATEWAY_NAME}/workers-ai/${CloudflareBytedanceStableDiffusionXLLightning.ID}`,
       {
         method: "POST",
         headers: {

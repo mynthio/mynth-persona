@@ -67,6 +67,7 @@ function ImageCard({ imageId }: { imageId: string }) {
       trigger={
         <Card isPressable className="hover:shadow-md transition-shadow">
           <Image
+            loading="lazy"
             width={124}
             src={`https://mynth-persona-dev.b-cdn.net/personas/${imageId}.webp`}
             alt="Persona Image"

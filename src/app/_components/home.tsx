@@ -62,7 +62,7 @@ export default function Home() {
     (state) => state
   );
 
-  const { isLoading, data: personaData } = useSWR<PersonaWithVersion>(
+  const { isLoading, data: persona } = useSWR<PersonaWithVersion>(
     isSignedIn && personaId
       ? personaVersionId
         ? `/api/personas/${personaId}/versions/${personaVersionId}`
@@ -81,11 +81,11 @@ export default function Home() {
   }, [isLoading]);
 
   useEffect(() => {
-    if (personaData) {
-      console.log("personaData", personaData);
-      setData(personaData);
+    if (persona) {
+      console.log("persona", persona);
+      setData(persona);
     }
-  }, [personaData]);
+  }, [persona]);
 
   if (!personaId) {
     return <Create />;
@@ -194,8 +194,8 @@ function EnhancePersonaPrompt() {
         version: {
           ...personaStore.data?.version!,
           id: "new",
-          personaData: {
-            ...personaStore.data?.version?.personaData,
+          data: {
+            ...personaStore.data?.version?.data,
             ...partialObject?.persona,
           },
         },
@@ -379,7 +379,7 @@ function CreatePropmpt() {
         changedProperties: null,
         createdAt: new Date(),
         id: "1",
-        personaData: {} as any,
+        data: {} as any,
         personaId: "1",
         systemPromptId: "",
         title: null,
@@ -399,8 +399,8 @@ function CreatePropmpt() {
         ...personaStore.data!,
         version: {
           ...personaStore.data?.version!,
-          personaData: {
-            // ...personaStore.data?.version?.personaData,
+          data: {
+            // ...personaStore.data?.version?.data,
             ...partialObject?.persona,
           },
         },
@@ -498,7 +498,7 @@ function DesktopLayout() {
                       {version && (
                         <PersonaCopyButton
                           variant="light"
-                          data={version.personaData}
+                          data={version.data}
                         />
                       )}
 

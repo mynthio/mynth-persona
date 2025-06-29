@@ -41,7 +41,7 @@ export const personaVersions = pgTable("persona_versions", {
     .references(() => personas.id, { onDelete: "cascade" }),
   title: text("title"),
   versionNumber: integer("version_number").notNull(), // For ordering and display
-  personaData: jsonb("persona_data").notNull(), // Generated persona JSON data
+  data: jsonb("data").notNull(), // Generated persona JSON data
   changedProperties: text("changed_properties").array(),
   aiModel: varchar("ai_model", { length: 100 }).notNull(), // AI model used
   systemPromptId: varchar("system_prompt_id", { length: 100 }).notNull(), // System prompt identifier
@@ -49,7 +49,7 @@ export const personaVersions = pgTable("persona_versions", {
 });
 
 // Enums for better type safety
-export const eventTypeEnum = pgEnum("event_type_enum", [
+export const personaEventTypeEnum = pgEnum("persona_event_type_enum", [
   "persona_create",
   "persona_edit",
   "image_generate",
@@ -76,7 +76,7 @@ export const personaEvents = pgTable("persona_events", {
   userId: varchar("user_id", { length: 255 })
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  eventType: eventTypeEnum("event_type").notNull(), // 'generation', 'edit', 'image', 'revert'
+  type: personaEventTypeEnum("type").notNull(), // 'generation', 'edit', 'image', 'revert'
   versionId: text("version_id").references(() => personaVersions.id, {
     onDelete: "set null",
   }), // Link to version (only for generation/edit)

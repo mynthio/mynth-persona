@@ -1,6 +1,6 @@
 "use client";
 
-import type { PersonaData, PersonaVersion } from "@/types/persona-version.type";
+import type { PersonaData, PersonaVersion } from "@/types/persona.type";
 import { Button } from "@heroui/button";
 import { Card, CardBody, CardHeader } from "@heroui/card";
 import { CopyIcon, XIcon } from "@phosphor-icons/react/dist/ssr";
@@ -25,55 +25,55 @@ import { useAuth } from "@clerk/nextjs";
 
 type PersonaPanelProps = {
   isGenerating: boolean;
-  personaData: PersonaData | null;
+  data: PersonaData | null;
   personaVersionId?: string | null;
 };
 
 // Helper functions for formatting persona data
-const formatPersonaAsText = (personaData: PersonaData): string => {
+const formatPersonaAsText = (data: PersonaData): string => {
   const sections = [
-    `Name: ${personaData.name}`,
-    `Age: ${personaData.age}`,
-    `Gender: ${personaData.gender}`,
-    `Universe: ${personaData.universe}`,
-    `Appearance: ${personaData.appearance}`,
-    `Personality: ${personaData.personality}`,
-    `Background: ${personaData.background}`,
-    `Occupation: ${personaData.occupation}`,
+    `Name: ${data.name}`,
+    `Age: ${data.age}`,
+    `Gender: ${data.gender}`,
+    `Universe: ${data.universe}`,
+    `Appearance: ${data.appearance}`,
+    `Personality: ${data.personality}`,
+    `Background: ${data.background}`,
+    `Occupation: ${data.occupation}`,
   ];
 
-  if (personaData.other) {
-    sections.push(`Other: ${personaData.other}`);
+  if (data.other) {
+    sections.push(`Other: ${data.other}`);
   }
 
   return sections.join("\n\n");
 };
 
-const formatPersonaAsJSON = (personaData: PersonaData): string => {
-  return JSON.stringify(personaData, null, 2);
+const formatPersonaAsJSON = (data: PersonaData): string => {
+  return JSON.stringify(data, null, 2);
 };
 
-const formatPersonaAsSystemPrompt = (personaData: PersonaData): string => {
-  return `You are ${personaData.name}, a ${personaData.age}-year-old ${
-    personaData.gender
-  } from ${personaData.universe}.
+const formatPersonaAsSystemPrompt = (data: PersonaData): string => {
+  return `You are ${data.name}, a ${data.age}-year-old ${
+    data.gender
+  } from ${data.universe}.
 
-Appearance: ${personaData.appearance}
+Appearance: ${data.appearance}
 
-Personality: ${personaData.personality}
+Personality: ${data.personality}
 
-Background: ${personaData.background}
+Background: ${data.background}
 
-Occupation: ${personaData.occupation}${
-    personaData.other
+Occupation: ${data.occupation}${
+    data.other
       ? `
 
-Additional Information: ${personaData.other}`
+Additional Information: ${data.other}`
       : ""
   }
 
 Stay in character at all times. Respond as ${
-    personaData.name
+    data.name
   } would, drawing from your background, personality, and experiences. Maintain consistency with your established traits and the world you come from.`;
 };
 
@@ -94,26 +94,26 @@ export default function PersonaPanel(props: PersonaPanelProps) {
     );
 
   // Get the current persona data (either from props or from the loaded version)
-  const currentPersonaData =
-    props.isGenerating || !personaVersion?.personaData
-      ? props.personaData
-      : personaVersion.personaData;
+  const currentData =
+    props.isGenerating || !personaVersion?.data
+      ? props.data
+      : personaVersion.data;
 
   // Copy handlers
   const handleCopy = async (format: "text" | "json" | "system-prompt") => {
-    if (!currentPersonaData) return;
+    if (!currentData) return;
 
     let textToCopy: string;
 
     switch (format) {
       case "text":
-        textToCopy = formatPersonaAsText(currentPersonaData);
+        textToCopy = formatPersonaAsText(currentData);
         break;
       case "json":
-        textToCopy = formatPersonaAsJSON(currentPersonaData);
+        textToCopy = formatPersonaAsJSON(currentData);
         break;
       case "system-prompt":
-        textToCopy = formatPersonaAsSystemPrompt(currentPersonaData);
+        textToCopy = formatPersonaAsSystemPrompt(currentData);
         break;
       default:
         return;
@@ -162,7 +162,7 @@ export default function PersonaPanel(props: PersonaPanelProps) {
                 size="sm"
                 variant="solid"
                 startContent={<CopyIcon />}
-                isDisabled={!currentPersonaData}
+                isDisabled={!currentData}
               >
                 Copy
               </Button>
@@ -190,14 +190,14 @@ export default function PersonaPanel(props: PersonaPanelProps) {
         </div>
       </CardHeader>
 
-      {(props.personaData || personaVersion?.personaData) && (
+      {(props.data || personaVersion?.data) && (
         <CardBody className="min-h-0 h-auto">
           <ScrollShadow size={80} offset={10}>
             <PersonaDetails
-              personaData={
-                props.isGenerating || !personaVersion?.personaData
-                  ? props.personaData!
-                  : personaVersion.personaData!
+              data={
+                props.isGenerating || !personaVersion?.data
+                  ? props.data!
+                  : personaVersion.data!
               }
               changedProperties={personaVersion?.changedProperties || []}
             />

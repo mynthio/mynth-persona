@@ -68,6 +68,7 @@ export default function ImagePreviewDialog({
                   <Image
                     src={src}
                     alt={alt}
+                    loading="lazy"
                     className="max-w-full h-auto"
                     removeWrapper
                   />

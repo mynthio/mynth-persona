@@ -7,7 +7,7 @@ import { eq, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 const PRODUCT_ID_TO_TOKEN_AMOUNT: Record<string, number> = {
-  "401f6067-e6aa-4ce9-ba34-b406b6aa9ce4": 100,
+  [process.env.POLAR_PRODUCT_ID_100_TOKENS!]: 100,
 };
 
 export const POST = Webhooks({

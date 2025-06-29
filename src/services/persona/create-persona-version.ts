@@ -1,6 +1,6 @@
 import { db } from "@/db/drizzle";
 import { personaEvents, personas, personaVersions } from "@/db/schema";
-import { PersonaData } from "@/types/persona-version.type";
+import { PersonaData } from "@/types/persona.type";
 import { Persona } from "@/types/persona.type";
 import { eq, max } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -8,7 +8,7 @@ import { nanoid } from "nanoid";
 type CreatePersonaVersionPayload = {
   personaId: string;
   personaEventId: string;
-  personaData: PersonaData;
+  data: PersonaData;
   aiModel: string;
   systemPromptId: string;
   aiNote?: string;
@@ -41,7 +41,7 @@ export const createPersonaVersion = async (
       id,
       personaId: payload.personaId,
       versionNumber,
-      personaData: payload.personaData,
+      data: payload.data,
       aiModel: payload.aiModel,
       systemPromptId: payload.systemPromptId,
       title: payload.title,

@@ -8,7 +8,7 @@ export class CloudflareLykonDreamshaper8Lcm extends ImageGenerationBase {
 
   async generate(prompt: string): Promise<ImageGenerationResult> {
     const result = await fetch(
-      `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/mynth-persona-local/workers-ai/${CloudflareLykonDreamshaper8Lcm.ID}`,
+      `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/${process.env.CLOUDFLARE_GATEWAY_NAME}/workers-ai/${CloudflareLykonDreamshaper8Lcm.ID}`,
       {
         method: "POST",
         headers: {

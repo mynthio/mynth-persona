@@ -76,7 +76,7 @@ export const generatePersonaImageTask = task({
       id: imageGenerationId,
       aiModel: "bytedance/stable-diffusion-xl-lightning",
       systemPromptId: "1",
-      prompt: persona.currentVersion?.personaData?.appearance,
+      prompt: persona.currentVersion?.data?.appearance,
       userId: payload.userId,
       personaId: persona.id,
       eventId: payload.eventId,
@@ -90,7 +90,7 @@ export const generatePersonaImageTask = task({
     const imageGeneration = ImageGenerationFactory.byQuality("low");
 
     const result = await imageGeneration.generate(
-      persona.currentVersion?.personaData?.appearance
+      persona.currentVersion?.data?.appearance
     );
 
     const processedImageWebp = await sharp(result.image).webp().toBuffer();

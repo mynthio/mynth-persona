@@ -80,7 +80,7 @@ export default function LibraryModal() {
                           <div className="flex items-center gap-3 mb-3">
                             {persona.profileImage ? (
                               <Image
-                                alt={`${persona.currentVersion.personaData.name} profile`}
+                                alt={`${persona.currentVersion.data.name} profile`}
                                 className="object-cover rounded-full flex-shrink-0"
                                 src={persona.profileImage.url}
                                 width={40}
@@ -90,38 +90,38 @@ export default function LibraryModal() {
                               <div
                                 className={`w-10 h-10 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 ${
                                   getPersonaColor(
-                                    persona.currentVersion.personaData.name
+                                    persona.currentVersion.data.name
                                   ) === "primary"
                                     ? "from-blue-500 to-blue-600"
                                     : getPersonaColor(
-                                        persona.currentVersion.personaData.name
+                                        persona.currentVersion.data.name
                                       ) === "secondary"
                                     ? "from-purple-500 to-purple-600"
                                     : getPersonaColor(
-                                        persona.currentVersion.personaData.name
+                                        persona.currentVersion.data.name
                                       ) === "success"
                                     ? "from-green-500 to-green-600"
                                     : getPersonaColor(
-                                        persona.currentVersion.personaData.name
+                                        persona.currentVersion.data.name
                                       ) === "warning"
                                     ? "from-orange-500 to-orange-600"
                                     : "from-red-500 to-red-600"
                                 }`}
                               >
                                 {getPersonaInitials(
-                                  persona.currentVersion.personaData.name
+                                  persona.currentVersion.data.name
                                 )}
                               </div>
                             )}
                             <div className="flex flex-col min-w-0 flex-1">
                               <h4 className="font-semibold text-foreground truncate">
-                                {persona.currentVersion.personaData.name}
+                                {persona.currentVersion.data.name}
                               </h4>
-                              {persona.currentVersion.personaData
+                              {persona.currentVersion.data
                                 .occupation && (
                                 <p className="text-sm text-default-500 truncate">
                                   {
-                                    persona.currentVersion.personaData
+                                    persona.currentVersion.data
                                       .occupation
                                   }
                                 </p>
@@ -129,7 +129,7 @@ export default function LibraryModal() {
                             </div>
                           </div>
 
-                          {persona.currentVersion.personaData.universe && (
+                          {persona.currentVersion.data.universe && (
                             <div className="flex justify-start">
                               <Chip
                                 size="sm"
@@ -137,13 +137,13 @@ export default function LibraryModal() {
                                 color="primary"
                                 className="text-xs"
                               >
-                                {persona.currentVersion.personaData.universe
+                                {persona.currentVersion.data.universe
                                   .length > 20
-                                  ? `${persona.currentVersion.personaData.universe.slice(
+                                  ? `${persona.currentVersion.data.universe.slice(
                                       0,
                                       20
                                     )}...`
-                                  : persona.currentVersion.personaData.universe}
+                                  : persona.currentVersion.data.universe}
                               </Chip>
                             </div>
                           )}

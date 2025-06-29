@@ -2,7 +2,7 @@
 
 import { generatePersonaAnonymousAction } from "@/actions/generate-persona-anonymous.action";
 import Aurora from "@/components/backgrounds/aurora";
-import type { PersonaData } from "@/types/persona-version.type";
+import type { PersonaData } from "@/types/persona.type";
 import { Button } from "@heroui/button";
 import { Textarea } from "@heroui/input";
 import {
@@ -49,7 +49,7 @@ export default function Home() {
   const { isSignedIn } = useAuth();
   const { mutate } = useSWRConfig();
   const [generation, setGeneration] = useState<any>({});
-  const [personaData, setPersonaData] = useState<PersonaData | null>(null);
+  const [data, setData] = useState<PersonaData | null>(null);
 
   const [generationMode, setGenerationMode] = useQueryState("m", {
     clearOnDefault: true,
@@ -69,8 +69,8 @@ export default function Home() {
   const { data: persona } = useSWR(
     personaId && isSignedIn ? `/api/personas/${personaId}` : null,
     {
-      onSuccess: (data) => {
-        setPersonaData(data.currentVersion?.personaData || null);
+      onSuccess: (persona) => {
+        setData(persona.currentVersion?.data || null);
         setIsPersonaPanelOpen("1");
       },
     }
@@ -123,8 +123,8 @@ export default function Home() {
     }
 
     // For enhancement, start with current persona data and merge changes
-    if (personaId && persona?.currentVersion?.personaData) {
-      setPersonaData(persona.currentVersion.personaData);
+    if (personaId && persona?.currentVersion?.data) {
+      setData(persona.currentVersion.data);
     }
 
     console.log("before stream");
@@ -135,10 +135,10 @@ export default function Home() {
       console.log("partialObject", partialObject);
       if (partialObject) {
         contentGenerated = true;
-        if (personaId && persona?.currentVersion?.personaData) {
+        if (personaId && persona?.currentVersion?.data) {
           // Enhancement: merge partial changes with existing data
-          setPersonaData((currentData) => {
-            const baseData = currentData || persona.currentVersion.personaData;
+          setData((currentData) => {
+            const baseData = currentData || persona.currentVersion.data;
             return {
               ...baseData,
               ...partialObject?.persona,
@@ -146,7 +146,7 @@ export default function Home() {
           });
         } else {
           // New generation: use the streamed data directly
-          setPersonaData(partialObject?.persona || {});
+          setData(partialObject?.persona || {});
         }
       }
     }

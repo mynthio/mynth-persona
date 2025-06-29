@@ -51,7 +51,7 @@ export const generatePersonaImage = async (personaId: string) => {
     .values({
       personaId,
       userMessage: "Generate Image",
-      eventType: "image_generate",
+      type: "image_generate",
       id: `pev_${nanoid()}`,
       userId,
       versionId: persona.currentVersionId,
@@ -61,7 +61,6 @@ export const generatePersonaImage = async (personaId: string) => {
   const taskHandle = await tasks.trigger<typeof generatePersonaImageTask>(
     "generate-persona-image",
     {
-      // @ts-expect-error - TODO: fix this
       persona,
       userId,
       cost: IMAGE_GENERATION_COST,

@@ -49,7 +49,7 @@ function PersonaEvent({
 }: {
   event: GetPersonaEventsByIdResponse[number];
 }) {
-  switch (event.eventType) {
+  switch (event.type) {
     case "persona_create":
       return <PersonaCreatorEvent event={event} />;
     case "persona_edit":

@@ -1,6 +1,6 @@
 import { Button } from "@heroui/button";
 import { CopyIcon } from "@phosphor-icons/react/dist/ssr";
-import { PersonaData } from "@/types/persona-version.type";
+import { PersonaData } from "@/types/persona.type";
 import {
   Dropdown,
   DropdownTrigger,
@@ -16,50 +16,50 @@ type PersonaCopyButtonProps = {
 };
 
 // Helper functions for formatting persona data
-const formatPersonaAsText = (personaData: PersonaData): string => {
+const formatPersonaAsText = (data: PersonaData): string => {
   const sections = [
-    `Name: ${personaData.name}`,
-    `Age: ${personaData.age}`,
-    `Gender: ${personaData.gender}`,
-    `Universe: ${personaData.universe}`,
-    `Appearance: ${personaData.appearance}`,
-    `Personality: ${personaData.personality}`,
-    `Background: ${personaData.background}`,
-    `Occupation: ${personaData.occupation}`,
+    `Name: ${data.name}`,
+    `Age: ${data.age}`,
+    `Gender: ${data.gender}`,
+    `Universe: ${data.universe}`,
+    `Appearance: ${data.appearance}`,
+    `Personality: ${data.personality}`,
+    `Background: ${data.background}`,
+    `Occupation: ${data.occupation}`,
   ];
 
-  if (personaData.other) {
-    sections.push(`Other: ${personaData.other}`);
+  if (data.other) {
+    sections.push(`Other: ${data.other}`);
   }
 
   return sections.join("\n\n");
 };
 
-const formatPersonaAsJSON = (personaData: PersonaData): string => {
-  return JSON.stringify(personaData, null, 2);
+const formatPersonaAsJSON = (data: PersonaData): string => {
+  return JSON.stringify(data, null, 2);
 };
 
-const formatPersonaAsSystemPrompt = (personaData: PersonaData): string => {
-  return `You are ${personaData.name}, a ${personaData.age}-year-old ${
-    personaData.gender
-  } from ${personaData.universe}.
+const formatPersonaAsSystemPrompt = (data: PersonaData): string => {
+  return `You are ${data.name}, a ${data.age}-year-old ${
+    data.gender
+  } from ${data.universe}.
 
-Appearance: ${personaData.appearance}
+Appearance: ${data.appearance}
 
-Personality: ${personaData.personality}
+Personality: ${data.personality}
 
-Background: ${personaData.background}
+Background: ${data.background}
 
-Occupation: ${personaData.occupation}${
-    personaData.other
+Occupation: ${data.occupation}${
+    data.other
       ? `
 
-Additional Information: ${personaData.other}`
+Additional Information: ${data.other}`
       : ""
   }
 
 Stay in character at all times. Respond as ${
-    personaData.name
+    data.name
   } would, drawing from your background, personality, and experiences. Maintain consistency with your established traits and the world you come from.`;
 };
 

@@ -143,7 +143,7 @@ export async function generatePersonaAction(prompt: string) {
           personaId,
           personaEventId,
           title: object.object.title,
-          personaData: object.object.persona,
+          data: object.object.persona,
           systemPromptId: "persona-generator",
           versionNumber: 1,
           aiNote: object.object?.note_for_user,

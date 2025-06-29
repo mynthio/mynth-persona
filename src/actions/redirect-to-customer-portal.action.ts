@@ -15,7 +15,7 @@ export async function redirectToCustomerPortal() {
 
   const api = new Polar({
     accessToken: process.env.POLAR_ACCESS_TOKEN!,
-    server: "sandbox", // Use this option if you're using the sandbox environment - else use 'production' or omit the parameter
+    server: process.env.VERCEL_ENV === "production" ? "production" : "sandbox",
   });
 
   const customerSession = await api.customerSessions.create({

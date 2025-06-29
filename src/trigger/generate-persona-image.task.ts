@@ -9,9 +9,10 @@ import {
 } from "@/db/schema";
 import { logger, metadata, task, wait } from "@trigger.dev/sdk/v3";
 import { and, eq, sql } from "drizzle-orm";
-import { nanoid } from "nanoid";
-import { fal } from "@fal-ai/client";
 import sharp from "sharp";
+import { nanoid } from "nanoid";
+
+import { ImageGenerationFactory } from "@/lib/generation/image-generation/image-generation-factory";
 import { PersonaWithCurrentVersion } from "@/types/persona.type";
 
 type GeneratePersonaImageTaskPayload = {
@@ -86,25 +87,13 @@ export const generatePersonaImageTask = task({
 
     console.log("Generating persona image", { persona });
 
-    const result = await fetch(
-      `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/mynth-persona-local/workers-ai/@cf/bytedance/stable-diffusion-xl-lightning`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.CLOUDFLARE_WORKERS_AI_API_TOKEN}`,
-        },
-        body: JSON.stringify({
-          prompt: persona.currentVersion?.personaData?.appearance,
-        }),
-      }
+    const imageGeneration = ImageGenerationFactory.byQuality("low");
+
+    const result = await imageGeneration.generate(
+      persona.currentVersion?.personaData?.appearance
     );
 
-    console.log("Result", { result });
-
-    const arrayBuffer = await result.arrayBuffer();
-    const imageBuffer = Buffer.from(arrayBuffer);
-
-    const processedImageWebp = await sharp(imageBuffer).webp().toBuffer();
+    const processedImageWebp = await sharp(result.image).webp().toBuffer();
 
     // Upload to Bunny.net storage using fetch API
     const imageId = `img-${nanoid()}`;
@@ -127,7 +116,6 @@ export const generatePersonaImageTask = task({
       );
     }
 
-    // Construct the public URL for the uploaded image
     const imageUrl = `https://${process.env.BUNNY_STORAGE_ZONE}.b-cdn.net/${filePath}`;
 
     await db.insert(images).values({
@@ -141,7 +129,7 @@ export const generatePersonaImageTask = task({
       .set({
         status: "completed",
         completedAt: new Date(),
-        imageId,
+        imageId: imageId,
       })
       .where(eq(imageGenerations.id, imageGenerationId));
 
@@ -158,73 +146,3 @@ export const generatePersonaImageTask = task({
     };
   },
 });
-
-// FALAI
-
-// logger.log("Generating persona image", { payload, ctx });
-
-//     const persona = await db.query.personas.findFirst({
-//       where: and(
-//         eq(personas.id, payload.personaId),
-//         eq(personas.userId, payload.userId)
-//       ),
-//       with: {
-//         currentVersion: true,
-//       },
-//     });
-
-//     if (!persona) {
-//       throw new Error("Persona not found");
-//     }
-
-//     console.log("Generating persona image", { persona });
-
-//     const result = await fal.subscribe("fal-ai/hidream-i1-fast", {
-//       input: {
-//         // @ts-expect-error - TODO: fix this
-//         prompt: persona.currentVersion?.personaData?.appearance,
-//       },
-//       logs: true,
-//       onQueueUpdate: (update) => {
-//         if (update.status === "IN_PROGRESS") {
-//           update.logs.map((log) => log.message).forEach(console.log);
-//         }
-//       },
-//     });
-
-//     const [{ url: falImageUrl }] = result.data.images;
-
-//     // Download the cartoon image
-//     const imageResponse = await fetch(falImageUrl);
-//     const imageBuffer = await imageResponse.arrayBuffer().then(Buffer.from);
-
-//     const processedImageWebp = await sharp(imageBuffer).webp().toBuffer();
-
-//     // Upload to Bunny.net storage using fetch API
-//     const fileName = `${nanoid()}.webp`;
-//     const filePath = `personas/${persona.id}/${fileName}`;
-//     const uploadUrl = `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/${filePath}`;
-
-//     const uploadResponse = await fetch(uploadUrl, {
-//       method: "PUT",
-//       headers: {
-//         AccessKey: process.env.BUNNY_STORAGE_ZONE_KEY!,
-//         "Content-Type": "application/octet-stream",
-//         accept: "application/json",
-//       },
-//       body: processedImageWebp,
-//     });
-
-//     if (!uploadResponse.ok) {
-//       throw new Error(
-//         `Failed to upload image: ${uploadResponse.status} ${uploadResponse.statusText}`
-//       );
-//     }
-
-//     // Construct the public URL for the uploaded image
-//     const imageUrl = `https://${process.env.BUNNY_STORAGE_ZONE}.b-cdn.net/${filePath}`;
-
-//     return {
-//       imageUrl,
-//     };
-//   },

@@ -23,6 +23,7 @@ export default defineConfig({
     },
   },
   build: {
+    external: ["sharp", "drizzle-orm/neon-serverless", "ws"],
     extensions: [
       syncVercelEnvVars(),
       additionalPackages({ packages: ["sharp"] }),

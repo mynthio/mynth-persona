@@ -93,7 +93,6 @@ export default function PersonaCopyButton({
       await navigator.clipboard.writeText(textToCopy);
       // You might want to add a toast notification here
     } catch (error) {
-      console.error("Failed to copy to clipboard:", error);
       // Fallback for older browsers
       const textArea = document.createElement("textarea");
       textArea.value = textToCopy;

@@ -32,7 +32,6 @@ export const generatePersonaImageTask = task({
     error,
     params
   ) => {
-    console.log("Generating persona image failed", { payload, error, params });
     const imageGenerationId = metadata.get("imageGenerationId")?.toString();
 
     if (imageGenerationId) {
@@ -65,8 +64,6 @@ export const generatePersonaImageTask = task({
     }
   },
   run: async (payload: GeneratePersonaImageTaskPayload, { ctx }) => {
-    console.log("Generating persona image", { payload, ctx });
-
     const persona = payload.persona;
 
     const imageGenerationId = `igg_${nanoid()}`;
@@ -81,11 +78,9 @@ export const generatePersonaImageTask = task({
       personaId: persona.id,
       eventId: payload.eventId,
       status: "pending",
-      tokensCost: 5,
+      tokensCost: payload.cost,
       runId: ctx.run.id,
     });
-
-    console.log("Generating persona image", { persona });
 
     const imageGeneration = ImageGenerationFactory.byQuality("low");
 

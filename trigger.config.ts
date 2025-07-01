@@ -1,5 +1,8 @@
 import { defineConfig } from "@trigger.dev/sdk/v3";
-import { syncVercelEnvVars } from "@trigger.dev/build/extensions/core";
+import {
+  additionalPackages,
+  syncVercelEnvVars,
+} from "@trigger.dev/build/extensions/core";
 
 export default defineConfig({
   project: "proj_jcxpkebjacmjgkihodxc",
@@ -20,7 +23,10 @@ export default defineConfig({
     },
   },
   build: {
-    extensions: [syncVercelEnvVars()],
+    extensions: [
+      syncVercelEnvVars(),
+      additionalPackages({ packages: ["sharp"] }),
+    ],
   },
   dirs: ["./src/trigger"],
 });

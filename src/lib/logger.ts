@@ -1,5 +1,8 @@
 import pino, { Logger } from "pino";
 
+// Prevent tree-shaking
+import "@logtail/pino";
+
 const transport = pino.transport({
   target: "@logtail/pino",
   options: {

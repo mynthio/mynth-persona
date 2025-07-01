@@ -92,14 +92,14 @@ function PersonaImageEvent({
 
       {imageGeneration && imageGeneration.status === "completed" && (
         <ImagePreviewDialog
-          src={`https://mynth-persona-dev.b-cdn.net/personas/${imageGeneration.imageId}.webp`}
+          src={`${process.env.NEXT_PUBLIC_CDN_BASE_URL}/personas/${imageGeneration.imageId}.webp`}
           alt="Persona Image"
           title="Generated Persona Image"
           downloadFileName={`persona-${imageGeneration.imageId}.webp`}
           trigger={
             <Image
               width={120}
-              src={`https://mynth-persona-dev.b-cdn.net/personas/${imageGeneration.imageId}_thumb.webp`}
+              src={`${process.env.NEXT_PUBLIC_CDN_BASE_URL}/personas/${imageGeneration.imageId}_thumb.webp`}
               alt="Persona Image"
               className="cursor-pointer hover:opacity-80 transition-opacity"
             />

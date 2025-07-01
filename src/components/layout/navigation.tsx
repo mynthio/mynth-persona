@@ -3,7 +3,12 @@
 import { UserBalance } from "@/types/balance.type";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { Chip } from "@heroui/chip";
-import { PokerChipIcon, UsersThreeIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+  DiscordLogoIcon,
+  GithubLogoIcon,
+  PokerChipIcon,
+  UsersThreeIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import useSWR from "swr";
 import { Tooltip } from "@heroui/tooltip";
@@ -27,11 +32,31 @@ export default function Navigation() {
           <Image
             width={60}
             height={60}
-            src={"https://persona-mynth-prod.b-cdn.net/persona-logo-2.webp"}
+            src={"https://cdn.persona.mynth.io/logo.webp"}
           />
         </Link>
       </div>
       <div className="flex items-center gap-4">
+        <SignedOut>
+          <a
+            href="https://github.com/mynthio/mynth-persona"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button variant="light" isIconOnly>
+              <GithubLogoIcon />
+            </Button>
+          </a>
+          <a
+            href="https://discord.gg/ktHXuPVaqB"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button variant="light" isIconOnly>
+              <DiscordLogoIcon />
+            </Button>
+          </a>
+        </SignedOut>
         <SignedIn>
           {balance && (
             <div className="flex items-center gap-2">

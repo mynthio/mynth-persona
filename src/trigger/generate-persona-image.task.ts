@@ -45,36 +45,37 @@ export const generatePersonaImageTask = task({
         .where(eq(imageGenerations.id, imageGenerationId));
     }
 
-    // Return tokens to user due to failure
-    const [userToken] = await db
-      .update(userTokens)
-      .set({
-        balance: sql`balance + ${payload.cost}`,
-      })
-      .where(eq(userTokens.userId, payload.userId))
-      .returning();
+    if (payload.cost > 0) {
+      // Return tokens to user due to failure
+      const [userToken] = await db
+        .update(userTokens)
+        .set({
+          balance: sql`balance + ${payload.cost}`,
+        })
+        .where(eq(userTokens.userId, payload.userId))
+        .returning();
 
-    await db.insert(tokenTransactions).values({
-      id: `ttx-${nanoid()}`,
-      userId: payload.userId,
-      type: "refund",
-      amount: payload.cost,
-      balanceAfter: userToken.balance,
-    });
+      await db.insert(tokenTransactions).values({
+        id: `ttx_${nanoid()}`,
+        userId: payload.userId,
+        type: "refund",
+        amount: payload.cost,
+        balanceAfter: userToken.balance,
+      });
+    }
   },
   run: async (payload: GeneratePersonaImageTaskPayload, { ctx }) => {
     console.log("Generating persona image", { payload, ctx });
 
     const persona = payload.persona;
 
-    const imageGenerationId = `igg-${nanoid()}`;
+    const imageGenerationId = `igg_${nanoid()}`;
 
     metadata.set("imageGenerationId", imageGenerationId);
 
     await db.insert(imageGenerations).values({
       id: imageGenerationId,
       aiModel: "bytedance/stable-diffusion-xl-lightning",
-      systemPromptId: "1",
       prompt: persona.version?.data?.appearance,
       userId: payload.userId,
       personaId: persona.id,
@@ -102,7 +103,7 @@ export const generatePersonaImageTask = task({
       .toBuffer();
 
     // Upload to Bunny.net storage using fetch API
-    const imageId = `img-${nanoid()}`;
+    const imageId = `img_${nanoid()}`;
     const mainFilePath = `personas/${imageId}.webp`;
     const thumbnailFilePath = `personas/${imageId}_thumb.webp`;
 
@@ -154,7 +155,6 @@ export const generatePersonaImageTask = task({
     await db.insert(images).values({
       id: imageId,
       personaId: persona.id,
-      url: imageUrl,
     });
 
     await db

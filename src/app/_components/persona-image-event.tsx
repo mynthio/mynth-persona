@@ -1,10 +1,9 @@
 "use client";
 
-import { Card } from "@heroui/card";
 import { Image } from "@heroui/image";
 import { Spinner } from "@heroui/spinner";
 import { useRealtimeRun } from "@trigger.dev/react-hooks";
-import { useSWRConfig } from "swr";
+
 import { GetPersonaEventsByIdResponse } from "../api/personas/[personaId]/events/route";
 import ImagePreviewDialog from "@/components/persona/image-preview-dialog";
 
@@ -35,14 +34,8 @@ function PendingImageEvent({
   publicAccessToken: string;
   personaId: string;
 }) {
-  const { mutate } = useSWRConfig();
-
   const { run, error } = useRealtimeRun(runId, {
     accessToken: publicAccessToken,
-    onComplete: () => {
-      console.log("onComplete");
-      mutate("/api/me/balance");
-    },
     stopOnCompletion: true,
   });
 
@@ -60,7 +53,7 @@ function PendingImageEvent({
 function ImageCard({ imageId }: { imageId: string }) {
   return (
     <ImagePreviewDialog
-      src={`https://mynth-persona-dev.b-cdn.net/personas/${imageId}.webp`}
+      src={`${process.env.NEXT_PUBLIC_CDN_BASE_URL}/personas/${imageId}.webp`}
       alt="Persona Image"
       title="Generated Image"
       downloadFileName={`persona-${imageId}.webp`}
@@ -68,7 +61,7 @@ function ImageCard({ imageId }: { imageId: string }) {
         <Image
           loading="lazy"
           width={124}
-          src={`https://mynth-persona-dev.b-cdn.net/personas/${imageId}_thumb.webp`}
+          src={`${process.env.NEXT_PUBLIC_CDN_BASE_URL}/personas/${imageId}_thumb.webp`}
           alt="Persona Image"
         />
       }

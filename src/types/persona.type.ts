@@ -31,5 +31,5 @@ export type PersonaWithVersion = typeof personas.$inferSelect & {
 };
 
 export type PersonaWithCurrentVersion = Persona & {
-  currentVersion: PersonaVersion;
+  currentVersion?: PersonaVersion;
 };

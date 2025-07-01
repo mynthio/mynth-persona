@@ -1,14 +1,15 @@
 #!/usr/bin/env tsx
 
 import { config } from "dotenv";
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle } from "drizzle-orm/neon-serverless";
+import { neon } from "@neondatabase/serverless";
 import { users, userTokens } from "../src/db/schema";
 
 // Load environment variables
 config({ path: [".env.local", ".env"] });
 
 // Initialize database connection
-const db = drizzle(process.env.DATABASE_URL!);
+export const db = drizzle(process.env.DATABASE_URL!);
 
 // DRY RUN MODE - Set to true to see what would be synced without actually doing it
 const DRY_RUN = true;

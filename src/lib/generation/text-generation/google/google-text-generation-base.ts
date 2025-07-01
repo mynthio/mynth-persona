@@ -3,18 +3,15 @@ import { TextGenerationBase } from "../text-generation-base";
 import { TextGenerationStreamObjectOptions } from "../types/text-generation-stream-object-options.type";
 import { google } from "@ai-sdk/google";
 import { ZodSchema } from "zod";
+import { ModelId } from "../types/model-id.type";
 
 export abstract class GoogleTextGenerationBase extends TextGenerationBase {
-  public readonly modelId: string;
-
   private readonly model: LanguageModelV1;
 
-  constructor(modelId: string) {
-    super();
+  constructor(modelId: ModelId, googleModelId: string) {
+    super(modelId);
 
-    this.modelId = modelId;
-
-    this.model = google(modelId);
+    this.model = google(googleModelId);
   }
 
   async streamObject(
@@ -27,6 +24,7 @@ export abstract class GoogleTextGenerationBase extends TextGenerationBase {
       system: options.systemPrompt,
       prompt,
       schema,
+      maxTokens: 1500,
       onFinish: options.onFinish,
       onError: options.onError,
     });

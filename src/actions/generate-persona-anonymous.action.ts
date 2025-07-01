@@ -6,6 +6,8 @@ import { createStreamableValue } from "ai/rsc";
 import { z } from "zod";
 import { logger } from "@/lib/logger";
 import { TextGenerationFactory } from "@/lib/generation/text-generation/text-generation-factory";
+import { getIpAddress } from "@/utils/headers-utils";
+import { personaAnonymousGenerateRatelimit } from "@/utils/rate-limitting";
 
 const SYSTEM_PROMPT = `You are an imaginative character architect and storytelling expert. Your mission is to craft vivid, multi-dimensional personas that feel authentically human and captivatingly unique.
 
@@ -72,8 +74,14 @@ export async function generatePersonaAnonymousAction(prompt: string) {
     "Generating persona anonymous"
   );
 
-  // const ip = await getIpAddress();
-  // await personaAnonymousGenerateRatelimit.limit(ip);
+  if (process.env.NODE_ENV === "production") {
+    const ip = await getIpAddress();
+    const rateLimitResult = await personaAnonymousGenerateRatelimit.limit(ip);
+
+    if (!rateLimitResult.success) {
+      throw new Error("Rate limit exceeded");
+    }
+  }
 
   const stream = createStreamableValue();
 
@@ -83,7 +91,35 @@ export async function generatePersonaAnonymousAction(prompt: string) {
     const { partialObjectStream } = await model.streamObject(SCHEMA, prompt, {
       systemPrompt: SYSTEM_PROMPT,
       onFinish: (object) => {
-        logger.debug({ object }, "Persona anonymous generated");
+        logger.debug({ data: { object } }, "Persona anonymous generated");
+
+        if (!object.object?.persona) {
+          logger.error(
+            {
+              meta: {
+                action: "generate-persona-anonymous",
+              },
+              data: {
+                object,
+              },
+            },
+            "Persona not generated"
+          );
+          return;
+        }
+
+        logger.info(
+          {
+            meta: {
+              action: "generate-persona-anonymous",
+              what: "usage",
+            },
+            data: {
+              usage: object.usage,
+            },
+          },
+          "Generate Persona Usage"
+        );
       },
       onError: (error) => {
         logger.error({ error }, "Error generating persona anonymous");

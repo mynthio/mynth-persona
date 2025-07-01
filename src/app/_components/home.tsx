@@ -202,6 +202,8 @@ function EnhancePersonaPrompt() {
       });
     }
 
+    setPrompt("");
+
     mutate(`/api/personas/${personaId}`);
     mutate(`/api/personas/${personaId}/events`);
     mutate(`/api/personas`);
@@ -362,8 +364,32 @@ function CreatePropmpt() {
 
     // @ts-ignore
     const { personaId, ...response } = isSignedIn
-      ? await generatePersonaAction(prompt)
-      : await generatePersonaAnonymousAction(prompt);
+      ? await generatePersonaAction(prompt).catch((error) => {
+          if (error.message && error.message.includes("Insufficient tokens")) {
+            addToast({
+              title: "Insufficient tokens",
+              description:
+                "You don't have enough tokens to create a persona. Please try again tomorrow or buy more tokens.",
+              color: "danger",
+            });
+          }
+
+          personaStore.setIsGenerationInProgress(false);
+          throw new Error("Error");
+        })
+      : await generatePersonaAnonymousAction(prompt).catch((error) => {
+          if (error.message && error.message.includes("Rate limit exceeded")) {
+            addToast({
+              title: "Rate limit exceeded",
+              description:
+                "You have reached the daily rate limit. Please try again tomorrow or sign up for a free account and get higher rate limits.",
+              color: "danger",
+            });
+          }
+
+          personaStore.setIsGenerationInProgress(false);
+          throw new Error("Error");
+        });
 
     console.log("response", response);
 
@@ -382,7 +408,7 @@ function CreatePropmpt() {
         id: "1",
         data: {} as any,
         personaId: "1",
-        systemPromptId: "",
+        settings: {},
         title: null,
         versionNumber: 1,
       },
@@ -407,6 +433,8 @@ function CreatePropmpt() {
         },
       });
     }
+
+    setPrompt("");
 
     personaStore.setIsGenerationInProgress(false);
     mutate(`/api/personas/${personaId}`);

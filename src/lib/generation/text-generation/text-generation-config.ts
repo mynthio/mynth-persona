@@ -1,4 +1,5 @@
-import { GoogleGemini25FlashPreview0417 } from "./google/google-gemini-2.5-flash-preview-04-17";
+import { GoogleGemini25FlashLitePreview0617 } from "./google/google-gemini-2.5-flash-lite-preview-06-17";
+import { GoogleGemini25Flash } from "./google/google-gemini-2.5-flash";
 import { OpenRouterMistralSmall3224bInstructFree } from "./openrouter/mistralai/mistral-small-3.2-24b-instruct-free";
 import { OpenRouterQwen25Vl32bInstructFree } from "./openrouter/qwen/qwen2.5-vl-32b-instruct-free";
 import { TextGenerationBase } from "./text-generation-base";
@@ -10,10 +11,16 @@ type TextGenerationConstructor = new () => TextGenerationBase;
 
 export const textGenerationConfig: Array<TextGenerationConfigModel> = [
   {
-    id: GoogleGemini25FlashPreview0417.ID,
+    id: GoogleGemini25FlashLitePreview0617.ID,
     isAvailableToFreeUsers: false,
     isDepracated: false,
     quality: "medium",
+  },
+  {
+    id: GoogleGemini25Flash.ID,
+    isAvailableToFreeUsers: false,
+    isDepracated: false,
+    quality: "high",
   },
   {
     id: OpenRouterMistralSmall3224bInstructFree.ID,
@@ -31,7 +38,8 @@ export const textGenerationConfig: Array<TextGenerationConfigModel> = [
 
 export const textGenerationModels: Record<ModelId, TextGenerationConstructor> =
   {
-    [GoogleGemini25FlashPreview0417.ID]: GoogleGemini25FlashPreview0417,
+    [GoogleGemini25FlashLitePreview0617.ID]: GoogleGemini25FlashLitePreview0617,
+    [GoogleGemini25Flash.ID]: GoogleGemini25Flash,
     [OpenRouterMistralSmall3224bInstructFree.ID]:
       OpenRouterMistralSmall3224bInstructFree,
     [OpenRouterQwen25Vl32bInstructFree.ID]: OpenRouterQwen25Vl32bInstructFree,

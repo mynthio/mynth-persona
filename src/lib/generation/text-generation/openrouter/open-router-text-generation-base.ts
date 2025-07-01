@@ -7,22 +7,19 @@ import {
   createOpenRouter,
   OpenRouterProvider,
 } from "@openrouter/ai-sdk-provider";
+import { ModelId } from "../types/model-id.type";
 
 export abstract class OpenRouterTextGenerationBase extends TextGenerationBase {
   private readonly openRouter: OpenRouterProvider;
 
-  public readonly modelId: string;
-
   protected readonly model: LanguageModelV1;
 
-  constructor(modelId: string) {
-    super();
+  constructor(modelId: ModelId) {
+    super(modelId);
 
     this.openRouter = createOpenRouter({
       apiKey: process.env.OPEN_ROUTER_API_KEY!,
     });
-
-    this.modelId = modelId;
 
     this.model = this.openRouter(modelId);
   }
@@ -37,6 +34,7 @@ export abstract class OpenRouterTextGenerationBase extends TextGenerationBase {
       system: options.systemPrompt,
       prompt,
       schema,
+      maxTokens: 1500,
       onFinish: options.onFinish,
       onError: options.onError,
     });

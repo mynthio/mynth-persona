@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "npx concurrently --kill-others --names \"next,trigger\" --prefix-colors \"yellow,blue\" \"next dev --turbopack\" \"pnpm trigger:dev\"",
     "trigger:dev": "npx trigger.dev@latest dev",
+    "trigger:deploy": "npx trigger.dev@latest deploy",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -41,6 +42,7 @@
     "@heroui/tabs": "^2.2.19",
     "@heroui/toast": "^2.0.12",
     "@heroui/tooltip": "^2.2.19",
+    "@logtail/pino": "^0.5.5",
     "@neondatabase/serverless": "^1.0.1",
     "@openrouter/ai-sdk-provider": "^0.7.2",
     "@phosphor-icons/react": "^2.1.10",

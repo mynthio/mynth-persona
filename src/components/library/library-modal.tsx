@@ -10,6 +10,7 @@ import { Tabs, Tab } from "@heroui/tabs";
 import { Chip } from "@heroui/chip";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
+import { Spinner } from "@heroui/spinner";
 
 export default function LibraryModal() {
   const [isOpen, setIsOpen] = useQueryState("library");
@@ -17,11 +18,14 @@ export default function LibraryModal() {
 
   const { push } = useRouter();
 
-  const { data: personas } = useSWR<PersonaWithCurrentVersion[]>(
+  const { data: personas, isLoading } = useSWR<PersonaWithCurrentVersion[]>(
     isOpen && isSignedIn ? "/api/personas" : null
   );
 
-  const getPersonaInitials = (name: string) => {
+  const getPersonaInitials = (name?: string) => {
+    if (!name) {
+      return "??";
+    }
     return name
       .split(" ")
       .map((word) => word[0])
@@ -30,7 +34,10 @@ export default function LibraryModal() {
       .slice(0, 2);
   };
 
-  const getPersonaColor = (name: string) => {
+  const getPersonaColor = (name?: string) => {
+    if (!name) {
+      return "primary";
+    }
     const colors = [
       "primary",
       "secondary",
@@ -56,6 +63,7 @@ export default function LibraryModal() {
             <ModalBody className="p-2 md:p-6">
               <Tabs aria-label="Library" variant="underlined">
                 <Tab key="personas" title="Personas">
+                  {isLoading && <Spinner />}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {personas?.map((persona) => (
                       <Card
@@ -71,9 +79,9 @@ export default function LibraryModal() {
                           <div className="flex items-center gap-3 mb-3">
                             {persona.profileImageId ? (
                               <Image
-                                alt={`${persona.currentVersion.data.name} profile`}
+                                alt={`${persona.currentVersion?.data.name} profile`}
                                 className="object-cover rounded-full flex-shrink-0"
-                                src={`https://mynth-persona-dev.b-cdn.net/personas/${persona.profileImageId}.webp`}
+                                src={`${process.env.NEXT_PUBLIC_CDN_BASE_URL}/personas/${persona.profileImageId}.webp`}
                                 width={40}
                                 height={40}
                               />
@@ -81,42 +89,42 @@ export default function LibraryModal() {
                               <div
                                 className={`w-10 h-10 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 ${
                                   getPersonaColor(
-                                    persona.currentVersion.data.name
+                                    persona.currentVersion?.data.name
                                   ) === "primary"
                                     ? "from-blue-500 to-blue-600"
                                     : getPersonaColor(
-                                        persona.currentVersion.data.name
+                                        persona.currentVersion?.data.name
                                       ) === "secondary"
                                     ? "from-purple-500 to-purple-600"
                                     : getPersonaColor(
-                                        persona.currentVersion.data.name
+                                        persona.currentVersion?.data.name
                                       ) === "success"
                                     ? "from-green-500 to-green-600"
                                     : getPersonaColor(
-                                        persona.currentVersion.data.name
+                                        persona.currentVersion?.data.name
                                       ) === "warning"
                                     ? "from-orange-500 to-orange-600"
                                     : "from-red-500 to-red-600"
                                 }`}
                               >
                                 {getPersonaInitials(
-                                  persona.currentVersion.data.name
+                                  persona.currentVersion?.data.name
                                 )}
                               </div>
                             )}
                             <div className="flex flex-col min-w-0 flex-1">
                               <h4 className="font-semibold text-foreground truncate">
-                                {persona.currentVersion.data.name}
+                                {persona.currentVersion?.data.name}
                               </h4>
-                              {persona.currentVersion.data.occupation && (
+                              {persona.currentVersion?.data.occupation && (
                                 <p className="text-sm text-default-500 truncate">
-                                  {persona.currentVersion.data.occupation}
+                                  {persona.currentVersion?.data.occupation}
                                 </p>
                               )}
                             </div>
                           </div>
 
-                          {persona.currentVersion.data.universe && (
+                          {persona.currentVersion?.data.universe && (
                             <div className="flex justify-start">
                               <Chip
                                 size="sm"
@@ -124,9 +132,9 @@ export default function LibraryModal() {
                                 color="primary"
                                 className="text-xs"
                               >
-                                {persona.currentVersion.data.universe.length >
+                                {persona.currentVersion?.data.universe.length >
                                 20
-                                  ? `${persona.currentVersion.data.universe.slice(
+                                  ? `${persona.currentVersion?.data.universe.slice(
                                       0,
                                       20
                                     )}...`

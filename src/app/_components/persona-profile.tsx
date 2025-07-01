@@ -1,5 +1,10 @@
 import { usePersonaStore } from "@/providers/persona-store-provider";
-import { PersonIcon } from "@phosphor-icons/react/dist/ssr";
+import { Tooltip } from "@heroui/tooltip";
+import {
+  PersonIcon,
+  SparkleIcon,
+  StarIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import { useMemo } from "react";
 
 export default function PersonaProfile() {
@@ -10,6 +15,11 @@ export default function PersonaProfile() {
     console.log("persona", persona);
     if (!persona) return null;
     return persona.version.data;
+  }, [persona]);
+
+  const changedProperties = useMemo(() => {
+    if (!persona) return [];
+    return persona.version.changedProperties || [];
   }, [persona]);
 
   if (isLoadingData) {
@@ -44,17 +54,43 @@ export default function PersonaProfile() {
       </div>
 
       <div className="space-y-6">
-        <ProfileSection title="Universe" content={data.universe} />
+        <ProfileSection
+          title="Universe"
+          content={data.universe}
+          isChanged={changedProperties.includes("universe")}
+        />
 
-        <ProfileSection title="Appearance" content={data.appearance} />
+        <ProfileSection
+          title="Appearance"
+          content={data.appearance}
+          isChanged={changedProperties.includes("appearance")}
+        />
 
-        <ProfileSection title="Personality" content={data.personality} />
+        <ProfileSection
+          title="Personality"
+          content={data.personality}
+          isChanged={changedProperties.includes("personality")}
+        />
 
-        <ProfileSection title="Background" content={data.background} />
+        <ProfileSection
+          title="Background"
+          content={data.background}
+          isChanged={changedProperties.includes("background")}
+        />
 
-        <ProfileSection title="Occupation" content={data.occupation} />
+        <ProfileSection
+          title="Occupation"
+          content={data.occupation}
+          isChanged={changedProperties.includes("occupation")}
+        />
 
-        {data.other && <ProfileSection title="Other" content={data.other} />}
+        {data.other && (
+          <ProfileSection
+            title="Other"
+            content={data.other}
+            isChanged={changedProperties.includes("other")}
+          />
+        )}
       </div>
     </div>
   );
@@ -63,12 +99,24 @@ export default function PersonaProfile() {
 type ProfileSectionProps = {
   title: string;
   content: string;
+  isChanged?: boolean;
 };
 
-function ProfileSection({ title, content }: ProfileSectionProps) {
+function ProfileSection({ title, content, isChanged }: ProfileSectionProps) {
   return (
     <div className="space-y-2">
-      <h3 className="text-lg font-semibold text-default-800">{title}</h3>
+      <h3 className="flex items-center gap-2 text-lg font-semibold text-default-800">
+        {title}
+        {isChanged && (
+          <Tooltip content="Enhanced in this version">
+            <SparkleIcon
+              weight="duotone"
+              size={18}
+              className="text-yellow-500"
+            />
+          </Tooltip>
+        )}
+      </h3>
       <p className="text-default-700 leading-relaxed">{content}</p>
     </div>
   );

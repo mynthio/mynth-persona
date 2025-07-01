@@ -1,10 +1,6 @@
 "use server";
 
-import { personaAnonymousGenerateRatelimit } from "@/utils/rate-limitting";
-import { getIpAddress } from "@/utils/headers-utils";
-import { streamObject } from "ai";
 import { createStreamableValue } from "ai/rsc";
-import { google, GoogleGenerativeAIProviderOptions } from "@ai-sdk/google";
 import { z } from "zod";
 import { logger } from "@/lib/logger";
 import { auth } from "@clerk/nextjs/server";
@@ -12,6 +8,9 @@ import { createPersona } from "@/services/persona/create-persona";
 import { createPersonaVersion } from "@/services/persona/create-persona-version";
 import { spendTokens } from "@/services/token/token-manager.service";
 import { TextGenerationFactory } from "@/lib/generation/text-generation/text-generation-factory";
+import { db } from "@/db/drizzle";
+import { personas, userTokens } from "@/db/schema";
+import { eq, sql } from "drizzle-orm";
 
 const SYSTEM_PROMPT = `You are an imaginative character architect and storytelling expert. Your mission is to craft vivid, multi-dimensional personas that feel authentically human and captivatingly unique.
 
@@ -138,19 +137,36 @@ export async function generatePersonaAction(prompt: string) {
           return;
         }
 
+        userLogger.info(
+          {
+            meta: {
+              action: "generate-persona",
+              what: "usage",
+            },
+            data: {
+              usage: object.usage,
+            },
+          },
+          "Generate Persona Usage"
+        );
+
         await createPersonaVersion({
-          aiModel: "gemini-2.5-flash-lite-preview-06-17",
+          aiModel: model.modelId,
           personaId,
           personaEventId,
           title: object.object.title,
-          personaData: object.object.persona,
-          systemPromptId: "persona-generator",
+          data: object.object.persona,
           versionNumber: 1,
           aiNote: object.object?.note_for_user,
         });
       },
-      onError: (error) => {
+      onError: async (error) => {
         userLogger.error({ error }, "Error generating persona");
+
+        await db.update(userTokens).set({
+          balance: sql`balance + ${tokenCost}`,
+        });
+        await db.delete(personas).where(eq(personas.id, personaId));
       },
     });
 

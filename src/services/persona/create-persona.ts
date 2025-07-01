@@ -21,7 +21,7 @@ export const createPersona = async (payload: CreatePersonaPayload) => {
       id: personaEventId,
       personaId,
       userId: payload.userId,
-      eventType: "persona_create",
+      type: "persona_create",
       userMessage: payload.prompt,
     });
   });

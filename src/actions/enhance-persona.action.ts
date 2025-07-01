@@ -1,21 +1,75 @@
 "use server";
 
-import { personaAnonymousGenerateRatelimit } from "@/utils/rate-limitting";
-import { getIpAddress } from "@/utils/headers-utils";
-import { streamObject } from "ai";
 import { createStreamableValue } from "ai/rsc";
-import { google } from "@ai-sdk/google";
 import { z } from "zod";
 import { logger } from "@/lib/logger";
 import { auth } from "@clerk/nextjs/server";
-import { createPersona } from "@/services/persona/create-persona";
 import { createPersonaVersion } from "@/services/persona/create-persona-version";
 import { spendTokens } from "@/services/token/token-manager.service";
 import { db } from "@/db/drizzle";
-import { personas, personaEvents } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { personas, personaEvents, userTokens } from "@/db/schema";
+import { and, eq, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
-import { PersonaData } from "@/types/persona-version.type";
+import { PersonaData } from "@/types/persona.type";
+import { TextGenerationFactory } from "@/lib/generation/text-generation/text-generation-factory";
+
+const SCHEMA = z.object({
+  title: z
+    .string()
+    .describe(
+      "A creative title for this persona version based on the complete persona after all changes - should capture the essence of who this character is"
+    ),
+  note_for_user: z
+    .string()
+    .optional()
+    .describe(
+      "Optional creative note with feedback on the persona, insights about the character, or follow-up suggestions for further development. Be engaging and helpful while keeping it concise"
+    ),
+  persona: z
+    .object({
+      name: z.string().optional().describe("Character's full name or alias"),
+      age: z
+        .string()
+        .optional()
+        .describe("Can be specific number, descriptive, or unknown"),
+      gender: z.string().optional().describe("Gender of the character"),
+      universe: z
+        .string()
+        .optional()
+        .describe("Time period, location, and genre context"),
+      appearance: z
+        .string()
+        .optional()
+        .describe(
+          "Physical description including build, features, clothing style, distinctive marks"
+        ),
+      personality: z
+        .string()
+        .optional()
+        .describe(
+          "Character traits, temperament, how they interact with others, emotional patterns"
+        ),
+      background: z
+        .string()
+        .optional()
+        .describe(
+          "Personal history, upbringing, major life events, how they became who they are"
+        ),
+      occupation: z
+        .string()
+        .optional()
+        .describe(
+          "What they do for work/role in society, can include secret occupations"
+        ),
+      other: z
+        .string()
+        .optional()
+        .describe(
+          "Optional field for specific details that don't belong to other categories"
+        ),
+    })
+    .optional(),
+});
 
 export async function enhancePersonaAction(personaId: string, prompt: string) {
   const { userId, redirectToSignIn } = await auth();
@@ -70,7 +124,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
     id: personaEventId,
     personaId,
     userId,
-    eventType: "persona_edit",
+    type: "persona_edit",
     userMessage: prompt,
     tokensCost: tokenCost,
   });
@@ -78,7 +132,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
   const stream = createStreamableValue();
 
   // Create system prompt with current persona data
-  const currentPersonaData = persona.currentVersion.personaData as PersonaData;
+  const currentData = persona.currentVersion.data as PersonaData;
   const systemPrompt = `
 You are a creative character enhancement assistant. You will receive the current persona data and a user request to enhance, extend, or change some aspects of the persona.
 
@@ -91,15 +145,15 @@ CRITICAL RULES:
 6. Provide complete and detailed content for any property you modify
 
 Current persona data:
-- Name: ${currentPersonaData.name}
-- Age: ${currentPersonaData.age}
-- Gender: ${currentPersonaData.gender}
-- Universe: ${currentPersonaData.universe}
-- Appearance: ${currentPersonaData.appearance}
-- Personality: ${currentPersonaData.personality}
-- Background: ${currentPersonaData.background}
-- Occupation: ${currentPersonaData.occupation}
-${currentPersonaData.other ? `- Other: ${currentPersonaData.other}` : ""}
+- Name: ${currentData.name}
+- Age: ${currentData.age}
+- Gender: ${currentData.gender}
+- Universe: ${currentData.universe}
+- Appearance: ${currentData.appearance}
+- Personality: ${currentData.personality}
+- Background: ${currentData.background}
+- Occupation: ${currentData.occupation}
+${currentData.other ? `- Other: ${currentData.other}` : ""}
 
 IMPORTANT: If the user asks to change something, you must generate NEW content that is different from the current values shown above. Do not repeat the existing values.
 
@@ -108,73 +162,11 @@ Respond with ONLY the properties that need to be changed based on the user's req
 
   userLogger.debug({ systemPrompt }, "System prompt for persona enhancement");
 
-  (async () => {
-    const model = google("gemini-2.5-flash-lite-preview-06-17");
+  const model = TextGenerationFactory.byQuality("medium");
 
-    const { partialObjectStream } = streamObject({
-      model,
-      system: systemPrompt,
-      prompt,
-      schema: z.object({
-        title: z
-          .string()
-          .describe(
-            "A creative title for this persona version based on the complete persona after all changes - should capture the essence of who this character is"
-          ),
-        note_for_user: z
-          .string()
-          .optional()
-          .describe(
-            "Optional creative note with feedback on the persona, insights about the character, or follow-up suggestions for further development. Be engaging and helpful while keeping it concise"
-          ),
-        persona: z
-          .object({
-            name: z
-              .string()
-              .optional()
-              .describe("Character's full name or alias"),
-            age: z
-              .string()
-              .optional()
-              .describe("Can be specific number, descriptive, or unknown"),
-            gender: z.string().optional().describe("Gender of the character"),
-            universe: z
-              .string()
-              .optional()
-              .describe("Time period, location, and genre context"),
-            appearance: z
-              .string()
-              .optional()
-              .describe(
-                "Physical description including build, features, clothing style, distinctive marks"
-              ),
-            personality: z
-              .string()
-              .optional()
-              .describe(
-                "Character traits, temperament, how they interact with others, emotional patterns"
-              ),
-            background: z
-              .string()
-              .optional()
-              .describe(
-                "Personal history, upbringing, major life events, how they became who they are"
-              ),
-            occupation: z
-              .string()
-              .optional()
-              .describe(
-                "What they do for work/role in society, can include secret occupations"
-              ),
-            other: z
-              .string()
-              .optional()
-              .describe(
-                "Optional field for specific details that don't belong to other categories"
-              ),
-          })
-          .optional(),
-      }),
+  (async () => {
+    const { partialObjectStream } = await model.streamObject(SCHEMA, prompt, {
+      systemPrompt,
       onFinish: async (object) => {
         userLogger.debug({ object }, "Persona enhancement generated");
 
@@ -184,46 +176,55 @@ Respond with ONLY the properties that need to be changed based on the user's req
         }
 
         // Merge current data with new data
-        const mergedPersonaData: PersonaData = {
-          name: object.object.persona.name ?? currentPersonaData.name,
-          age: object.object.persona.age ?? currentPersonaData.age,
-          gender: object.object.persona.gender ?? currentPersonaData.gender,
-          universe:
-            object.object.persona.universe ?? currentPersonaData.universe,
+        const mergedData: PersonaData = {
+          name: object.object.persona.name ?? currentData.name,
+          age: object.object.persona.age ?? currentData.age,
+          gender: object.object.persona.gender ?? currentData.gender,
+          universe: object.object.persona.universe ?? currentData.universe,
           appearance:
-            object.object.persona.appearance ?? currentPersonaData.appearance,
+            object.object.persona.appearance ?? currentData.appearance,
           personality:
-            object.object.persona.personality ?? currentPersonaData.personality,
+            object.object.persona.personality ?? currentData.personality,
           background:
-            object.object.persona.background ?? currentPersonaData.background,
+            object.object.persona.background ?? currentData.background,
           occupation:
-            object.object.persona.occupation ?? currentPersonaData.occupation,
+            object.object.persona.occupation ?? currentData.occupation,
           other:
             object.object.persona.other ??
-            (currentPersonaData.other ? currentPersonaData.other : undefined),
+            (currentData.other ? currentData.other : undefined),
         };
 
         const changedProperties = Object.keys(object.object.persona);
 
         // Create new persona version with merged data
         await createPersonaVersion({
-          aiModel: "gemini-2.5-flash-lite-preview-06-17",
+          aiModel: model.modelId,
           personaId,
           personaEventId,
           title: object.object.title ?? persona.title ?? undefined,
-          personaData: mergedPersonaData,
-          systemPromptId: "persona-enhancer",
+          data: mergedData,
           aiNote: object.object?.note_for_user,
           changedProperties,
         });
 
         userLogger.debug(
-          { mergedPersonaData, personaEventId },
+          { mergedData, personaEventId },
           "Persona enhancement completed"
         );
       },
-      onError: (error) => {
+      onError: async (error) => {
         userLogger.error({ error }, "Error enhancing persona");
+
+        await db
+          .update(personaEvents)
+          .set({
+            errorMessage: "Something went wrong while enhancing persona",
+          })
+          .where(eq(personaEvents.id, personaEventId));
+
+        await db.update(userTokens).set({
+          balance: sql`balance + ${tokenCost}`,
+        });
       },
     });
 

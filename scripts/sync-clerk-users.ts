@@ -1,15 +1,15 @@
 #!/usr/bin/env tsx
 
 import { config } from "dotenv";
-import { drizzle } from "drizzle-orm/node-postgres";
+import { drizzle } from "drizzle-orm/neon-serverless";
+import { neon } from "@neondatabase/serverless";
 import { users, userTokens } from "../src/db/schema";
-import { eq } from "drizzle-orm";
 
 // Load environment variables
 config({ path: [".env.local", ".env"] });
 
 // Initialize database connection
-const db = drizzle(process.env.DATABASE_URL!);
+export const db = drizzle(process.env.DATABASE_URL!);
 
 // DRY RUN MODE - Set to true to see what would be synced without actually doing it
 const DRY_RUN = true;
@@ -208,9 +208,9 @@ async function syncUsersToDatabase(clerkUsers: ClerkUser[]) {
       // Initialize user tokens with default values
       await db.insert(userTokens).values({
         userId: clerkUser.id,
-        balance: 1000, // Give new users 1000 tokens to start
-        dailyTokens: 100, // Daily token allowance
-        lastDailyGrant: new Date(),
+        balance: 0, // Give new users 1000 tokens to start
+        dailyTokensUsed: 0, // Daily token allowance
+        lastDailyReset: new Date(),
         totalPurchased: 0,
         totalSpent: 0,
         updatedAt: new Date(),

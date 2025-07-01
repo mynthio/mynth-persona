@@ -1,8 +1,7 @@
 import "server-only";
 
-import { personaEvents, personas, personaVersions } from "@/db/schema";
+import { personaEvents } from "@/db/schema";
 import { createSelectSchema } from "drizzle-arktype";
-import { PersonaVersion } from "./persona-version.type";
 
 export const PersonaEvent = createSelectSchema(personaEvents);
 

@@ -14,13 +14,13 @@ export const createCheckoutAction = async () => {
 
   const api = new Polar({
     accessToken: process.env.POLAR_ACCESS_TOKEN!,
-    server: "sandbox", // Use this option if you're using the sandbox environment - else use 'production' or omit the parameter
+    server: process.env.VERCEL_ENV === "production" ? "production" : "sandbox",
   });
 
   const checkout = await api.checkouts.create({
-    products: ["401f6067-e6aa-4ce9-ba34-b406b6aa9ce4"],
+    products: [process.env.POLAR_PRODUCT_ID_100_TOKENS!],
     externalCustomerId: user.id,
-    // successUrl: `${process.env.NEXT_PUBLIC_APP_URL}/tokens`,
+    successUrl: `${process.env.NEXT_PUBLIC_URL}/tokens`,
   });
 
   // Redirect to checkout.url

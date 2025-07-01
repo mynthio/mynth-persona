@@ -1,22 +1,11 @@
 "use client";
 
-import { PersonaEventWithVersion } from "@/types/persona-event.type";
-import { Card } from "@heroui/card";
 import { Image } from "@heroui/image";
 import { Spinner } from "@heroui/spinner";
 import { useRealtimeRun } from "@trigger.dev/react-hooks";
-import { useSWRConfig } from "swr";
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  useDisclosure,
-} from "@heroui/modal";
-import { useState } from "react";
-import { Button } from "@heroui/button";
+
 import { GetPersonaEventsByIdResponse } from "../api/personas/[personaId]/events/route";
+import ImagePreviewDialog from "@/components/persona/image-preview-dialog";
 
 export function PersonaImageEvent({
   personaEvent,
@@ -45,14 +34,8 @@ function PendingImageEvent({
   publicAccessToken: string;
   personaId: string;
 }) {
-  const { mutate } = useSWRConfig();
-
   const { run, error } = useRealtimeRun(runId, {
     accessToken: publicAccessToken,
-    onComplete: () => {
-      console.log("onComplete");
-      mutate("/api/me/balance");
-    },
     stopOnCompletion: true,
   });
 
@@ -68,35 +51,20 @@ function PendingImageEvent({
 }
 
 function ImageCard({ imageId }: { imageId: string }) {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
   return (
-    <>
-      <Card isPressable onPress={onOpen}>
+    <ImagePreviewDialog
+      src={`${process.env.NEXT_PUBLIC_CDN_BASE_URL}/personas/${imageId}.webp`}
+      alt="Persona Image"
+      title="Generated Image"
+      downloadFileName={`persona-${imageId}.webp`}
+      trigger={
         <Image
+          loading="lazy"
           width={124}
-          src={`https://mynth-persona-dev.b-cdn.net/personas/${imageId}.webp`}
+          src={`${process.env.NEXT_PUBLIC_CDN_BASE_URL}/personas/${imageId}_thumb.webp`}
           alt="Persona Image"
         />
-      </Card>
-      <Modal size="3xl" isOpen={isOpen} onOpenChange={onOpenChange}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">Image</ModalHeader>
-              <ModalBody>
-                <Image
-                  src={`https://mynth-persona-dev.b-cdn.net/personas/${imageId}.webp`}
-                  alt="Persona Image"
-                />
-              </ModalBody>
-              <ModalFooter>
-                <Button onPress={onClose}>Close</Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    </>
+      }
+    />
   );
 }

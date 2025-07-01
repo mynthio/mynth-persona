@@ -28,9 +28,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="w-full h-full">
+    <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased w-full h-full`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased pt-[var(--navigation-height)]`}
       >
         <Providers>
           <Navigation />

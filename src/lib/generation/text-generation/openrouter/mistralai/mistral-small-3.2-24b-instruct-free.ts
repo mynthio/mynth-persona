@@ -7,7 +7,7 @@ export class OpenRouterMistralSmall3224bInstructFree extends OpenRouterTextGener
   static readonly ID = "mistralai/mistral-small-3.2-24b-instruct:free" as const;
 
   constructor() {
-    super("mistralai/mistral-small-3.2-24b-instruct:free");
+    super(OpenRouterMistralSmall3224bInstructFree.ID);
   }
 
   async streamObject(
@@ -21,6 +21,7 @@ export class OpenRouterMistralSmall3224bInstructFree extends OpenRouterTextGener
       prompt,
       schema,
       mode: "json",
+      maxTokens: 1500,
       onFinish: options.onFinish,
       onError: options.onError,
     });

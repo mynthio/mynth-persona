@@ -1,10 +1,10 @@
-import { PersonaData } from "@/types/persona-version.type";
+import { PersonaData } from "@/types/persona.type";
 import { Badge } from "@heroui/badge";
 import { Chip } from "@heroui/chip";
 import { PersonIcon, StarIcon } from "@phosphor-icons/react/dist/ssr";
 import { Spacer } from "@heroui/spacer";
 type PersonaDetailsProps = {
-  personaData: PersonaData;
+  data: PersonaData;
   changedProperties?: string[];
 };
 
@@ -14,15 +14,15 @@ export default function PersonaDetails(props: PersonaDetailsProps) {
   return (
     <article className="w-full max-w-4xl mx-auto px-1 md:px-4">
       <h1 className="text-2xl lg:text-4xl font-bold mt-4">
-        {props.personaData.name}
+        {props.data.name}
       </h1>
 
       <div className="flex items-start gap-6 text-default-700 mt-1 font-light">
-        <span>{props.personaData.age}</span>
+        <span>{props.data.age}</span>
 
         <div className="flex items-center gap-1">
           <PersonIcon />
-          <span>{props.personaData.gender}</span>
+          <span>{props.data.gender}</span>
         </div>
       </div>
 
@@ -31,39 +31,39 @@ export default function PersonaDetails(props: PersonaDetailsProps) {
       <div className="space-y-6">
         <Section
           title="Universe"
-          content={props.personaData.universe}
+          content={props.data.universe}
           isChanged={changedProperties?.includes("universe")}
         />
 
         <Section
           title="Appearance"
-          content={props.personaData.appearance}
+          content={props.data.appearance}
           isChanged={changedProperties?.includes("appearance")}
         />
 
         <Section
           title="Personality"
-          content={props.personaData.personality}
+          content={props.data.personality}
           isChanged={changedProperties?.includes("personality")}
         />
 
         <Section
           title="Background"
-          content={props.personaData.background}
+          content={props.data.background}
           isChanged={changedProperties?.includes("background")}
         />
 
         <Section
           title="Occupation"
-          content={props.personaData.occupation}
+          content={props.data.occupation}
           isChanged={changedProperties?.includes("occupation")}
         />
 
-        {props.personaData.other && (
+        {props.data.other && (
           <>
             <Section
               title="Other"
-              content={props.personaData.other}
+              content={props.data.other}
               isChanged={changedProperties?.includes("other")}
             />
           </>

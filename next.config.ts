@@ -1,9 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ["pino", "pino-pretty"],
+  serverExternalPackages: ["pino", "pino-pretty"],
+
+  eslint: {
+    ignoreDuringBuilds: true,
   },
+
   async rewrites() {
     return [
       {

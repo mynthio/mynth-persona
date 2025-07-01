@@ -1,22 +1,35 @@
-import "server-only";
-
 import { personas, personaVersions } from "@/db/schema";
 import { createSelectSchema } from "drizzle-arktype";
-import { PersonaVersion } from "./persona-version.type";
+import { type } from "arktype";
 
-export const Persona = createSelectSchema(personas);
+export const PersonaData = type({
+  age: "string",
+  appearance: "string",
+  background: "string",
+  gender: "string",
+  name: "string",
+  occupation: "string",
+  personality: "string",
+  universe: "string",
+  other: "string?",
+});
 
-export type Persona = typeof Persona.infer;
+export type PersonaData = typeof PersonaData.infer;
 
-export type PersonaWithCurrentVersion = typeof Persona.infer & {
-  currentVersion: PersonaVersion;
-  profileImage?: {
-    id: string;
-    url: string;
-    altText: string | null;
-  } | null;
+export const PersonaVersion = createSelectSchema(personaVersions, {
+  data: PersonaData,
+});
+
+export type Persona = typeof personas.$inferSelect;
+
+export type PersonaVersion = typeof PersonaVersion.infer;
+
+export type PersonaWithVersion = typeof personas.$inferSelect & {
+  version: typeof personaVersions.$inferSelect & {
+    data: PersonaData;
+  };
 };
 
-export type PersonaWithVersion = typeof Persona.infer & {
-  version: PersonaVersion;
+export type PersonaWithCurrentVersion = Persona & {
+  currentVersion?: PersonaVersion;
 };

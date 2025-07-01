@@ -7,7 +7,7 @@ export class OpenRouterQwen25Vl32bInstructFree extends OpenRouterTextGenerationB
   static readonly ID = "qwen/qwen2.5-vl-32b-instruct:free" as const;
 
   constructor() {
-    super("qwen/qwen2.5-vl-32b-instruct:free");
+    super(OpenRouterQwen25Vl32bInstructFree.ID);
   }
 
   async streamObject(
@@ -21,6 +21,7 @@ export class OpenRouterQwen25Vl32bInstructFree extends OpenRouterTextGenerationB
       prompt,
       schema,
       mode: "json",
+      maxTokens: 1500,
       onFinish: options.onFinish,
       onError: options.onError,
     });

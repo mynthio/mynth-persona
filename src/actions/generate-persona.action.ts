@@ -100,7 +100,11 @@ export async function generatePersonaAction(prompt: string) {
   );
 
   if (!tokenResult.success) {
-    throw new Error(tokenResult.error || "Insufficient tokens");
+    return {
+      success: false,
+      error: "INSUFFICIENT_TOKENS",
+      message: tokenResult.error || "Insufficient tokens",
+    };
   }
 
   userLogger.debug(
@@ -178,6 +182,7 @@ export async function generatePersonaAction(prompt: string) {
   })();
 
   return {
+    success: true,
     object: stream.value,
     personaId,
     personaEventId,

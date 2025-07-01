@@ -12,7 +12,6 @@ export default function PersonaProfile() {
   const isLoadingData = usePersonaStore((state) => state.isLoadingData);
 
   const data = useMemo(() => {
-    console.log("persona", persona);
     if (!persona) return null;
     return persona.version.data;
   }, [persona]);

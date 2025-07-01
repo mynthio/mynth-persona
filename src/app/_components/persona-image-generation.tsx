@@ -50,7 +50,6 @@ function PersonaImage({
   const { run, error } = useRealtimeRun(runId, {
     accessToken: publicAccessToken,
     onComplete: () => {
-      console.log("onComplete");
       mutate("/api/me/balance");
     },
     stopOnCompletion: true,

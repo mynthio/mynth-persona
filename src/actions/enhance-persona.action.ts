@@ -94,7 +94,11 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
   });
 
   if (!persona || !persona.currentVersion) {
-    throw new Error("Persona not found or has no current version");
+    return {
+      success: false,
+      error: "PERSONA_NOT_FOUND",
+      message: "Persona not found or has no current version",
+    };
   }
 
   // Check and deduct tokens for persona enhancement
@@ -106,7 +110,11 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
   );
 
   if (!tokenResult.success) {
-    throw new Error(tokenResult.error || "Insufficient tokens");
+    return {
+      success: false,
+      error: "INSUFFICIENT_TOKENS",
+      message: tokenResult.error || "Insufficient tokens",
+    };
   }
 
   userLogger.debug(
@@ -236,6 +244,7 @@ Respond with ONLY the properties that need to be changed based on the user's req
   })();
 
   return {
+    success: true,
     object: stream.value,
     personaId,
     personaEventId,

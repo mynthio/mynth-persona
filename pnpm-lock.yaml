@@ -182,6 +182,9 @@ importers:
       swr:
         specifier: ^2.3.3
         version: 2.3.3(react@19.1.0)
+      ws:
+        specifier: ^8.18.3
+        version: 8.18.3
       zod:
         specifier: ^3.25.67
         version: 3.25.67
@@ -4925,8 +4928,8 @@ packages:
       utf-8-validate:
         optional: true
 
-  ws@8.18.2:
-    resolution: {integrity: sha512-DMricUmwGZUVr++AEAe2uiVM7UoO9MAVZMDu05UQOaUII0lp+zOzLLU4Xqh/JvTqklB1T4uELaaPBKyjE1r4fQ==}
+  ws@8.18.3:
+    resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -8348,7 +8351,7 @@ snapshots:
       ulid: 2.4.0
       uncrypto: 0.1.3
       uuid: 9.0.1
-      ws: 8.18.2
+      ws: 8.18.3
       zod: 3.25.67
     transitivePeerDependencies:
       - bufferutil
@@ -10811,7 +10814,7 @@ snapshots:
 
   ws@8.17.1: {}
 
-  ws@8.18.2: {}
+  ws@8.18.3: {}
 
   xmlhttprequest-ssl@2.0.0: {}
 

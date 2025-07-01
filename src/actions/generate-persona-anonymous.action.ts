@@ -79,7 +79,11 @@ export async function generatePersonaAnonymousAction(prompt: string) {
     const rateLimitResult = await personaAnonymousGenerateRatelimit.limit(ip);
 
     if (!rateLimitResult.success) {
-      throw new Error("Rate limit exceeded");
+      return {
+        success: false,
+        error: "RATE_LIMIT_EXCEEDED",
+        message: "Rate limit exceeded",
+      };
     }
   }
 
@@ -133,5 +137,5 @@ export async function generatePersonaAnonymousAction(prompt: string) {
     stream.done();
   })();
 
-  return { object: stream.value };
+  return { success: true, object: stream.value };
 }

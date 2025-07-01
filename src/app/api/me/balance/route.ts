@@ -42,7 +42,6 @@ export async function GET() {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error("Error fetching user balance:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

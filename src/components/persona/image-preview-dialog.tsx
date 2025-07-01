@@ -44,7 +44,7 @@ export default function ImagePreviewDialog({
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Failed to download image:", error);
+      // Error downloading image
     }
   };
 

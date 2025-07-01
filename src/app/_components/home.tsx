@@ -62,14 +62,12 @@ export default function Home() {
 
   useEffect(() => {
     if (isLoading) {
-      console.log("isLoading", isLoading);
       setIsLoadingData(true);
     }
   }, [isLoading]);
 
   useEffect(() => {
     if (persona) {
-      console.log("persona", persona);
       setData(persona);
     }
   }, [persona]);
@@ -167,12 +165,10 @@ function EnhancePersonaPrompt() {
   if (!isSignedIn) return <p>Sign in to enhance your persona</p>;
 
   const generate = async () => {
-    const { object, personaEventId } = await enhancePersonaAction(
-      personaId,
-      prompt
-    ).catch((error) => {
-      console.log("error", error);
-      if (error.message && error.message.includes("Insufficient tokens")) {
+    const response = await enhancePersonaAction(personaId, prompt);
+
+    if (!response.success) {
+      if (response.error === "INSUFFICIENT_TOKENS") {
         addToast({
           title: "Insufficient tokens",
           description:
@@ -182,10 +178,17 @@ function EnhancePersonaPrompt() {
       }
 
       personaStore.setIsGenerationInProgress(false);
-      throw new Error("Error");
-    });
+      return;
+    }
 
-    for await (const partialObject of readStreamableValue(object)) {
+    const { object, personaEventId } = response;
+
+    if (!object) {
+      personaStore.setIsGenerationInProgress(false);
+      return;
+    }
+
+    for await (const partialObject of readStreamableValue(object!)) {
       if (!partialObject) continue;
 
       personaStore.setData({
@@ -362,84 +365,142 @@ function CreatePropmpt() {
     if (personaStore.isGenerationInProgress) return;
     personaStore.setIsGenerationInProgress(true);
 
-    // @ts-ignore
-    const { personaId, ...response } = isSignedIn
-      ? await generatePersonaAction(prompt).catch((error) => {
-          if (error.message && error.message.includes("Insufficient tokens")) {
-            addToast({
-              title: "Insufficient tokens",
-              description:
-                "You don't have enough tokens to create a persona. Please try again tomorrow or buy more tokens.",
-              color: "danger",
-            });
-          }
+    // Handle signed in users
+    if (isSignedIn) {
+      const response = await generatePersonaAction(prompt);
 
-          personaStore.setIsGenerationInProgress(false);
-          throw new Error("Error");
-        })
-      : await generatePersonaAnonymousAction(prompt).catch((error) => {
-          if (error.message && error.message.includes("Rate limit exceeded")) {
-            addToast({
-              title: "Rate limit exceeded",
-              description:
-                "You have reached the daily rate limit. Please try again tomorrow or sign up for a free account and get higher rate limits.",
-              color: "danger",
-            });
-          }
+      if (!response.success) {
+        if (response.error === "INSUFFICIENT_TOKENS") {
+          addToast({
+            title: "Insufficient tokens",
+            description:
+              "You don't have enough tokens to create a persona. Please try again tomorrow or buy more tokens.",
+            color: "danger",
+          });
+        }
 
-          personaStore.setIsGenerationInProgress(false);
-          throw new Error("Error");
-        });
+        personaStore.setIsGenerationInProgress(false);
+        return;
+      }
 
-    console.log("response", response);
+      const { object, personaId: newPersonaId } = response;
 
-    personaStore.setData({
-      createdAt: new Date(),
-      currentVersionId: "1",
-      id: personaId ?? "1",
-      title: null,
-      profileImageId: null,
-      updatedAt: new Date(),
-      userId: isSignedIn ? userId : "",
-      version: {
-        aiModel: "",
-        changedProperties: null,
-        createdAt: new Date(),
-        id: "1",
-        data: {} as any,
-        personaId: "1",
-        settings: {},
-        title: null,
-        versionNumber: 1,
-      },
-    });
-
-    setIsPanelOpen(true, { history: "replace" });
-    setPersonaId(personaId ?? "new", { history: "replace" });
-
-    const { object } = response;
-
-    for await (const partialObject of readStreamableValue(object)) {
-      if (!partialObject) continue;
+      if (!object) {
+        personaStore.setIsGenerationInProgress(false);
+        return;
+      }
 
       personaStore.setData({
-        ...personaStore.data!,
+        createdAt: new Date(),
+        currentVersionId: "1",
+        id: newPersonaId ?? "1",
+        title: null,
+        profileImageId: null,
+        updatedAt: new Date(),
+        userId: userId,
         version: {
-          ...personaStore.data?.version!,
-          data: {
-            // ...personaStore.data?.version?.data,
-            ...partialObject?.persona,
-          },
+          aiModel: "",
+          changedProperties: null,
+          createdAt: new Date(),
+          id: "1",
+          data: {} as any,
+          personaId: "1",
+          settings: {},
+          title: null,
+          versionNumber: 1,
         },
       });
+
+      setIsPanelOpen(true, { history: "replace" });
+      setPersonaId(newPersonaId ?? "new", { history: "replace" });
+
+      for await (const partialObject of readStreamableValue(object)) {
+        if (!partialObject) continue;
+
+        personaStore.setData({
+          ...personaStore.data!,
+          version: {
+            ...personaStore.data?.version!,
+            data: {
+              // ...personaStore.data?.version?.data,
+              ...partialObject?.persona,
+            },
+          },
+        });
+      }
+
+      setPrompt("");
+      personaStore.setIsGenerationInProgress(false);
+      mutate(`/api/personas/${newPersonaId}`);
+      mutate(`/api/personas/${newPersonaId}/events`);
+      mutate(`/api/personas`);
+    } else {
+      // Handle anonymous users
+      const response = await generatePersonaAnonymousAction(prompt);
+
+      if (!response.success) {
+        if (response.error === "RATE_LIMIT_EXCEEDED") {
+          addToast({
+            title: "Rate limit exceeded",
+            description:
+              "You have reached the daily rate limit. Please try again tomorrow or sign up for a free account and get higher rate limits.",
+            color: "danger",
+          });
+        }
+
+        personaStore.setIsGenerationInProgress(false);
+        return;
+      }
+
+      const { object } = response;
+
+      if (!object) {
+        personaStore.setIsGenerationInProgress(false);
+        return;
+      }
+
+      personaStore.setData({
+        createdAt: new Date(),
+        currentVersionId: "1",
+        id: "1",
+        title: null,
+        profileImageId: null,
+        updatedAt: new Date(),
+        userId: "",
+        version: {
+          aiModel: "",
+          changedProperties: null,
+          createdAt: new Date(),
+          id: "1",
+          data: {} as any,
+          personaId: "1",
+          settings: {},
+          title: null,
+          versionNumber: 1,
+        },
+      });
+
+      setIsPanelOpen(true, { history: "replace" });
+      setPersonaId("new", { history: "replace" });
+
+      for await (const partialObject of readStreamableValue(object)) {
+        if (!partialObject) continue;
+
+        personaStore.setData({
+          ...personaStore.data!,
+          version: {
+            ...personaStore.data?.version!,
+            data: {
+              // ...personaStore.data?.version?.data,
+              ...partialObject?.persona,
+            },
+          },
+        });
+      }
+
+      setPrompt("");
+      personaStore.setIsGenerationInProgress(false);
     }
-
-    setPrompt("");
-
-    personaStore.setIsGenerationInProgress(false);
-    mutate(`/api/personas/${personaId}`);
-    mutate(`/api/personas/${personaId}/events`);
-    mutate(`/api/personas`);
   };
 
   return (

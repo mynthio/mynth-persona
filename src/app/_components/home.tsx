@@ -165,6 +165,9 @@ function EnhancePersonaPrompt() {
   if (!isSignedIn) return <p>Sign in to enhance your persona</p>;
 
   const generate = async () => {
+    if (personaStore.isGenerationInProgress) return;
+    personaStore.setIsGenerationInProgress(true);
+
     const response = await enhancePersonaAction(personaId, prompt);
 
     if (!response.success) {
@@ -211,6 +214,8 @@ function EnhancePersonaPrompt() {
     mutate(`/api/personas/${personaId}/events`);
     mutate(`/api/personas`);
     mutate(`/api/me/balance`);
+
+    personaStore.setIsGenerationInProgress(false);
   };
 
   return (

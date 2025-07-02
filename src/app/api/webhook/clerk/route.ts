@@ -3,6 +3,7 @@ import { verifyWebhook } from "@clerk/nextjs/webhooks";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
 import { users } from "@/db/schema";
+import logsnag from "@/lib/logsnag";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,6 +15,13 @@ export async function POST(req: NextRequest) {
     if (eventType === "user.created") {
       await db.insert(users).values({
         id: id as string,
+      });
+
+      await logsnag.identify({
+        user_id: id as string,
+        properties: {
+          email: evt.data.email_addresses[0].email_address,
+        },
       });
     }
 

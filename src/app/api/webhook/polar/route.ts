@@ -2,6 +2,7 @@
 import { db } from "@/db/drizzle";
 import { tokenTransactions, userTokens } from "@/db/schema";
 import { logger } from "@/lib/logger";
+import logsnag from "@/lib/logsnag";
 import { Webhooks } from "@polar-sh/nextjs";
 import { eq, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -63,6 +64,12 @@ export const POST = Webhooks({
         checkoutId,
         createdAt: new Date(),
       });
+    });
+
+    await logsnag.insight.track({
+      title: "Tokens Purchased",
+      value: tokenAmount,
+      icon: "💰",
     });
   },
 });

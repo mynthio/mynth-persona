@@ -17,12 +17,14 @@ export async function POST(req: NextRequest) {
         id: id as string,
       });
 
-      await logsnag.identify({
-        user_id: id as string,
-        properties: {
-          email: evt.data.email_addresses[0].email_address,
-        },
-      });
+      await logsnag
+        .identify({
+          user_id: id as string,
+          properties: {
+            email: evt.data.email_addresses[0].email_address,
+          },
+        })
+        .catch((err) => {});
     }
 
     return NextResponse.json({ message: "Webhook received" }, { status: 200 });

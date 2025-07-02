@@ -221,12 +221,14 @@ Respond with ONLY the properties that need to be changed based on the user's req
           "Persona enhancement completed"
         );
 
-        await logsnag.track({
-          channel: "personas",
-          event: "enhance-persona",
-          user_id: userId,
-          icon: "👤",
-        });
+        await logsnag
+          .track({
+            channel: "personas",
+            event: "enhance-persona",
+            user_id: userId,
+            icon: "👤",
+          })
+          .catch((err) => {});
       },
       onError: async (error) => {
         userLogger.error({ error }, "Error enhancing persona");

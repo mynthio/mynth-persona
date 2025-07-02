@@ -66,10 +66,12 @@ export const POST = Webhooks({
       });
     });
 
-    await logsnag.insight.track({
-      title: "Tokens Purchased",
-      value: tokenAmount,
-      icon: "💰",
-    });
+    await logsnag.insight
+      .track({
+        title: "Tokens Purchased",
+        value: tokenAmount,
+        icon: "💰",
+      })
+      .catch(() => {});
   },
 });

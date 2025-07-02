@@ -126,11 +126,13 @@ export async function generatePersonaAnonymousAction(prompt: string) {
           "Generate Persona Usage"
         );
 
-        await logsnag.track({
-          channel: "personas",
-          event: "generate-persona-anonymous",
-          icon: "👤",
-        });
+        await logsnag
+          .track({
+            channel: "personas",
+            event: "generate-persona-anonymous",
+            icon: "👤",
+          })
+          .catch((err) => {});
       },
       onError: (error) => {
         logger.error({ error }, "Error generating persona anonymous");

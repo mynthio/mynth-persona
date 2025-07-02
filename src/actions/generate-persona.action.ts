@@ -165,12 +165,14 @@ export async function generatePersonaAction(prompt: string) {
           aiNote: object.object?.note_for_user,
         });
 
-        await logsnag.track({
-          channel: "personas",
-          event: "generate-persona",
-          user_id: userId,
-          icon: "👤",
-        });
+        await logsnag
+          .track({
+            channel: "personas",
+            event: "generate-persona",
+            user_id: userId,
+            icon: "👤",
+          })
+          .catch((err) => {});
       },
       onError: async (error) => {
         userLogger.error({ error }, "Error generating persona");

@@ -11,6 +11,7 @@ import { TextGenerationFactory } from "@/lib/generation/text-generation/text-gen
 import { db } from "@/db/drizzle";
 import { personas, userTokens } from "@/db/schema";
 import { eq, sql } from "drizzle-orm";
+import logsnag from "@/lib/logsnag";
 
 const SYSTEM_PROMPT = `You are an imaginative character architect and storytelling expert. Your mission is to craft vivid, multi-dimensional personas that feel authentically human and captivatingly unique.
 
@@ -163,6 +164,15 @@ export async function generatePersonaAction(prompt: string) {
           versionNumber: 1,
           aiNote: object.object?.note_for_user,
         });
+
+        await logsnag
+          .track({
+            channel: "personas",
+            event: "generate-persona",
+            user_id: userId,
+            icon: "👤",
+          })
+          .catch((err) => {});
       },
       onError: async (error) => {
         userLogger.error({ error }, "Error generating persona");

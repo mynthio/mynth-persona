@@ -12,6 +12,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { PersonaData } from "@/types/persona.type";
 import { TextGenerationFactory } from "@/lib/generation/text-generation/text-generation-factory";
+import logsnag from "@/lib/logsnag";
 
 const SCHEMA = z.object({
   title: z
@@ -219,6 +220,15 @@ Respond with ONLY the properties that need to be changed based on the user's req
           { mergedData, personaEventId },
           "Persona enhancement completed"
         );
+
+        await logsnag
+          .track({
+            channel: "personas",
+            event: "enhance-persona",
+            user_id: userId,
+            icon: "👤",
+          })
+          .catch((err) => {});
       },
       onError: async (error) => {
         userLogger.error({ error }, "Error enhancing persona");

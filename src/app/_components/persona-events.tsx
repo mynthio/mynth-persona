@@ -1,7 +1,7 @@
 "use client";
 
 import { usePersonaId } from "@/hooks/use-persona-id.hook";
-import useSWR from "swr";
+import useSWR, { SWRConfig } from "swr";
 import { GetPersonaEventsByIdResponse } from "../api/personas/[personaId]/events/route";
 import { Spinner } from "@heroui/spinner";
 import { Card } from "@heroui/card";
@@ -109,7 +109,14 @@ function PersonaImageEvent({
       {imageGeneration &&
         (imageGeneration.status === "pending" ||
           imageGeneration.status === "processing") && (
-          <PersonaImageInProgress imageGeneration={imageGeneration} />
+          <SWRConfig
+            value={{
+              // @ts-expect-error - TODO: fix this
+              fetcher: null,
+            }}
+          >
+            <PersonaImageInProgress imageGeneration={imageGeneration} />
+          </SWRConfig>
         )}
     </div>
   );

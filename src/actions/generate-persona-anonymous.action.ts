@@ -8,6 +8,7 @@ import { logger } from "@/lib/logger";
 import { TextGenerationFactory } from "@/lib/generation/text-generation/text-generation-factory";
 import { getIpAddress } from "@/utils/headers-utils";
 import { personaAnonymousGenerateRatelimit } from "@/utils/rate-limitting";
+import logsnag from "@/lib/logsnag";
 
 const SYSTEM_PROMPT = `You are an imaginative character architect and storytelling expert. Your mission is to craft vivid, multi-dimensional personas that feel authentically human and captivatingly unique.
 
@@ -94,7 +95,7 @@ export async function generatePersonaAnonymousAction(prompt: string) {
   (async () => {
     const { partialObjectStream } = await model.streamObject(SCHEMA, prompt, {
       systemPrompt: SYSTEM_PROMPT,
-      onFinish: (object) => {
+      onFinish: async (object) => {
         logger.debug({ data: { object } }, "Persona anonymous generated");
 
         if (!object.object?.persona) {
@@ -124,6 +125,14 @@ export async function generatePersonaAnonymousAction(prompt: string) {
           },
           "Generate Persona Usage"
         );
+
+        await logsnag
+          .track({
+            channel: "personas",
+            event: "generate-persona-anonymous",
+            icon: "👤",
+          })
+          .catch((err) => {});
       },
       onError: (error) => {
         logger.error({ error }, "Error generating persona anonymous");

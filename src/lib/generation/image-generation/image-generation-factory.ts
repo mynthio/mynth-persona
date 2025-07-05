@@ -1,52 +1,96 @@
-import { pipe, filter, toArray } from "@fxts/core";
+import { pipe, filter, map, flat, toArray, sort } from "@fxts/core";
 import { ImageGenerationBase } from "./image-generation-base";
 import {
-  imageGenerationModels,
-  imageGenerationConfig,
+  imageModelsConfig,
+  ProviderHandler,
+  qualityConfig,
+  ModelQuality,
 } from "./image-generation-config";
-import { ModelQuality } from "./types/model-quality.type";
+import { UniversalModelId } from "./constants";
 import { logger } from "@/lib/logger";
 
+// Helper function to shuffle array using sort with random comparator
+const shuffleArray = <T>(arr: T[]): T[] => sort(() => Math.random() - 0.5, arr);
+
 export class ImageGenerationFactory {
-  static byId(id: string): ImageGenerationBase {
-    logger.debug({ id }, "Creating model by id");
+  /**
+   * Get model handler by quality level (randomly selected from available models)
+   */
+  static byQuality(quality: ModelQuality): ImageGenerationBase {
+    logger.debug({ quality }, "Getting model handler by quality");
 
-    const ModelConstructor = imageGenerationModels[id];
+    const availableProviders = pipe(
+      qualityConfig[quality] || [],
+      filter((modelId: UniversalModelId) => {
+        const config = imageModelsConfig[modelId];
+        return config && !config.isDeprecated;
+      }),
+      map((modelId: UniversalModelId) =>
+        pipe(
+          imageModelsConfig[modelId].providersHandlers,
+          filter((provider: ProviderHandler) => provider.isEnabled)
+        )
+      ),
+      flat,
+      toArray
+    );
 
-    if (!ModelConstructor) {
-      throw new Error(`Model ${id} not found`);
+    if (availableProviders.length === 0) {
+      throw new Error(`No available providers found for quality: ${quality}`);
     }
 
-    return new ModelConstructor();
+    // Randomly select a provider
+    const shuffledProviders = shuffleArray(availableProviders);
+    const selectedProvider = shuffledProviders[0];
+
+    logger.debug(
+      {
+        selectedProvider: selectedProvider.modelClass.name,
+        quality,
+      },
+      "Selected provider for quality"
+    );
+
+    return new selectedProvider.modelClass();
   }
 
-  static byQuality(quality: ModelQuality): ImageGenerationBase {
-    return pipe(
-      imageGenerationConfig,
-      filter((config) => config.quality === quality && !config.isDepracated),
-      toArray,
-      (models) => {
-        if (models.length === 0) {
-          throw new Error(`No models found for quality: ${quality}`);
-        }
-        return models[Math.floor(Math.random() * models.length)];
-      },
-      (model) => this.byId(model.id as string)
-    );
-  }
+  /**
+   * Get model handler by universal model ID (randomly selected from available providers)
+   */
+  static byModelId(modelId: UniversalModelId): ImageGenerationBase {
+    logger.debug({ modelId }, "Getting model handler by model ID");
 
-  static forFreeUsers(): ImageGenerationBase {
-    return pipe(
-      imageGenerationConfig,
-      filter((config) => config.isAvailableToFreeUsers && !config.isDepracated),
-      toArray,
-      (models) => {
-        if (models.length === 0) {
-          throw new Error("No models available for free users");
-        }
-        return models[Math.floor(Math.random() * models.length)];
-      },
-      (model) => this.byId(model.id as string)
+    const modelConfig = imageModelsConfig[modelId];
+    if (!modelConfig) {
+      throw new Error(`No configuration found for model: ${modelId}`);
+    }
+
+    if (modelConfig.isDeprecated) {
+      throw new Error(`Model ${modelId} is deprecated`);
+    }
+
+    const enabledProviders = pipe(
+      modelConfig.providersHandlers,
+      filter((provider: ProviderHandler) => provider.isEnabled),
+      toArray
     );
+
+    if (enabledProviders.length === 0) {
+      throw new Error(`No available providers found for model: ${modelId}`);
+    }
+
+    // Randomly select a provider
+    const shuffledProviders = shuffleArray(enabledProviders);
+    const selectedProvider = shuffledProviders[0];
+
+    logger.debug(
+      {
+        selectedProvider: selectedProvider.modelClass.name,
+        modelId,
+      },
+      "Selected provider for model ID"
+    );
+
+    return new selectedProvider.modelClass();
   }
 }

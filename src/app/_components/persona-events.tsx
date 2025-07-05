@@ -130,8 +130,8 @@ function PersonaImageInProgress({ imageGeneration }: { imageGeneration: any }) {
     [personaStore.imageGenerationRuns, imageGeneration.id]
   );
 
-  const { run: realtimeRun } = useRealtimeRun(run.runId, {
-    accessToken: run.publicAccessToken,
+  const { run: realtimeRun } = useRealtimeRun(run ? run.runId : undefined, {
+    accessToken: run ? run.publicAccessToken : undefined,
     stopOnCompletion: true,
   });
 

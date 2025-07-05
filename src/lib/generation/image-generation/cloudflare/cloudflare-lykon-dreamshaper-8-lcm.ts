@@ -3,12 +3,24 @@ import {
   ImageGenerationResult,
 } from "../image-generation-base";
 
+export const CLOUDFLARE_DREAMSHAPER_8_LCM_ID =
+  "@cf/lykon/dreamshaper-8-lcm" as const;
+export const DREAMSHAPER_8_LCM_MODEL_ID = "lykon/dreamshaper-8-lcm" as const;
+
 export class CloudflareLykonDreamshaper8Lcm extends ImageGenerationBase {
-  static ID = "@cf/lykon/dreamshaper-8-lcm";
+  // Universal model identifier - same across all providers for this model
+  protected readonly MODEL_ID = DREAMSHAPER_8_LCM_MODEL_ID;
+
+  // Internal unique identifier for this specific provider implementation
+  protected readonly INTERNAL_ID = CLOUDFLARE_DREAMSHAPER_8_LCM_ID;
+
+  // Provider-specific model ID (private)
+  private static readonly CLOUDFLARE_MODEL_ID =
+    "@cf/lykon/dreamshaper-8-lcm" as const;
 
   async generate(prompt: string): Promise<ImageGenerationResult> {
     const result = await fetch(
-      `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/${process.env.CLOUDFLARE_GATEWAY_NAME}/workers-ai/${CloudflareLykonDreamshaper8Lcm.ID}`,
+      `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/${process.env.CLOUDFLARE_GATEWAY_NAME}/workers-ai/${CloudflareLykonDreamshaper8Lcm.CLOUDFLARE_MODEL_ID}`,
       {
         method: "POST",
         headers: {

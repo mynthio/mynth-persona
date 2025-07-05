@@ -3,6 +3,7 @@ import {
   imageGenerations,
   images,
   personaEvents,
+  personas,
   tokenTransactions,
   userTokens,
 } from "@/db/schema";
@@ -13,6 +14,8 @@ import { nanoid } from "nanoid";
 
 import { ImageGenerationFactory } from "@/lib/generation/image-generation/image-generation-factory";
 import { PersonaWithVersion } from "@/types/persona.type";
+import { logger } from "@/lib/logger";
+import logsnag from "@/lib/logsnag";
 
 type GeneratePersonaImageTaskPayload = {
   persona: PersonaWithVersion;
@@ -63,6 +66,23 @@ export const generatePersonaImageTask = task({
       });
     }
   },
+  onSuccess: async (
+    payload: GeneratePersonaImageTaskPayload,
+    result,
+    params
+  ) => {
+    try {
+      await logsnag.track({
+        channel: "persona-image-generation",
+        event: "image-generation-completed",
+        description: "Image generation completed",
+        icon: "🖼️",
+        user_id: payload.userId,
+      });
+    } catch (error) {
+      // noop
+    }
+  },
   run: async (payload: GeneratePersonaImageTaskPayload, { ctx }) => {
     const persona = payload.persona;
 
@@ -84,9 +104,40 @@ export const generatePersonaImageTask = task({
 
     const imageGeneration = ImageGenerationFactory.byQuality("low");
 
+    logger.debug({
+      meta: {
+        userId: payload.userId,
+        runId: ctx.run.id,
+        imageGenerationId,
+        who: "generate-persona-image-task",
+        what: "image-generation-model-selection",
+      },
+      data: {
+        modelId: imageGeneration.modelId,
+        internalModelId: imageGeneration.internalId,
+      },
+    });
+
     const result = await imageGeneration.generate(
       persona.version?.data?.appearance
     );
+
+    /**
+     * TODO: Add a pricing to configuration, so we can log and calculate the cost of image generation when possible.
+     * It can be quite a nice data to have, for some dashboards and analytics.
+     */
+    logger.info({
+      meta: {
+        who: "generate-persona-image-task",
+        what: "image-generation-result",
+        modelId: imageGeneration.modelId,
+        internalModelId: imageGeneration.internalId,
+        imageGenerationId,
+        userId: payload.userId,
+        runId: ctx.run.id,
+      },
+      data: {},
+    });
 
     const processedImageWebp = await sharp(result.image).webp().toBuffer();
     const processedThumbnailWebp = await sharp(result.image)
@@ -145,28 +196,39 @@ export const generatePersonaImageTask = task({
       );
     }
 
-    const imageUrl = `https://${process.env.BUNNY_STORAGE_ZONE}.b-cdn.net/${mainFilePath}`;
+    const imageUrl = `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/${mainFilePath}`;
 
-    await db.insert(images).values({
-      id: imageId,
-      personaId: persona.id,
+    await db.transaction(async (tx) => {
+      await tx.insert(images).values({
+        id: imageId,
+        personaId: persona.id,
+      });
+
+      await tx
+        .update(imageGenerations)
+        .set({
+          status: "completed",
+          completedAt: new Date(),
+          imageId: imageId,
+        })
+        .where(eq(imageGenerations.id, imageGenerationId));
+
+      await tx
+        .update(personaEvents)
+        .set({
+          aiNote: "Image generated",
+        })
+        .where(eq(personaEvents.id, payload.eventId));
+
+      if (!persona.profileImageId) {
+        await tx
+          .update(personas)
+          .set({
+            profileImageId: imageId,
+          })
+          .where(eq(personas.id, persona.id));
+      }
     });
-
-    await db
-      .update(imageGenerations)
-      .set({
-        status: "completed",
-        completedAt: new Date(),
-        imageId: imageId,
-      })
-      .where(eq(imageGenerations.id, imageGenerationId));
-
-    await db
-      .update(personaEvents)
-      .set({
-        aiNote: "Image generated",
-      })
-      .where(eq(personaEvents.id, payload.eventId));
 
     return {
       imageUrl,

@@ -1,24 +1,20 @@
 // Central export of all image model ID constants
 
 // Internal IDs (provider-specific)
-export { CLOUDFLARE_DREAMSHAPER_8_LCM_ID } from "./cloudflare/cloudflare-lykon-dreamshaper-8-lcm";
 export { CLOUDFLARE_STABLE_DIFFUSION_XL_LIGHTNING_ID } from "./cloudflare/cloudflare-bytedance-stable-diffusion-xl-lightning";
 export { REPLICATE_FLUX_SCHNELL_ID } from "./replicate/replicate-black-forest-labs-flux-schnell";
 export { RUNWARE_FLUX_SCHNELL_ID } from "./runware/runware-flux-schnell";
 
 // Universal Model IDs (provider-agnostic)
-export { DREAMSHAPER_8_LCM_MODEL_ID } from "./cloudflare/cloudflare-lykon-dreamshaper-8-lcm";
 export { STABLE_DIFFUSION_XL_LIGHTNING_MODEL_ID } from "./cloudflare/cloudflare-bytedance-stable-diffusion-xl-lightning";
 export { FLUX_SCHNELL_MODEL_ID } from "./runware/runware-flux-schnell"; // Use one source to avoid duplicates
 
 // Import the constants for the union type
-import type { DREAMSHAPER_8_LCM_MODEL_ID } from "./cloudflare/cloudflare-lykon-dreamshaper-8-lcm";
 import type { STABLE_DIFFUSION_XL_LIGHTNING_MODEL_ID } from "./cloudflare/cloudflare-bytedance-stable-diffusion-xl-lightning";
 import type { FLUX_SCHNELL_MODEL_ID } from "./runware/runware-flux-schnell";
 
 // Union type for all universal model IDs
 export type UniversalModelId =
-  | typeof DREAMSHAPER_8_LCM_MODEL_ID
   | typeof STABLE_DIFFUSION_XL_LIGHTNING_MODEL_ID
   | typeof FLUX_SCHNELL_MODEL_ID;
 

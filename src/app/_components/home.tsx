@@ -128,38 +128,47 @@ function ImagineModal() {
     if (isLoading) return;
     setIsLoading(true);
 
-    const {
-      event,
-      taskId: runId,
-      publicAccessToken,
-    } = await generatePersonaImage(personaId);
-
-    personaStore.setImageGenerationRuns({
-      ...personaStore.imageGenerationRuns,
-      [runId]: {
-        runId,
+    try {
+      const {
+        event,
+        taskId: runId,
         publicAccessToken,
-      },
-    });
+      } = await generatePersonaImage(personaId);
 
-    setIsLoading(false);
+      personaStore.setImageGenerationRuns({
+        ...personaStore.imageGenerationRuns,
+        [runId]: {
+          runId,
+          publicAccessToken,
+        },
+      });
 
-    // scroll to the bottom of the page
-    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-    setIsOpen(false);
+      // scroll to the bottom of the page
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      setIsOpen(false);
 
-    addToast({
-      title: "Image generation started",
-      color: "success",
-    });
+      addToast({
+        title: "Image generation started",
+        color: "success",
+      });
 
-    mutate<GetPersonaEventsByIdResponse>(
-      `/api/personas/${personaId}/events`,
-      (prev) => [...(prev ?? []), event as any],
-      {
-        revalidate: false,
-      }
-    );
+      mutate<GetPersonaEventsByIdResponse>(
+        `/api/personas/${personaId}/events`,
+        (prev) => [...(prev ?? []), event as any],
+        {
+          revalidate: false,
+        }
+      );
+    } catch (error) {
+      console.error("Failed to generate persona image:", error);
+      addToast({
+        title: "Failed to generate image",
+        description: "Please try again later",
+        color: "danger",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -618,7 +627,11 @@ function DesktopLayout() {
 
   return (
     <>
-      <PanelGroup direction="horizontal" className="w-full" autoSaveId={null}>
+      <PanelGroup
+        direction="horizontal"
+        className="w-full !overflow-clip"
+        autoSaveId={null}
+      >
         <Panel
           minSize={25}
           defaultSize={50}
@@ -638,11 +651,11 @@ function DesktopLayout() {
 
             <Panel
               id="persona-panel"
+              className="!overflow-clip"
               minSize={25}
               defaultSize={50}
-              className="h-screen-minus-nav"
             >
-              <div className="p-4 h-full">
+              <div className="p-4 h-screen sticky top-0">
                 <Card shadow="sm" className="h-full">
                   <CardHeader className="flex justify-between items-center">
                     <div className="flex items-center gap-2">

@@ -1,11 +1,8 @@
-import { CloudflareLykonDreamshaper8Lcm } from "./cloudflare/cloudflare-lykon-dreamshaper-8-lcm";
 import { CloudflareBytedanceStableDiffusionXLLightning } from "./cloudflare/cloudflare-bytedance-stable-diffusion-xl-lightning";
 import { ImageGenerationBase } from "./image-generation-base";
-import { ReplicateBlackForestLabsFluxSchnell } from "./replicate/replicate-black-forest-labs-flux-schnell";
 import { RunwareFluxSchnell } from "./runware/runware-flux-schnell";
 import {
   FLUX_SCHNELL_MODEL_ID,
-  DREAMSHAPER_8_LCM_MODEL_ID,
   STABLE_DIFFUSION_XL_LIGHTNING_MODEL_ID,
   UniversalModelId,
 } from "./constants";
@@ -35,16 +32,6 @@ export const imageModelsConfig: Record<UniversalModelId, ModelConfig> = {
       },
     ],
   },
-  [DREAMSHAPER_8_LCM_MODEL_ID]: {
-    isDeprecated: true,
-    providersHandlers: [
-      {
-        modelClass: CloudflareLykonDreamshaper8Lcm,
-        isEnabled: false,
-        priority: 1,
-      },
-    ],
-  },
   [STABLE_DIFFUSION_XL_LIGHTNING_MODEL_ID]: {
     isDeprecated: true,
     providersHandlers: [
@@ -59,11 +46,7 @@ export const imageModelsConfig: Record<UniversalModelId, ModelConfig> = {
 
 // Quality configuration - qualities as properties with arrays of MODEL_IDs
 export const qualityConfig = {
-  low: [
-    FLUX_SCHNELL_MODEL_ID,
-    DREAMSHAPER_8_LCM_MODEL_ID,
-    STABLE_DIFFUSION_XL_LIGHTNING_MODEL_ID,
-  ],
+  low: [FLUX_SCHNELL_MODEL_ID, STABLE_DIFFUSION_XL_LIGHTNING_MODEL_ID],
   medium: [
     // Add medium quality models here when available
   ],

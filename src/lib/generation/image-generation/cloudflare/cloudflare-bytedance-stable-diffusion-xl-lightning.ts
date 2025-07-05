@@ -7,12 +7,25 @@ import {
   ImageGenerationResult,
 } from "../image-generation-base";
 
+export const CLOUDFLARE_STABLE_DIFFUSION_XL_LIGHTNING_ID =
+  "@cf/bytedance/stable-diffusion-xl-lightning" as const;
+export const STABLE_DIFFUSION_XL_LIGHTNING_MODEL_ID =
+  "bytedance/stable-diffusion-xl-lightning" as const;
+
 export class CloudflareBytedanceStableDiffusionXLLightning extends ImageGenerationBase {
-  static ID = "@cf/bytedance/stable-diffusion-xl-lightning";
+  // Universal model identifier - same across all providers for this model
+  protected readonly MODEL_ID = STABLE_DIFFUSION_XL_LIGHTNING_MODEL_ID;
+
+  // Internal unique identifier for this specific provider implementation
+  protected readonly INTERNAL_ID = CLOUDFLARE_STABLE_DIFFUSION_XL_LIGHTNING_ID;
+
+  // Provider-specific model ID (private)
+  private static readonly CLOUDFLARE_MODEL_ID =
+    "@cf/bytedance/stable-diffusion-xl-lightning" as const;
 
   async generate(prompt: string): Promise<ImageGenerationResult> {
     const result = await fetch(
-      `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/${process.env.CLOUDFLARE_GATEWAY_NAME}/workers-ai/${CloudflareBytedanceStableDiffusionXLLightning.ID}`,
+      `https://gateway.ai.cloudflare.com/v1/${process.env.CLOUDFLARE_ACCOUNT_ID}/${process.env.CLOUDFLARE_GATEWAY_NAME}/workers-ai/${CloudflareBytedanceStableDiffusionXLLightning.CLOUDFLARE_MODEL_ID}`,
       {
         method: "POST",
         headers: {

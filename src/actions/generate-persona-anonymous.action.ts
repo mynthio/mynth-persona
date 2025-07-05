@@ -66,13 +66,17 @@ const SCHEMA = z.object({
 });
 
 export async function generatePersonaAnonymousAction(prompt: string) {
-  "use server";
-
   logger.debug(
     {
-      prompt,
+      meta: {
+        who: "generate-persona-anonymous",
+        what: "prompt",
+      },
+      data: {
+        prompt,
+      },
     },
-    "Generating persona anonymous"
+    "Generating Persona by anonymous user"
   );
 
   if (process.env.NODE_ENV === "production") {
@@ -92,6 +96,16 @@ export async function generatePersonaAnonymousAction(prompt: string) {
 
   const model = TextGenerationFactory.forFreeUsers();
 
+  logger.debug({
+    meta: {
+      who: "generate-persona-anonymous",
+      what: "model-selection",
+    },
+    data: {
+      modelId: model.modelId,
+    },
+  });
+
   (async () => {
     const { partialObjectStream } = await model.streamObject(SCHEMA, prompt, {
       systemPrompt: SYSTEM_PROMPT,
@@ -102,7 +116,8 @@ export async function generatePersonaAnonymousAction(prompt: string) {
           logger.error(
             {
               meta: {
-                action: "generate-persona-anonymous",
+                who: "generate-persona-anonymous",
+                what: "persona-generation-error",
               },
               data: {
                 object,
@@ -116,8 +131,8 @@ export async function generatePersonaAnonymousAction(prompt: string) {
         logger.info(
           {
             meta: {
-              action: "generate-persona-anonymous",
-              what: "usage",
+              who: "generate-persona-anonymous",
+              what: "ai-model-usage-tracking",
             },
             data: {
               usage: object.usage,

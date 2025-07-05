@@ -24,10 +24,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       >
         <Suspense>
           <NuqsAdapter>
-            <HeroUIProvider
-              className="w-full h-full overflow-auto"
-              navigate={router.push}
-            >
+            <HeroUIProvider className="w-full h-full" navigate={router.push}>
               <ToastProvider />
               {children}
             </HeroUIProvider>

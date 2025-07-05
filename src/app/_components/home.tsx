@@ -4,7 +4,7 @@ import { usePersonaStore } from "@/providers/persona-store-provider";
 import PersonaEvents from "./persona-events";
 import useSWR, { mutate, useSWRConfig } from "swr";
 import { usePersonaId } from "@/hooks/use-persona-id.hook";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { PersonaWithVersion } from "@/types/persona.type";
 import { Drawer, DrawerContent, DrawerBody } from "@heroui/drawer";
 import { useIsPersonaPanelOpened } from "@/hooks/use-is-persona-panel-opened.hook";
@@ -14,10 +14,10 @@ import PersonaProfile from "./persona-profile";
 import { Card, CardBody, CardHeader } from "@heroui/card";
 import { Textarea } from "@heroui/input";
 import { Button } from "@heroui/button";
+import { Form } from "@heroui/form";
 import {
   ImageIcon,
   PaperPlaneTiltIcon,
-  PencilIcon,
   PokerChipIcon,
   XIcon,
 } from "@phosphor-icons/react/dist/ssr";
@@ -36,7 +36,16 @@ import { usePersonaVersionId } from "@/hooks/use-persona-version-id.hook";
 import { generatePersonaImage } from "@/actions/generate-persona-image";
 import { GetPersonaEventsByIdResponse } from "../api/personas/[personaId]/events/route";
 import { addToast } from "@heroui/toast";
-
+import { RadioGroup, Radio, RadioProps } from "@heroui/radio";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@heroui/modal";
+import { useIsImagineMode } from "@/hooks/use-is-imagine-mode.hook";
+import { cn } from "@heroui/react";
 export default function Home() {
   const isLargeScreen = useMediaQuery("(min-width: 768px)", {
     defaultValue: true,
@@ -76,7 +85,166 @@ export default function Home() {
     return <Create />;
   }
 
-  return isLargeScreen ? <DesktopLayout /> : <MobileLayout />;
+  return (
+    <>
+      {isLargeScreen ? <DesktopLayout /> : <MobileLayout />}
+
+      <Suspense>
+        <ImagineModal />
+      </Suspense>
+    </>
+  );
+}
+
+function CustomRadio(props: RadioProps) {
+  const { children, ...otherProps } = props;
+
+  return (
+    <Radio
+      {...otherProps}
+      classNames={{
+        base: cn(
+          "inline-flex m-0 bg-content1 hover:bg-content2 items-center justify-between",
+          "flex-row-reverse max-w-[300px] cursor-pointer rounded-lg gap-4 p-4 border-2 border-transparent",
+          "data-[selected=true]:border-primary"
+        ),
+      }}
+    >
+      {children}
+    </Radio>
+  );
+}
+
+function ImagineModal() {
+  const [isOpen, setIsOpen] = useIsImagineMode();
+  const personaStore = usePersonaStore((state) => state);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [personaId] = usePersonaId();
+
+  if (!personaId) return null;
+
+  const onGenerate = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+
+    try {
+      const {
+        event,
+        taskId: runId,
+        publicAccessToken,
+      } = await generatePersonaImage(personaId);
+
+      personaStore.setImageGenerationRuns({
+        ...personaStore.imageGenerationRuns,
+        [runId]: {
+          runId,
+          publicAccessToken,
+        },
+      });
+
+      // scroll to the bottom of the page
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      setIsOpen(false);
+
+      addToast({
+        title: "Image generation started",
+        color: "success",
+      });
+
+      mutate<GetPersonaEventsByIdResponse>(
+        `/api/personas/${personaId}/events`,
+        (prev) => [...(prev ?? []), event as any],
+        {
+          revalidate: false,
+        }
+      );
+    } catch (error) {
+      console.error("Failed to generate persona image:", error);
+      addToast({
+        title: "Failed to generate image",
+        description: "Please try again later",
+        color: "danger",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Modal isOpen={isOpen} onOpenChange={setIsOpen} size="4xl">
+      <ModalContent>
+        {(onClose) => (
+          <>
+            <ModalHeader className="flex flex-col gap-1">
+              Generate Persona Image
+            </ModalHeader>
+            <ModalBody>
+              <p className="text-sm text-default-700">
+                We're planning to introduce much more options and models soon.
+                We're still working on it. Feel free to check our{" "}
+                <a
+                  className="underline"
+                  href="https://discord.gg/ktHXuPVaqB"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Discord
+                </a>{" "}
+                for updates and suggestions about models.
+              </p>
+
+              <Form>
+                <RadioGroup
+                  defaultValue="low"
+                  isRequired
+                  classNames={{
+                    base: "w-full",
+                    wrapper: "grid grid-cols-3",
+                  }}
+                >
+                  <CustomRadio description="Low quality" value="low">
+                    Low <Chip>Free</Chip>
+                  </CustomRadio>
+                  <CustomRadio
+                    description="High quality"
+                    value="medium"
+                    isDisabled
+                  >
+                    Medium (soon)
+                  </CustomRadio>
+                  <CustomRadio
+                    description="High quality"
+                    value="high"
+                    isDisabled
+                  >
+                    High (soon)
+                  </CustomRadio>
+                </RadioGroup>
+              </Form>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                color="danger"
+                variant="light"
+                onPress={onClose}
+                isDisabled={isLoading}
+              >
+                Close
+              </Button>
+              <Button
+                color="primary"
+                onPress={onGenerate}
+                isLoading={isLoading}
+              >
+                Generate
+              </Button>
+            </ModalFooter>
+          </>
+        )}
+      </ModalContent>
+    </Modal>
+  );
 }
 
 function PersonaChat() {
@@ -129,10 +297,6 @@ function Create() {
 }
 
 function PersonaPrompt() {
-  const [generationMode] = useGenerationMode();
-  const [prompt, setPrompt] = useState("");
-  const personaStore = usePersonaStore((state) => state);
-
   return (
     <div
       id="persona-prompt-wrapper"
@@ -142,11 +306,7 @@ function PersonaPrompt() {
         id="persona-prompt"
         className="flex flex-col gap-2 mx-auto p-2 w-full max-w-2xl"
       >
-        {generationMode === "creator" ? (
-          <EnhancePersonaPrompt />
-        ) : (
-          <ImaginePrompt />
-        )}
+        <EnhancePersonaPrompt />
       </Card>
     </div>
   );
@@ -156,6 +316,7 @@ function EnhancePersonaPrompt() {
   const [prompt, setPrompt] = useState("");
   const personaStore = usePersonaStore((state) => state);
   const [generationMode, setGenerationMode] = useGenerationMode();
+  const [isImagineMode, setIsImagineMode] = useIsImagineMode();
   const [personaId] = usePersonaId();
   const { mutate } = useSWRConfig();
 
@@ -250,7 +411,7 @@ function EnhancePersonaPrompt() {
             size="sm"
             variant="light"
             isIconOnly
-            onPress={() => setGenerationMode("imagine")}
+            onPress={() => setIsImagineMode(true, { history: "replace" })}
           >
             <ImageIcon />
           </Button>
@@ -266,91 +427,6 @@ function EnhancePersonaPrompt() {
           </Button>
         </div>
       </div>
-    </>
-  );
-}
-
-function ImaginePrompt() {
-  const personaStore = usePersonaStore((state) => state);
-  const [generationMode, setGenerationMode] = useGenerationMode();
-
-  const [personaId] = usePersonaId();
-
-  if (!personaId) return null;
-
-  const generate = async () => {
-    if (personaStore.isGenerationInProgress) return;
-    personaStore.setIsGenerationInProgress(true);
-
-    const {
-      event,
-      taskId: runId,
-      publicAccessToken,
-    } = await generatePersonaImage(personaId);
-
-    personaStore.setImageGenerationRuns({
-      ...personaStore.imageGenerationRuns,
-      [runId]: {
-        runId,
-        publicAccessToken,
-      },
-    });
-
-    personaStore.setIsGenerationInProgress(false);
-
-    mutate<GetPersonaEventsByIdResponse>(
-      `/api/personas/${personaId}/events`,
-      (prev) => [...(prev ?? []), event as any],
-      {
-        revalidate: false,
-      }
-    );
-  };
-
-  return (
-    <>
-      <Textarea
-        placeholder="Imagine your persona (image prompts will be available soon)"
-        isDisabled
-        minRows={1}
-        classNames={{
-          input: "outline-none border-none",
-          inputWrapper:
-            "bg-transparent border-none shadow-none hover:bg-none data-[hover=true]:bg-transparent data-[hover=true]:bg-none data-[focus=true]:bg-transparent data-[focus=true]:bg-none",
-        }}
-      />
-
-      <div className="flex items-center justify-between">
-        <div>
-          <Chip variant="flat" startContent={<PokerChipIcon />} color="primary">
-            0 tokens
-          </Chip>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="light"
-            isIconOnly
-            onPress={() => setGenerationMode("creator")}
-          >
-            <PencilIcon />
-          </Button>
-
-          <Button
-            isIconOnly
-            color="primary"
-            isLoading={personaStore.isGenerationInProgress}
-            onPress={generate}
-          >
-            <ImageIcon />
-          </Button>
-        </div>
-      </div>
-      <p className="text-sm text-center text-default-700 mt-2">
-        During beta testing, image generation is free for all users but uses
-        basic models. Higher quality models will be available soon.
-      </p>
     </>
   );
 }
@@ -551,7 +627,11 @@ function DesktopLayout() {
 
   return (
     <>
-      <PanelGroup direction="horizontal" className="w-full" autoSaveId={null}>
+      <PanelGroup
+        direction="horizontal"
+        className="w-full !overflow-clip"
+        autoSaveId={null}
+      >
         <Panel
           minSize={25}
           defaultSize={50}
@@ -571,11 +651,11 @@ function DesktopLayout() {
 
             <Panel
               id="persona-panel"
+              className="!overflow-clip"
               minSize={25}
               defaultSize={50}
-              className="h-screen-minus-nav"
             >
-              <div className="p-4 h-full">
+              <div className="p-4 h-screen sticky top-0">
                 <Card shadow="sm" className="h-full">
                   <CardHeader className="flex justify-between items-center">
                     <div className="flex items-center gap-2">

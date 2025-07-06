@@ -65,13 +65,7 @@ export default function ImagePreviewDialog({
               <ModalHeader className="flex flex-col gap-1">{title}</ModalHeader>
               <ModalBody className="p-4">
                 <div className="flex justify-center">
-                  <Image
-                    src={src}
-                    alt={alt}
-                    loading="lazy"
-                    className="max-w-full h-auto"
-                    removeWrapper
-                  />
+                  <Image src={src} alt={alt} className="max-w-full h-auto" />
                 </div>
               </ModalBody>
               <ModalFooter>

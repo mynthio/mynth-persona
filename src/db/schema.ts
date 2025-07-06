@@ -83,7 +83,7 @@ export const personaEvents = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     type: personaEventTypeEnum("type").notNull(), // 'generation', 'edit', 'image', 'revert'
     versionId: text("version_id").references(() => personaVersions.id, {
-      onDelete: "set null",
+      onDelete: "cascade",
     }), // Link to version (only for generation/edit)
     userMessage: text("user_message"), // User's input message
     errorMessage: text("error_message"), // Error message if generation failed

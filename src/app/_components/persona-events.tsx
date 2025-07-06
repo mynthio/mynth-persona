@@ -1,7 +1,7 @@
 "use client";
 
 import { usePersonaId } from "@/hooks/use-persona-id.hook";
-import useSWR, { SWRConfig } from "swr";
+import useSWR, { SWRConfig, useSWRConfig } from "swr";
 import { GetPersonaEventsByIdResponse } from "../api/personas/[personaId]/events/route";
 import { Spinner } from "@heroui/spinner";
 import { Card } from "@heroui/card";
@@ -55,6 +55,8 @@ function PersonaEvent({
       return <PersonaCreatorEvent event={event} />;
     case "image_generate":
       return <PersonaImageEvent event={event} />;
+    case "persona_revert":
+      return <PersonaCreatorEvent event={event} />;
   }
 
   return null;
@@ -124,6 +126,8 @@ function PersonaImageEvent({
 
 function PersonaImageInProgress({ imageGeneration }: { imageGeneration: any }) {
   const personaStore = usePersonaStore((state) => state);
+  const { mutate } = useSWRConfig();
+  const [personaId] = usePersonaId();
 
   const run = useMemo(
     () => personaStore.imageGenerationRuns[imageGeneration.id],
@@ -133,6 +137,10 @@ function PersonaImageInProgress({ imageGeneration }: { imageGeneration: any }) {
   const { run: realtimeRun } = useRealtimeRun(run ? run.runId : undefined, {
     accessToken: run ? run.publicAccessToken : undefined,
     stopOnCompletion: true,
+    onComplete: () => {
+      // Remove image generation from the store and revalidate the persona events
+      mutate(`/api/personas/${personaId}/events`);
+    },
   });
 
   if (!run)
@@ -198,8 +206,14 @@ function PersonaEventVersion({
 }: {
   version: NonNullable<GetPersonaEventsByIdResponse[number]["version"]>;
 }) {
+  const personaStore = usePersonaStore((state) => state);
   const [_, setVersionId] = usePersonaVersionId();
   const [isOpen, setIsOpen] = useIsPersonaPanelOpened();
+
+  const isCurrentVersion = useMemo(
+    () => personaStore.data?.currentVersionId === version.id,
+    [personaStore.data?.currentVersionId, version.id]
+  );
 
   const handlePress = () => {
     setVersionId(version.id);
@@ -209,7 +223,9 @@ function PersonaEventVersion({
   return (
     <Card className="p-4" isPressable onPress={handlePress}>
       <div className="flex items-center gap-4">
-        <Chip>Version {version.versionNumber}</Chip>
+        <Chip color={isCurrentVersion ? "primary" : "default"}>
+          Version {version.versionNumber} {isCurrentVersion && "(Current)"}
+        </Chip>
         <span className="font-medium">{version.title}</span>
         <ArrowRightIcon />
       </div>

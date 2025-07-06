@@ -18,18 +18,30 @@ export async function setPersonaCurrentVersion(
   }
 
   // validate if version is part of the persona
-  const [maybeVersion] = await db
-    .select()
-    .from(personaVersions)
-    .where(
-      and(
-        eq(personaVersions.id, versionId),
-        eq(personaVersions.personaId, personaId)
-      )
-    )
-    .limit(1);
+  const maybeVersion = await db.query.personaVersions.findFirst({
+    where: and(
+      eq(personaVersions.id, versionId),
+      eq(personaVersions.personaId, personaId)
+    ),
+    columns: {
+      id: true,
+      versionNumber: true,
+    },
+    with: {
+      persona: {
+        columns: {
+          id: true,
+          userId: true,
+        },
+      },
+    },
+  });
 
   if (!maybeVersion) {
+    throw new Error("Unauthorized");
+  }
+
+  if (maybeVersion.persona.userId !== userId) {
     throw new Error("Unauthorized");
   }
 
@@ -38,7 +50,7 @@ export async function setPersonaCurrentVersion(
    */
 
   await db.transaction(async (tx) => {
-    await tx
+    const updateResult = await tx
       .update(personas)
       .set({
         currentVersionId: versionId,

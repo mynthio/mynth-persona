@@ -6,11 +6,14 @@ import { logger } from "@/lib/logger";
 import { auth } from "@clerk/nextjs/server";
 import { createPersona } from "@/services/persona/create-persona";
 import { createPersonaVersion } from "@/services/persona/create-persona-version";
-import { spendTokens } from "@/services/token/token-manager.service";
+import {
+  spendTokens,
+  refundTokens,
+} from "@/services/token/token-manager.service";
 import { TextGenerationFactory } from "@/lib/generation/text-generation/text-generation-factory";
 import { db } from "@/db/drizzle";
-import { personas, userTokens } from "@/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { personas } from "@/db/schema";
+import { eq } from "drizzle-orm";
 import logsnag from "@/lib/logsnag";
 
 const SYSTEM_PROMPT = `You are an imaginative character architect and storytelling expert. Your mission is to craft vivid, multi-dimensional personas that feel authentically human and captivatingly unique.
@@ -165,6 +168,23 @@ export async function generatePersonaAction(prompt: string) {
           aiNote: object.object?.note_for_user,
         });
 
+        // Maybe we can generate image for each persona so it's cool, and every persona has profile image?
+        // await tasks.trigger<typeof generatePersonaImageTask>(
+        //   "generate-persona-image",
+        //   {
+        //     persona: {
+        //       id: personaId,
+        //       version: {
+        //         id: "1",
+        //         data: object.object.persona,
+        //       },
+        //     } as any,
+        //     userId,
+        //     cost: 0,
+        //     eventId: personaEventId,
+        //   }
+        // );
+
         await logsnag
           .track({
             channel: "personas",
@@ -175,20 +195,45 @@ export async function generatePersonaAction(prompt: string) {
           .catch((err) => {});
       },
       onError: async (error) => {
+        console.error(error);
         userLogger.error({ error }, "Error generating persona");
 
-        await db.update(userTokens).set({
-          balance: sql`balance + ${tokenCost}`,
-        });
+        await refundTokens(
+          userId,
+          tokenResult.tokensFromFree,
+          tokenResult.tokensFromPurchased,
+          "Persona generation failed"
+        );
         await db.delete(personas).where(eq(personas.id, personaId));
+        stream.update({
+          error: "Generation failed due to an error. Please try again.",
+        });
+        stream.done();
       },
     });
 
-    for await (const partialObject of partialObjectStream) {
-      stream.update(partialObject);
+    if (!partialObjectStream) {
+      return;
     }
 
-    stream.done();
+    try {
+      for await (const partialObject of partialObjectStream) {
+        stream.update(partialObject);
+      }
+
+      stream.done();
+    } catch (error) {
+      console.error(error);
+      userLogger.error({ error }, "Error during streaming");
+      await refundTokens(
+        userId,
+        tokenResult.tokensFromFree,
+        tokenResult.tokensFromPurchased,
+        "Persona generation failed"
+      );
+      stream.update({ error: "Streaming failed. Please try again." });
+      stream.done();
+    }
   })();
 
   return {

@@ -1,10 +1,19 @@
-export interface TokenDeductionResult {
-  success: boolean;
-  tokensUsed: number;
-  remainingBalance: number;
-  remainingDailyTokens: number;
-  error?: string;
-}
+export type TokenDeductionResult =
+  | {
+      success: true;
+      tokensUsed: number;
+      tokensFromFree: number;
+      tokensFromPurchased: number;
+      remainingBalance: number;
+      remainingDailyTokens: number;
+    }
+  | {
+      success: false;
+      tokensUsed: number;
+      remainingBalance: number;
+      remainingDailyTokens: number;
+      error: string;
+    };
 
 export interface UserTokenBalance {
   totalBalance: number;

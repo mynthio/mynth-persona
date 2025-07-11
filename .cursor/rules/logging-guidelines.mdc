@@ -1,0 +1,132 @@
+---
+description: Logging rules across the project
+alwaysApply: false
+---
+
+## Why Log?
+
+- Capture key events, errors, and metrics for debugging, monitoring, and analytics (e.g., usage charts in Better Stack).
+- Track AI model usage, user actions, and system flows without spamming noise.
+- Enable quick queries in Better Stack for insights like error rates or token spend.
+
+## When to Log?
+
+- **Errors**: Always, with context for debugging.
+- **Key Events/Successes**: Milestones like "persona generated" or webhook handled; include metrics for analytics.
+- **Usage Tracking**: AI calls with token counts, durations, etc., for charts.
+- **Avoid**: Verbose debugs in loops, sensitive data, or redundancies.
+- Levels: debug (dev details), info (success/metrics), warn (non-fatal), error (failures).
+
+## Log Structure
+
+Use Pino's object format: `logger.level({ meta: { ... }, data: { ... } }, "Message")`.
+
+- **meta**: Tags for filtering.
+
+  - `who`: Embedded namespace identifying code location, e.g., "generation:image:runware-flux-schnell:generate" (feature:provider:class:method, kebab-case).
+  - `what`: Event type, e.g., "image-gen-error" (kebab-case for querying).
+  - Optional: `context` (e.g., "server-action"), `where` (for more precision if needed).
+
+- **data**: Details/metrics, e.g., { usage: { tokens: 123 }, error: "Timeout" }. Keep flat for easy querying.
+
+- **Message**: Short summary, e.g., "Image generation failed".
+
+## Special Fields
+
+- **userId**: At root level via child logger, e.g., `const userLogger = logger.child({ userId });`. Auto-adds to all logs from that child.
+- Extensibility: Add fields like `traceId` or `durationMs` as needed for analytics.
+
+## Best Practices
+
+- Use child loggers for context (e.g., userId, sessionId).
+- Standardize `what` for categories (define common ones here if frequent).
+- Test in Better Stack: Ensure structure supports queries and dashboards.
+- Keep it chill: Logs should be useful, not overwhelming—log smart, not hard.
+
+## Examples
+
+```typescript
+// Error in class method
+logger.error(
+  {
+    meta: { who: "actions:generate-persona", what: "generation-error" },
+    data: { error: err.message },
+  },
+  "Persona generation failed"
+);
+
+// Usage tracking
+userLogger.info(
+  {
+    meta: { who: "generation:text:google-gemini", what: "ai-usage" },
+    data: { usage: { promptTokens: 50, completionTokens: 200 } },
+  },
+  "Text generation completed"
+);
+```
+
+Follow these for consistent, powerful logging. Extend as the project evolves!
+
+## Why Log?
+
+- Capture key events, errors, and metrics for debugging, monitoring, and analytics (e.g., usage charts in Better Stack).
+- Track AI model usage, user actions, and system flows without spamming noise.
+- Enable quick queries in Better Stack for insights like error rates or token spend.
+
+## When to Log?
+
+- **Errors**: Always, with context for debugging.
+- **Key Events/Successes**: Milestones like "persona generated" or webhook handled; include metrics for analytics.
+- **Usage Tracking**: AI calls with token counts, durations, etc., for charts.
+- **Avoid**: Verbose debugs in loops, sensitive data, or redundancies.
+- Levels: debug (dev details), info (success/metrics), warn (non-fatal), error (failures).
+
+## Log Structure
+
+Use Pino's object format: `logger.level({ meta: { ... }, data: { ... } }, "Message")`.
+
+- **meta**: Tags for filtering.
+
+  - `who`: Embedded namespace identifying code location, e.g., "generation:image:runware-flux-schnell:generate" (feature:provider:class:method, kebab-case).
+  - `what`: Event type, e.g., "image-gen-error" (kebab-case for querying).
+  - Optional: `context` (e.g., "server-action"), `where` (for more precision if needed).
+
+- **data**: Details/metrics, e.g., { usage: { tokens: 123 }, error: "Timeout" }. Keep flat for easy querying.
+
+- **Message**: Short summary, e.g., "Image generation failed".
+
+## Special Fields
+
+- **userId**: At root level via child logger, e.g., `const userLogger = logger.child({ userId });`. Auto-adds to all logs from that child.
+- Extensibility: Add fields like `traceId` or `durationMs` as needed for analytics.
+
+## Best Practices
+
+- Use child loggers for context (e.g., userId, sessionId).
+- Standardize `what` for categories (define common ones here if frequent).
+- Test in Better Stack: Ensure structure supports queries and dashboards.
+- Keep it chill: Logs should be useful, not overwhelming—log smart, not hard.
+
+## Examples
+
+```typescript
+// Error in class method
+logger.error(
+  {
+    meta: { who: "actions:generate-persona", what: "generation-error" },
+    data: { error: err.message },
+  },
+  "Persona generation failed"
+);
+
+// Usage tracking
+userLogger.info(
+  {
+    meta: { who: "generation:text:google-gemini", what: "ai-usage" },
+    data: { usage: { promptTokens: 50, completionTokens: 200 } },
+  },
+  "Text generation completed"
+);
+```
+
+Follow these for consistent, powerful logging. Extend as the project evolves!

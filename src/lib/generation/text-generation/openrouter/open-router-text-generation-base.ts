@@ -1,13 +1,13 @@
-import { LanguageModelV1, streamObject, StreamObjectResult } from "ai";
+import { LanguageModelV1, streamObject } from "ai";
 import { TextGenerationBase } from "../text-generation-base";
 import { TextGenerationStreamObjectOptions } from "../types/text-generation-stream-object-options.type";
-import { google } from "@ai-sdk/google";
 import { ZodSchema } from "zod";
 import {
   createOpenRouter,
   OpenRouterProvider,
 } from "@openrouter/ai-sdk-provider";
 import { ModelId } from "../types/model-id.type";
+import ms from "ms";
 
 export abstract class OpenRouterTextGenerationBase extends TextGenerationBase {
   private readonly openRouter: OpenRouterProvider;
@@ -21,6 +21,7 @@ export abstract class OpenRouterTextGenerationBase extends TextGenerationBase {
       apiKey: process.env.OPEN_ROUTER_API_KEY!,
     });
 
+    // @ts-expect-error - TODO: fix this
     this.model = this.openRouter(modelId);
   }
 
@@ -35,6 +36,7 @@ export abstract class OpenRouterTextGenerationBase extends TextGenerationBase {
       prompt,
       schema,
       maxTokens: 1500,
+      abortSignal: AbortSignal.timeout(ms("60s")),
       onFinish: options.onFinish,
       onError: options.onError,
     });

@@ -7,6 +7,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { ToastProvider } from "@heroui/toast";
 import { useRouter } from "next/navigation";
 import { Suspense } from "react";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 

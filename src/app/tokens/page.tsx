@@ -1,214 +1,223 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db/drizzle";
 import { userTokens, tokenTransactions } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { DAILY_FREE_TOKENS } from "@/lib/constants";
-import { Card, CardBody, CardHeader } from "@heroui/card";
-import { Chip } from "@heroui/chip";
-import { Button } from "@heroui/button";
-import { Divider } from "@heroui/divider";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { createCheckoutAction } from "@/actions/create-checkout.action";
 import { redirectToCustomerPortal } from "@/actions/redirect-to-customer-portal.action";
-import TransactionHistory from "./_components/transaction-history";
 
-async function getTokenData(userId: string) {
-  const userTokenData = await db.query.userTokens.findFirst({
-    where: eq(userTokens.userId, userId),
-  });
+export default async function TokensPage() {
+  const { userId, redirectToSignIn } = await auth();
 
-  // Get token transactions for history
-  const transactions = await db.query.tokenTransactions.findMany({
-    where: eq(tokenTransactions.userId, userId),
-    orderBy: [desc(tokenTransactions.createdAt)],
-    limit: 10,
-  });
-
-  if (!userTokenData) {
-    return {
-      purchasedBalance: 0,
-      dailyTokensUsed: 0,
-      dailyFreeTokensRemaining: DAILY_FREE_TOKENS,
-      totalBalance: DAILY_FREE_TOKENS,
-      totalPurchased: 0,
-      totalSpent: 0,
-      transactions,
-    };
+  if (!userId) {
+    return redirectToSignIn();
   }
 
-  const dailyTokensUsed = userTokenData.dailyTokensUsed;
+  // Get user token data and recent transactions
+  const [userTokenData, recentTransactions] = await Promise.all([
+    db.query.userTokens.findFirst({
+      where: eq(userTokens.userId, userId),
+    }),
+    db.query.tokenTransactions.findMany({
+      where: eq(tokenTransactions.userId, userId),
+      orderBy: [desc(tokenTransactions.createdAt)],
+      limit: 10,
+    }),
+  ]);
+
+  // Calculate balances
+  const purchasedBalance = userTokenData?.balance || 0;
+  const dailyTokensUsed = userTokenData?.dailyTokensUsed || 0;
   const dailyFreeTokensRemaining = Math.max(
     0,
     DAILY_FREE_TOKENS - dailyTokensUsed
   );
-  const totalBalance = userTokenData.balance + dailyFreeTokensRemaining;
+  const totalBalance = purchasedBalance + dailyFreeTokensRemaining;
+  const totalSpent = userTokenData?.totalSpent || 0;
+  const totalPurchased = userTokenData?.totalPurchased || 0;
 
-  return {
-    purchasedBalance: userTokenData.balance,
-    dailyTokensUsed,
-    dailyFreeTokensRemaining,
-    totalBalance,
-    totalPurchased: userTokenData.totalPurchased,
-    totalSpent: userTokenData.totalSpent,
-    transactions,
-  };
-}
+  // Filter purchase transactions for purchase history
+  const purchaseTransactions = recentTransactions.filter(
+    (transaction) => transaction.type === "purchase"
+  );
 
-function TokenBalanceCard({ tokenData }: { tokenData: any }) {
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-2">
-        <h2 className="text-xl font-semibold">Token Balance</h2>
-      </CardHeader>
-      <CardBody className="pt-0">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-lg">Total Available Tokens</span>
-            <Chip
-              size="lg"
-              color="primary"
-              variant="flat"
-              className="text-lg font-bold"
-            >
-              {tokenData.totalBalance}
-            </Chip>
-          </div>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-16 max-w-4xl">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-light tracking-tight text-foreground mb-3">
+            Token Balance
+          </h1>
+          <p className="text-muted-foreground text-lg font-light">
+            Manage your tokens and view transaction history
+          </p>
+        </div>
 
-          <Divider />
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Purchased Tokens</span>
-              <span className="font-medium">{tokenData.purchasedBalance}</span>
+        {/* Balance Overview */}
+        <div className="grid gap-6 md:gap-8 mb-12">
+          {/* Current Balance */}
+          <Card className="p-8 text-center border border-border">
+            <div className="mb-6">
+              <div className="text-6xl font-light text-foreground mb-2">
+                {totalBalance}
+              </div>
+              <div className="text-muted-foreground text-lg">
+                Total Available Tokens
+              </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Free Tokens Today</span>
-              <span className="font-medium">
-                {tokenData.dailyFreeTokensRemaining}
-              </span>
+            <div className="flex justify-center items-center gap-4 mb-6">
+              <div className="text-sm text-muted-foreground">
+                <span className="text-foreground font-medium">
+                  {purchasedBalance}
+                </span>{" "}
+                purchased
+              </div>
+              <div className="w-1 h-1 bg-muted-foreground rounded-full"></div>
+              <div className="text-sm text-muted-foreground">
+                <span className="text-foreground font-medium">
+                  {dailyFreeTokensRemaining}
+                </span>{" "}
+                daily free
+              </div>
             </div>
 
-            <div className="bg-blue-50 p-3 rounded-lg">
-              <p className="text-sm text-blue-800">
-                💡 You receive {DAILY_FREE_TOKENS} free tokens daily that don't
-                stack. Use them or lose them!
-              </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <form action={createCheckoutAction}>
+                <Button
+                  type="submit"
+                  className="px-8 py-6 text-base font-medium"
+                  size="lg"
+                >
+                  Buy 100 Tokens
+                </Button>
+              </form>
+
+              <form action={redirectToCustomerPortal}>
+                <Button
+                  type="submit"
+                  variant="outline"
+                  className="px-8 py-6 text-base font-medium"
+                  size="lg"
+                >
+                  Manage Payments
+                </Button>
+              </form>
             </div>
+          </Card>
+
+          {/* Statistics */}
+          <div className="grid grid-cols-2 gap-6">
+            <Card className="p-6 text-center border border-border">
+              <div className="text-3xl font-light text-foreground mb-2">
+                {totalPurchased}
+              </div>
+              <div className="text-muted-foreground text-sm">
+                Total Purchased
+              </div>
+            </Card>
+
+            <Card className="p-6 text-center border border-border">
+              <div className="text-3xl font-light text-foreground mb-2">
+                {totalSpent}
+              </div>
+              <div className="text-muted-foreground text-sm">Total Spent</div>
+            </Card>
           </div>
         </div>
-      </CardBody>
-    </Card>
-  );
-}
 
-function PurchaseCard() {
-  return (
-    <Card className="w-full">
-      <CardHeader className="pb-2">
-        <h2 className="text-xl font-semibold">Purchase Tokens</h2>
-      </CardHeader>
-      <CardBody className="pt-0">
-        <div className="space-y-4">
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border border-purple-200">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-lg font-medium">100 Tokens</span>
-              <Chip color="secondary" variant="flat">
-                Best Value
-              </Chip>
-            </div>
-            <p className="text-sm text-gray-600 mb-4">
-              Perfect for creating multiple personas and generating images
+        {/* Purchase History */}
+        <div className="bg-card rounded-lg border border-border overflow-hidden">
+          <div className="p-6 border-b border-border">
+            <h2 className="text-xl font-light text-foreground">
+              Purchase History
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Recent token purchases • For detailed history, use "Manage
+              Payments"
             </p>
-            <form action={createCheckoutAction}>
-              <Button
-                type="submit"
-                color="primary"
-                size="lg"
-                className="w-full"
-              >
-                Buy 100 Tokens
-              </Button>
-            </form>
           </div>
 
-          <Divider />
-
-          <div>
-            <p className="text-sm text-gray-600 mb-3">
-              Need to manage your payment details?
-            </p>
-            <form action={redirectToCustomerPortal}>
-              <Button
-                type="submit"
-                variant="bordered"
-                size="md"
-                className="w-full"
-              >
-                Manage Payment Settings
-              </Button>
-            </form>
-          </div>
-        </div>
-      </CardBody>
-    </Card>
-  );
-}
-
-function StatsCard({ tokenData }: { tokenData: any }) {
-  return (
-    <Card className="w-full">
-      <CardHeader className="pb-2">
-        <h2 className="text-xl font-semibold">Usage Statistics</h2>
-      </CardHeader>
-      <CardBody className="pt-0">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="text-center p-3 bg-green-50 rounded-lg">
-            <div className="text-2xl font-bold text-green-600">
-              {tokenData.totalPurchased}
-            </div>
-            <div className="text-sm text-green-800">Total Purchased</div>
-          </div>
-          <div className="text-center p-3 bg-red-50 rounded-lg">
-            <div className="text-2xl font-bold text-red-600">
-              {tokenData.totalSpent}
-            </div>
-            <div className="text-sm text-red-800">Total Spent</div>
-          </div>
-        </div>
-      </CardBody>
-    </Card>
-  );
-}
-
-export default async function TokensPage() {
-  const user = await currentUser();
-
-  if (!user) {
-    throw new Error("Unauthorised");
-  }
-
-  const tokenData = await getTokenData(user.id);
-
-  return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">My Tokens</h1>
-        <p className="text-gray-600">
-          Manage your token balance and view transaction history
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Balance and Purchase */}
-        <div className="lg:col-span-1 space-y-6">
-          <TokenBalanceCard tokenData={tokenData} />
-          <PurchaseCard />
-          <StatsCard tokenData={tokenData} />
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b border-border">
+                <TableHead className="font-medium text-foreground py-4 px-6">
+                  Date
+                </TableHead>
+                <TableHead className="font-medium text-foreground py-4 px-6">
+                  Type
+                </TableHead>
+                <TableHead className="font-medium text-foreground py-4 px-6 text-right">
+                  Amount
+                </TableHead>
+                <TableHead className="font-medium text-foreground py-4 px-6 text-right">
+                  Balance After
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {purchaseTransactions.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    className="py-8 text-center text-muted-foreground"
+                  >
+                    No purchases yet. Your purchase history will appear here.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                purchaseTransactions.map((transaction) => (
+                  <TableRow
+                    key={transaction.id}
+                    className="border-b border-border/50"
+                  >
+                    <TableCell className="py-4 px-6">
+                      <div className="text-sm text-foreground">
+                        {new Date(transaction.createdAt).toLocaleDateString()}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(transaction.createdAt).toLocaleTimeString()}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-4 px-6">
+                      <Badge variant="secondary" className="text-xs">
+                        Purchase
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="py-4 px-6 text-right">
+                      <span className="text-green-600 font-medium">
+                        +{transaction.amount}
+                      </span>
+                    </TableCell>
+                    <TableCell className="py-4 px-6 text-right">
+                      <span className="text-foreground font-medium">
+                        {transaction.balanceAfter}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
 
-        {/* Right Column - Transaction History */}
-        <div className="lg:col-span-2">
-          <TransactionHistory transactions={tokenData.transactions} />
+        {/* Daily Reset Info */}
+        <div className="mt-8 text-center">
+          <p className="text-sm text-muted-foreground">
+            Free tokens reset daily at midnight UTC and don't accumulate
+          </p>
         </div>
       </div>
     </div>

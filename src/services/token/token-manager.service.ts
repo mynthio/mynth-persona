@@ -4,6 +4,7 @@ import { eq, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { DAILY_FREE_TOKENS } from "@/lib/constants";
 import { TokenDeductionResult, UserTokenBalance } from "@/types/token.type";
+import { logger } from "@/lib/logger";
 
 export async function spendTokens(
   userId: string,
@@ -54,22 +55,27 @@ export async function spendTokens(
       0,
       DAILY_FREE_TOKENS - dailyTokensUsed
     );
-    const totalAvailable = purchasedBalance + dailyFreeTokensRemaining;
 
-    // Check if user has enough tokens
-    if (totalAvailable < tokensToUse) {
+    // Determine which source to use (single source only)
+    let tokensFromFree = 0;
+    let tokensFromPurchased = 0;
+
+    if (dailyFreeTokensRemaining >= tokensToUse) {
+      // Use daily free tokens only
+      tokensFromFree = tokensToUse;
+    } else if (purchasedBalance >= tokensToUse) {
+      // Use purchased tokens only
+      tokensFromPurchased = tokensToUse;
+    } else {
+      // Not enough tokens in either source
       return {
         success: false,
         tokensUsed: 0,
         remainingBalance: purchasedBalance,
         remainingDailyTokens: dailyFreeTokensRemaining,
-        error: `Insufficient tokens. Available: ${totalAvailable}, Required: ${tokensToUse}`,
+        error: `Insufficient tokens. Daily free tokens: ${dailyFreeTokensRemaining}, Purchased balance: ${purchasedBalance}, Required: ${tokensToUse}`,
       };
     }
-
-    // Deduct tokens (prioritize free tokens first, then purchased)
-    const tokensFromFree = Math.min(tokensToUse, dailyFreeTokensRemaining);
-    const tokensFromPurchased = tokensToUse - tokensFromFree;
 
     const newDailyTokensUsed = dailyTokensUsed + tokensFromFree;
     const newPurchasedBalance = purchasedBalance - tokensFromPurchased;
@@ -101,8 +107,91 @@ export async function spendTokens(
     return {
       success: true,
       tokensUsed: tokensToUse,
+      tokensFromFree,
+      tokensFromPurchased,
       remainingBalance: newPurchasedBalance,
       remainingDailyTokens: Math.max(0, DAILY_FREE_TOKENS - newDailyTokensUsed),
     };
   });
+}
+
+export async function refundTokens(
+  userId: string,
+  tokensFromFree: number,
+  tokensFromPurchased: number,
+  description?: string
+): Promise<void> {
+  const userLogger = logger.child({ userId });
+
+  try {
+    if (tokensFromFree > 0) {
+      await db
+        .update(userTokens)
+        .set({
+          dailyTokensUsed: sql`daily_tokens_used - ${tokensFromFree}`,
+        })
+        .where(eq(userTokens.userId, userId));
+
+      userLogger.info(
+        {
+          meta: {
+            who: "services:token:token-manager:refund-tokens",
+            what: "free-tokens-refund-success",
+          },
+          data: { tokens: { daily: tokensFromFree, balance: 0 } },
+        },
+        "Free tokens refunded successfully"
+      );
+    }
+
+    if (tokensFromPurchased > 0) {
+      await db
+        .update(userTokens)
+        .set({
+          balance: sql`balance + ${tokensFromPurchased}`,
+        })
+        .where(eq(userTokens.userId, userId));
+
+      userLogger.info(
+        {
+          meta: {
+            who: "services:token:token-manager:refund-tokens",
+            what: "purchased-tokens-refund-success",
+          },
+          data: { tokens: { daily: 0, balance: tokensFromPurchased } },
+        },
+        "Purchased tokens refunded successfully"
+      );
+    }
+
+    if (tokensFromFree > 0 || tokensFromPurchased > 0) {
+      userLogger.info(
+        {
+          meta: {
+            who: "services:token:token-manager:refund-tokens",
+            what: "token-refund-success",
+          },
+          data: {
+            tokens: { daily: tokensFromFree, balance: tokensFromPurchased },
+          },
+        },
+        "Token refund completed successfully"
+      );
+    }
+  } catch (error) {
+    userLogger.error(
+      {
+        meta: {
+          who: "services:token:token-manager:refund-tokens",
+          what: "token-refund-error",
+        },
+        data: {
+          error: error instanceof Error ? error.message : "Unknown error",
+          tokens: { daily: tokensFromFree, balance: tokensFromPurchased },
+        },
+      },
+      "Token refund failed"
+    );
+    throw error; // Re-throw to maintain existing error handling behavior
+  }
 }

@@ -11,9 +11,9 @@ import { useIsPersonaPanelOpened } from "@/hooks/use-is-persona-panel-opened.hoo
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useMediaQuery } from "@/hooks/use-media-query.hook";
 import PersonaProfile from "./persona-profile";
-import { Card, CardBody, CardHeader } from "@heroui/card";
+import { Card } from "@/components/ui/card";
 import { Textarea } from "@heroui/input";
-import { Button } from "@heroui/button";
+import { Button } from "@/components/ui/button";
 import { Form } from "@heroui/form";
 import {
   ImageIcon,
@@ -28,7 +28,7 @@ import { generatePersonaAction } from "@/actions/generate-persona.action";
 import { readStreamableValue } from "ai/rsc";
 import PersonaStack from "./persona-stack";
 import { Chip } from "@heroui/chip";
-import PersonaCopyButton from "./persona-copy-button";
+
 import { Spinner } from "@heroui/spinner";
 import { useGenerationMode } from "@/hooks/use-generation-mode.hook";
 import { enhancePersonaAction } from "@/actions/enhance-persona.action";
@@ -46,6 +46,7 @@ import {
 } from "@heroui/modal";
 import { useIsImagineMode } from "@/hooks/use-is-imagine-mode.hook";
 import { cn } from "@heroui/react";
+
 export default function Home() {
   const isLargeScreen = useMediaQuery("(min-width: 768px)", {
     defaultValue: true,
@@ -66,6 +67,7 @@ export default function Home() {
       : null,
     {
       revalidateOnMount: true,
+      errorRetryCount: 0,
     }
   );
 
@@ -224,20 +226,11 @@ function ImagineModal() {
               </Form>
             </ModalBody>
             <ModalFooter>
-              <Button
-                color="danger"
-                variant="light"
-                onPress={onClose}
-                isDisabled={isLoading}
-              >
+              <Button variant="outline" onClick={onClose} disabled={isLoading}>
                 Close
               </Button>
-              <Button
-                color="primary"
-                onPress={onGenerate}
-                isLoading={isLoading}
-              >
-                Generate
+              <Button onClick={onGenerate} disabled={isLoading}>
+                {isLoading ? "Generating..." : "Generate"}
               </Button>
             </ModalFooter>
           </>
@@ -254,20 +247,22 @@ function PersonaChat() {
 
   return (
     <>
-      <div className="min-h-full relative grid grid-cols-1">
+      <div className="h-full min-h-screen relative flex flex-col gap-10 justify-between bg-background">
         <PersonaEvents />
         <PersonaPrompt />
 
         <SignedOut>
-          <p className="text-center mx-auto max-w-2xl mt-4">
-            <SignUpButton mode="modal">
-              <button className="text-primary underline cursor-pointer">
-                Create account
-              </button>
-            </SignUpButton>{" "}
-            to save your persona, get higher rate limits, image generation, and
-            free daily tokens
-          </p>
+          <div className="text-center mx-auto max-w-2xl mt-6">
+            <p className="text-muted-foreground font-light">
+              <SignUpButton mode="modal">
+                <button className="text-primary underline cursor-pointer font-medium">
+                  Create account
+                </button>
+              </SignUpButton>{" "}
+              to save your persona, get higher rate limits, image generation,
+              and free daily tokens
+            </p>
+          </div>
         </SignedOut>
       </div>
     </>
@@ -276,21 +271,35 @@ function PersonaChat() {
 
 function Create() {
   return (
-    <div className="flex w-full h-screen-minus-nav items-center justify-center">
-      <div className="w-full">
-        <PersonaStack />
-        <CreatePropmpt />
-        <SignedOut>
-          <p className="text-center mx-auto max-w-2xl mt-4">
-            <SignUpButton mode="modal">
-              <button className="text-primary underline cursor-pointer">
-                Create account
-              </button>
-            </SignUpButton>{" "}
-            to save your persona, get higher rate limits, image generation, and
-            free daily tokens
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-16 max-w-4xl">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-light tracking-tight text-foreground mb-3">
+            Create Your Persona
+          </h1>
+          <p className="text-muted-foreground text-lg font-light">
+            Describe your character and watch them come to life
           </p>
-        </SignedOut>
+        </div>
+
+        <div className="space-y-8">
+          <PersonaStack />
+          <CreatePropmpt />
+
+          <SignedOut>
+            <div className="text-center">
+              <p className="text-muted-foreground font-light">
+                <SignUpButton mode="modal">
+                  <button className="text-primary underline cursor-pointer font-medium">
+                    Create account
+                  </button>
+                </SignUpButton>{" "}
+                to save your persona, get higher rate limits, image generation,
+                and free daily tokens
+              </p>
+            </div>
+          </SignedOut>
+        </div>
       </div>
     </div>
   );
@@ -300,11 +309,11 @@ function PersonaPrompt() {
   return (
     <div
       id="persona-prompt-wrapper"
-      className="fixed max-md:right-0 bottom-4 max-md:w-full left-0 z-30 pl-4 max-md:pr-4 w-1/2"
+      className="sticky max-md:right-0 max-md:w-full bottom-4 z-30 pl-4 max-md:pr-4 w-full min-h-min h-min max-w-2xl mx-auto"
     >
       <Card
         id="persona-prompt"
-        className="flex flex-col gap-2 mx-auto p-2 w-full max-w-2xl"
+        className="flex flex-col gap-4 mx-auto p-4 w-full border border-border"
       >
         <EnhancePersonaPrompt />
       </Card>
@@ -320,10 +329,15 @@ function EnhancePersonaPrompt() {
   const [personaId] = usePersonaId();
   const { mutate } = useSWRConfig();
 
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, userId } = useAuth();
   if (!personaId) return null;
 
-  if (!isSignedIn) return <p>Sign in to enhance your persona</p>;
+  if (!isSignedIn)
+    return (
+      <p className="text-muted-foreground font-light text-center py-4">
+        Sign in to enhance your persona
+      </p>
+    );
 
   const generate = async () => {
     if (personaStore.isGenerationInProgress) return;
@@ -346,6 +360,33 @@ function EnhancePersonaPrompt() {
     }
 
     const { object, personaEventId } = response;
+
+    // Add user prompt event to the events list immediately
+    if (personaEventId) {
+      mutate<GetPersonaEventsByIdResponse>(
+        `/api/personas/${personaId}/events`,
+        (prev) => [
+          ...(prev ?? []),
+          {
+            id: personaEventId,
+            personaId,
+            userId: userId ?? "",
+            type: "persona_edit" as const,
+            userMessage: prompt,
+            aiNote: null,
+            errorMessage: null,
+            tokensCost: 1,
+            createdAt: new Date(),
+            versionId: null,
+            version: null,
+            imageGenerations: [],
+          },
+        ],
+        {
+          revalidate: false,
+        }
+      );
+    }
 
     if (!object) {
       personaStore.setIsGenerationInProgress(false);
@@ -379,12 +420,22 @@ function EnhancePersonaPrompt() {
     personaStore.setIsGenerationInProgress(false);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      e.preventDefault();
+      if (prompt && !personaStore.isGenerationInProgress) {
+        generate();
+      }
+    }
+  };
+
   return (
     <>
       <Textarea
         placeholder="Enhance your persona with followup prompts"
         value={prompt}
         onValueChange={setPrompt}
+        onKeyDown={handleKeyDown}
         minRows={1}
         classNames={{
           input: "outline-none border-none",
@@ -394,34 +445,28 @@ function EnhancePersonaPrompt() {
       />
 
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex items-center gap-2">
           {isSignedIn && (
-            <Chip
-              variant="flat"
-              startContent={<PokerChipIcon />}
-              color="primary"
-            >
+            <span className="text-xs text-muted-foreground font-light">
               1 token
-            </Chip>
+            </span>
           )}
         </div>
 
         <div className="flex items-center gap-2">
           <Button
-            size="sm"
-            variant="light"
-            isIconOnly
-            onPress={() => setIsImagineMode(true, { history: "replace" })}
+            size="icon"
+            variant="ghost"
+            disabled={personaStore.isGenerationInProgress}
+            onClick={() => setIsImagineMode(true, { history: "replace" })}
           >
             <ImageIcon />
           </Button>
 
           <Button
-            isIconOnly
-            color="primary"
-            isDisabled={!prompt}
-            isLoading={personaStore.isGenerationInProgress}
-            onPress={generate}
+            size="icon"
+            disabled={!prompt || personaStore.isGenerationInProgress}
+            onClick={generate}
           >
             <PaperPlaneTiltIcon />
           </Button>
@@ -442,13 +487,76 @@ function CreatePropmpt() {
 
   const personaStore = usePersonaStore((state) => state);
 
-  const generate = async () => {
+  // Quick suggestion examples
+  const suggestionExamples = [
+    "Anime cat girl who's secretly a hacker",
+    "Medieval knight who discovered time travel",
+    "Cosplayer girl who builds robots in her spare time",
+    "Wizard librarian who collects ancient memes",
+    "Space pirate captain with a pet dragon",
+    "Shy bookstore owner who's actually a superhero",
+    "Gaming streamer who can talk to computers",
+    "Coffee shop barista who reads minds",
+    "Fashion designer from the future",
+    "Detective cat who solves mysteries",
+    "Alien exchange student learning human culture",
+    "Vampire chef who only cooks vegan food",
+    "Robot maid who dreams of becoming an artist",
+    "Fairy tale princess who's a tech startup CEO",
+    "Ninja who runs a flower shop",
+    "Cyberpunk musician with neon hair",
+    "Witch who runs a modern potion delivery service",
+    "Astronaut who collects space plants",
+    "Artist who paints with magical colors",
+    "Photographer who captures souls in pictures",
+    "A ghost who haunts a social media app",
+    "A mermaid who works as a marine biologist",
+    "A retired god running a bed and breakfast",
+    "A sentient AI trying to understand human emotions through poetry",
+    "A time-traveling historian who corrects Wikipedia articles",
+    "A dimension-hopping delivery person",
+    "An elf who is a famous rockstar in the human world",
+    "A street artist whose graffiti comes to life",
+    "A private investigator who is also a werewolf",
+    "A gnome who invents steampunk gadgets",
+    "A cyborg detective in a noir city",
+    "An oracle who gives prophecies in the form of cryptic tweets",
+    "A dragon who hoards vintage video games instead of gold",
+    "A demon who works in customer service",
+    "A super-soldier who now runs a successful bakery",
+  ];
+
+  // Get 3 random suggestions
+  const getRandomSuggestions = () => {
+    const shuffled = [...suggestionExamples].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 3);
+  };
+
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+
+  // Set random suggestions only on client side to avoid hydration issues
+  useEffect(() => {
+    setSuggestions(getRandomSuggestions());
+  }, []);
+
+  const handleSuggestionClick = async (suggestion: string) => {
+    if (personaStore.isGenerationInProgress) return;
+    setPrompt(suggestion);
+
+    // Trigger generation immediately
+    await generate(suggestion);
+  };
+
+  const generate = async (promptText?: string) => {
+    const textToUse = promptText || prompt;
+    if (!textToUse) return;
+
     if (personaStore.isGenerationInProgress) return;
     personaStore.setIsGenerationInProgress(true);
 
     // Handle signed in users
     if (isSignedIn) {
-      const response = await generatePersonaAction(prompt);
+      const response = await generatePersonaAction(textToUse);
 
       if (!response.success) {
         if (response.error === "INSUFFICIENT_TOKENS") {
@@ -464,7 +572,34 @@ function CreatePropmpt() {
         return;
       }
 
-      const { object, personaId: newPersonaId } = response;
+      const { object, personaId: newPersonaId, personaEventId } = response;
+
+      // Add user prompt event to the events list immediately
+      if (personaEventId && newPersonaId) {
+        mutate<GetPersonaEventsByIdResponse>(
+          `/api/personas/${newPersonaId}/events`,
+          (prev) => [
+            ...(prev ?? []),
+            {
+              id: personaEventId,
+              personaId: newPersonaId,
+              userId: userId ?? "",
+              type: "persona_create" as const,
+              userMessage: textToUse,
+              aiNote: null,
+              errorMessage: null,
+              tokensCost: 1,
+              createdAt: new Date(),
+              versionId: null,
+              version: null,
+              imageGenerations: [],
+            },
+          ],
+          {
+            revalidate: false,
+          }
+        );
+      }
 
       if (!object) {
         personaStore.setIsGenerationInProgress(false);
@@ -495,19 +630,44 @@ function CreatePropmpt() {
       setIsPanelOpen(true, { history: "replace" });
       setPersonaId(newPersonaId ?? "new", { history: "replace" });
 
-      for await (const partialObject of readStreamableValue(object)) {
-        if (!partialObject) continue;
+      try {
+        for await (const partialObject of readStreamableValue(object)) {
+          console.log("partialObject", partialObject);
+          if (!partialObject) continue;
 
-        personaStore.setData({
-          ...personaStore.data!,
-          version: {
-            ...personaStore.data?.version!,
-            data: {
-              // ...personaStore.data?.version?.data,
-              ...partialObject?.persona,
+          if (partialObject.error) {
+            personaStore.setIsGenerationInProgress(false);
+            addToast({
+              title: "Error",
+              description:
+                "Error generating persona. Please try again or contact support.",
+              color: "danger",
+            });
+            return;
+          }
+
+          personaStore.setData({
+            ...personaStore.data!,
+            version: {
+              ...personaStore.data?.version!,
+              data: {
+                // ...personaStore.data?.version?.data,
+                ...partialObject?.persona,
+              },
             },
-          },
+          });
+        }
+      } catch (error) {
+        console.error(error);
+        console.log("Error happened here  heheheh");
+        personaStore.setIsGenerationInProgress(false);
+        addToast({
+          title: "Error",
+          description:
+            "Error generating persona. Please try again or contact support.",
+          color: "danger",
         });
+        return;
       }
 
       setPrompt("");
@@ -517,7 +677,7 @@ function CreatePropmpt() {
       mutate(`/api/personas`);
     } else {
       // Handle anonymous users
-      const response = await generatePersonaAnonymousAction(prompt);
+      const response = await generatePersonaAnonymousAction(textToUse);
 
       if (!response.success) {
         if (response.error === "RATE_LIMIT_EXCEEDED") {
@@ -584,34 +744,65 @@ function CreatePropmpt() {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      e.preventDefault();
+      if (prompt && !personaStore.isGenerationInProgress) {
+        generate();
+      }
+    }
+  };
+
   return (
-    <Card className="flex flex-col gap-2 max-w-3xl mx-auto p-2 w-full">
-      <Textarea
-        placeholder="Write about your persona"
-        value={prompt}
-        onValueChange={setPrompt}
-        minRows={1}
-        classNames={{
-          input: "outline-none border-none",
-          inputWrapper:
-            "bg-transparent border-none shadow-none hover:bg-none data-[hover=true]:bg-transparent data-[hover=true]:bg-none data-[focus=true]:bg-transparent data-[focus=true]:bg-none",
-        }}
-      />
+    <div className="space-y-4">
+      <Card className="flex flex-col gap-3 max-w-3xl mx-auto p-3 w-full border border-border">
+        <Textarea
+          placeholder="Write about your persona"
+          value={prompt}
+          onValueChange={setPrompt}
+          onKeyDown={handleKeyDown}
+          minRows={1}
+          classNames={{
+            input: "outline-none border-none text-foreground",
+            inputWrapper:
+              "bg-transparent border-none shadow-none hover:bg-none data-[hover=true]:bg-transparent data-[hover=true]:bg-none data-[focus=true]:bg-transparent data-[focus=true]:bg-none",
+          }}
+        />
 
-      <div className="flex items-center justify-between">
-        <div></div>
+        <div className="flex items-center justify-between">
+          <div></div>
 
-        <Button
-          isIconOnly
-          color="primary"
-          isDisabled={!prompt}
-          isLoading={personaStore.isGenerationInProgress}
-          onPress={generate}
-        >
-          <PaperPlaneTiltIcon />
-        </Button>
+          <Button
+            size="icon"
+            disabled={!prompt || personaStore.isGenerationInProgress}
+            onClick={() => generate()}
+          >
+            <PaperPlaneTiltIcon />
+          </Button>
+        </div>
+      </Card>
+
+      {/* Quick suggestion buttons */}
+      <div className="max-w-3xl mx-auto">
+        <p className="text-sm text-muted-foreground mb-3 text-center">
+          Or try one of these ideas:
+        </p>
+        <div className="flex flex-wrap gap-2 justify-center">
+          {suggestions.map((suggestion, index) => (
+            <Button
+              key={index}
+              variant="outline"
+              size="sm"
+              onClick={() => handleSuggestionClick(suggestion)}
+              disabled={personaStore.isGenerationInProgress}
+              className="text-xs bg-background/50 hover:bg-background border-border/50 hover:border-border transition-colors"
+            >
+              {suggestion}
+            </Button>
+          ))}
+        </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -629,19 +820,11 @@ function DesktopLayout() {
     <>
       <PanelGroup
         direction="horizontal"
-        className="w-full !overflow-clip"
+        className="w-full min-h-screen !overflow-clip"
         autoSaveId={null}
       >
-        <Panel
-          minSize={25}
-          defaultSize={50}
-          onResize={(size) => {
-            document
-              .getElementById("persona-prompt-wrapper")
-              ?.style.setProperty("width", `${size}%`);
-          }}
-        >
-          <div className="p-4 pb-64">
+        <Panel minSize={25} defaultSize={60} className="!overflow-clip h-full">
+          <div className="p-6 h-full w-full">
             <PersonaChat />
           </div>
         </Panel>
@@ -651,45 +834,35 @@ function DesktopLayout() {
 
             <Panel
               id="persona-panel"
-              className="!overflow-clip"
+              className="!overflow-clip bg-muted/30 border-l border-border"
               minSize={25}
-              defaultSize={50}
+              defaultSize={40}
             >
-              <div className="p-4 h-screen sticky top-0">
-                <Card shadow="sm" className="h-full">
-                  <CardHeader className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      {(personaStore.isGenerationInProgress ||
-                        personaStore.isLoadingData) && <Spinner />}
+              <div className="h-screen sticky top-0 bottom-0 flex flex-col gap-6 px-6 py-8 overflow-y-auto">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {(personaStore.isGenerationInProgress ||
+                      personaStore.isLoadingData) && <Spinner />}
 
-                      {version && version.versionNumber > 0 && (
-                        <Chip>
-                          Version {version.versionNumber}: {version.title}
-                        </Chip>
-                      )}
-                    </div>
+                    {version && version.versionNumber > 0 && (
+                      <Chip>
+                        Version {version.versionNumber}: {version.title}
+                      </Chip>
+                    )}
+                  </div>
 
-                    <div className="flex items-center gap-2 min-h-0">
-                      {version && (
-                        <PersonaCopyButton
-                          variant="light"
-                          data={version.data}
-                        />
-                      )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <XIcon />
+                  </Button>
+                </div>
 
-                      <Button
-                        variant="light"
-                        isIconOnly
-                        onPress={() => setIsOpen(false)}
-                      >
-                        <XIcon />
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardBody className="max-lg:p-4 p-8 mx-auto overflow-y-auto h-full min-h-0">
-                    <PersonaProfile />
-                  </CardBody>
-                </Card>
+                <div className="h-full">
+                  <PersonaProfile />
+                </div>
               </div>
             </Panel>
           </>

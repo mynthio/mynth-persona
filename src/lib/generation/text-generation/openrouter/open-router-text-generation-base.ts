@@ -21,7 +21,6 @@ export abstract class OpenRouterTextGenerationBase extends TextGenerationBase {
       apiKey: process.env.OPEN_ROUTER_API_KEY!,
     });
 
-    // @ts-expect-error - TODO: fix this
     this.model = this.openRouter(modelId);
   }
 

@@ -7,14 +7,20 @@ import { Spinner } from "@heroui/spinner";
 import { Card } from "@heroui/card";
 import { Chip } from "@heroui/chip";
 import { usePersonaVersionId } from "@/hooks/use-persona-version-id.hook";
-import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
+import { ArrowRightIcon, DownloadIcon } from "@phosphor-icons/react/dist/ssr";
 import { useIsPersonaPanelOpened } from "@/hooks/use-is-persona-panel-opened.hook";
-import { Image } from "@heroui/image";
 import { useMemo } from "react";
 import { usePersonaStore } from "@/providers/persona-store-provider";
 import { useRealtimeRun } from "@trigger.dev/react-hooks";
-import ImagePreviewDialog from "@/components/persona/image-preview-dialog";
 import { useAuth } from "@clerk/nextjs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export default function PersonaEvents() {
   const [personaId] = usePersonaId();
@@ -27,7 +33,7 @@ export default function PersonaEvents() {
   if (isLoading) return <Loading />;
 
   return (
-    <div className="flex flex-col gap-8 mx-auto w-full max-w-4xl">
+    <div className="flex h-full flex-col min-h-auto max-h-full gap-8 mx-auto w-full max-w-4xl">
       {data?.map((event) => (
         <PersonaEvent key={event.id} event={event} />
       ))}
@@ -93,20 +99,7 @@ function PersonaImageEvent({
       <UserMessage message={event.userMessage ?? ""} />
 
       {imageGeneration && imageGeneration.status === "completed" && (
-        <ImagePreviewDialog
-          src={`${process.env.NEXT_PUBLIC_CDN_BASE_URL}/personas/${imageGeneration.imageId}.webp`}
-          alt="Persona Image"
-          title="Generated Persona Image"
-          downloadFileName={`persona-${imageGeneration.imageId}.webp`}
-          trigger={
-            <Image
-              width={120}
-              src={`${process.env.NEXT_PUBLIC_CDN_BASE_URL}/personas/${imageGeneration.imageId}_thumb.webp`}
-              alt="Persona Image"
-              className="cursor-pointer hover:opacity-80 transition-opacity"
-            />
-          }
-        />
+        <PersonaImageItem imageId={imageGeneration.imageId!} />
       )}
       {imageGeneration &&
         (imageGeneration.status === "pending" ||
@@ -137,10 +130,6 @@ function PersonaImageInProgress({ imageGeneration }: { imageGeneration: any }) {
   const { run: realtimeRun } = useRealtimeRun(run ? run.runId : undefined, {
     accessToken: run ? run.publicAccessToken : undefined,
     stopOnCompletion: true,
-    onComplete: () => {
-      // Remove image generation from the store and revalidate the persona events
-      mutate(`/api/personas/${personaId}/events`);
-    },
   });
 
   if (!run)
@@ -158,20 +147,7 @@ function PersonaImageInProgress({ imageGeneration }: { imageGeneration: any }) {
   return (
     <div>
       {realtimeRun?.output?.imageUrl ? (
-        <ImagePreviewDialog
-          src={realtimeRun.output.imageUrl}
-          alt="Persona Image"
-          title="Generated Persona Image"
-          downloadFileName={`persona-${imageGeneration.id}.webp`}
-          trigger={
-            <Image
-              width={120}
-              src={realtimeRun.output.imageUrl}
-              alt="Persona Image"
-              className="cursor-pointer hover:opacity-80 transition-opacity"
-            />
-          }
-        />
+        <PersonaImageItem imageId={realtimeRun.output.imageId} />
       ) : (
         <p>
           Something went wrong, please refresh the page after some time and
@@ -179,6 +155,55 @@ function PersonaImageInProgress({ imageGeneration }: { imageGeneration: any }) {
         </p>
       )}
     </div>
+  );
+}
+
+function PersonaImageItem({ imageId }: { imageId: string }) {
+  const personaData = usePersonaStore((state) => state.data);
+
+  return (
+    <Dialog>
+      <DialogTrigger className="cursor-pointer">
+        <img
+          className="rounded-2xl"
+          width={120}
+          height={120}
+          src={`${process.env.NEXT_PUBLIC_CDN_BASE_URL}/personas/${imageId}_thumb.webp`}
+          alt="Persona Image"
+        />
+      </DialogTrigger>
+
+      <DialogContent className="p-0 border-0 grid grid-cols-2 overflow-hidden rounded-2xl h-full max-h-3/4 min-md:max-w-5xl max-w-6xl w-full">
+        <div className="h-full w-full relative">
+          <img
+            className="w-full h-full object-cover"
+            src={`${process.env.NEXT_PUBLIC_CDN_BASE_URL}/personas/${imageId}.webp`}
+            alt="Persona Image"
+          />
+
+          <Button
+            variant="secondary"
+            className="absolute bottom-4 left-4"
+            onClick={() => {
+              const link = document.createElement("a");
+              link.href = `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/personas/${imageId}.webp`;
+              link.download = `${personaData?.version.data.name}.webp`;
+              link.click();
+            }}
+          >
+            <DownloadIcon weight="duotone" /> Download
+          </Button>
+        </div>
+        <div className="flex flex-col gap-4">
+          <DialogHeader className="py-6 px-3">
+            <DialogTitle className="text-2xl">
+              {personaData?.version.data.name}
+            </DialogTitle>
+          </DialogHeader>
+          <div></div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

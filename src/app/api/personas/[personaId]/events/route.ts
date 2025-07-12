@@ -1,9 +1,5 @@
-import { db } from "@/db/drizzle";
-import { personaEvents, personas } from "@/db/schema";
-import { logger } from "@/lib/logger";
 import { getPersonaEventsById } from "@/services/persona-events/get-persona-events-by-id";
 import { auth } from "@clerk/nextjs/server";
-import { eq, and } from "drizzle-orm";
 import "server-only";
 
 export async function GET(

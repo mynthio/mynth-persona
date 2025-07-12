@@ -1,0 +1,55 @@
+---
+alwaysApply: false
+---
+
+# Project Build and Package Management Rules
+
+## Package Manager
+
+- This project uses **pnpm** exclusively
+- Never use `npm` or `yarn` commands
+- All package management should be done with `pnpm`
+
+## Build and Testing Restrictions
+
+- **NEVER run build commands** (`pnpm build`, `npm run build`, etc.)
+- The user will handle all testing and validation of changes
+- If you need to check for linting issues, you may ONLY use: `pnpm lint`
+- Do not attempt to start development servers or run other commands unless explicitly requested
+
+## Command Guidelines
+
+- ✅ Allowed: `pnpm lint`
+- ❌ Forbidden: `pnpm build`, `pnpm dev`, `npm run build`, `yarn build`, etc.
+- ❌ Do not run test commands unless explicitly requested
+- ❌ Do not start development servers unless explicitly requested
+
+## Rationale
+
+The user prefers to maintain control over when and how the application is built and tested. Focus on code changes and let the user handle verification.
+
+# Project Build and Package Management Rules
+
+## Package Manager
+
+- This project uses **pnpm** exclusively
+- Never use `npm` or `yarn` commands
+- All package management should be done with `pnpm`
+
+## Build and Testing Restrictions
+
+- **NEVER run build commands** (`pnpm build`, `npm run build`, etc.)
+- The user will handle all testing and validation of changes
+- If you need to check for linting issues, you may ONLY use: `pnpm lint`
+- Do not attempt to start development servers or run other commands unless explicitly requested
+
+## Command Guidelines
+
+- ✅ Allowed: `pnpm lint`
+- ❌ Forbidden: `pnpm build`, `pnpm dev`, `npm run build`, `yarn build`, etc.
+- ❌ Do not run test commands unless explicitly requested
+- ❌ Do not start development servers unless explicitly requested
+
+## Rationale
+
+The user prefers to maintain control over when and how the application is built and tested. Focus on code changes and let the user handle verification.

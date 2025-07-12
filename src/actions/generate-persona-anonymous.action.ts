@@ -145,12 +145,26 @@ export async function generatePersonaAnonymousAction(prompt: string) {
           .track({
             channel: "personas",
             event: "generate-persona-anonymous",
-            icon: "👤",
+            icon: "👱‍♀️",
+            tags: {
+              model: model.modelId,
+            },
           })
           .catch((err) => {});
       },
-      onError: (error) => {
+      onError: async (error) => {
         logger.error({ error }, "Error generating persona anonymous");
+
+        await logsnag
+          .track({
+            channel: "personas",
+            event: "generate-persona-anonymous-failed",
+            icon: "🚨",
+            tags: {
+              model: model.modelId,
+            },
+          })
+          .catch((err) => {});
       },
     });
 

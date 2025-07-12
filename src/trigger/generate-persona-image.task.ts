@@ -9,13 +9,14 @@ import {
 } from "@/db/schema";
 import { metadata, task } from "@trigger.dev/sdk/v3";
 import { eq, sql } from "drizzle-orm";
-import sharp from "sharp";
 import { nanoid } from "nanoid";
 
 import { ImageGenerationFactory } from "@/lib/generation/image-generation/image-generation-factory";
 import { PersonaWithVersion } from "@/types/persona.type";
 import { logger } from "@/lib/logger";
 import logsnag from "@/lib/logsnag";
+import { processImage } from "@/lib/image-processing/image-processor";
+import { uploadToBunny } from "@/lib/upload";
 
 type GeneratePersonaImageTaskPayload = {
   persona: PersonaWithVersion;
@@ -30,11 +31,7 @@ export const generatePersonaImageTask = task({
   retry: {
     maxAttempts: 1,
   },
-  onFailure: async (
-    payload: GeneratePersonaImageTaskPayload,
-    error,
-    params
-  ) => {
+  onFailure: async (payload: GeneratePersonaImageTaskPayload, error) => {
     const imageGenerationId = metadata.get("imageGenerationId")?.toString();
 
     if (imageGenerationId) {
@@ -66,22 +63,16 @@ export const generatePersonaImageTask = task({
       });
     }
   },
-  onSuccess: async (
-    payload: GeneratePersonaImageTaskPayload,
-    result,
-    params
-  ) => {
-    try {
-      await logsnag.track({
+  onSuccess: async (payload: GeneratePersonaImageTaskPayload) => {
+    await logsnag
+      .track({
         channel: "persona-image-generation",
         event: "image-generation-completed",
         description: "Image generation completed",
         icon: "🖼️",
         user_id: payload.userId,
-      });
-    } catch (error) {
-      // noop
-    }
+      })
+      .catch(() => {});
   },
   run: async (payload: GeneratePersonaImageTaskPayload, { ctx }) => {
     const persona = payload.persona;
@@ -139,62 +130,32 @@ export const generatePersonaImageTask = task({
       data: {},
     });
 
-    const processedImageWebp = await sharp(result.image).webp().toBuffer();
-    const processedThumbnailWebp = await sharp(result.image)
-      .resize(240, 240, { fit: "cover", position: "center" })
-      .webp({
-        quality: 80,
-        effort: 4,
-      })
-      .toBuffer();
+    const [processedImage, processedThumbnail] = await processImage(
+      result.image,
+      [
+        {},
+        {
+          resize: {
+            width: 240,
+            height: 240,
+            fit: "cover",
+          },
+        },
+      ]
+    );
 
-    // Upload to Bunny.net storage using fetch API
+    // Upload to Bunny.net storage using upload service
     const imageId = `img_${nanoid()}`;
     const mainFilePath = `personas/${imageId}.webp`;
     const thumbnailFilePath = `personas/${imageId}_thumb.webp`;
 
-    const uploadMainImage = fetch(
-      `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/${mainFilePath}`,
-      {
-        method: "PUT",
-        headers: {
-          AccessKey: process.env.BUNNY_STORAGE_ZONE_KEY!,
-          "Content-Type": "application/octet-stream",
-          accept: "application/json",
-        },
-        body: processedImageWebp,
-      }
+    const uploadMainImage = uploadToBunny(mainFilePath, processedImage);
+    const uploadThumbnailImage = uploadToBunny(
+      thumbnailFilePath,
+      processedThumbnail
     );
 
-    const uploadThumbnailImage = fetch(
-      `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/${thumbnailFilePath}`,
-      {
-        method: "PUT",
-        headers: {
-          AccessKey: process.env.BUNNY_STORAGE_ZONE_KEY!,
-          "Content-Type": "application/octet-stream",
-          accept: "application/json",
-        },
-        body: processedThumbnailWebp,
-      }
-    );
-
-    const [mainResponse, thumbnailResponse] = await Promise.all([
-      uploadMainImage,
-      uploadThumbnailImage,
-    ]);
-
-    if (!mainResponse.ok) {
-      throw new Error(
-        `Failed to upload main image: ${mainResponse.status} ${mainResponse.statusText}`
-      );
-    }
-
-    if (!thumbnailResponse.ok) {
-      throw new Error(
-        `Failed to upload thumbnail image: ${thumbnailResponse.status} ${thumbnailResponse.statusText}`
-      );
-    }
+    await Promise.all([uploadMainImage, uploadThumbnailImage]);
 
     const imageUrl = `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/${mainFilePath}`;
 

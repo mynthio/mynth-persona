@@ -1,0 +1,465 @@
+---
+alwaysApply: false
+---
+
+# Frontend Design System & Guidelines
+
+## Core Design Philosophy
+
+### Industrial Design Aesthetic
+
+- **Quintessence of simplicity** - Remove everything unnecessary, focus purely on content
+- **Industrial design principles** - Functional, clean, and purposeful
+- **"Simple and sexy"** - Elegant minimalism without decorative elements
+- **Content-first approach** - No sidebars, minimal navigation, main content takes center stage
+
+### Visual Hierarchy
+
+- **Typography**: Light font weights (`font-light`), clean hierarchy
+- **Spacing**: Generous breathing room, consistent container patterns
+- **Colors**: Subtle, muted palette focusing on `text-foreground`, `text-muted-foreground`
+- **Borders**: Subtle borders (`border-border`) instead of shadows or heavy visual elements
+
+## Layout Patterns
+
+### Page Structure
+
+```tsx
+<div className="min-h-screen bg-background">
+  <div className="container mx-auto px-4 py-16 max-w-{size}">
+    {/* Clean header */}
+    <div className="text-center mb-12">
+      <h1 className="text-4xl font-light tracking-tight text-foreground mb-3">
+        Page Title
+      </h1>
+      <p className="text-muted-foreground text-lg font-light">
+        Subtitle or description
+      </p>
+    </div>
+
+    {/* Main content */}
+  </div>
+</div>
+```
+
+### Container Sizes
+
+- **Pricing page**: `max-w-2xl` (narrow, focused)
+- **Tokens page**: `max-w-4xl` (medium width)
+- **Library page**: `max-w-6xl` (wider for grid layouts)
+
+## Component Design
+
+### Cards
+
+```tsx
+<Card className="p-6 text-center border border-border">
+  {/* Content with subtle borders, no shadows */}
+</Card>
+```
+
+### Tables
+
+- Use shadcn `Table` components
+- Clean headers with `font-medium text-foreground`
+- Subtle row borders (`border-border/50`)
+- Proper padding (`py-6 px-6` for important tables)
+
+### Buttons
+
+- **Primary actions**: Standard button styling
+- **Secondary actions**: `variant="outline"`
+- **Size**: `size="lg"` with custom padding for important CTAs
+- **Grouping**: Responsive flex layouts (`flex-col sm:flex-row gap-3`)
+
+### Information Boxes
+
+```tsx
+<div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800 p-6">
+  <div className="flex items-start gap-3">
+    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+    <div>
+      <h3 className="font-medium text-blue-900 dark:text-blue-100 mb-1">
+        Title
+      </h3>
+      <p className="text-sm text-blue-700 dark:text-blue-300">Description</p>
+    </div>
+  </div>
+</div>
+```
+
+## Typography Guidelines
+
+### Headers
+
+- **Page titles**: `text-4xl font-light tracking-tight text-foreground`
+- **Subtitles**: `text-muted-foreground text-lg font-light`
+- **Section headers**: `text-xl font-light text-foreground`
+
+### Body Text
+
+- **Primary**: `text-foreground font-medium`
+- **Secondary**: `text-muted-foreground`
+- **Small text**: `text-sm text-muted-foreground`
+- **Micro text**: `text-xs text-muted-foreground`
+
+### Avoid
+
+- Heavy font weights except for important emphasis
+- Decorative fonts or styling
+- Excessive color variations
+
+## Component Library Usage
+
+### Shadcn Components (Preferred)
+
+- Use for structural components: `Table`, `Button`, `Card`, `Badge`
+- Consistent with our design system
+- Clean, minimal styling
+
+### HeroUI Components (Legacy)
+
+- Used in existing sidebar and navigation
+- Maintain existing usage but prefer shadcn for new components
+
+## Color & Styling Patterns
+
+### Status Indicators
+
+- **Success/Purchase**: `text-green-600`
+- **Warning/Restrictions**: `text-amber-600`
+- **Error/Negative**: `text-red-600`
+- **Neutral/Info**: Use badge variants (`secondary`, `outline`)
+
+### Interactive Elements
+
+- **Hover effects**: Subtle transitions (`transition-colors`, `hover:border-border/80`)
+- **Focus states**: Follow shadcn defaults
+- **No aggressive animations**: Keep it minimal and functional
+
+## Grid & Layout Patterns
+
+### Responsive Grids
+
+```tsx
+{/* Library-style grid */}
+<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+
+{/* Statistics grid */}
+<div className="grid grid-cols-2 gap-6">
+
+{/* Single column focus */}
+<div className="grid gap-6 md:gap-8">
+```
+
+## Empty States
+
+### Pattern
+
+```tsx
+<div className="text-center py-16">
+  <div className="mb-6">
+    <div className="w-16 h-16 bg-muted rounded-lg mx-auto mb-4 flex items-center justify-center">
+      <div className="w-6 h-6 bg-muted-foreground/30 rounded"></div>
+    </div>
+    <h3 className="text-xl font-light text-foreground mb-2">No items yet</h3>
+    <p className="text-muted-foreground">
+      Description of what will appear here
+    </p>
+  </div>
+  {/* CTA button */}
+</div>
+```
+
+## Data Display Patterns
+
+### Balance/Statistics Display
+
+```tsx
+<div className="text-6xl font-light text-foreground mb-2">
+  {primaryValue}
+</div>
+<div className="text-muted-foreground text-lg">
+  Description
+</div>
+```
+
+### Metadata Display
+
+```tsx
+<div className="flex justify-center items-center gap-4">
+  <div className="text-sm text-muted-foreground">
+    <span className="text-foreground font-medium">{value}</span> label
+  </div>
+  <div className="w-1 h-1 bg-muted-foreground rounded-full"></div>
+  <div className="text-sm text-muted-foreground">
+    <span className="text-foreground font-medium">{value2}</span> label2
+  </div>
+</div>
+```
+
+## Don'ts
+
+- ❌ No decorative elements or unnecessary visual flourishes
+- ❌ No heavy shadows or dramatic effects
+- ❌ No cluttered layouts - maintain generous whitespace
+- ❌ No multiple font weights in close proximity
+- ❌ No aggressive colors or high contrast elements unless functional
+- ❌ No rounded corners beyond `rounded-lg` (avoid `rounded-3xl`)
+
+## Do's
+
+- ✅ Focus on content and functionality
+- ✅ Use consistent spacing and typography patterns
+- ✅ Implement subtle, purposeful interactions
+- ✅ Maintain visual hierarchy through typography and spacing
+- ✅ Use server components for data fetching when possible
+- ✅ Create responsive layouts that work on all devices
+- ✅ Follow established container and spacing patterns
+
+## Token System Context
+
+### Daily Free Tokens
+
+- Users get 10 free tokens daily (reset daily, don't accumulate)
+- Display remaining daily tokens separately from purchased tokens
+- Clear messaging about token restrictions (e.g., HQ models require purchased tokens)
+
+### Pricing Display
+
+- Always show token cost clearly
+- Use badges for status (Free Beta, Coming Soon, etc.)
+- Maintain simple, scannable pricing tables
+
+This design system prioritizes clarity, functionality, and elegant simplicity over visual complexity.
+
+# Frontend Design System & Guidelines
+
+## Core Design Philosophy
+
+### Industrial Design Aesthetic
+
+- **Quintessence of simplicity** - Remove everything unnecessary, focus purely on content
+- **Industrial design principles** - Functional, clean, and purposeful
+- **"Simple and sexy"** - Elegant minimalism without decorative elements
+- **Content-first approach** - No sidebars, minimal navigation, main content takes center stage
+
+### Visual Hierarchy
+
+- **Typography**: Light font weights (`font-light`), clean hierarchy
+- **Spacing**: Generous breathing room, consistent container patterns
+- **Colors**: Subtle, muted palette focusing on `text-foreground`, `text-muted-foreground`
+- **Borders**: Subtle borders (`border-border`) instead of shadows or heavy visual elements
+
+## Layout Patterns
+
+### Page Structure
+
+```tsx
+<div className="min-h-screen bg-background">
+  <div className="container mx-auto px-4 py-16 max-w-{size}">
+    {/* Clean header */}
+    <div className="text-center mb-12">
+      <h1 className="text-4xl font-light tracking-tight text-foreground mb-3">
+        Page Title
+      </h1>
+      <p className="text-muted-foreground text-lg font-light">
+        Subtitle or description
+      </p>
+    </div>
+
+    {/* Main content */}
+  </div>
+</div>
+```
+
+### Container Sizes
+
+- **Pricing page**: `max-w-2xl` (narrow, focused)
+- **Tokens page**: `max-w-4xl` (medium width)
+- **Library page**: `max-w-6xl` (wider for grid layouts)
+
+## Component Design
+
+### Cards
+
+```tsx
+<Card className="p-6 text-center border border-border">
+  {/* Content with subtle borders, no shadows */}
+</Card>
+```
+
+### Tables
+
+- Use shadcn `Table` components
+- Clean headers with `font-medium text-foreground`
+- Subtle row borders (`border-border/50`)
+- Proper padding (`py-6 px-6` for important tables)
+
+### Buttons
+
+- **Primary actions**: Standard button styling
+- **Secondary actions**: `variant="outline"`
+- **Size**: `size="lg"` with custom padding for important CTAs
+- **Grouping**: Responsive flex layouts (`flex-col sm:flex-row gap-3`)
+
+### Information Boxes
+
+```tsx
+<div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800 p-6">
+  <div className="flex items-start gap-3">
+    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+    <div>
+      <h3 className="font-medium text-blue-900 dark:text-blue-100 mb-1">
+        Title
+      </h3>
+      <p className="text-sm text-blue-700 dark:text-blue-300">Description</p>
+    </div>
+  </div>
+</div>
+```
+
+## Typography Guidelines
+
+### Headers
+
+- **Page titles**: `text-4xl font-light tracking-tight text-foreground`
+- **Subtitles**: `text-muted-foreground text-lg font-light`
+- **Section headers**: `text-xl font-light text-foreground`
+
+### Body Text
+
+- **Primary**: `text-foreground font-medium`
+- **Secondary**: `text-muted-foreground`
+- **Small text**: `text-sm text-muted-foreground`
+- **Micro text**: `text-xs text-muted-foreground`
+
+### Avoid
+
+- Heavy font weights except for important emphasis
+- Decorative fonts or styling
+- Excessive color variations
+
+## Component Library Usage
+
+### Shadcn Components (Preferred)
+
+- Use for structural components: `Table`, `Button`, `Card`, `Badge`
+- Consistent with our design system
+- Clean, minimal styling
+
+### HeroUI Components (Legacy)
+
+- Used in existing sidebar and navigation
+- Maintain existing usage but prefer shadcn for new components
+
+## Color & Styling Patterns
+
+### Status Indicators
+
+- **Success/Purchase**: `text-green-600`
+- **Warning/Restrictions**: `text-amber-600`
+- **Error/Negative**: `text-red-600`
+- **Neutral/Info**: Use badge variants (`secondary`, `outline`)
+
+### Interactive Elements
+
+- **Hover effects**: Subtle transitions (`transition-colors`, `hover:border-border/80`)
+- **Focus states**: Follow shadcn defaults
+- **No aggressive animations**: Keep it minimal and functional
+
+## Grid & Layout Patterns
+
+### Responsive Grids
+
+```tsx
+{/* Library-style grid */}
+<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+
+{/* Statistics grid */}
+<div className="grid grid-cols-2 gap-6">
+
+{/* Single column focus */}
+<div className="grid gap-6 md:gap-8">
+```
+
+## Empty States
+
+### Pattern
+
+```tsx
+<div className="text-center py-16">
+  <div className="mb-6">
+    <div className="w-16 h-16 bg-muted rounded-lg mx-auto mb-4 flex items-center justify-center">
+      <div className="w-6 h-6 bg-muted-foreground/30 rounded"></div>
+    </div>
+    <h3 className="text-xl font-light text-foreground mb-2">No items yet</h3>
+    <p className="text-muted-foreground">
+      Description of what will appear here
+    </p>
+  </div>
+  {/* CTA button */}
+</div>
+```
+
+## Data Display Patterns
+
+### Balance/Statistics Display
+
+```tsx
+<div className="text-6xl font-light text-foreground mb-2">
+  {primaryValue}
+</div>
+<div className="text-muted-foreground text-lg">
+  Description
+</div>
+```
+
+### Metadata Display
+
+```tsx
+<div className="flex justify-center items-center gap-4">
+  <div className="text-sm text-muted-foreground">
+    <span className="text-foreground font-medium">{value}</span> label
+  </div>
+  <div className="w-1 h-1 bg-muted-foreground rounded-full"></div>
+  <div className="text-sm text-muted-foreground">
+    <span className="text-foreground font-medium">{value2}</span> label2
+  </div>
+</div>
+```
+
+## Don'ts
+
+- ❌ No decorative elements or unnecessary visual flourishes
+- ❌ No heavy shadows or dramatic effects
+- ❌ No cluttered layouts - maintain generous whitespace
+- ❌ No multiple font weights in close proximity
+- ❌ No aggressive colors or high contrast elements unless functional
+- ❌ No rounded corners beyond `rounded-lg` (avoid `rounded-3xl`)
+
+## Do's
+
+- ✅ Focus on content and functionality
+- ✅ Use consistent spacing and typography patterns
+- ✅ Implement subtle, purposeful interactions
+- ✅ Maintain visual hierarchy through typography and spacing
+- ✅ Use server components for data fetching when possible
+- ✅ Create responsive layouts that work on all devices
+- ✅ Follow established container and spacing patterns
+
+## Token System Context
+
+### Daily Free Tokens
+
+- Users get 10 free tokens daily (reset daily, don't accumulate)
+- Display remaining daily tokens separately from purchased tokens
+- Clear messaging about token restrictions (e.g., HQ models require purchased tokens)
+
+### Pricing Display
+
+- Always show token cost clearly
+- Use badges for status (Free Beta, Coming Soon, etc.)
+- Maintain simple, scannable pricing tables
+
+This design system prioritizes clarity, functionality, and elegant simplicity over visual complexity.

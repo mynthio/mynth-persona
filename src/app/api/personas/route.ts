@@ -12,9 +12,12 @@ export async function GET(request: Request) {
 
   const _personas = await db.query.personas.findMany({
     where: eq(personas.userId, userId),
-    with: {
-      currentVersion: true,
-      profileImage: true,
+    columns: {
+      id: true,
+      title: true,
+      currentVersionId: true,
+      profileImageId: true,
+      createdAt: true,
     },
     orderBy: desc(personas.createdAt),
   });

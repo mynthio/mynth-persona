@@ -1,18 +1,25 @@
-import { Button } from "@heroui/button";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { CopyIcon } from "@phosphor-icons/react/dist/ssr";
 import { PersonaData } from "@/types/persona.type";
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-} from "@heroui/dropdown";
+import { addToast } from "@heroui/toast";
 
 type PersonaCopyButtonProps = {
   data: PersonaData | null;
-  size?: "sm" | "md" | "lg";
-  variant?: "solid" | "light" | "flat" | "bordered" | "ghost";
-  isDisabled?: boolean;
+  size?: "default" | "sm" | "lg" | "icon";
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
+  className?: string;
 };
 
 // Helper functions for formatting persona data
@@ -65,25 +72,29 @@ Stay in character at all times. Respond as ${
 
 export default function PersonaCopyButton({
   data,
-  size = "md",
-  variant = "solid",
-  isDisabled = false,
+  size = "default",
+  variant = "outline",
+  className,
 }: PersonaCopyButtonProps) {
   // Copy handlers
   const handleCopy = async (format: "text" | "json" | "system-prompt") => {
     if (!data) return;
 
     let textToCopy: string;
+    let formatName: string;
 
     switch (format) {
       case "text":
         textToCopy = formatPersonaAsText(data);
+        formatName = "text";
         break;
       case "json":
         textToCopy = formatPersonaAsJSON(data);
+        formatName = "JSON";
         break;
       case "system-prompt":
         textToCopy = formatPersonaAsSystemPrompt(data);
+        formatName = "system prompt";
         break;
       default:
         return;
@@ -91,7 +102,11 @@ export default function PersonaCopyButton({
 
     try {
       await navigator.clipboard.writeText(textToCopy);
-      // You might want to add a toast notification here
+      addToast({
+        title: "Copied!",
+        description: `Persona copied as ${formatName}`,
+        color: "success",
+      });
     } catch (error) {
       // Fallback for older browsers
       const textArea = document.createElement("textarea");
@@ -100,30 +115,42 @@ export default function PersonaCopyButton({
       textArea.select();
       document.execCommand("copy");
       document.body.removeChild(textArea);
+
+      addToast({
+        title: "Copied!",
+        description: `Persona copied as ${formatName}`,
+        color: "success",
+      });
     }
   };
 
   return (
-    <Dropdown>
-      <DropdownTrigger>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <Button
           size={size}
           variant={variant}
-          startContent={<CopyIcon />}
-          isDisabled={isDisabled || !data}
+          disabled={!data}
+          className={className}
         >
+          <CopyIcon size={16} />
           Copy
         </Button>
-      </DropdownTrigger>
-      <DropdownMenu
-        onAction={(key) => handleCopy(key as "text" | "json" | "system-prompt")}
-      >
-        <DropdownItem key="text">Copy as text</DropdownItem>
-        <DropdownItem key="json">Copy as JSON</DropdownItem>
-        <DropdownItem key="system-prompt">
-          Copy as system prompt for roleplay
-        </DropdownItem>
-      </DropdownMenu>
-    </Dropdown>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuItem onClick={() => handleCopy("text")}>
+          <CopyIcon size={16} />
+          Copy as text
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleCopy("json")}>
+          <CopyIcon size={16} />
+          Copy as JSON
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleCopy("system-prompt")}>
+          <CopyIcon size={16} />
+          Copy as system prompt
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

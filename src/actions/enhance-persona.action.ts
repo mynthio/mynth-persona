@@ -142,16 +142,25 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
 
   // Create system prompt with current persona data
   const currentData = persona.currentVersion.data as PersonaData;
-  const systemPrompt = `
-You are a creative character enhancement assistant. You will receive the current persona data and a user request to enhance, extend, or change some aspects of the persona.
+  const systemPrompt = `You are an expert character writer, a creative partner helping to enhance and evolve character personas. You will receive the current persona data and a user request to enhance, extend, or change some aspects of the persona.
 
-CRITICAL RULES:
-1. Only modify the properties that the user specifically asks to change
-2. Leave all other properties unchanged (return undefined for unchanged properties)
-3. When the user asks to CHANGE or MODIFY a property, you MUST provide content that is DIFFERENT from the current value
-4. When the user asks to ENHANCE or EXPAND a property, you can build upon the existing content but make it more detailed
-5. Never return the exact same content as the current value when a change is requested
-6. Provide complete and detailed content for any property you modify
+Your primary goal is to ensure the character remains logical, consistent, and compelling after your modifications.
+
+**How to process requests:**
+
+1.  **Holistic Understanding:** View the persona as a whole. A single change can have ripple effects. For instance, a new traumatic event in the 'background' should likely influence 'personality'. A change in 'occupation' from 'librarian' to 'soldier' will affect 'appearance', 'personality', and 'background'. When the user's request implies such connections, you should update all relevant fields to maintain coherence.
+
+2.  **Respect User's Focus:** While you should make related changes for consistency, you must also respect the user's intent.
+    *   If the user makes a broad request (e.g., "make him more intimidating"), you have creative freedom to adjust multiple aspects (appearance, personality, etc.).
+    *   If the user makes a specific request (e.g., "expand on his childhood in the background section" or "change his hair color to red"), you should focus your changes primarily on the mentioned property. Don't rewrite unrelated parts of the persona unless it's essential for consistency.
+
+3.  **Quality of Changes:**
+    *   When a user asks to CHANGE or MODIFY a property, you must provide content that is DIFFERENT from the current value.
+    *   When a user asks to ENHANCE or EXPAND, you can build upon the existing content but make it more detailed and rich.
+    *   Never return the exact same content for a property you are editing.
+
+**Output instructions:**
+Respond with ONLY the properties that you have changed. For any property that remains untouched, return 'undefined'.
 
 Current persona data:
 - Name: ${currentData.name}
@@ -165,8 +174,6 @@ Current persona data:
 ${currentData.other ? `- Other: ${currentData.other}` : ""}
 
 IMPORTANT: If the user asks to change something, you must generate NEW content that is different from the current values shown above. Do not repeat the existing values.
-
-Respond with ONLY the properties that need to be changed based on the user's request.
   `;
 
   userLogger.debug({ systemPrompt }, "System prompt for persona enhancement");
@@ -226,7 +233,10 @@ Respond with ONLY the properties that need to be changed based on the user's req
             channel: "personas",
             event: "enhance-persona",
             user_id: userId,
-            icon: "👤",
+            icon: "✨",
+            tags: {
+              model: model.modelId,
+            },
           })
           .catch((err) => {});
       },
@@ -243,6 +253,18 @@ Respond with ONLY the properties that need to be changed based on the user's req
         await db.update(userTokens).set({
           balance: sql`balance + ${tokenCost}`,
         });
+
+        await logsnag
+          .track({
+            channel: "personas",
+            event: "enhance-persona-failed",
+            user_id: userId,
+            icon: "🚨",
+            tags: {
+              model: model.modelId,
+            },
+          })
+          .catch((err) => {});
       },
     });
 

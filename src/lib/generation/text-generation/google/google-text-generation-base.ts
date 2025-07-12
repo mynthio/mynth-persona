@@ -4,6 +4,7 @@ import { TextGenerationStreamObjectOptions } from "../types/text-generation-stre
 import { google } from "@ai-sdk/google";
 import { ZodSchema } from "zod";
 import { ModelId } from "../types/model-id.type";
+import ms from "ms";
 
 export abstract class GoogleTextGenerationBase extends TextGenerationBase {
   private readonly model: LanguageModelV1;
@@ -25,6 +26,7 @@ export abstract class GoogleTextGenerationBase extends TextGenerationBase {
       prompt,
       schema,
       maxTokens: 1500,
+      abortSignal: AbortSignal.timeout(ms("60s")),
       onFinish: options.onFinish,
       onError: options.onError,
     });

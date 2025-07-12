@@ -233,7 +233,10 @@ IMPORTANT: If the user asks to change something, you must generate NEW content t
             channel: "personas",
             event: "enhance-persona",
             user_id: userId,
-            icon: "👤",
+            icon: "✨",
+            tags: {
+              model: model.modelId,
+            },
           })
           .catch((err) => {});
       },
@@ -250,6 +253,18 @@ IMPORTANT: If the user asks to change something, you must generate NEW content t
         await db.update(userTokens).set({
           balance: sql`balance + ${tokenCost}`,
         });
+
+        await logsnag
+          .track({
+            channel: "personas",
+            event: "enhance-persona-failed",
+            user_id: userId,
+            icon: "🚨",
+            tags: {
+              model: model.modelId,
+            },
+          })
+          .catch((err) => {});
       },
     });
 

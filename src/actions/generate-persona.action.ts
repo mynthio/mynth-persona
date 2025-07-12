@@ -190,7 +190,10 @@ export async function generatePersonaAction(prompt: string) {
             channel: "personas",
             event: "generate-persona",
             user_id: userId,
-            icon: "👤",
+            icon: "👱‍♀️",
+            tags: {
+              model: model.modelId,
+            },
           })
           .catch((err) => {});
       },
@@ -205,6 +208,19 @@ export async function generatePersonaAction(prompt: string) {
           "Persona generation failed"
         );
         await db.delete(personas).where(eq(personas.id, personaId));
+
+        await logsnag
+          .track({
+            channel: "personas",
+            event: "generate-persona-failed",
+            user_id: userId,
+            icon: "🚨",
+            tags: {
+              model: model.modelId,
+            },
+          })
+          .catch((err) => {});
+
         stream.update({
           error: "Generation failed due to an error. Please try again.",
         });

@@ -53,7 +53,7 @@ export const textGenerationConfig: Array<TextGenerationConfigModel> = [
   {
     id: OpenRouterMetaLlamaLlama4ScoutFree.ID,
     isAvailableToFreeUsers: true,
-    isDepracated: false,
+    isDepracated: true,
     quality: "medium",
   },
   {

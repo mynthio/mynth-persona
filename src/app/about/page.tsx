@@ -1,11 +1,17 @@
 export default function AboutPage() {
   return (
-    <div className="container mt-24 max-w-2xl mx-auto px-4 pb-24">
-      <article className="prose prose-xl max-w-none">
-        <h1 className="text-4xl font-black mb-12 text-center">
-          Persona by Mynth
+    <div className="container max-w-2xl mx-auto px-4 py-16">
+      {/* Header */}
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-light tracking-tight text-foreground mb-3">
+          About Persona
         </h1>
+        <p className="text-muted-foreground text-lg font-light">
+          The story behind Persona
+        </p>
+      </div>
 
+      <article className="prose prose-xl max-w-none">
         <div className="text-xl leading-relaxed space-y-6">
           <p>
             Hey there! 👋 Welcome to the wild, wonderful world of Persona –

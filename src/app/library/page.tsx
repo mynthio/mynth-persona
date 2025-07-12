@@ -9,7 +9,7 @@ import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
 import { PersonaData } from "@/types/persona.type";
 import { auth } from "@clerk/nextjs/server";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNotNull } from "drizzle-orm";
 import Link from "next/link";
 
 const PERSONAS_PER_PAGE = 25;
@@ -43,7 +43,10 @@ export default async function LibraryPage({
         },
       },
     },
-    where: eq(personas.userId, userId),
+    where: and(
+      eq(personas.userId, userId),
+      isNotNull(personas.currentVersionId)
+    ),
     limit: PERSONAS_PER_PAGE,
     offset: (Number(page) - 1) * PERSONAS_PER_PAGE,
     orderBy: [desc(personas.createdAt)],

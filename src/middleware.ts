@@ -6,12 +6,7 @@ const isProtectedRoute = createRouteMatcher([
   "/api(.*)",
 ]);
 
-export default clerkMiddleware((auth, req) => {
-  // Protect routes that require authentication
-  // if (isProtectedRoute(req)) {
-  //   auth.protect();
-  // }
-});
+export default clerkMiddleware(() => {});
 
 export const config = {
   matcher: [

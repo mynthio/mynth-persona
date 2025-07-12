@@ -31,11 +31,7 @@ export const generatePersonaImageTask = task({
   retry: {
     maxAttempts: 1,
   },
-  onFailure: async (
-    payload: GeneratePersonaImageTaskPayload,
-    error,
-    params
-  ) => {
+  onFailure: async (payload: GeneratePersonaImageTaskPayload, error) => {
     const imageGenerationId = metadata.get("imageGenerationId")?.toString();
 
     if (imageGenerationId) {
@@ -67,22 +63,16 @@ export const generatePersonaImageTask = task({
       });
     }
   },
-  onSuccess: async (
-    payload: GeneratePersonaImageTaskPayload,
-    result,
-    params
-  ) => {
-    try {
-      await logsnag.track({
+  onSuccess: async (payload: GeneratePersonaImageTaskPayload) => {
+    await logsnag
+      .track({
         channel: "persona-image-generation",
         event: "image-generation-completed",
         description: "Image generation completed",
         icon: "🖼️",
         user_id: payload.userId,
-      });
-    } catch (error) {
-      // noop
-    }
+      })
+      .catch(() => {});
   },
   run: async (payload: GeneratePersonaImageTaskPayload, { ctx }) => {
     const persona = payload.persona;

@@ -18,7 +18,6 @@ import { Form } from "@heroui/form";
 import {
   ImageIcon,
   PaperPlaneTiltIcon,
-  PokerChipIcon,
   XIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { SignedOut, SignUpButton, useAuth } from "@clerk/nextjs";
@@ -30,7 +29,6 @@ import PersonaStack from "./persona-stack";
 import { Chip } from "@heroui/chip";
 
 import { Spinner } from "@heroui/spinner";
-import { useGenerationMode } from "@/hooks/use-generation-mode.hook";
 import { enhancePersonaAction } from "@/actions/enhance-persona.action";
 import { usePersonaVersionId } from "@/hooks/use-persona-version-id.hook";
 import { generatePersonaImage } from "@/actions/generate-persona-image";
@@ -55,9 +53,7 @@ export default function Home() {
   const [personaId] = usePersonaId();
   const [personaVersionId] = usePersonaVersionId();
 
-  const { data, setData, isLoadingData, setIsLoadingData } = usePersonaStore(
-    (state) => state
-  );
+  const { setData, setIsLoadingData } = usePersonaStore((state) => state);
 
   const { isLoading, data: persona } = useSWR<PersonaWithVersion>(
     isSignedIn && personaId
@@ -162,7 +158,6 @@ function ImagineModal() {
         }
       );
     } catch (error) {
-      console.error("Failed to generate persona image:", error);
       addToast({
         title: "Failed to generate image",
         description: "Please try again later",
@@ -241,10 +236,6 @@ function ImagineModal() {
 }
 
 function PersonaChat() {
-  const { isSignedIn } = useAuth();
-
-  const [personaId] = usePersonaId();
-
   return (
     <>
       <div className="h-full min-h-screen relative flex flex-col gap-10 justify-between bg-background">
@@ -324,8 +315,7 @@ function PersonaPrompt() {
 function EnhancePersonaPrompt() {
   const [prompt, setPrompt] = useState("");
   const personaStore = usePersonaStore((state) => state);
-  const [generationMode, setGenerationMode] = useGenerationMode();
-  const [isImagineMode, setIsImagineMode] = useIsImagineMode();
+  const [_isImagineMode, setIsImagineMode] = useIsImagineMode();
   const [personaId] = usePersonaId();
   const { mutate } = useSWRConfig();
 
@@ -478,12 +468,12 @@ function EnhancePersonaPrompt() {
 
 function CreatePropmpt() {
   const { isSignedIn, userId } = useAuth();
-  const [personaId, setPersonaId] = usePersonaId();
+  const [_personaId, setPersonaId] = usePersonaId();
 
   const { mutate } = useSWRConfig();
 
   const [prompt, setPrompt] = useState("");
-  const [isPanelOpen, setIsPanelOpen] = useIsPersonaPanelOpened();
+  const [_isPanelOpen, setIsPanelOpen] = useIsPersonaPanelOpened();
 
   const personaStore = usePersonaStore((state) => state);
 
@@ -632,7 +622,6 @@ function CreatePropmpt() {
 
       try {
         for await (const partialObject of readStreamableValue(object)) {
-          console.log("partialObject", partialObject);
           if (!partialObject) continue;
 
           if (partialObject.error) {
@@ -658,8 +647,6 @@ function CreatePropmpt() {
           });
         }
       } catch (error) {
-        console.error(error);
-        console.log("Error happened here  heheheh");
         personaStore.setIsGenerationInProgress(false);
         addToast({
           title: "Error",

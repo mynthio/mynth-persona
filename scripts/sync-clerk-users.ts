@@ -12,7 +12,7 @@ config({ path: [".env.local", ".env"] });
 export const db = drizzle(process.env.DATABASE_URL!);
 
 // DRY RUN MODE - Set to true to see what would be synced without actually doing it
-const DRY_RUN = false;
+const DRY_RUN = true;
 
 interface ClerkUser {
   id: string;

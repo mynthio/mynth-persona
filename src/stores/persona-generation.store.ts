@@ -1,4 +1,4 @@
-import { PersonaData, PersonaWithVersion } from "@/types/persona.type";
+import { PersonaData } from "@/types/persona.type";
 import { createStore } from "zustand";
 
 export type PersonaGenerationState = {

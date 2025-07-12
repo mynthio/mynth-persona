@@ -1,9 +1,8 @@
 import { db } from "@/db/drizzle";
-import { userTokens, tokenTransactions } from "@/db/schema";
+import { userTokens } from "@/db/schema";
 import { eq, sql } from "drizzle-orm";
-import { nanoid } from "nanoid";
 import { DAILY_FREE_TOKENS } from "@/lib/constants";
-import { TokenDeductionResult, UserTokenBalance } from "@/types/token.type";
+import { TokenDeductionResult } from "@/types/token.type";
 import { logger } from "@/lib/logger";
 
 export async function spendTokens(

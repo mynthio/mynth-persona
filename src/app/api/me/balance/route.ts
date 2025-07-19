@@ -4,7 +4,8 @@ import { userTokens } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { DAILY_FREE_TOKENS } from "@/lib/constants";
-import type { UserBalance } from "@/types/balance.type";
+import { transformToPublicUserBalance } from "@/schemas/transformers";
+import type { PublicUserBalance } from "@/schemas/shared";
 
 export async function GET() {
   try {
@@ -19,10 +20,11 @@ export async function GET() {
     });
 
     if (!userTokenData) {
-      const response: UserBalance = {
-        balance: DAILY_FREE_TOKENS, // All free tokens available
-      };
-
+      const response = transformToPublicUserBalance({
+        purchasedBalance: 0,
+        dailyFreeTokensRemaining: DAILY_FREE_TOKENS,
+        dailyTokensUsed: 0,
+      });
       return NextResponse.json(response);
     }
 
@@ -36,9 +38,11 @@ export async function GET() {
     // Total effective balance = purchased tokens + remaining free tokens
     const totalBalance = purchasedBalance + dailyFreeTokensRemaining;
 
-    const response: UserBalance = {
-      balance: totalBalance,
-    };
+    const response = transformToPublicUserBalance({
+      purchasedBalance,
+      dailyFreeTokensRemaining,
+      dailyTokensUsed,
+    });
 
     return NextResponse.json(response);
   } catch (error) {

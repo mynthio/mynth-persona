@@ -1,11 +1,7 @@
 import { db } from "@/db/drizzle";
 import { personas, personaVersions } from "@/db/schema";
-import { Persona, PersonaVersion } from "@/types/persona.type";
+import { Persona, PersonaVersion, PersonaWithVersion } from "@/schemas/backend";
 import { and, eq } from "drizzle-orm";
-
-type PersonaWithVersion = Persona & {
-  version: PersonaVersion;
-};
 
 type GetPersonaWithVersionParams = {
   userId: string;

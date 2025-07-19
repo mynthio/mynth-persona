@@ -2,13 +2,13 @@
 @import "tw-animate-css";
 
 @plugin "@tailwindcss/typography";
+@plugin 'tailwind-scrollbar';
 
-@plugin "./hero.ts";
-@source '../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
+/* Removed HeroUI theme plugin and source */
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --radius: 0.65rem;
+  --radius: 0.83rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);

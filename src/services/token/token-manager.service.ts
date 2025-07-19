@@ -114,6 +114,110 @@ export async function spendTokens(
   });
 }
 
+/**
+ * Spend only purchased tokens (no free tokens allowed)
+ * This is used for premium features like high-quality image generation
+ */
+export async function spendPurchasedTokensOnly(
+  userId: string,
+  tokensToUse: number,
+  description?: string
+): Promise<TokenDeductionResult> {
+  if (tokensToUse <= 0) {
+    return {
+      success: false,
+      tokensUsed: 0,
+      remainingBalance: 0,
+      remainingDailyTokens: 0,
+      error: "Token amount must be greater than 0",
+    };
+  }
+
+  return await db.transaction(async (tx) => {
+    // Get user token record (if exists)
+    const userTokenData = await tx.query.userTokens.findFirst({
+      where: eq(userTokens.userId, userId),
+    });
+
+    // Use defaults if user doesn't exist yet
+    const currentData = userTokenData || {
+      userId,
+      balance: 0,
+      dailyTokensUsed: 0,
+      lastDailyReset: null,
+      totalPurchased: 0,
+      totalSpent: 0,
+      updatedAt: new Date(),
+    };
+
+    // Reset daily tokens if needed (new day)
+    const now = new Date();
+    const lastReset = currentData.lastDailyReset;
+    const shouldResetDaily =
+      !lastReset || lastReset.toDateString() !== now.toDateString();
+
+    let dailyTokensUsed = currentData.dailyTokensUsed;
+    if (shouldResetDaily) {
+      dailyTokensUsed = 0;
+    }
+
+    // Calculate available tokens
+    const purchasedBalance = currentData.balance;
+    const dailyFreeTokensRemaining = Math.max(
+      0,
+      DAILY_FREE_TOKENS - dailyTokensUsed
+    );
+
+    // Only use purchased tokens
+    if (purchasedBalance < tokensToUse) {
+      return {
+        success: false,
+        tokensUsed: 0,
+        remainingBalance: purchasedBalance,
+        remainingDailyTokens: dailyFreeTokensRemaining,
+        error: `Insufficient purchased tokens. This feature requires purchased tokens only. Available: ${purchasedBalance}, Required: ${tokensToUse}`,
+      };
+    }
+
+    const tokensFromFree = 0;
+    const tokensFromPurchased = tokensToUse;
+    const newPurchasedBalance = purchasedBalance - tokensFromPurchased;
+    const newTotalSpent = currentData.totalSpent + tokensToUse;
+
+    // Upsert user tokens (insert if new user, update if existing)
+    await tx
+      .insert(userTokens)
+      .values({
+        userId,
+        balance: newPurchasedBalance,
+        dailyTokensUsed: dailyTokensUsed, // No change to daily tokens
+        lastDailyReset: shouldResetDaily ? now : currentData.lastDailyReset,
+        totalPurchased: currentData.totalPurchased,
+        totalSpent: newTotalSpent,
+        updatedAt: now,
+      })
+      .onConflictDoUpdate({
+        target: userTokens.userId,
+        set: {
+          balance: newPurchasedBalance,
+          dailyTokensUsed: dailyTokensUsed, // No change to daily tokens
+          lastDailyReset: shouldResetDaily ? now : currentData.lastDailyReset,
+          totalSpent: newTotalSpent,
+          updatedAt: now,
+        },
+      });
+
+    return {
+      success: true,
+      tokensUsed: tokensToUse,
+      tokensFromFree,
+      tokensFromPurchased,
+      remainingBalance: newPurchasedBalance,
+      remainingDailyTokens: Math.max(0, DAILY_FREE_TOKENS - dailyTokensUsed),
+    };
+  });
+}
+
 export async function refundTokens(
   userId: string,
   tokensFromFree: number,

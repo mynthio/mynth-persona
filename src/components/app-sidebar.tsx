@@ -157,7 +157,6 @@ function RecentPersonasSkeleton() {
 }
 
 async function RecentPersonas() {
-  console.log("😛 Fetching recent personas");
   const { userId } = await auth();
 
   if (!userId) return null;
@@ -188,7 +187,7 @@ async function RecentPersonas() {
                   width={16}
                   height={16}
                   loading="lazy"
-                  className="rounded-sm"
+                  className="rounded-[5px]"
                 />
               ) : (
                 <div className="flex-shrink-0 w-[16px] h-[16px] rounded-sm bg-gradient-to-br from-neutral-200 to-neutral-300" />

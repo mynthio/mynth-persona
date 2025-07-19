@@ -2,6 +2,7 @@ onlyBuiltDependencies:
   - '@clerk/shared'
   - '@heroui/shared-utils'
   - '@tailwindcss/oxide'
+  - bufferutil
   - core-js
   - esbuild
   - protobufjs

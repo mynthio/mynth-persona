@@ -6,7 +6,7 @@ import { neonConfig } from "@neondatabase/serverless";
 
 import * as schema from "./schema";
 
-config({ path: [".env.local", ".env"] });
+config({ path: [".env.local", ".env"], quiet: true });
 
 // Configure WebSocket for Node.js environments
 if (typeof WebSocket === "undefined") {

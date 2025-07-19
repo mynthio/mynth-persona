@@ -139,6 +139,7 @@ export const generatePersonaImageTask = task({
             width: 240,
             height: 240,
             fit: "cover",
+            position: "top",
           },
         },
       ]

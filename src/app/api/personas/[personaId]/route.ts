@@ -1,5 +1,8 @@
-import { getPersonaWithCurrentVersion } from "@/services/persona/get-persona-with-version";
+import { db } from "@/db/drizzle";
+import { personas } from "@/db/schema";
+import { transformToPublicPersona } from "@/schemas/transformers";
 import { auth } from "@clerk/nextjs/server";
+import { and, eq } from "drizzle-orm";
 
 export async function GET(
   _request: Request,
@@ -13,14 +16,14 @@ export async function GET(
 
   const { personaId } = await params;
 
-  const persona = await getPersonaWithCurrentVersion({
-    userId,
-    personaId,
+  const persona = await db.query.personas.findFirst({
+    where: and(eq(personas.id, personaId), eq(personas.userId, userId)),
   });
 
   if (!persona) {
     return new Response("Persona not found", { status: 404 });
   }
 
-  return Response.json(persona);
+  const publicPersona = transformToPublicPersona(persona);
+  return Response.json(publicPersona);
 }

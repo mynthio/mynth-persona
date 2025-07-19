@@ -6,7 +6,7 @@ import { neon } from "@neondatabase/serverless";
 import { users, userTokens } from "../src/db/schema";
 
 // Load environment variables
-config({ path: [".env.local", ".env"] });
+config({ path: [".env.local", ".env"], quiet: true });
 
 // Initialize database connection
 export const db = drizzle(process.env.DATABASE_URL!);
@@ -59,7 +59,7 @@ async function fetchClerkUsers(): Promise<ClerkUser[]> {
     );
 
     if (!response.ok) {
-      const errorText = await response.text();
+      const errorText = await response.text.text();
       console.error(`❌ API Error Response:`, errorText);
       throw new Error(
         `Failed to fetch users from Clerk: ${response.status} ${response.statusText}`

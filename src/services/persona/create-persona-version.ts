@@ -12,7 +12,7 @@ type CreatePersonaVersionPayload = {
   aiNote?: string;
   versionNumber?: number;
   title?: string;
-  changedProperties?: string[];
+  changedProperties?: string[]; // Can now include things like 'extensions.skills'
 };
 
 export const createPersonaVersion = async (

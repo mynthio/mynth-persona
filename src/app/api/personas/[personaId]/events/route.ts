@@ -1,4 +1,5 @@
 import { getPersonaEventsById } from "@/services/persona-events/get-persona-events-by-id";
+import { transformToPublicPersonaEvents } from "@/schemas/transformers";
 import { auth } from "@clerk/nextjs/server";
 import "server-only";
 
@@ -19,7 +20,10 @@ export async function GET(
     userId,
   });
 
-  return Response.json(personaEventsData);
+  // Transform to public format
+  const publicPersonaEvents = transformToPublicPersonaEvents(personaEventsData);
+
+  return Response.json(publicPersonaEvents);
 }
 
 export type GetPersonaEventsByIdResponse = Awaited<

@@ -2,7 +2,7 @@ import "server-only";
 
 import { db } from "@/db/drizzle";
 import { personaEvents } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 
 type GetPersonaEventsByIdParams = {
   personaId: string;
@@ -16,7 +16,13 @@ export const getPersonaEventsById = async ({
   const personaEventsData = await db.query.personaEvents.findMany({
     where: and(
       eq(personaEvents.personaId, personaId),
-      eq(personaEvents.userId, userId)
+      eq(personaEvents.userId, userId),
+      or(
+        eq(personaEvents.type, "persona_create"),
+        eq(personaEvents.type, "persona_edit"),
+        eq(personaEvents.type, "persona_revert"),
+        eq(personaEvents.type, "persona_clone")
+      )
     ),
     with: {
       version: {
@@ -26,16 +32,12 @@ export const getPersonaEventsById = async ({
           title: true,
         },
       },
-      imageGenerations: {
-        columns: {
-          id: true,
-          status: true,
-          runId: true,
-          imageId: true,
-        },
-      },
     },
   });
 
   return personaEventsData;
 };
+
+export type GetPersonaEventsByIdData = Awaited<
+  ReturnType<typeof getPersonaEventsById>
+>;

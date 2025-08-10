@@ -12,7 +12,7 @@ import { auth } from "@clerk/nextjs/server";
 import { and, desc, eq, isNotNull } from "drizzle-orm";
 import Link from "next/link";
 
-const PERSONAS_PER_PAGE = 25;
+const PERSONAS_PER_PAGE = 24;
 
 export default async function LibraryPage({
   searchParams,
@@ -106,17 +106,12 @@ export default async function LibraryPage({
                     </PaginationItem>
                   )}
 
-                  {Number(page) <
-                  Math.ceil(_personas.length / PERSONAS_PER_PAGE) ? (
+                  {_personas.length === PERSONAS_PER_PAGE && (
                     <PaginationItem>
                       <PaginationNext
                         href={`/library?page=${Number(page) + 1}`}
                       />
                     </PaginationItem>
-                  ) : (
-                    <span className="text-sm text-muted-foreground px-4">
-                      No more pages
-                    </span>
                   )}
                 </PaginationContent>
               </Pagination>

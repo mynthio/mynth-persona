@@ -6,13 +6,36 @@ import { tasks } from "@trigger.dev/sdk/v3";
 import { db } from "@/db/drizzle";
 import { personaEvents, personas } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
-import { generatePersonaImageTask } from "@/trigger/generate-persona-image.task";
-import { spendTokens } from "@/services/token/token-manager.service";
+import {
+  spendTokens,
+  spendPurchasedTokensOnly,
+} from "@/services/token/token-manager.service";
 import { nanoid } from "nanoid";
+import { generatePersonaImageV2Task } from "@/trigger/generate-persona-image-v2.task";
+import { ImageStyle } from "@/types/image-generation/image-style.type";
+import { ShotType } from "@/types/image-generation/shot-type.type";
+import { ImageGenerationQuality } from "@/types/image-generation/image-generation-quality.type";
+import { PersonaWithVersion } from "@/types/persona.type";
 
-const IMAGE_GENERATION_COST = 0;
+// Quality-based cost configuration
+const QUALITY_COSTS: Record<ImageGenerationQuality, number> = {
+  low: 1,
+  medium: 3,
+  high: 5,
+};
 
-export const generatePersonaImage = async (personaId: string) => {
+type GeneratePersonaImageSettings = {
+  quality: ImageGenerationQuality;
+  style: ImageStyle;
+  shotType: ShotType;
+  nsfw?: boolean;
+  userNote?: string;
+};
+
+export const generatePersonaImage = async (
+  personaId: string,
+  settings: GeneratePersonaImageSettings
+) => {
   const { userId } = await auth();
 
   if (!userId) {
@@ -30,49 +53,75 @@ export const generatePersonaImage = async (personaId: string) => {
     throw new Error("Persona not found");
   }
 
+  if (!persona.currentVersion) {
+    throw new Error("Persona has no current version");
+  }
+
+  // Calculate cost based on quality
+  const cost = QUALITY_COSTS[settings.quality];
+
+  // Spend tokens based on quality and NSFW requirements
   let canUserExecuteAction;
 
-  if (IMAGE_GENERATION_COST > 0) {
-    canUserExecuteAction = await spendTokens(userId, IMAGE_GENERATION_COST);
-
-    if (canUserExecuteAction.success === false) {
-      throw new Error("Not enough tokens");
-    }
+  if (settings.quality === "high" || settings.nsfw) {
+    // High quality or NSFW requires purchased tokens only
+    canUserExecuteAction = await spendPurchasedTokensOnly(
+      userId,
+      cost,
+      `${settings.quality} quality${settings.nsfw ? ' NSFW' : ''} image generation for persona ${personaId}`
+    );
   } else {
-    // Free generation - no token spending needed
-    canUserExecuteAction = {
-      success: true,
-      remainingBalance: 0, // We don't need to fetch actual balance for free generation
-    };
+    // Low and medium quality (non-NSFW) can use any tokens
+    canUserExecuteAction = await spendTokens(
+      userId,
+      cost,
+      `${settings.quality} quality image generation for persona ${personaId}`
+    );
+  }
+
+  if (canUserExecuteAction.success === false) {
+    throw new Error(canUserExecuteAction.error || "Not enough tokens");
   }
 
   const [event] = await db
     .insert(personaEvents)
     .values({
       personaId,
-      userMessage: "Generate Image",
+      userMessage: `Generate ${settings.quality} quality${settings.nsfw ? ' NSFW' : ''} image${settings.userNote ? ` with note: "${settings.userNote.slice(0, 100)}${settings.userNote.length > 100 ? '...' : ''}"` : ''}`,
       type: "image_generate",
       id: `pev_${nanoid()}`,
       userId,
       versionId: persona.currentVersionId,
+      tokensCost: cost,
     })
     .returning();
 
-  const taskHandle = await tasks.trigger<typeof generatePersonaImageTask>(
-    "generate-persona-image",
+  const taskHandle = await tasks.trigger<typeof generatePersonaImageV2Task>(
+    "generate-persona-image-v2",
     {
-      persona: { ...persona, version: persona.currentVersion as any },
+      persona: {
+        ...persona,
+        version: persona.currentVersion as PersonaWithVersion["version"],
+      },
       userId,
-      cost: IMAGE_GENERATION_COST,
+      cost,
       eventId: event.id,
+      quality: settings.quality,
+      style: settings.style,
+      shotType: settings.shotType,
+      nsfw: settings.nsfw || false,
+      userNote: settings.userNote || "",
+      tokensFromFree: canUserExecuteAction.tokensFromFree,
+      tokensFromPurchased: canUserExecuteAction.tokensFromPurchased,
     }
   );
 
   return {
     taskId: taskHandle.id,
     publicAccessToken: taskHandle.publicAccessToken,
-    cost: IMAGE_GENERATION_COST,
+    cost,
     remainingBalance: canUserExecuteAction.remainingBalance,
+    remainingDailyTokens: canUserExecuteAction.remainingDailyTokens,
     event: {
       ...event,
       imageGenerations: [

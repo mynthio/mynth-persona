@@ -6,6 +6,7 @@ export type ImageVariant = {
     width: number;
     height: number;
     fit?: keyof FitEnum;
+    position?: string;
   };
   quality?: number;
 };
@@ -20,6 +21,7 @@ export async function processImage(
       if (variant.resize) {
         img = img.resize(variant.resize.width, variant.resize.height, {
           fit: variant.resize.fit || "cover",
+          position: variant.resize.position || "centre",
         });
       }
 

@@ -44,7 +44,7 @@ export const personaVersions = pgTable("persona_versions", {
     .references(() => personas.id, { onDelete: "cascade" }),
   title: text("title"),
   versionNumber: integer("version_number").notNull(), // For ordering and display
-  data: jsonb("data").notNull(), // Generated persona JSON data
+  data: jsonb("data").notNull(), // Generated persona JSON data - now includes summary, optional occupation, and extensions array
   changedProperties: text("changed_properties").array(),
   aiModel: varchar("ai_model", { length: 255 }).notNull(), // AI model used
   settings: jsonb("settings"), // Generation settings

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card } from "@heroui/card";
-import { Chip } from "@heroui/chip";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 const DEMO_PERSONAS = [
   {
@@ -88,7 +88,7 @@ export default function PersonaStack() {
                       }deg) scale(0.9)`,
                 }}
               >
-                <Card className="size-40 p-0 overflow-hidden shadow-lg">
+                <Card className="size-40 p-0 overflow-hidden shadow-lg border-0">
                   <img
                     src={persona.image}
                     alt={persona.name}
@@ -104,9 +104,9 @@ export default function PersonaStack() {
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-semibold text-default-800 flex items-start justify-center">
           Craft Your Unique Persona
-          <Chip className="ml-2" size="sm" variant="shadow" color="warning">
-            2.0 BETA
-          </Chip>
+          <Badge variant="secondary" className="ml-2">
+            2.1 BETA
+          </Badge>
         </h2>
         <p className="text-default-600 max-w-md">
           Your ideal partner for role-playing, a muse for your next book or game

@@ -1,10 +1,9 @@
 "use client";
 
 import { ClerkProvider, useAuth } from "@clerk/nextjs";
-import { HeroUIProvider } from "@heroui/system";
 import { SWRConfig } from "swr";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { ToastProvider } from "@heroui/toast";
+import { AppToastProvider } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -25,10 +24,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       >
         <Suspense>
           <NuqsAdapter>
-            <HeroUIProvider className="w-full h-full" navigate={router.push}>
-              <ToastProvider />
-              {children}
-            </HeroUIProvider>
+            <AppToastProvider>{children}</AppToastProvider>
           </NuqsAdapter>
         </Suspense>
       </SWRConfig>

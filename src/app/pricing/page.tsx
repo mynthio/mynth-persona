@@ -6,7 +6,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 
 export default function PricingPage() {
   return (
@@ -87,14 +86,9 @@ export default function PricingPage() {
               <TableRow className="border-b border-border/50">
                 <TableCell className="py-6 px-6">
                   <div className="flex flex-col">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-foreground">
-                        Generate Image (LQ)
-                      </span>
-                      <Badge variant="secondary" className="text-xs">
-                        Free Beta
-                      </Badge>
-                    </div>
+                    <span className="font-medium text-foreground">
+                      Generate Image (Low)
+                    </span>
                     <span className="text-sm text-muted-foreground">
                       Low quality image generation
                     </span>
@@ -108,14 +102,9 @@ export default function PricingPage() {
               <TableRow className="border-b border-border/50">
                 <TableCell className="py-6 px-6">
                   <div className="flex flex-col">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-foreground">
-                        Generate Image (MQ)
-                      </span>
-                      <Badge variant="outline" className="text-xs">
-                        Coming Soon
-                      </Badge>
-                    </div>
+                    <span className="font-medium text-foreground">
+                      Generate Image (Medium)
+                    </span>
                     <span className="text-sm text-muted-foreground">
                       Medium quality image generation
                     </span>
@@ -129,14 +118,9 @@ export default function PricingPage() {
               <TableRow>
                 <TableCell className="py-6 px-6">
                   <div className="flex flex-col">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-foreground">
-                        Generate Image (HQ)
-                      </span>
-                      <Badge variant="outline" className="text-xs">
-                        Coming Soon
-                      </Badge>
-                    </div>
+                    <span className="font-medium text-foreground">
+                      Generate Image (High)
+                    </span>
                     <span className="text-sm text-muted-foreground">
                       High quality image generation
                     </span>
@@ -147,6 +131,27 @@ export default function PricingPage() {
                 </TableCell>
                 <TableCell className="py-6 px-6 text-right">
                   <span className="text-foreground font-medium">5 tokens</span>
+                </TableCell>
+              </TableRow>
+
+              <TableRow className="border-t border-border/50">
+                <TableCell className="py-6 px-6">
+                  <div className="flex flex-col">
+                    <span className="font-medium text-foreground">
+                      NSFW generation
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      Available for Medium and High quality
+                    </span>
+                    <span className="text-xs text-amber-600 mt-1">
+                      Purchased tokens only
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell className="py-6 px-6 text-right">
+                  <span className="text-foreground font-medium">
+                    No additional cost
+                  </span>
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -172,7 +177,8 @@ export default function PricingPage() {
         {/* Footer Note */}
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            HQ models require purchased tokens and cannot use daily free tokens
+            High quality and NSFW generations require purchased tokens and
+            cannot use daily free tokens
           </p>
         </div>
       </div>

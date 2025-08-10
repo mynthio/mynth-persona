@@ -1,4 +1,12 @@
-export async function uploadToBunny(filePath: string, body: BodyInit) {
+type UploadBody =
+  | string
+  | Blob
+  | ArrayBuffer
+  | ArrayBufferView
+  | ReadableStream<Uint8Array>
+  | Buffer;
+
+export async function uploadToBunny(filePath: string, body: UploadBody) {
   const url = `https://ny.storage.bunnycdn.com/${process.env.BUNNY_STORAGE_ZONE}/${filePath}`;
 
   const response = await fetch(url, {
@@ -8,7 +16,8 @@ export async function uploadToBunny(filePath: string, body: BodyInit) {
       "Content-Type": "application/octet-stream",
       accept: "application/json",
     },
-    body,
+    // Cast for TS compatibility across Node/DOM BodyInit differences
+    body: body as any,
   });
 
   if (!response.ok) {

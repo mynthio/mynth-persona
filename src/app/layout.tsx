@@ -119,16 +119,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="min-h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-full`}
       >
         <Providers>
-          <SidebarProvider>
+          <SidebarProvider className="h-full">
             <AppSidebar />
             <SidebarTrigger className="md:hidden fixed top-2 left-2 z-10 p-6" />
 
-            <main className="h-full w-full">{children}</main>
+            <main className="h-full w-full min-h-screen min-w-0 self-center">
+              {children}
+            </main>
           </SidebarProvider>
         </Providers>
       </body>

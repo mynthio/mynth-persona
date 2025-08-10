@@ -19,6 +19,12 @@ export abstract class ImageGenerationBase {
   protected abstract readonly INTERNAL_ID: string;
 
   /**
+   * Human-friendly display name for the model
+   * Used in UI for easier identification
+   */
+  protected abstract readonly DISPLAY_NAME: string;
+
+  /**
    * Get the universal model identifier
    */
   get modelId(): string {
@@ -32,12 +38,20 @@ export abstract class ImageGenerationBase {
     return this.INTERNAL_ID;
   }
 
+  /**
+   * Get the human-friendly display name for the model
+   */
+  get displayName(): string {
+    return this.DISPLAY_NAME;
+  }
+
   abstract generate(
     prompt: string,
     options?: {
       width?: number;
       height?: number;
       userId?: string;
+      loras?: string[];
     }
   ): Promise<ImageGenerationResult>;
 }

@@ -1,15 +1,15 @@
 "use client";
 
-import { Card, CardBody, CardHeader } from "@heroui/card";
-import { Chip } from "@heroui/chip";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableHeader,
-  TableColumn,
+  TableHead,
   TableBody,
   TableRow,
   TableCell,
-} from "@heroui/table";
+} from "@/components/ui/table";
 
 interface Transaction {
   id: string;
@@ -26,12 +26,7 @@ interface TransactionHistoryProps {
 export default function TransactionHistory({
   transactions,
 }: TransactionHistoryProps) {
-  const columns = [
-    { name: "TYPE", uid: "type" },
-    { name: "AMOUNT", uid: "amount" },
-    { name: "BALANCE AFTER", uid: "balanceAfter" },
-    { name: "DATE", uid: "date" },
-  ];
+  const columns = ["DATE", "TYPE", "AMOUNT", "BALANCE AFTER"] as const;
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -55,65 +50,78 @@ export default function TransactionHistory({
     }
   };
 
-  const renderCell = (
-    transaction: Transaction,
-    columnKey: React.Key
-  ): React.ReactNode => {
-    switch (columnKey) {
-      case "type":
-        return (
-          <Chip color={getTypeColor(transaction.type)} variant="flat" size="sm">
-            {getTypeLabel(transaction.type)}
-          </Chip>
-        );
-      case "amount":
-        return (
-          <span
-            className={
-              transaction.amount > 0 ? "text-green-600" : "text-red-600"
-            }
-          >
-            {transaction.amount > 0 ? "+" : ""}
-            {transaction.amount}
-          </span>
-        );
-      case "balanceAfter":
-        return String(transaction.balanceAfter);
-      case "date":
-        return new Date(transaction.createdAt).toLocaleDateString();
-      default:
-        return "";
-    }
-  };
+  const renderRow = (transaction: Transaction) => (
+    <TableRow key={transaction.id} className="border-b border-border/50">
+      <TableCell className="py-4 px-6">
+        <div className="text-sm text-foreground">
+          {new Date(transaction.createdAt).toLocaleDateString()}
+        </div>
+        <div className="text-xs text-muted-foreground">
+          {new Date(transaction.createdAt).toLocaleTimeString()}
+        </div>
+      </TableCell>
+      <TableCell className="py-4 px-6">
+        <Badge variant="secondary" className="text-xs">
+          {getTypeLabel(transaction.type)}
+        </Badge>
+      </TableCell>
+      <TableCell className="py-4 px-6 text-right">
+        <span
+          className={transaction.amount > 0 ? "text-green-600" : "text-red-600"}
+        >
+          {transaction.amount > 0 ? "+" : ""}
+          {transaction.amount}
+        </span>
+      </TableCell>
+      <TableCell className="py-4 px-6 text-right">
+        <span className="text-foreground font-medium">
+          {transaction.balanceAfter}
+        </span>
+      </TableCell>
+    </TableRow>
+  );
 
   return (
     <Card className="w-full">
       <CardHeader className="p-6">
-        <h2 className="text-xl font-semibold">Transaction History</h2>
+        <CardTitle className="text-xl">Transaction History</CardTitle>
       </CardHeader>
-      <CardBody className="pt-0">
-        <Table shadow="none" aria-label="Token transactions">
-          <TableHeader columns={columns}>
-            {(column) => (
-              <TableColumn key={column.uid} align="start">
-                {column.name}
-              </TableColumn>
-            )}
+      <CardContent className="pt-0">
+        <Table aria-label="Token transactions">
+          <TableHeader>
+            <TableRow className="border-b border-border">
+              {columns.map((name) => (
+                <TableHead
+                  key={name}
+                  className={
+                    name === "DATE"
+                      ? "font-medium text-foreground py-4 px-6"
+                      : name === "BALANCE AFTER" || name === "AMOUNT"
+                      ? "font-medium text-foreground py-4 px-6 text-right"
+                      : "font-medium text-foreground py-4 px-6"
+                  }
+                >
+                  {name}
+                </TableHead>
+              ))}
+            </TableRow>
           </TableHeader>
-          <TableBody
-            items={transactions}
-            emptyContent="No transactions yet. Your token activity will appear here."
-          >
-            {(transaction) => (
-              <TableRow key={transaction.id}>
-                {(columnKey) => (
-                  <TableCell>{renderCell(transaction, columnKey)}</TableCell>
-                )}
+          <TableBody>
+            {transactions.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={4}
+                  className="py-8 text-center text-muted-foreground"
+                >
+                  No transactions yet. Your token activity will appear here.
+                </TableCell>
               </TableRow>
+            ) : (
+              transactions.map(renderRow)
             )}
           </TableBody>
         </Table>
-      </CardBody>
+      </CardContent>
     </Card>
   );
 }

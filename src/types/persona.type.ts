@@ -1,33 +1,57 @@
 import { personas, personaVersions } from "@/db/schema";
-import { createSelectSchema } from "drizzle-arktype";
-import { type } from "arktype";
+import { createSelectSchema } from "drizzle-zod";
+import { z } from "zod";
 
-export const PersonaData = type({
-  age: "string",
-  appearance: "string",
-  background: "string",
-  gender: "string",
-  name: "string",
-  occupation: "string",
-  personality: "string",
-  universe: "string",
-  other: "string?",
+export const personaDataSchema = z.object({
+  name: z.string().describe("Full name or alias"),
+  age: z.string().describe("Specific, descriptive, or unknown"),
+  gender: z.string().describe("Gender/pronouns"),
+  appearance: z
+    .string()
+    .describe("Physical description (build, features, clothing, marks)"),
+  personality: z
+    .string()
+    .describe(
+      "Traits, temperament, interactions, emotions (required for depth)"
+    ),
+  background: z
+    .string()
+    .describe(
+      "History, upbringing, key events (required for meaningful story)"
+    ),
+  summary: z
+    .string()
+    .describe("1-2 sentences capturing essence, vibe, and scene ideas"),
+  occupation: z
+    .string()
+    .optional()
+    .describe("Role/work (optional, as not all characters need it)"),
+  extensions: z
+    .record(z.string(), z.string())
+    .optional()
+    .describe(
+      "Optional key-value object; AI adds only if relevant (e.g., {'skills': 'Stealth, Lockpicking', 'universe': 'Cyberpunk dystopia'})"
+    ),
 });
 
-export type PersonaData = typeof PersonaData.infer;
+export type PersonaData = z.infer<typeof personaDataSchema>;
 
-export const PersonaVersion = createSelectSchema(personaVersions, {
-  data: PersonaData,
-});
+export const basePersonaVersionSchema = createSelectSchema(personaVersions) as unknown as z.ZodType<any>;
 
-export type Persona = typeof personas.$inferSelect;
+// Fix the type intersection issue by excluding 'data' from base schema and adding it back with proper type
+export type PersonaVersion = Omit<
+  z.output<typeof basePersonaVersionSchema>,
+  "data"
+> & {
+  data: PersonaData;
+};
 
-export type PersonaVersion = typeof PersonaVersion.infer;
+export const basePersonaSchema = createSelectSchema(personas) as unknown as z.ZodType<any>;
 
-export type PersonaWithVersion = typeof personas.$inferSelect & {
-  version: typeof personaVersions.$inferSelect & {
-    data: PersonaData;
-  };
+export type Persona = z.output<typeof basePersonaSchema>;
+
+export type PersonaWithVersion = Persona & {
+  version: PersonaVersion;
 };
 
 export type PersonaWithCurrentVersion = Persona & {

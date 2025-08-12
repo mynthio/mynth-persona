@@ -150,7 +150,6 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
         height,
         numberResults: this.getNumberResults(),
         includeCost: true,
-        checkNSFW: true,
         ...requestConfig,
       });
 

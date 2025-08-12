@@ -59,6 +59,7 @@ function PaginationLink({
         className
       )}
       {...props}
+      prefetch={false}
     />
   );
 }

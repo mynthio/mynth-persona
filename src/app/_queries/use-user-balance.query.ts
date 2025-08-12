@@ -6,6 +6,7 @@ export const useUserBalanceQuery = (config?: SWRConfiguration) => {
   const { isSignedIn } = useAuth();
   return useSWR<PublicUserBalance>(isSignedIn ? "/api/me/balance" : null, {
     revalidateOnFocus: false,
+    revalidateIfStale: false,
     ...config,
   });
 };

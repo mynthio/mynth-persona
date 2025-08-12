@@ -7,7 +7,12 @@ export const usePersonaImagesQuery = (
 ) => {
   return useSWR<PublicPersonaImage[]>(
     personaId ? `/api/personas/${personaId}/images` : null,
-    config
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+
+      ...config,
+    }
   );
 };
 

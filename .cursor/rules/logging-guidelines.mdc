@@ -5,43 +5,58 @@ alwaysApply: false
 
 ## Why Log?
 
-- Capture key events, errors, and metrics for debugging, monitoring, and analytics (e.g., usage charts in Better Stack).
+- Capture key events, errors, and metrics for debugging, monitoring, and analytics (dashboards in Axiom).
 - Track AI model usage, user actions, and system flows without spamming noise.
-- Enable quick queries in Better Stack for insights like error rates or token spend.
+- Enable quick queries in Axiom for insights like error rates, latencies, or token spend.
 
 ## When to Log?
 
 - **Errors**: Always, with context for debugging.
 - **Key Events/Successes**: Milestones like "persona generated" or webhook handled; include metrics for analytics.
 - **Usage Tracking**: AI calls with token counts, durations, etc., for charts.
-- **Avoid**: Verbose debugs in loops, sensitive data, or redundancies.
-- Levels: debug (dev details), info (success/metrics), warn (non-fatal), error (failures).
+- **Avoid**: Verbose debugs in hot loops, sensitive data, or redundant/noisy logs.
+- Levels: `debug` (dev details), `info` (success/metrics), `warn` (non-fatal), `error` (failures).
 
-## Log Structure
+## Log Schema (event-centric)
 
-Use Pino's object format: `logger.level({ meta: { ... }, data: { ... } }, "Message")`.
+Use Pino's object logging: `logger.level({ ... }, "Message")` with this shape:
 
-- **meta**: Tags for filtering.
+- **event**: What happened, kebab-case string. Example: `image-generation-error`, `text-generation-usage`, `webhook-received`.
+- **component**: Where it happened, colon-delimited path, provider-agnostic. Example: `generation:image:generate`, `generation:text:complete`.
+- **attributes**: Bag for metrics/details. Keep it relatively flat for queryability.
+- Optional top-level fields (reserved):
+  - `user_id`: Prefer setting via child logger: `const userLogger = logger.child({ userId });`
+  - `request_id`, `trace_id`
+  - `duration_ms`
+  - `error`: Prefer `{ name, message, stack }` if available
+  - `ai_meta`: object containing AI-specific metadata
+    - `provider`: e.g., `openrouter`, `runware`, `openai` (do not put provider in `component`)
+    - `model`: e.g., `gpt-5-mini`, `flux-1.1-pro-ultra`
+    - Optional: `requestId`, `costUnits` (credits), other provider IDs
+- **message**: Short human summary, e.g., "Image generation failed".
 
-  - `who`: Embedded namespace identifying code location, e.g., "generation:image:runware-flux-schnell:generate" (feature:provider:class:method, kebab-case).
-  - `what`: Event type, e.g., "image-gen-error" (kebab-case for querying).
-  - Optional: `context` (e.g., "server-action"), `where` (for more precision if needed).
+### Minimal mapping from previous shape
 
-- **data**: Details/metrics, e.g., { usage: { tokens: 123 }, error: "Timeout" }. Keep flat for easy querying.
+- `meta.what` → `event`
+- `meta.who` → `component`
+- `data` → `attributes`
 
-- **Message**: Short summary, e.g., "Image generation failed".
+This keeps existing intent while standardizing names.
 
-## Special Fields
+## Naming Conventions
 
-- **userId**: At root level via child logger, e.g., `const userLogger = logger.child({ userId });`. Auto-adds to all logs from that child.
-- Extensibility: Add fields like `traceId` or `durationMs` as needed for analytics.
+- `event`: kebab-case. Examples: `persona-created`, `image-generation-started`, `text-generation-usage`.
+- `component`: `feature:modality:operation` (kebab-case segments, colon-delimited); provider goes in `ai_meta.provider`.
+- `attributes` keys: snake_case. Favor stable keys to keep dashboards consistent.
 
 ## Best Practices
 
-- Use child loggers for context (e.g., userId, sessionId).
-- Standardize `what` for categories (define common ones here if frequent).
-- Test in Better Stack: Ensure structure supports queries and dashboards.
-- Keep it chill: Logs should be useful, not overwhelming—log smart, not hard.
+- Use child loggers for stable context (`userId`, `sessionId`, `requestId`).
+- Log once per significant step; avoid duplicates across layers.
+- Put metrics in `attributes` (e.g., `attributes: { promptTokens, completionTokens }`).
+- Normalize durations to `durationMs`.
+- Sanitize sensitive data; never log secrets or raw payloads unless necessary and safe.
+- Validate queries in Axiom after adding new events to ensure the fields are useful.
 
 ## Examples
 
@@ -49,84 +64,55 @@ Use Pino's object format: `logger.level({ meta: { ... }, data: { ... } }, "Messa
 // Error in class method
 logger.error(
   {
-    meta: { who: "actions:generate-persona", what: "generation-error" },
-    data: { error: err.message },
+    event: "generation-error",
+    component: "actions:generate-persona",
+    attributes: { phase: "validate-input" },
+    error: { message: err.message, name: err.name },
   },
   "Persona generation failed"
 );
 
-// Usage tracking
+// Usage tracking with a child logger scoped by user
+const userLogger = logger.child({ userId });
 userLogger.info(
   {
-    meta: { who: "generation:text:google-gemini", what: "ai-usage" },
-    data: { usage: { promptTokens: 50, completionTokens: 200 } },
+    event: "text-generation-usage",
+    component: "generation:text:complete",
+    ai_meta: { provider: "openrouter", model: "gpt-5-mini" },
+    attributes: { input_tokens: 50, output_tokens: 200, total_tokens: 250 },
+    duration_ms: 1834,
   },
   "Text generation completed"
 );
-```
 
-Follow these for consistent, powerful logging. Extend as the project evolves!
-
-## Why Log?
-
-- Capture key events, errors, and metrics for debugging, monitoring, and analytics (e.g., usage charts in Better Stack).
-- Track AI model usage, user actions, and system flows without spamming noise.
-- Enable quick queries in Better Stack for insights like error rates or token spend.
-
-## When to Log?
-
-- **Errors**: Always, with context for debugging.
-- **Key Events/Successes**: Milestones like "persona generated" or webhook handled; include metrics for analytics.
-- **Usage Tracking**: AI calls with token counts, durations, etc., for charts.
-- **Avoid**: Verbose debugs in loops, sensitive data, or redundancies.
-- Levels: debug (dev details), info (success/metrics), warn (non-fatal), error (failures).
-
-## Log Structure
-
-Use Pino's object format: `logger.level({ meta: { ... }, data: { ... } }, "Message")`.
-
-- **meta**: Tags for filtering.
-
-  - `who`: Embedded namespace identifying code location, e.g., "generation:image:runware-flux-schnell:generate" (feature:provider:class:method, kebab-case).
-  - `what`: Event type, e.g., "image-gen-error" (kebab-case for querying).
-  - Optional: `context` (e.g., "server-action"), `where` (for more precision if needed).
-
-- **data**: Details/metrics, e.g., { usage: { tokens: 123 }, error: "Timeout" }. Keep flat for easy querying.
-
-- **Message**: Short summary, e.g., "Image generation failed".
-
-## Special Fields
-
-- **userId**: At root level via child logger, e.g., `const userLogger = logger.child({ userId });`. Auto-adds to all logs from that child.
-- Extensibility: Add fields like `traceId` or `durationMs` as needed for analytics.
-
-## Best Practices
-
-- Use child loggers for context (e.g., userId, sessionId).
-- Standardize `what` for categories (define common ones here if frequent).
-- Test in Better Stack: Ensure structure supports queries and dashboards.
-- Keep it chill: Logs should be useful, not overwhelming—log smart, not hard.
-
-## Examples
-
-```typescript
-// Error in class method
-logger.error(
+// Webhook received
+logger.debug(
   {
-    meta: { who: "actions:generate-persona", what: "generation-error" },
-    data: { error: err.message },
+    event: "webhook-received",
+    component: "webhook:polar:route",
+    attributes: { topic: payload.type },
   },
-  "Persona generation failed"
-);
-
-// Usage tracking
-userLogger.info(
-  {
-    meta: { who: "generation:text:google-gemini", what: "ai-usage" },
-    data: { usage: { promptTokens: 50, completionTokens: 200 } },
-  },
-  "Text generation completed"
+  "Polar webhook received"
 );
 ```
 
-Follow these for consistent, powerful logging. Extend as the project evolves!
+Follow these for consistent, queryable logging. Extend as the project evolves.
+
+## AI-specific event taxonomy and usage
+
+- Text generation:
+
+  - Start: `event: "text-generation-start"`, `component: "generation:text:start"`
+  - Complete: `event: "text-generation-complete"`, `component: "generation:text:complete"`
+  - Error: `event: "text-generation-error"`, `component: "generation:text:error"`
+  - Usage: `event: "text-generation-usage"`, `component: "generation:text:complete"`
+  - Recommended `attributes.usage` shape (normalized across providers):
+    - `input_tokens`, `output_tokens`, `total_tokens`, `reasoning_tokens?`, `cached_input_tokens?`
+
+- Image generation:
+  - Start: `event: "image-generation-start"`, `component: "generation:image:start"`
+  - Complete: `event: "image-generation-complete"`, `component: "generation:image:complete"`
+  - Error: `event: "image-generation-error"`, `component: "generation:image:error"`
+  - Usage: `event: "image-generation-usage"`, `component: "generation:image:complete"`
+  - Recommended `attributes.usage` shape:
+    - `images` (count), `width`, `height`, `steps?`, `credits_used?` (or `cost_units`)

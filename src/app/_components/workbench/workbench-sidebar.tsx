@@ -10,6 +10,7 @@ import {
   PaintBrushIcon,
   PlanetIcon,
   SparkleIcon,
+  ToolboxIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import dynamic from "next/dynamic";
 import { Suspense, useCallback, useState } from "react";
@@ -43,14 +44,22 @@ export default function WorkbenchSidebar() {
 
       {/* Mobile creator button */}
       {isMobile && !isMobilePanelOpen && (
-        <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40">
-          <Button
+        <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 max-w-full px-4">
+          <button
             onClick={openMobilePanel}
-            className="rounded-full px-6 py-6 text-base shadow-lg"
+            className="group relative max-w-full w-64 h-14 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40 transition-transform hover:scale-[1.02] active:scale-[0.99]"
           >
-            <SparkleIcon />
-            Creator
-          </Button>
+            <span
+              className="absolute -inset-[1px] rounded-full bg-gradient-to-r from-fuchsia-500 via-cyan-400 to-emerald-400 opacity-90 blur-[6px] group-hover:blur-[8px] transition-all duration-300"
+              aria-hidden="true"
+            />
+            <span className="relative block h-full rounded-full p-[2px]">
+              <span className="flex h-full w-full items-center justify-center gap-2 rounded-full bg-sidebar text-sidebar-foreground text-base font-medium shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_8px_20px_-12px_rgba(6,182,212,0.25)] transition-shadow duration-300">
+                <ToolboxIcon className="h-5 w-5" />
+                Workbench
+              </span>
+            </span>
+          </button>
         </div>
       )}
 
@@ -97,8 +106,8 @@ function Content() {
     >
       <TabsList className="w-full bg-sidebar">
         <TabsTrigger value="creator">
-          <SparkleIcon />
-          The Creator
+          <ToolboxIcon />
+          Workbench
         </TabsTrigger>
         <TabsTrigger value="imagine">
           <PaintBrushIcon />

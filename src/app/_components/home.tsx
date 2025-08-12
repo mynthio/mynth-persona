@@ -29,6 +29,8 @@ export default function Home(props: HomeProps) {
                 [`/api/personas/${props.persona.id}/versions/${
                   props.personaVersion!.id
                 }`]: props.personaVersion,
+                [`/api/personas/${props.persona.id}/versions/current`]:
+                  props.personaVersion,
               }
             : {},
         }}

@@ -149,12 +149,22 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
         width,
         height,
         numberResults: this.getNumberResults(),
+        includeCost: true,
+        checkNSFW: true,
         ...requestConfig,
       });
 
       if (!images || images.length === 0 || !images[0]?.imageURL) {
         throw new Error("No images returned from Runware SDK");
       }
+
+      logger.info({
+        event: "image-generation-cost",
+        component: "generation:image-generation:runware",
+        attributes: {
+          cost: images?.reduce((acc, image) => acc + (image.cost ?? 0), 0),
+        },
+      });
 
       const imageBuffer = await this.fetchImageBufferFromUrl(
         images[0].imageURL as string

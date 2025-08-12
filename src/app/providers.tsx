@@ -3,7 +3,7 @@
 import { ClerkProvider, useAuth } from "@clerk/nextjs";
 import { SWRConfig } from "swr";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { AppToastProvider } from "@/components/ui/toast";
+import { ToastProvider } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -24,7 +24,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       >
         <Suspense>
           <NuqsAdapter>
-            <AppToastProvider>{children}</AppToastProvider>
+            <ToastProvider>{children}</ToastProvider>
           </NuqsAdapter>
         </Suspense>
       </SWRConfig>

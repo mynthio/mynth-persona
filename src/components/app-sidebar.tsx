@@ -30,7 +30,7 @@ import Link from "next/link";
 import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
-import { and, desc, eq, isNotNull, not } from "drizzle-orm";
+import { and, desc, eq, isNotNull } from "drizzle-orm";
 import { Suspense } from "react";
 import { TokensBalance } from "./tokens-balance";
 import { AppSidebarHeader } from "./app-sidebar-header";
@@ -49,7 +49,7 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem key="creator">
                 <SidebarMenuButton asChild>
-                  <Link href="/">
+                  <Link href="/" prefetch={false}>
                     <SparkleIcon weight="duotone" />
                     Generate
                   </Link>
@@ -57,7 +57,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem key="library">
                 <SidebarMenuButton asChild>
-                  <Link href="/library">
+                  <Link href="/library" prefetch={false}>
                     <BookIcon weight="duotone" />
                     Library
                   </Link>
@@ -91,7 +91,7 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem key="about">
                 <SidebarMenuButton asChild>
-                  <Link href="/about">
+                  <Link href="/about" prefetch={false}>
                     <InfoIcon weight="duotone" />
                     <span>About</span>
                   </Link>
@@ -100,7 +100,7 @@ export function AppSidebar() {
 
               <SidebarMenuItem key="pricing">
                 <SidebarMenuButton asChild>
-                  <Link href="/pricing">
+                  <Link href="/pricing" prefetch={false}>
                     <MoneyIcon weight="duotone" />
                     <span>Pricing</span>
                   </Link>

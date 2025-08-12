@@ -1,15 +1,14 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
+import { TextareaAutosize } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import usePersonaGenerationStore from "@/stores/persona-generation.store";
-import { CoinsIcon, PaperPlaneTiltIcon } from "@phosphor-icons/react/dist/ssr";
+import { CoinsIcon, SparkleIcon } from "@phosphor-icons/react/dist/ssr";
 import { useSWRConfig } from "swr";
 import { generatePersonaAction } from "@/actions/generate-persona.action";
 import { usePersonaId } from "@/hooks/use-persona-id.hook";
-import { usePersonaVersionMutation } from "../_queries/use-persona-version.query";
 import { PERSONA_SUGGESTIONS } from "@/lib/persona-suggestions";
 import PersonaStack from "./persona-stack";
 
@@ -34,7 +33,14 @@ export default function PersonaCreator() {
   }, []);
 
   const handleGeneration = async (text: string) => {
-    const response = await generatePersonaAction(text);
+    if (personaGenerationStore.isGenerating) {
+      return;
+    }
+    personaGenerationStore.setIsGenerating(true);
+    const response = await generatePersonaAction(text).catch((e) => {
+      personaGenerationStore.setIsGenerating(false);
+      throw e;
+    });
 
     if (response) {
       swrConfig.mutate(
@@ -96,17 +102,20 @@ export default function PersonaCreator() {
         <div className="space-y-8">
           <PersonaStack />
 
-          <Card className="flex flex-col gap-3 max-w-3xl mx-auto p-3 w-full border border-border">
-            <Textarea
+          <Card className="flex flex-col gap-3 max-w-3xl mx-auto p-3 w-full border border-zinc-200 rounded-3xl shadow-none">
+            <TextareaAutosize
               placeholder="Write about your persona"
               value={prompt}
+              minRows={2}
+              maxRows={4}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={handleKeyDown}
+              className="border-none shadow-none background-none"
             />
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-end justify-between">
               <div className="flex items-center gap-2 text-muted-foreground">
-                <span className="text-xs flex items-center gap-1">
+                <span className="text-xs flex items-center gap-1 md:px-2">
                   <CoinsIcon />1 token
                 </span>
               </div>
@@ -114,11 +123,11 @@ export default function PersonaCreator() {
               <Button
                 disabled={!prompt || personaGenerationStore.isGenerating}
                 onClick={() => handleGeneration(prompt)}
-                className="px-4"
+                className="px-4 bg-zinc-100 text-zinc-800 rounded-lg"
               >
                 <span className="flex items-center gap-2">
                   <span>Generate</span>
-                  <PaperPlaneTiltIcon />
+                  <SparkleIcon />
                 </span>
               </Button>
             </div>

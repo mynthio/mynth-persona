@@ -4,61 +4,30 @@ import * as React from "react";
 import { Toast } from "@base-ui-components/react/toast";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ms from "ms";
 
-// Create a global manager so we can trigger toasts from anywhere in client components
-export const toastManager = Toast.createToastManager();
-
-type BaseToastOptions = {
-  title?: string;
-  description?: string;
-  timeout?: number;
-  // Match a simple set of types for styling; free-form string still supported
-  type?: "success" | "error" | "info" | "loading" | (string & {});
-};
-
-export const toast = {
-  add(options: BaseToastOptions) {
-    return toastManager.add(options);
-  },
-  success(options: Omit<BaseToastOptions, "type">) {
-    return toastManager.add({ ...options, type: "success" });
-  },
-  error(options: Omit<BaseToastOptions, "type">) {
-    return toastManager.add({ ...options, type: "error" });
-  },
-  info(options: Omit<BaseToastOptions, "type">) {
-    return toastManager.add({ ...options, type: "info" });
-  },
-  loading(options: Omit<BaseToastOptions, "type">) {
-    return toastManager.add({ ...options, type: "loading", timeout: 0 });
-  },
-  update: toastManager.update,
-  close: toastManager.close,
-  promise: toastManager.promise,
-};
-
-export function AppToastProvider({
+function ToastProvider({
   children,
   limit = 3,
-  timeout = 5000,
+  timeout = ms("4s"),
 }: {
   children: React.ReactNode;
   limit?: number;
   timeout?: number;
 }) {
   return (
-    <Toast.Provider toastManager={toastManager} limit={limit} timeout={timeout}>
+    <Toast.Provider limit={limit} timeout={timeout}>
+      {children}
       <Toast.Portal>
         <Toast.Viewport
           className={cn(
-            "fixed top-4 right-4 z-[100] flex w-[420px] max-w-[calc(100vw-2rem)] flex-col gap-2",
+            "fixed bottom-4 left-auto right-auto inset-x-0 mx-auto z-[100] flex w-[420px] max-w-[calc(100vw-2rem)] flex-col gap-2",
             "[&_[data-slot=toast]]:pointer-events-auto"
           )}
         >
           <ToastList />
         </Toast.Viewport>
       </Toast.Portal>
-      {children}
     </Toast.Provider>
   );
 }
@@ -98,4 +67,8 @@ function ToastList() {
   ));
 }
 
-export type ToastManager = typeof toastManager;
+function useToast() {
+  return Toast.useToastManager();
+}
+
+export { ToastProvider, useToast };

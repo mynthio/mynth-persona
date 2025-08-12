@@ -9,7 +9,11 @@ export const usePersonaQuery = (
   id?: string | null,
   config?: SWRConfiguration
 ) => {
-  return useSWR<PublicPersona>(id ? `/api/personas/${id}` : null, config);
+  return useSWR<PublicPersona>(id ? `/api/personas/${id}` : null, {
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    ...config,
+  });
 };
 
 export const usePersonaMutation = (id: string, options?: MutatorOptions) => {

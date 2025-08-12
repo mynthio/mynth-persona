@@ -15,13 +15,12 @@ import { ShotType } from "@/types/image-generation/shot-type.type";
 import { ImageGenerationQuality } from "@/types/image-generation/image-generation-quality.type";
 import { useState } from "react";
 import { InfoIcon } from "@phosphor-icons/react/dist/ssr";
-import { useSWRConfig } from "swr";
 import { DISCORD_INVITE_URL } from "@/lib/constants";
-import { GetPersonaEventsByIdResponse } from "@/app/api/personas/[personaId]/events/route";
 import { useWorkbenchContent } from "@/hooks/use-workbench-content.hook";
 import { useUserBalanceQuery } from "@/app/_queries/use-user-balance.query";
-import { toast } from "@/components/ui/toast";
+
 import Link from "next/link";
+import { useToast } from "@/components/ui/toast";
 
 type Size = "portrait" | "landscape";
 
@@ -37,10 +36,10 @@ type GenerationOptions = {
 export default function WorkbenchSidebarImagine() {
   const [personaId] = usePersonaId();
   const personaGenerationStore = usePersonaGenerationStore();
-  const { mutate } = useSWRConfig();
   const [isLoading, setIsLoading] = useState(false);
   const [, setWorkbenchContent] = useWorkbenchContent();
   const { data: balance } = useUserBalanceQuery();
+  const toast = useToast();
 
   const [options, setOptions] = useState<GenerationOptions>({
     quality: "medium",
@@ -75,7 +74,7 @@ export default function WorkbenchSidebarImagine() {
       : freeRemaining >= cost || purchased >= cost;
 
     if (!hasEnough) {
-      toast.error({
+      toast.add({
         title: "Not enough tokens",
         description: requiresPurchased
           ? `Requires ${cost} purchased tokens. You have ${purchased}.`
@@ -115,7 +114,7 @@ export default function WorkbenchSidebarImagine() {
       // Optionally, optimistically reflect a new image placeholder in the gallery cache
       // We avoid adding an empty id; gallery will read runs from the store for in-progress display.
     } catch (error) {
-      toast.error({ title: "Failed to generate image" });
+      toast.add({ title: "Failed to generate image" });
     } finally {
       setIsLoading(false);
     }
@@ -335,7 +334,7 @@ export default function WorkbenchSidebarImagine() {
                     ? `Not enough purchased tokens (${purchased}/${cost}).`
                     : `Not enough tokens. Free: ${freeRemaining}/${cost}, Purchased: ${purchased}/${cost}.`}
                 </span>
-                <Link href="/tokens" className="underline">
+                <Link href="/tokens" className="underline" prefetch={false}>
                   Buy tokens
                 </Link>
               </div>

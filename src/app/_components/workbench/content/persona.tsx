@@ -62,7 +62,7 @@ function Persona() {
           <div className="mt-1 text-xs text-zinc-600 flex items-center gap-2">
             <span>{data.age}</span>
             <span className="w-1 h-1 rounded-full bg-zinc-400" />
-            <span>{data.gender}</span>
+            <span className="capitalize">{data.gender}</span>
           </div>
           <p className="mt-1 text-sm text-zinc-600">{data.summary}</p>
         </div>

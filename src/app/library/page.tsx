@@ -137,7 +137,7 @@ function PersonaCard({
   };
 }) {
   return (
-    <Link href={`/?persona_id=${persona.id}&panel=true`}>
+    <Link href={`/?persona_id=${persona.id}&panel=true`} prefetch={false}>
       <div className="bg-card rounded-lg border border-border overflow-hidden hover:border-border/80 transition-colors group">
         {persona.profileImageId ? (
           <img

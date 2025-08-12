@@ -8,7 +8,11 @@ export const usePersonaVersionQuery = (
 ) => {
   return useSWR<PublicPersonaVersion>(
     personaId ? `/api/personas/${personaId}/versions/${id}` : null,
-    config
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      ...config,
+    }
   );
 };
 

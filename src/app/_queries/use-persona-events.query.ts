@@ -7,7 +7,11 @@ export const usePersonaEventsQuery = (
 ) => {
   return useSWR<PublicPersonaEventWithVersion[]>(
     personaId ? `/api/personas/${personaId}/events` : null,
-    config
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      ...config,
+    }
   );
 };
 

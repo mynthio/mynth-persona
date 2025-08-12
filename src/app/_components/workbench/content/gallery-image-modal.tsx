@@ -10,13 +10,16 @@ import { DownloadIcon, UserIcon } from "@phosphor-icons/react/dist/ssr";
 import useSWR, { useSWRConfig } from "swr";
 import { SpinnerGap } from "@phosphor-icons/react/dist/ssr";
 import { setPersonaProfileImage } from "@/actions/set-persona-profile-image.action";
-import { toast } from "@/components/ui/toast";
+
 import { useMemo, useState } from "react";
+import { useToast } from "@/components/ui/toast";
 
 export default function GalleryImageModal() {
   const [imageId, setImageId] = useImageId();
   const [personaId] = usePersonaId();
   const isOpen = Boolean(imageId);
+
+  const toast = useToast();
 
   const { data, isLoading } = useSWR(
     isOpen && imageId ? `/api/images/${imageId}` : null
@@ -44,13 +47,13 @@ export default function GalleryImageModal() {
     setIsSettingProfileImage(true);
     try {
       await setPersonaProfileImage(imageId);
-      toast.success({
+      toast.add({
         title: "Success",
         description: "Profile image updated",
       });
       if (personaId) mutate(`/api/personas/${personaId}`);
     } catch (error) {
-      toast.error({
+      toast.add({
         title: "Error",
         description:
           error instanceof Error
@@ -135,6 +138,12 @@ export default function GalleryImageModal() {
                     Settings
                   </div>
                   <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                    {data.generation.aiModel && (
+                      <>
+                        <div className="text-muted-foreground">Model</div>
+                        <div>{data.generation.aiModel}</div>
+                      </>
+                    )}
                     {data.generation.settings?.style && (
                       <>
                         <div className="text-muted-foreground">Style</div>

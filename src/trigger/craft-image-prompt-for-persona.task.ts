@@ -6,7 +6,7 @@ import { ShotType } from "@/types/image-generation/shot-type.type";
 import { ImageStyle } from "@/types/image-generation/image-style.type";
 import { z } from "zod";
 import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
-import { generateObject, NoObjectGeneratedError } from "ai";
+import { generateObject } from "ai";
 import ms from "ms";
 
 type CraftImagePromptForPersonaTaskPayload = {
@@ -175,16 +175,17 @@ Content: ${nsfw ? "NSFW Enabled" : "NSFW Disabled"}${
     });
 
     taskLogger.info({
-      meta: {
-        what: "image-prompt-generated-usage",
-      },
-      data: {
+      event: "text-generation-usage",
+      component: "generation:text:complete",
+      use_case: "image_prompt_crafting",
+      ai_meta: { model: result.response.modelId, provider: "openrouter" },
+      attributes: {
         usage: {
-          // @ts-ignore - TODO: fix this
-          inputTokens: result.usage.promptTokens,
-          // @ts-ignore - TODO: fix this
-          outputTokens: result.usage.completionTokens,
-          totalTokens: result.usage.totalTokens,
+          input_tokens: result.usage.inputTokens ?? 0,
+          output_tokens: result.usage.outputTokens ?? 0,
+          total_tokens: result.usage.totalTokens ?? 0,
+          reasoning_tokens: result.usage.reasoningTokens ?? 0,
+          cached_input_tokens: result.usage.cachedInputTokens ?? 0,
         },
       },
     });

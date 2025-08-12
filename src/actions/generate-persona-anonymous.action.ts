@@ -159,18 +159,21 @@ export async function generatePersonaAnonymousAction(prompt: string) {
           return;
         }
 
-        logger.info(
-          {
-            meta: {
-              who: "generate-persona-anonymous",
-              what: "ai-model-usage-tracking",
-            },
-            data: {
-              usage: object.usage,
+        logger.info({
+          event: "text-generation-usage",
+          component: "generation:text:complete",
+          use_case: "anonymous_persona_generation",
+          ai_meta: { provider: "openrouter", model: model.modelId },
+          attributes: {
+            usage: {
+              input_tokens: object.usage.inputTokens ?? 0,
+              output_tokens: object.usage.outputTokens ?? 0,
+              total_tokens: object.usage.totalTokens ?? 0,
+              reasoning_tokens: object.usage.reasoningTokens ?? 0,
+              cached_input_tokens: object.usage.cachedInputTokens ?? 0,
             },
           },
-          "Generate Persona Usage"
-        );
+        });
 
         await logsnag
           .track({

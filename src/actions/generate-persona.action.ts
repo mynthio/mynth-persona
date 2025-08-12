@@ -36,64 +36,77 @@ const SYSTEM_PROMPT = `You are an imaginative character architect and storytelli
 
 When creating personas, think like a novelist building complex characters:
 - Draw inspiration from diverse cultures, time periods, and walks of life
-- Create compelling contradictions and hidden depths in personalities  
+- Create compelling contradictions and hidden depths in personalities
 - Weave interesting backstories with unexpected turns and formative experiences
 - Design distinctive physical features and personal quirks that make them memorable
-- Consider how their environment, social class, and personal struggles shaped them
+- Consider how environment, social class, and personal struggles shaped them
 - Add subtle mysteries, secrets, or internal conflicts that make them intriguing
 - Think about their speech patterns, mannerisms, and personal philosophy
 
-Be bold and creative - avoid generic archetypes. Instead, create personas that feel like they could step off the page as real, complex individuals with rich inner lives. Make each character feel like they have stories worth telling and secrets worth discovering.
+Be bold and creative – avoid generic archetypes. Make each character feel like they have stories worth telling.
 
-Always fill every required field with rich, evocative details that bring the character to life in the reader's imagination. Use extensions sparingly, only for prompt-specific extras like 'skills' for game characters. If no extensions are needed, do not include the extensions field in your response.`;
+Output contract (strict):
+- Return ONLY a JSON object matching the provided schema. No extra keys, no prose outside JSON.
+- Distribute information into the correct fields; do NOT dump everything into the summary.
+- Avoid repeating long content across multiple fields.
+- summary: concise 1–2 sentences, single paragraph, no line breaks or lists. Do NOT include appearance, personality, or background details.
+- appearance: purely visual and stylistic description for imagining or image generation: physique/build, facial structure/features, eyes, skin, hair, posture, wardrobe/style, color palette, materials/textures, accessories, distinctive marks. Avoid personality or backstory.
+- personality: behavioral traits and temperament: how they speak and behave; motivations, strengths, flaws, quirks, and interaction style. Avoid physical details or history.
+- background: origin and history: upbringing, environment, formative events, training/skills learned, and how they became who they are. Avoid physical description.
+- occupation: short phrase; optional if not applicable.
+- extensions: include sparingly and ONLY if the prompt implies extra structured attributes (e.g., skills, universe). Omit the field entirely if not needed.`;
 
 const SCHEMA = z.object({
   title: z
     .string()
-    .describe("Title of the persona, short, maximum one sentence"),
+    .describe(
+      "Short, one-line persona title (not the name). Keep it concise and evocative; avoid quotes or emojis."
+    ),
   note_for_user: z
     .string()
     .optional()
     .describe(
-      "Optional, short note for the user. It can explain how you approched the prompt, and can suggest a follow up actions and proposals for user."
+      "Optional short note for the user: how you approached the prompt and suggested follow-ups. Keep it brief and actionable."
     ),
-  name: z.string().describe("Character's full name or alias"),
+  name: z.string().describe("Character's full name or alias."),
   age: z.string().describe("Can be specific number, descriptive, or unknown"),
-  gender: z.string().describe("Gender of the character"),
+  gender: z
+    .union([z.literal("male"), z.literal("female"), z.literal("other")])
+    .describe("Character's gender."),
   summary: z
     .string()
     .describe(
-      "Concise 1-2 sentence overview of the character's essence, including key traits and potential visual scene for imagery."
+      "Concise 1–2 sentence overview capturing only the essence. Single paragraph, no line breaks or lists. Do NOT include appearance, personality, or background details."
     ),
   appearance: z
     .string()
     .describe(
-      "Physical description including build, features, clothing style, distinctive marks"
+      "Purely visual and stylistic description for imagining or image generation: physique/build, facial structure/features, eyes, skin, hair, posture, wardrobe/style, color palette, materials/textures, accessories, and distinctive marks. Avoid personality or backstory."
     ),
   personality: z
     .string()
     .describe(
-      "Character traits, temperament, how they interact with others, emotional patterns"
+      "Behavioral traits and temperament: how they speak and behave; motivations, strengths, flaws, quirks, and interaction style. Avoid physical details and history."
     ),
   background: z
     .string()
     .describe(
-      "Personal history, upbringing, major life events, how they became who they are"
+      "Origin and history: upbringing, environment, formative events, training/skills learned, and how they became who they are. Avoid physical description."
     ),
   occupation: z
     .string()
     .optional()
     .describe(
-      "What they do for work/role in society, can include secret occupations"
+      "What they do for work/role in society. Can include secret occupations."
     ),
   extensions: z.preprocess((value) => {
-    // If value is not an object return empty object
+    // If value is not an object, omit the field entirely
     if (!value || typeof value !== "object" || value === null) {
-      return {};
+      return undefined;
     }
 
     return value;
-  }, z.record(z.string(), z.string()).optional().describe("Add extensions ONLY if the user's prompt explicitly requires or implies unique aspects as key-value pairs (e.g., {'skills': 'hacking, stealth', 'universe': 'cyberpunk'}). Keep to 2-5 max for focus. If no extensions are needed, DO NOT include this field in the response.")),
+  }, z.record(z.string(), z.string()).optional().describe("Add ONLY if the user's prompt explicitly implies unique aspects as key-value pairs (e.g., {'skills': 'hacking, stealth'}, {'universe': 'cyberpunk'}). Keep to a focused 2–5 keys. Omit the field entirely if not needed.")),
 });
 
 export async function generatePersonaAction(prompt: string) {
@@ -105,7 +118,9 @@ export async function generatePersonaAction(prompt: string) {
 
   userLogger.debug(
     {
-      prompt,
+      event: "persona-generate-start",
+      component: "actions:generate-persona",
+      attributes: { prompt },
     },
     "Generating persona"
   );
@@ -130,9 +145,13 @@ export async function generatePersonaAction(prompt: string) {
 
   userLogger.debug(
     {
-      tokensUsed: tokenResult.tokensUsed,
-      remainingBalance: tokenResult.remainingBalance,
-      remainingDailyTokens: tokenResult.remainingDailyTokens,
+      event: "tokens-deducted",
+      component: "actions:generate-persona",
+      attributes: {
+        tokens_used: tokenResult.tokensUsed,
+        remaining_balance: tokenResult.remainingBalance,
+        remaining_daily_tokens: tokenResult.remainingDailyTokens,
+      },
     },
     "Tokens deducted for persona generation"
   );
@@ -143,15 +162,19 @@ export async function generatePersonaAction(prompt: string) {
   });
 
   userLogger.debug(
-    { personaId, personaEventId },
+    {
+      event: "persona-created",
+      component: "actions:generate-persona",
+      attributes: { persona_id: personaId, persona_event_id: personaEventId },
+    },
     "Persona created and event created"
   );
 
   const stream = createStreamableValue();
 
   const openRouter = getOpenRouter();
-  const model = openRouter("openai/gpt-5-mini", {
-    models: ["openai/gpt-oss-20b:free", "moonshotai/kimi-k2"],
+  const model = openRouter("x-ai/grok-3-mini", {
+    models: ["openai/gpt-5-mini", "moonshotai/kimi-k2"],
   });
 
   (async () => {
@@ -162,11 +185,32 @@ export async function generatePersonaAction(prompt: string) {
       mode: "json",
       schema: SCHEMA,
       abortSignal: AbortSignal.timeout(ms("3m")),
+      providerOptions: {
+        openrouter: {
+          reasoning: {
+            effort: "low",
+          },
+        },
+      },
       onFinish: async (object) => {
-        userLogger.debug({ object }, "Persona generated");
+        userLogger.info(
+          {
+            event: "persona-generated",
+            component: "actions:generate-persona",
+            attributes: { object },
+          },
+          "Persona generated"
+        );
 
         if (!object.object) {
-          userLogger.error({ object }, "Persona not generated");
+          userLogger.error(
+            {
+              event: "generation-error",
+              component: "actions:generate-persona",
+              attributes: { object, phase: "validate-output" },
+            },
+            "Persona not generated"
+          );
           await refundTokens(
             userId,
             tokenResult.tokensFromFree,
@@ -198,7 +242,14 @@ export async function generatePersonaAction(prompt: string) {
           !object.object.personality ||
           !object.object.background
         ) {
-          userLogger.error({ object }, "Required persona fields missing");
+          userLogger.error(
+            {
+              event: "persona-fields-missing",
+              component: "actions:generate-persona",
+              attributes: { object },
+            },
+            "Required persona fields missing"
+          );
           await refundTokens(
             userId,
             tokenResult.tokensFromFree,
@@ -222,12 +273,21 @@ export async function generatePersonaAction(prompt: string) {
 
         userLogger.info(
           {
-            meta: {
-              action: "generate-persona",
-              what: "usage",
+            event: "text-generation-usage",
+            component: "generation:text:complete",
+            use_case: "persona_generation",
+            ai_meta: {
+              provider: "openrouter",
+              model: model.modelId,
             },
-            data: {
-              usage: object.usage,
+            attributes: {
+              usage: {
+                input_tokens: object.usage.inputTokens ?? 0,
+                output_tokens: object.usage.outputTokens ?? 0,
+                total_tokens: object.usage.totalTokens ?? 0,
+                reasoning_tokens: object.usage.reasoningTokens ?? 0,
+                cached_input_tokens: object.usage.cachedInputTokens ?? 0,
+              },
             },
           },
           "Generate Persona Usage"
@@ -286,7 +346,17 @@ export async function generatePersonaAction(prompt: string) {
           .catch((err) => {});
       },
       onError: async (error) => {
-        userLogger.error({ error }, "Error generating persona");
+        userLogger.error(
+          {
+            event: "generation-error",
+            component: "actions:generate-persona",
+            error: {
+              message: (error as any)?.message ?? String(error),
+              name: (error as any)?.name,
+            },
+          },
+          "Error generating persona"
+        );
 
         await refundTokens(
           userId,
@@ -326,7 +396,17 @@ export async function generatePersonaAction(prompt: string) {
 
       stream.done();
     } catch (error) {
-      userLogger.error({ error }, "Error during streaming");
+      userLogger.error(
+        {
+          event: "streaming-error",
+          component: "actions:generate-persona",
+          error: {
+            message: (error as any)?.message ?? String(error),
+            name: (error as any)?.name,
+          },
+        },
+        "Error during streaming"
+      );
       await refundTokens(
         userId,
         tokenResult.tokensFromFree,

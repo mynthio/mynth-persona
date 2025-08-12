@@ -6,6 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 export default function PricingPage() {
   return (
@@ -163,13 +164,26 @@ export default function PricingPage() {
           <h2 className="text-xl font-light text-foreground mb-6 text-center">
             Token Packages
           </h2>
-          <div className="bg-card rounded-lg border border-border p-6 text-center">
+          <div className="bg-card rounded-lg border border-border p-6 text-center relative">
+            {/* Promotional Badge */}
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              <Badge variant="destructive" className="bg-gradient-to-r from-red-500 to-pink-500 text-white">
+                🔥 Limited Time Offer
+              </Badge>
+            </div>
+            
             <div className="text-3xl font-light text-foreground mb-2">
               100 tokens
             </div>
-            <div className="text-lg text-muted-foreground mb-4">$5.00</div>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <div className="text-lg text-muted-foreground line-through">$5.00</div>
+              <div className="text-2xl font-semibold text-red-500">$1.99</div>
+            </div>
             <p className="text-sm text-muted-foreground">
               Tokens never expire and can be used for any action
+            </p>
+            <p className="text-xs text-red-600 mt-2 font-medium">
+              Save 60% with this temporary promotion!
             </p>
           </div>
         </div>

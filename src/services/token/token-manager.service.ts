@@ -237,11 +237,9 @@ export async function refundTokens(
 
       userLogger.info(
         {
-          meta: {
-            who: "services:token:token-manager:refund-tokens",
-            what: "free-tokens-refund-success",
-          },
-          data: { tokens: { daily: tokensFromFree, balance: 0 } },
+          event: "token-refund-success",
+          component: "services:token:refund",
+          attributes: { tokens: { daily: tokensFromFree, balance: 0 } },
         },
         "Free tokens refunded successfully"
       );
@@ -257,11 +255,9 @@ export async function refundTokens(
 
       userLogger.info(
         {
-          meta: {
-            who: "services:token:token-manager:refund-tokens",
-            what: "purchased-tokens-refund-success",
-          },
-          data: { tokens: { daily: 0, balance: tokensFromPurchased } },
+          event: "token-refund-success",
+          component: "services:token:refund",
+          attributes: { tokens: { daily: 0, balance: tokensFromPurchased } },
         },
         "Purchased tokens refunded successfully"
       );
@@ -270,11 +266,9 @@ export async function refundTokens(
     if (tokensFromFree > 0 || tokensFromPurchased > 0) {
       userLogger.info(
         {
-          meta: {
-            who: "services:token:token-manager:refund-tokens",
-            what: "token-refund-success",
-          },
-          data: {
+          event: "token-refund-success",
+          component: "services:token:refund",
+          attributes: {
             tokens: { daily: tokensFromFree, balance: tokensFromPurchased },
           },
         },

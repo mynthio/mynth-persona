@@ -1,8 +1,3 @@
-import { logger } from "@/lib/logger";
-import {
-  ImageGenerationBase,
-  ImageGenerationResult,
-} from "../image-generation-base";
 import { RunwareImageGenerationBase } from "./runware-base";
 
 export const RUNWARE_FLUX_DEV_ID = "runware/flux-dev" as const;

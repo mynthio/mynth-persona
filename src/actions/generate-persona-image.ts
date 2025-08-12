@@ -11,7 +11,7 @@ import {
   spendPurchasedTokensOnly,
 } from "@/services/token/token-manager.service";
 import { nanoid } from "nanoid";
-import { generatePersonaImageV2Task } from "@/trigger/generate-persona-image-v2.task";
+import { generatePersonaImageTask } from "@/trigger/generate-persona-image.task";
 import { ImageStyle } from "@/types/image-generation/image-style.type";
 import { ShotType } from "@/types/image-generation/shot-type.type";
 import { ImageGenerationQuality } from "@/types/image-generation/image-generation-quality.type";
@@ -68,7 +68,9 @@ export const generatePersonaImage = async (
     canUserExecuteAction = await spendPurchasedTokensOnly(
       userId,
       cost,
-      `${settings.quality} quality${settings.nsfw ? ' NSFW' : ''} image generation for persona ${personaId}`
+      `${settings.quality} quality${
+        settings.nsfw ? " NSFW" : ""
+      } image generation for persona ${personaId}`
     );
   } else {
     // Low and medium quality (non-NSFW) can use any tokens
@@ -87,7 +89,15 @@ export const generatePersonaImage = async (
     .insert(personaEvents)
     .values({
       personaId,
-      userMessage: `Generate ${settings.quality} quality${settings.nsfw ? ' NSFW' : ''} image${settings.userNote ? ` with note: "${settings.userNote.slice(0, 100)}${settings.userNote.length > 100 ? '...' : ''}"` : ''}`,
+      userMessage: `Generate ${settings.quality} quality${
+        settings.nsfw ? " NSFW" : ""
+      } image${
+        settings.userNote
+          ? ` with note: "${settings.userNote.slice(0, 100)}${
+              settings.userNote.length > 100 ? "..." : ""
+            }"`
+          : ""
+      }`,
       type: "image_generate",
       id: `pev_${nanoid()}`,
       userId,
@@ -96,8 +106,8 @@ export const generatePersonaImage = async (
     })
     .returning();
 
-  const taskHandle = await tasks.trigger<typeof generatePersonaImageV2Task>(
-    "generate-persona-image-v2",
+  const taskHandle = await tasks.trigger<typeof generatePersonaImageTask>(
+    "generate-persona-image",
     {
       persona: {
         ...persona,

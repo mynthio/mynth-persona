@@ -307,23 +307,6 @@ export async function generatePersonaAction(prompt: string) {
           aiNote: object.object?.note_for_user,
         });
 
-        // Maybe we can generate image for each persona so it's cool, and every persona has profile image?
-        // await tasks.trigger<typeof generatePersonaImageTask>(
-        //   "generate-persona-image",
-        //   {
-        //     persona: {
-        //       id: personaId,
-        //       version: {
-        //         id: "1",
-        //         data: object.object.persona,
-        //       },
-        //     } as any,
-        //     userId,
-        //     cost: 0,
-        //     eventId: personaEventId,
-        //   }
-        // );
-
         await logsnag
           .track({
             channel: "personas",
@@ -335,6 +318,8 @@ export async function generatePersonaAction(prompt: string) {
             },
           })
           .catch((err) => {});
+
+        logger.flush();
       },
       onError: async (error) => {
         userLogger.error(
@@ -373,6 +358,7 @@ export async function generatePersonaAction(prompt: string) {
           error: "Generation failed due to an error. Please try again.",
         });
         stream.done();
+        logger.flush();
       },
     });
 
@@ -406,6 +392,7 @@ export async function generatePersonaAction(prompt: string) {
       );
       stream.update({ error: "Streaming failed. Please try again." });
       stream.done();
+      logger.flush();
     }
   })();
 

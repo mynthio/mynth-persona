@@ -185,6 +185,7 @@ export async function generatePersonaAnonymousAction(prompt: string) {
             },
           })
           .catch((err) => {});
+        logger.flush();
       },
       onError: async (error) => {
         logger.error({ error }, "Error generating persona anonymous");
@@ -199,6 +200,7 @@ export async function generatePersonaAnonymousAction(prompt: string) {
             },
           })
           .catch((err) => {});
+        logger.flush();
       },
     });
 

@@ -6,7 +6,6 @@ import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   ButterflyIcon,
-  CameraIcon,
   PaintBrushIcon,
   PlanetIcon,
   SparkleIcon,
@@ -106,8 +105,8 @@ function Content() {
     >
       <TabsList className="w-full bg-sidebar">
         <TabsTrigger value="creator">
-          <ToolboxIcon />
-          Workbench
+          <SparkleIcon />
+          Creator
         </TabsTrigger>
         <TabsTrigger value="imagine">
           <PaintBrushIcon />

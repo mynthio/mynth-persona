@@ -160,6 +160,11 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
       logger.info({
         event: "image-generation-cost",
         component: "generation:image-generation:runware",
+        ai_meta: {
+          model: this.MODEL_ID,
+          provider: "runware",
+          type: "text-to-image",
+        },
         attributes: {
           cost: images?.reduce((acc, image) => acc + (image.cost ?? 0), 0),
         },

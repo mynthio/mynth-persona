@@ -262,8 +262,9 @@ export async function generatePersonaAction(prompt: string) {
           return;
         }
 
-        userLogger.info(
+        logger.info(
           {
+            userId,
             event: "text-generation-usage",
             component: "generation:text:complete",
             use_case: "persona_generation",

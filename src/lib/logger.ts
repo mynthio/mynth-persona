@@ -3,10 +3,9 @@ import pino, { Logger } from "pino";
 // Prevent tree-shaking
 import "@axiomhq/pino";
 
-const isOnVercel = !!process.env.VERCEL;
-const isProduction = isOnVercel
-  ? process.env.VERCEL_ENV === "production"
-  : process.env.NODE_ENV === "production";
+const isProduction =
+  process.env.VERCEL_ENV === "production" ||
+  process.env.NODE_ENV === "production";
 
 export const logger: Logger = isProduction
   ? pino(

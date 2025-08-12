@@ -13,12 +13,10 @@ export const logger: Logger = isProduction
   ? pino(
       { level: "info" },
       pino.transport({
-        target: "@logtail/pino",
+        target: "@axiomhq/pino",
         options: {
-          sourceToken: process.env.BETTER_STACK_LOGS_SOURCE_TOKEN,
-          options: {
-            endpoint: `https://${process.env.BETTER_STACK_LOGS_INGESTING_HOST}`,
-          },
+          dataset: process.env.AXIOM_DATASET,
+          token: process.env.AXIOM_TOKEN,
         },
       })
     )

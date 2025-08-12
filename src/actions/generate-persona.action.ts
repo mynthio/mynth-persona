@@ -281,6 +281,7 @@ export async function generatePersonaAction(prompt: string) {
             },
           },
         });
+        logger.flush();
 
         // Format the persona data with snake_case extension keys
         const formattedPersonaData = {

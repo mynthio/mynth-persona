@@ -1,5 +1,8 @@
 import pino, { Logger } from "pino";
 
+// Prevent tree-shaking
+import "@axiomhq/pino";
+
 export const logger: Logger =
   process.env.VERCEL_ENV === "production"
     ? // JSON in production, only on Vercel

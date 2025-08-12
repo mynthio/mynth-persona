@@ -262,28 +262,25 @@ export async function generatePersonaAction(prompt: string) {
           return;
         }
 
-        logger.info(
-          {
-            userId,
-            event: "text-generation-usage",
-            component: "generation:text:complete",
-            use_case: "persona_generation",
-            ai_meta: {
-              provider: "openrouter",
-              model: model.modelId,
-            },
-            attributes: {
-              usage: {
-                input_tokens: object.usage.inputTokens ?? 0,
-                output_tokens: object.usage.outputTokens ?? 0,
-                total_tokens: object.usage.totalTokens ?? 0,
-                reasoning_tokens: object.usage.reasoningTokens ?? 0,
-                cached_input_tokens: object.usage.cachedInputTokens ?? 0,
-              },
+        logger.info({
+          userId,
+          event: "text-generation-usage",
+          component: "generation:text:complete",
+          use_case: "persona_generation",
+          ai_meta: {
+            provider: "openrouter",
+            model: model.modelId,
+          },
+          attributes: {
+            usage: {
+              input_tokens: object.usage.inputTokens ?? 0,
+              output_tokens: object.usage.outputTokens ?? 0,
+              total_tokens: object.usage.totalTokens ?? 0,
+              reasoning_tokens: object.usage.reasoningTokens ?? 0,
+              cached_input_tokens: object.usage.cachedInputTokens ?? 0,
             },
           },
-          "Generate Persona Usage"
-        );
+        });
 
         // Format the persona data with snake_case extension keys
         const formattedPersonaData = {

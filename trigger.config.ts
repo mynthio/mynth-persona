@@ -29,6 +29,7 @@ export default defineConfig({
       "ws",
       "pino",
       "@axiomhq/pino",
+      "@logtail/pino",
     ],
     extensions: [
       syncVercelEnvVars(),

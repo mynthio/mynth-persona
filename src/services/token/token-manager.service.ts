@@ -235,14 +235,11 @@ export async function refundTokens(
         })
         .where(eq(userTokens.userId, userId));
 
-      userLogger.info(
-        {
-          event: "token-refund-success",
-          component: "services:token:refund",
-          attributes: { tokens: { daily: tokensFromFree, balance: 0 } },
-        },
-        "Free tokens refunded successfully"
-      );
+      userLogger.info({
+        event: "token-refund-success",
+        component: "services:token:refund",
+        attributes: { tokens: { daily: tokensFromFree, balance: 0 } },
+      });
     }
 
     if (tokensFromPurchased > 0) {
@@ -253,27 +250,21 @@ export async function refundTokens(
         })
         .where(eq(userTokens.userId, userId));
 
-      userLogger.info(
-        {
-          event: "token-refund-success",
-          component: "services:token:refund",
-          attributes: { tokens: { daily: 0, balance: tokensFromPurchased } },
-        },
-        "Purchased tokens refunded successfully"
-      );
+      userLogger.info({
+        event: "token-refund-success",
+        component: "services:token:refund",
+        attributes: { tokens: { daily: 0, balance: tokensFromPurchased } },
+      });
     }
 
     if (tokensFromFree > 0 || tokensFromPurchased > 0) {
-      userLogger.info(
-        {
-          event: "token-refund-success",
-          component: "services:token:refund",
-          attributes: {
-            tokens: { daily: tokensFromFree, balance: tokensFromPurchased },
-          },
+      userLogger.info({
+        event: "token-refund-success",
+        component: "services:token:refund",
+        attributes: {
+          tokens: { daily: tokensFromFree, balance: tokensFromPurchased },
         },
-        "Token refund completed successfully"
-      );
+      });
     }
   } catch (error) {
     userLogger.error(

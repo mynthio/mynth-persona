@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["pino", "@logtail/pino"],
+  serverExternalPackages: ["pino", "@axiomhq/pino"],
 
   eslint: {
     ignoreDuringBuilds: true,

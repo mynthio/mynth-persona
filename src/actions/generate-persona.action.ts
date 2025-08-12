@@ -193,15 +193,6 @@ export async function generatePersonaAction(prompt: string) {
         },
       },
       onFinish: async (object) => {
-        userLogger.info(
-          {
-            event: "persona-generated",
-            component: "actions:generate-persona",
-            attributes: { object },
-          },
-          "Persona generated"
-        );
-
         if (!object.object) {
           userLogger.error(
             {

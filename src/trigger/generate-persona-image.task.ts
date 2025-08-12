@@ -113,25 +113,6 @@ export const generatePersonaImageTask = task({
       persona.version?.data?.appearance
     );
 
-    /**
-     * TODO: Add a pricing to configuration, so we can log and calculate the cost of image generation when possible.
-     * It can be quite a nice data to have, for some dashboards and analytics.
-     */
-    logger.info(
-      {
-        event: "image-generation-result",
-        component: "generation:image:complete",
-        ai_meta: { model: imageGeneration.modelId },
-        user_id: payload.userId,
-        attributes: {
-          internal_model_id: imageGeneration.internalId,
-          image_generation_id: imageGenerationId,
-          run_id: ctx.run.id,
-        },
-      },
-      "Image generation result"
-    );
-
     const [processedImage, processedThumbnail] = await processImage(
       result.image,
       [

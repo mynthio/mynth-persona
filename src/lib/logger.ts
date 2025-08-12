@@ -8,7 +8,7 @@ const isProduction = isOnVercel
   ? process.env.VERCEL_ENV === "production"
   : process.env.NODE_ENV === "production";
 
-export const logger: Logger = !isProduction
+export const logger: Logger = isProduction
   ? pino(
       { level: "info" },
       pino.transport({

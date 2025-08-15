@@ -144,9 +144,7 @@ export default function PricingPage() {
                     <span className="text-sm text-muted-foreground">
                       Available for Medium and High quality
                     </span>
-                    <span className="text-xs text-amber-600 mt-1">
-                      Purchased tokens only
-                    </span>
+
                   </div>
                 </TableCell>
                 <TableCell className="py-6 px-6 text-right">
@@ -191,8 +189,7 @@ export default function PricingPage() {
         {/* Footer Note */}
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            High quality and NSFW generations require purchased tokens and
-            cannot use daily free tokens
+            High quality generations require purchased tokens and cannot use daily free tokens
           </p>
         </div>
       </div>

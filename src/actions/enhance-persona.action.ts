@@ -16,6 +16,7 @@ import { snakeCase } from "case-anything";
 import { streamObject } from "ai";
 import ms from "ms";
 import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
+import { DAILY_FREE_TOKENS } from "@/lib/constants";
 
 // Utility function to format extension keys to snake_case (lowercase)
 const formatExtensionKeys = (
@@ -244,6 +245,27 @@ IMPORTANT: If the user asks to change something, you must generate NEW content t
           "Persona enhancement generated"
         );
 
+        logger.info({
+          userId,
+          event: "text-generation-usage",
+          component: "generation:text:complete",
+          use_case: "persona_enhancement",
+          ai_meta: {
+            provider: "openrouter",
+            model: model.modelId,
+          },
+          attributes: {
+            usage: {
+              input_tokens: object.usage.inputTokens ?? 0,
+              output_tokens: object.usage.outputTokens ?? 0,
+              total_tokens: object.usage.totalTokens ?? 0,
+              reasoning_tokens: object.usage.reasoningTokens ?? 0,
+              cached_input_tokens: object.usage.cachedInputTokens ?? 0,
+            },
+          },
+        });
+        logger.flush();
+
         if (!object.object) {
           userLogger.warn({ object }, "No object generated");
           return;
@@ -386,5 +408,13 @@ IMPORTANT: If the user asks to change something, you must generate NEW content t
     tokensUsed: tokenResult.tokensUsed,
     remainingBalance: tokenResult.remainingBalance,
     remainingDailyTokens: tokenResult.remainingDailyTokens,
+    balance: {
+      totalBalance:
+        tokenResult.remainingBalance + tokenResult.remainingDailyTokens,
+      purchasedBalance: tokenResult.remainingBalance,
+      dailyFreeTokensRemaining: tokenResult.remainingDailyTokens,
+      dailyTokensUsed: DAILY_FREE_TOKENS - tokenResult.remainingDailyTokens,
+      balance: tokenResult.remainingBalance + tokenResult.remainingDailyTokens,
+    },
   };
 }

@@ -18,6 +18,7 @@ import { snakeCase } from "case-anything";
 import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
 import { streamObject } from "ai";
 import ms from "ms";
+import { DAILY_FREE_TOKENS } from "@/lib/constants";
 
 // Utility function to format extension keys to snake_case (lowercase)
 const formatExtensionKeys = (
@@ -403,5 +404,15 @@ export async function generatePersonaAction(prompt: string) {
     tokensUsed: tokenResult.tokensUsed,
     remainingBalance: tokenResult.remainingBalance,
     remainingDailyTokens: tokenResult.remainingDailyTokens,
+    balance: {
+      totalBalance:
+        tokenResult.remainingBalance + tokenResult.remainingDailyTokens,
+      purchasedBalance: tokenResult.remainingBalance,
+      dailyFreeTokensRemaining: tokenResult.remainingDailyTokens,
+      dailyTokensUsed:
+        DAILY_FREE_TOKENS - tokenResult.remainingDailyTokens,
+      balance:
+        tokenResult.remainingBalance + tokenResult.remainingDailyTokens, // legacy field
+    },
   };
 }

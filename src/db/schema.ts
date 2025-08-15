@@ -8,6 +8,7 @@ import {
   jsonb,
   varchar,
   pgEnum,
+  boolean,
   index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
@@ -103,9 +104,6 @@ export const imageGenerations = pgTable("image_generations", {
   userId: varchar("user_id", { length: 255 })
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  eventId: text("event_id")
-    .notNull()
-    .references(() => personaEvents.id, { onDelete: "cascade" }),
   runId: varchar("run_id", { length: 255 }), // Trigger.dev run ID for job tracking
   prompt: text("prompt").notNull(), // The actual prompt sent to AI
   aiModel: varchar("ai_model", { length: 255 }).notNull(),
@@ -127,6 +125,7 @@ export const images = pgTable("images", {
   personaId: text("persona_id")
     .notNull()
     .references(() => personas.id, { onDelete: "cascade" }),
+  isNSFW: boolean("is_nsfw").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -161,7 +160,6 @@ export const tokenTransactions = pgTable("token_transactions", {
 export const usersRelations = relations(users, ({ one, many }) => ({
   personas: many(personas),
   events: many(personaEvents),
-  imageGenerations: many(imageGenerations),
   tokens: one(userTokens),
   tokenTransactions: many(tokenTransactions),
 }));
@@ -211,7 +209,6 @@ export const personaEventsRelations = relations(
       fields: [personaEvents.versionId],
       references: [personaVersions.id],
     }),
-    imageGenerations: many(imageGenerations),
   })
 );
 
@@ -226,10 +223,7 @@ export const imageGenerationsRelations = relations(
       fields: [imageGenerations.userId],
       references: [users.id],
     }),
-    event: one(personaEvents, {
-      fields: [imageGenerations.eventId],
-      references: [personaEvents.id],
-    }),
+
     image: one(images, {
       fields: [imageGenerations.imageId],
       references: [images.id],

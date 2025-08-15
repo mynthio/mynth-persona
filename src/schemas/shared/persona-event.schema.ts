@@ -6,7 +6,6 @@ import { z } from "zod";
 export const publicPersonaEventTypeSchema = z.enum([
   "persona_create",
   "persona_edit",
-  "image_generate",
   "persona_revert",
   "persona_clone",
 ]);

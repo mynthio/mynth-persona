@@ -4,18 +4,18 @@ import { auth } from "@clerk/nextjs/server";
 import "server-only";
 import { tasks } from "@trigger.dev/sdk/v3";
 import { db } from "@/db/drizzle";
-import { personaEvents, personas } from "@/db/schema";
+import { personas } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import {
   spendTokens,
   spendPurchasedTokensOnly,
 } from "@/services/token/token-manager.service";
-import { nanoid } from "nanoid";
 import { generatePersonaImageTask } from "@/trigger/generate-persona-image.task";
 import { ImageStyle } from "@/types/image-generation/image-style.type";
 import { ShotType } from "@/types/image-generation/shot-type.type";
 import { ImageGenerationQuality } from "@/types/image-generation/image-generation-quality.type";
 import { PersonaWithVersion } from "@/types/persona.type";
+import { DAILY_FREE_TOKENS } from "@/lib/constants";
 
 // Quality-based cost configuration
 const QUALITY_COSTS: Record<ImageGenerationQuality, number> = {
@@ -60,11 +60,11 @@ export const generatePersonaImage = async (
   // Calculate cost based on quality
   const cost = QUALITY_COSTS[settings.quality];
 
-  // Spend tokens based on quality and NSFW requirements
+  // Spend tokens based on quality requirements
   let canUserExecuteAction;
 
-  if (settings.quality === "high" || settings.nsfw) {
-    // High quality or NSFW requires purchased tokens only
+  if (settings.quality === "high") {
+    // High quality requires purchased tokens only
     canUserExecuteAction = await spendPurchasedTokensOnly(
       userId,
       cost,
@@ -73,38 +73,19 @@ export const generatePersonaImage = async (
       } image generation for persona ${personaId}`
     );
   } else {
-    // Low and medium quality (non-NSFW) can use any tokens
+    // Low and medium quality can use any tokens (including NSFW)
     canUserExecuteAction = await spendTokens(
       userId,
       cost,
-      `${settings.quality} quality image generation for persona ${personaId}`
+      `${settings.quality} quality${
+        settings.nsfw ? " NSFW" : ""
+      } image generation for persona ${personaId}`
     );
   }
 
   if (canUserExecuteAction.success === false) {
     throw new Error(canUserExecuteAction.error || "Not enough tokens");
   }
-
-  const [event] = await db
-    .insert(personaEvents)
-    .values({
-      personaId,
-      userMessage: `Generate ${settings.quality} quality${
-        settings.nsfw ? " NSFW" : ""
-      } image${
-        settings.userNote
-          ? ` with note: "${settings.userNote.slice(0, 100)}${
-              settings.userNote.length > 100 ? "..." : ""
-            }"`
-          : ""
-      }`,
-      type: "image_generate",
-      id: `pev_${nanoid()}`,
-      userId,
-      versionId: persona.currentVersionId,
-      tokensCost: cost,
-    })
-    .returning();
 
   const taskHandle = await tasks.trigger<typeof generatePersonaImageTask>(
     "generate-persona-image",
@@ -115,7 +96,7 @@ export const generatePersonaImage = async (
       },
       userId,
       cost,
-      eventId: event.id,
+
       quality: settings.quality,
       style: settings.style,
       shotType: settings.shotType,
@@ -132,17 +113,17 @@ export const generatePersonaImage = async (
     cost,
     remainingBalance: canUserExecuteAction.remainingBalance,
     remainingDailyTokens: canUserExecuteAction.remainingDailyTokens,
-    event: {
-      ...event,
-      imageGenerations: [
-        {
-          id: taskHandle.id,
-          status: "pending",
-          runId: taskHandle.id,
-          imageId: "",
-          accessToken: taskHandle.publicAccessToken,
-        },
-      ],
+    balance: {
+      totalBalance:
+        canUserExecuteAction.remainingBalance +
+        canUserExecuteAction.remainingDailyTokens,
+      purchasedBalance: canUserExecuteAction.remainingBalance,
+      dailyFreeTokensRemaining: canUserExecuteAction.remainingDailyTokens,
+      dailyTokensUsed:
+        DAILY_FREE_TOKENS - canUserExecuteAction.remainingDailyTokens,
+      balance:
+        canUserExecuteAction.remainingBalance +
+        canUserExecuteAction.remainingDailyTokens,
     },
   };
 };

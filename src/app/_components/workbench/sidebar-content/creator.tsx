@@ -22,6 +22,7 @@ import dayjs from "dayjs";
 import { useEffect, useRef } from "react";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTokensBalanceMutation } from "@/app/_queries/use-tokens-balance.query";
 
 type CreatorProps = {
   prompt: string;
@@ -190,6 +191,7 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
   const personaGenerationStore = usePersonaGenerationStore();
   const mutateCurrentVersion = usePersonaVersionMutation(personaId);
   const [, setWorkbenchMode] = useWorkbenchMode();
+  const mutateBalance = useTokensBalanceMutation();
 
   const handleClick = async () => {
     if (!personaId) return;
@@ -200,6 +202,10 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
     setWorkbenchMode("creator");
 
     const response = await enhancePersonaAction(personaId, prompt);
+
+    if (response.balance) {
+      mutateBalance(() => response.balance);
+    }
 
     personaGenerationStore.stream(response.object!, {
       onData: (data) => {

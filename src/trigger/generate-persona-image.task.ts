@@ -1,5 +1,5 @@
 import { db } from "@/db/drizzle";
-import { imageGenerations, images, personaEvents, personas } from "@/db/schema";
+import { imageGenerations, images, personas } from "@/db/schema";
 import { metadata, task } from "@trigger.dev/sdk/v3";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -29,7 +29,7 @@ const GeneratePersonaImageTaskPayloadSchema = z.object({
   }),
   cost: z.number().min(0),
   userId: z.string(),
-  eventId: z.string(),
+
   quality: z.enum(["low", "medium", "high"]),
   style: z.string(),
   shotType: z.string(),
@@ -104,7 +104,7 @@ export const generatePersonaImageTask = task({
     const {
       userId,
       persona,
-      eventId: imageGenerationEventId,
+
       quality,
       style,
       shotType,
@@ -213,7 +213,7 @@ export const generatePersonaImageTask = task({
       await tx.insert(imageGenerations).values({
         id: imageGenerationId,
         aiModel: imageGenerationModel.modelId,
-        eventId: imageGenerationEventId,
+
         prompt: imagePrompt,
         userId,
         personaId: persona.id,
@@ -231,12 +231,7 @@ export const generatePersonaImageTask = task({
         tokensCost: payload.cost,
       });
 
-      await tx
-        .update(personaEvents)
-        .set({
-          aiNote: "Image generated",
-        })
-        .where(eq(personaEvents.id, payload.eventId));
+
 
       /**
        * Set persona profile image if empty

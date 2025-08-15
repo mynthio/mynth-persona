@@ -17,7 +17,10 @@ import { useState } from "react";
 import { InfoIcon } from "@phosphor-icons/react/dist/ssr";
 import { DISCORD_INVITE_URL } from "@/lib/constants";
 import { useWorkbenchContent } from "@/hooks/use-workbench-content.hook";
-import { useUserBalanceQuery } from "@/app/_queries/use-user-balance.query";
+import {
+  useTokensBalance,
+  useTokensBalanceMutation,
+} from "@/app/_queries/use-tokens-balance.query";
 
 import Link from "next/link";
 import { useToast } from "@/components/ui/toast";
@@ -38,7 +41,8 @@ export default function WorkbenchSidebarImagine() {
   const personaGenerationStore = usePersonaGenerationStore();
   const [isLoading, setIsLoading] = useState(false);
   const [, setWorkbenchContent] = useWorkbenchContent();
-  const { data: balance } = useUserBalanceQuery();
+  const { data: balance } = useTokensBalance();
+  const mutateBalance = useTokensBalanceMutation();
   const toast = useToast();
 
   const [options, setOptions] = useState<GenerationOptions>({
@@ -66,7 +70,7 @@ export default function WorkbenchSidebarImagine() {
   const onGenerate = async () => {
     if (isLoading) return;
     const cost = calculateCost();
-    const requiresPurchased = options.nsfw || options.quality === "high";
+    const requiresPurchased = options.quality === "high";
     const purchased = balance?.purchasedBalance ?? 0;
     const freeRemaining = balance?.dailyFreeTokensRemaining ?? 0;
     const hasEnough = requiresPurchased
@@ -86,9 +90,9 @@ export default function WorkbenchSidebarImagine() {
 
     try {
       const {
-        event,
         taskId: runId,
         publicAccessToken,
+        balance: newBalance,
       } = await generatePersonaImage(personaId, {
         quality: options.quality,
         style: ((options.quality === "low" ? "auto" : options.style) ||
@@ -97,6 +101,10 @@ export default function WorkbenchSidebarImagine() {
         nsfw: options.quality !== "low" ? options.nsfw : false,
         userNote: options.quality !== "low" ? options.userNote : "",
       });
+
+      if (newBalance) {
+        mutateBalance(() => newBalance);
+      }
 
       personaGenerationStore.setImageGenerationRuns({
         ...personaGenerationStore.imageGenerationRuns,
@@ -204,9 +212,7 @@ export default function WorkbenchSidebarImagine() {
                   >
                     Adult content
                   </Label>
-                  <p className="text-[11px] text-zinc-500">
-                    Mature content (purchased tokens only)
-                  </p>
+                  <p className="text-[11px] text-zinc-500">Mature content</p>
                 </div>
                 <Switch
                   id="nsfw-switch"
@@ -269,7 +275,7 @@ export default function WorkbenchSidebarImagine() {
             <Badge variant="secondary" className="text-[12px] font-medium">
               {calculateCost()} tokens
             </Badge>
-            {(options.nsfw || options.quality === "high") && (
+            {options.quality === "high" && (
               <Badge
                 variant="outline"
                 className="text-[11px] text-orange-600 border-orange-200"
@@ -302,8 +308,7 @@ export default function WorkbenchSidebarImagine() {
               onClick={onGenerate}
               disabled={(() => {
                 const cost = calculateCost();
-                const requiresPurchased =
-                  options.nsfw || options.quality === "high";
+                const requiresPurchased = options.quality === "high";
                 const purchased = balance?.purchasedBalance ?? 0;
                 const freeRemaining = balance?.dailyFreeTokensRemaining ?? 0;
                 const hasEnough = requiresPurchased
@@ -320,7 +325,7 @@ export default function WorkbenchSidebarImagine() {
         </div>
         {(() => {
           const cost = calculateCost();
-          const requiresPurchased = options.nsfw || options.quality === "high";
+          const requiresPurchased = options.quality === "high";
           const purchased = balance?.purchasedBalance ?? 0;
           const freeRemaining = balance?.dailyFreeTokensRemaining ?? 0;
           const hasEnough = requiresPurchased

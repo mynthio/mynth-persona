@@ -24,17 +24,7 @@ export type PersonaEventWithVersion = PersonaEvent & {
   };
 };
 
-/**
- * Persona event with image generation information
- */
-export type PersonaEventWithImageGeneration = PersonaEvent & {
-  imageGenerations?: {
-    id: string;
-    status: string;
-    runId: string | null;
-    imageId: string | null;
-  }[];
-};
+
 
 /**
  * Complete persona event with all related data
@@ -45,12 +35,6 @@ export type PersonaEventWithRelations = PersonaEvent & {
     versionNumber: number;
     title?: string | null;
   };
-  imageGenerations?: {
-    id: string;
-    status: string;
-    runId: string | null;
-    imageId: string | null;
-  }[];
 };
 
 // Export the enum for type safety

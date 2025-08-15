@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import { createCheckoutAction } from "@/actions/create-checkout.action";
 import { redirectToCustomerPortal } from "@/actions/redirect-to-customer-portal.action";
+import { calculateDailyFreeTokensRemaining } from "@/lib/date-utils";
 
 export default async function TokensPage() {
   const { userId, redirectToSignIn } = await auth();
@@ -38,10 +39,15 @@ export default async function TokensPage() {
 
   // Calculate balances
   const purchasedBalance = userTokenData?.balance || 0;
-  const dailyTokensUsed = userTokenData?.dailyTokensUsed || 0;
-  const dailyFreeTokensRemaining = Math.max(
-    0,
-    DAILY_FREE_TOKENS - dailyTokensUsed
+  const dailyTokensUsedRaw = userTokenData?.dailyTokensUsed || 0;
+  const lastDailyReset = userTokenData?.lastDailyReset || null;
+  const {
+    remainingTokens: dailyFreeTokensRemaining,
+    effectiveTokensUsed: dailyTokensUsed,
+  } = calculateDailyFreeTokensRemaining(
+    dailyTokensUsedRaw,
+    lastDailyReset,
+    DAILY_FREE_TOKENS
   );
   const totalBalance = purchasedBalance + dailyFreeTokensRemaining;
   const totalSpent = userTokenData?.totalSpent || 0;

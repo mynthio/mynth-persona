@@ -130,11 +130,7 @@ export async function generatePersonaAction(prompt: string) {
 
   // Check and deduct tokens for persona generation
   const tokenCost = 1; // Cost for persona generation
-  const tokenResult = await spendTokens(
-    userId,
-    tokenCost,
-    "Persona generation"
-  );
+  const tokenResult = await spendTokens(userId, tokenCost);
 
   if (!tokenResult.success) {
     return {
@@ -206,8 +202,7 @@ export async function generatePersonaAction(prompt: string) {
           await refundTokens(
             userId,
             tokenResult.tokensFromFree,
-            tokenResult.tokensFromPurchased,
-            "Persona generation failed: no persona object"
+            tokenResult.tokensFromPurchased
           );
           await db.delete(personas).where(eq(personas.id, personaId));
           await logsnag
@@ -245,8 +240,7 @@ export async function generatePersonaAction(prompt: string) {
           await refundTokens(
             userId,
             tokenResult.tokensFromFree,
-            tokenResult.tokensFromPurchased,
-            "Persona generation failed: missing required fields"
+            tokenResult.tokensFromPurchased
           );
           await db.delete(personas).where(eq(personas.id, personaId));
           await logsnag
@@ -337,8 +331,7 @@ export async function generatePersonaAction(prompt: string) {
         await refundTokens(
           userId,
           tokenResult.tokensFromFree,
-          tokenResult.tokensFromPurchased,
-          "Persona generation failed"
+          tokenResult.tokensFromPurchased
         );
         await db.delete(personas).where(eq(personas.id, personaId));
 
@@ -387,8 +380,7 @@ export async function generatePersonaAction(prompt: string) {
       await refundTokens(
         userId,
         tokenResult.tokensFromFree,
-        tokenResult.tokensFromPurchased,
-        "Persona generation failed"
+        tokenResult.tokensFromPurchased
       );
       stream.update({ error: "Streaming failed. Please try again." });
       stream.done();
@@ -409,10 +401,8 @@ export async function generatePersonaAction(prompt: string) {
         tokenResult.remainingBalance + tokenResult.remainingDailyTokens,
       purchasedBalance: tokenResult.remainingBalance,
       dailyFreeTokensRemaining: tokenResult.remainingDailyTokens,
-      dailyTokensUsed:
-        DAILY_FREE_TOKENS - tokenResult.remainingDailyTokens,
-      balance:
-        tokenResult.remainingBalance + tokenResult.remainingDailyTokens, // legacy field
+      dailyTokensUsed: DAILY_FREE_TOKENS - tokenResult.remainingDailyTokens,
+      balance: tokenResult.remainingBalance + tokenResult.remainingDailyTokens, // legacy field
     },
   };
 }

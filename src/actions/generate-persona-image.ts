@@ -74,13 +74,7 @@ export const generatePersonaImage = async (
     );
   } else {
     // Low and medium quality can use any tokens (including NSFW)
-    canUserExecuteAction = await spendTokens(
-      userId,
-      cost,
-      `${settings.quality} quality${
-        settings.nsfw ? " NSFW" : ""
-      } image generation for persona ${personaId}`
-    );
+    canUserExecuteAction = await spendTokens(userId, cost);
   }
 
   if (canUserExecuteAction.success === false) {

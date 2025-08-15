@@ -11,6 +11,7 @@ import { PersonaData } from "@/types/persona.type";
 import { auth } from "@clerk/nextjs/server";
 import { and, desc, eq, isNotNull } from "drizzle-orm";
 import Link from "next/link";
+import dayjs from "dayjs";
 
 const PERSONAS_PER_PAGE = 24;
 
@@ -157,7 +158,7 @@ function PersonaCard({
             {persona.title || "No description"}
           </p>
           <div className="text-xs text-muted-foreground/70 mt-2">
-            {new Date(persona.createdAt).toLocaleDateString()}
+            {dayjs(persona.createdAt).format("MMM D, YYYY")}
           </div>
         </div>
       </div>

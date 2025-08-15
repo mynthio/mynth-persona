@@ -1,28 +1,25 @@
 "use client";
 
 import { enhancePersonaAction } from "@/actions/enhance-persona.action";
-import { generatePersonaAction } from "@/actions/generate-persona.action";
-import { usePersonaEventsQuery } from "@/app/_queries/use-persona-events.query";
+import {
+  usePersonaEventsMutation,
+  usePersonaEventsQuery,
+} from "@/app/_queries/use-persona-events.query";
 import { usePersonaVersionMutation } from "@/app/_queries/use-persona-version.query";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { usePersonaId } from "@/hooks/use-persona-id.hook";
 import { PublicPersonaEventWithVersion } from "@/schemas";
 import usePersonaGenerationStore from "@/stores/persona-generation.store";
-import {
-  CoinsIcon,
-  PokerChipIcon,
-  SpinnerIcon,
-} from "@phosphor-icons/react/dist/ssr";
-import { readStreamableValue } from '@ai-sdk/rsc';
-import dayjs from "dayjs";
+import { CoinsIcon, SpinnerIcon } from "@phosphor-icons/react/dist/ssr";
 import { useEffect, useRef } from "react";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTokensBalanceMutation } from "@/app/_queries/use-tokens-balance.query";
+import { useToast } from "@/components/ui/toast";
+import { usePersonaMutation } from "@/app/_queries/use-persona.query";
 
 type CreatorProps = {
   prompt: string;
@@ -190,14 +187,18 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
   const [personaId] = usePersonaId();
   const personaGenerationStore = usePersonaGenerationStore();
   const mutateCurrentVersion = usePersonaVersionMutation(personaId);
+  const mutatePersonaEvents = usePersonaEventsMutation(personaId!);
+  const mutatePersona = usePersonaMutation(personaId!);
   const [, setWorkbenchMode] = useWorkbenchMode();
   const mutateBalance = useTokensBalanceMutation();
+  const toast = useToast();
 
   const handleClick = async () => {
     if (!personaId) return;
     if (!prompt) return;
     if (personaGenerationStore.isGenerating) return;
     personaGenerationStore.setIsGenerating(true);
+
     // Ensure the sidebar is focused on Creator to see streaming updates
     setWorkbenchMode("creator");
 
@@ -206,6 +207,8 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
     if (response.balance) {
       mutateBalance(() => response.balance);
     }
+
+    const promptNow = prompt;
 
     personaGenerationStore.stream(response.object!, {
       onData: (data) => {
@@ -225,20 +228,38 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
         });
       },
       onFinish: (data) => {
-        mutateCurrentVersion((state) => {
-          if (!state) return undefined;
-          return {
-            ...state,
-            data: {
-              ...state.data,
-              ...data,
-              extensions: {
-                ...state.data.extensions,
-                ...data.extensions,
-              },
-            },
-          };
+        toast.add({
+          title: "Finished generating version",
         });
+
+        mutatePersonaEvents(
+          (state) => {
+            if (!state) return [];
+
+            return [
+              ...state,
+              {
+                aiNote: "",
+                errorMessage: null,
+                createdAt: new Date(),
+                id: response.personaEventId!,
+                personaId: personaId,
+                tokensCost: 1,
+                type: "persona_edit",
+                userMessage: promptNow,
+                versionId: "",
+                version: {
+                  id: "",
+                  versionNumber: 0,
+                  title: "",
+                },
+              },
+            ];
+          },
+          {
+            revalidate: true,
+          }
+        );
       },
     });
   };
@@ -255,7 +276,12 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
         <Badge variant="secondary">
           <CoinsIcon />1
         </Badge>
-        <Button size={"sm"} className="bg-[#8661C1]" onClick={handleClick}>
+        <Button
+          size={"sm"}
+          className="bg-[#8661C1]"
+          onClick={handleClick}
+          disabled={personaGenerationStore.isGenerating}
+        >
           Send
         </Button>
       </div>

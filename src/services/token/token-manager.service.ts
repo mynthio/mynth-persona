@@ -4,11 +4,14 @@ import { eq, sql } from "drizzle-orm";
 import { DAILY_FREE_TOKENS } from "@/lib/constants";
 import { TokenDeductionResult } from "@/types/token.type";
 import { logger } from "@/lib/logger";
+import {
+  calculateDailyFreeTokensRemaining,
+  getCurrentUTCTime,
+} from "@/lib/date-utils";
 
 export async function spendTokens(
   userId: string,
-  tokensToUse: number,
-  description?: string
+  tokensToUse: number
 ): Promise<TokenDeductionResult> {
   if (tokensToUse <= 0) {
     return {
@@ -37,27 +40,23 @@ export async function spendTokens(
       updatedAt: new Date(),
     };
 
-    // Reset daily tokens if needed (new day)
-    const now = new Date();
-    const lastReset = currentData.lastDailyReset;
-    const shouldResetDaily =
-      !lastReset || lastReset.toDateString() !== now.toDateString();
-
-    let dailyTokensUsed = currentData.dailyTokensUsed;
-    if (shouldResetDaily) {
-      dailyTokensUsed = 0;
-    }
-
-    // Calculate available tokens
-    const purchasedBalance = currentData.balance;
-    const dailyFreeTokensRemaining = Math.max(
-      0,
-      DAILY_FREE_TOKENS - dailyTokensUsed
+    // Reset daily tokens if needed (new UTC day)
+    const now = getCurrentUTCTime();
+    const {
+      remainingTokens: dailyFreeTokensRemaining,
+      shouldReset: shouldResetDaily,
+      effectiveTokensUsed: dailyTokensUsed,
+    } = calculateDailyFreeTokensRemaining(
+      currentData.dailyTokensUsed,
+      currentData.lastDailyReset,
+      DAILY_FREE_TOKENS
     );
 
     // Determine which source to use (single source only)
     let tokensFromFree = 0;
     let tokensFromPurchased = 0;
+
+    const purchasedBalance = currentData.balance;
 
     if (dailyFreeTokensRemaining >= tokensToUse) {
       // Use daily free tokens only
@@ -90,7 +89,7 @@ export async function spendTokens(
         lastDailyReset: shouldResetDaily ? now : currentData.lastDailyReset,
         totalPurchased: currentData.totalPurchased,
         totalSpent: newTotalSpent,
-        updatedAt: now,
+        updatedAt: new Date(),
       })
       .onConflictDoUpdate({
         target: userTokens.userId,
@@ -99,7 +98,7 @@ export async function spendTokens(
           dailyTokensUsed: newDailyTokensUsed,
           lastDailyReset: shouldResetDaily ? now : currentData.lastDailyReset,
           totalSpent: newTotalSpent,
-          updatedAt: now,
+          updatedAt: new Date(),
         },
       });
 
@@ -150,25 +149,20 @@ export async function spendPurchasedTokensOnly(
       updatedAt: new Date(),
     };
 
-    // Reset daily tokens if needed (new day)
-    const now = new Date();
-    const lastReset = currentData.lastDailyReset;
-    const shouldResetDaily =
-      !lastReset || lastReset.toDateString() !== now.toDateString();
-
-    let dailyTokensUsed = currentData.dailyTokensUsed;
-    if (shouldResetDaily) {
-      dailyTokensUsed = 0;
-    }
-
-    // Calculate available tokens
-    const purchasedBalance = currentData.balance;
-    const dailyFreeTokensRemaining = Math.max(
-      0,
-      DAILY_FREE_TOKENS - dailyTokensUsed
+    // Reset daily tokens if needed (new UTC day)
+    const now = getCurrentUTCTime();
+    const {
+      remainingTokens: dailyFreeTokensRemaining,
+      shouldReset: shouldResetDaily,
+      effectiveTokensUsed: dailyTokensUsed,
+    } = calculateDailyFreeTokensRemaining(
+      currentData.dailyTokensUsed,
+      currentData.lastDailyReset,
+      DAILY_FREE_TOKENS
     );
 
     // Only use purchased tokens
+    const purchasedBalance = currentData.balance;
     if (purchasedBalance < tokensToUse) {
       return {
         success: false,
@@ -194,7 +188,7 @@ export async function spendPurchasedTokensOnly(
         lastDailyReset: shouldResetDaily ? now : currentData.lastDailyReset,
         totalPurchased: currentData.totalPurchased,
         totalSpent: newTotalSpent,
-        updatedAt: now,
+        updatedAt: new Date(),
       })
       .onConflictDoUpdate({
         target: userTokens.userId,
@@ -203,7 +197,7 @@ export async function spendPurchasedTokensOnly(
           dailyTokensUsed: dailyTokensUsed, // No change to daily tokens
           lastDailyReset: shouldResetDaily ? now : currentData.lastDailyReset,
           totalSpent: newTotalSpent,
-          updatedAt: now,
+          updatedAt: new Date(),
         },
       });
 
@@ -221,8 +215,7 @@ export async function spendPurchasedTokensOnly(
 export async function refundTokens(
   userId: string,
   tokensFromFree: number,
-  tokensFromPurchased: number,
-  description?: string
+  tokensFromPurchased: number
 ): Promise<void> {
   const userLogger = logger.child({ userId });
 
@@ -256,30 +249,13 @@ export async function refundTokens(
         attributes: { tokens: { daily: 0, balance: tokensFromPurchased } },
       });
     }
-
-    if (tokensFromFree > 0 || tokensFromPurchased > 0) {
-      userLogger.info({
-        event: "token-refund-success",
-        component: "services:token:refund",
-        attributes: {
-          tokens: { daily: tokensFromFree, balance: tokensFromPurchased },
-        },
-      });
-    }
   } catch (error) {
-    userLogger.error(
-      {
-        meta: {
-          who: "services:token:token-manager:refund-tokens",
-          what: "token-refund-error",
-        },
-        data: {
-          error: error instanceof Error ? error.message : "Unknown error",
-          tokens: { daily: tokensFromFree, balance: tokensFromPurchased },
-        },
-      },
-      "Token refund failed"
-    );
-    throw error; // Re-throw to maintain existing error handling behavior
+    userLogger.error({
+      event: "token-refund-error",
+      component: "services:token:refund",
+      attributes: { error: (error as Error).message },
+    });
+
+    throw error;
   }
 }

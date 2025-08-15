@@ -72,8 +72,7 @@ export const generatePersonaImageTask = task({
       await refundTokens(
         payload.userId,
         payload.tokensFromFree,
-        payload.tokensFromPurchased,
-        "Image generation failed"
+        payload.tokensFromPurchased
       );
     }
   },
@@ -208,6 +207,7 @@ export const generatePersonaImageTask = task({
       await tx.insert(images).values({
         id: imageId,
         personaId: persona.id,
+        isNSFW: nsfw,
       });
 
       await tx.insert(imageGenerations).values({
@@ -230,8 +230,6 @@ export const generatePersonaImageTask = task({
         runId: ctx.run.id,
         tokensCost: payload.cost,
       });
-
-
 
       /**
        * Set persona profile image if empty

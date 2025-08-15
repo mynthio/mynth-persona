@@ -1,4 +1,8 @@
-import useSWR, { useSWRConfig, type SWRConfiguration } from "swr";
+import useSWR, {
+  MutatorOptions,
+  useSWRConfig,
+  type SWRConfiguration,
+} from "swr";
 import { PublicPersonaEventWithVersion } from "@/schemas/shared";
 
 export const usePersonaEventsQuery = (
@@ -21,10 +25,15 @@ export const usePersonaEventsMutation = (personaId: string) => {
   return (
     mutator: (
       data: PublicPersonaEventWithVersion[] | undefined
-    ) => PublicPersonaEventWithVersion[]
+    ) => PublicPersonaEventWithVersion[] | undefined,
+    options?: MutatorOptions
   ) =>
     mutate<PublicPersonaEventWithVersion[]>(
       `/api/personas/${personaId}/events`,
-      mutator
+      mutator,
+      {
+        revalidate: false,
+        ...options,
+      }
     );
 };

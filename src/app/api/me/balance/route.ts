@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { DAILY_FREE_TOKENS } from "@/lib/constants";
 import { transformToPublicUserBalance } from "@/schemas/transformers";
-import type { PublicUserBalance } from "@/schemas/shared";
+import { calculateDailyFreeTokensRemaining } from "@/lib/date-utils";
 
 export async function GET() {
   try {
@@ -29,14 +29,15 @@ export async function GET() {
     }
 
     const purchasedBalance = userTokenData.balance;
-    const dailyTokensUsed = userTokenData.dailyTokensUsed;
-    const dailyFreeTokensRemaining = Math.max(
-      0,
-      DAILY_FREE_TOKENS - dailyTokensUsed
-    );
 
-    // Total effective balance = purchased tokens + remaining free tokens
-    const totalBalance = purchasedBalance + dailyFreeTokensRemaining;
+    const {
+      remainingTokens: dailyFreeTokensRemaining,
+      effectiveTokensUsed: dailyTokensUsed,
+    } = calculateDailyFreeTokensRemaining(
+      userTokenData.dailyTokensUsed,
+      userTokenData.lastDailyReset,
+      DAILY_FREE_TOKENS
+    );
 
     const response = transformToPublicUserBalance({
       purchasedBalance,

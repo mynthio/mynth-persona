@@ -146,11 +146,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
 
   // Check and deduct tokens for persona enhancement
   const tokenCost = 1; // Cost for persona enhancement
-  const tokenResult = await spendTokens(
-    userId,
-    tokenCost,
-    "Persona enhancement"
-  );
+  const tokenResult = await spendTokens(userId, tokenCost);
 
   if (!tokenResult.success) {
     return {

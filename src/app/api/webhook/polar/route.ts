@@ -4,7 +4,7 @@ import { tokenTransactions, userTokens } from "@/db/schema";
 import { logger } from "@/lib/logger";
 import logsnag from "@/lib/logsnag";
 import { Webhooks } from "@polar-sh/nextjs";
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 const PRODUCT_ID_TO_TOKEN_AMOUNT: Record<string, number> = {
@@ -37,7 +37,8 @@ export const POST = Webhooks({
     }
 
     await db.transaction(async (tx) => {
-      await tx
+      // Upsert user tokens and return the current balance after update/insert
+      const [updatedUserTokens] = await tx
         .insert(userTokens)
         .values({
           userId,
@@ -52,12 +53,15 @@ export const POST = Webhooks({
             totalPurchased: sql`${userTokens.totalPurchased} + ${tokenAmount}`,
             updatedAt: new Date(),
           },
-        });
+        })
+        .returning({ balance: userTokens.balance });
+
+      const balanceAfter = updatedUserTokens?.balance ?? tokenAmount;
 
       await tx.insert(tokenTransactions).values({
         userId,
         amount: tokenAmount,
-        balanceAfter: 0,
+        balanceAfter: balanceAfter,
         id: `tnt_${nanoid()}`,
         type: "purchase",
         orderId,

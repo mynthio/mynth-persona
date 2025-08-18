@@ -19,6 +19,7 @@ import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-r
 import { streamObject } from "ai";
 import ms from "ms";
 import { DAILY_FREE_TOKENS } from "@/lib/constants";
+import { getDefaultPromptDefinitionForMode } from "@/lib/prompts/registry";
 
 // Utility function to format extension keys to snake_case (lowercase)
 const formatExtensionKeys = (
@@ -33,44 +34,27 @@ const formatExtensionKeys = (
   }, {} as Record<string, string>);
 };
 
-const SYSTEM_PROMPT = `You are an imaginative character architect and storytelling expert. Your mission is to craft vivid, multi-dimensional personas that feel authentically human and captivatingly unique.
-
-When creating personas, think like a novelist building complex characters:
-- Draw inspiration from diverse cultures, time periods, and walks of life
-- Create compelling contradictions and hidden depths in personalities
-- Weave interesting backstories with unexpected turns and formative experiences
-- Design distinctive physical features and personal quirks that make them memorable
-- Consider how environment, social class, and personal struggles shaped them
-- Add subtle mysteries, secrets, or internal conflicts that make them intriguing
-- Think about their speech patterns, mannerisms, and personal philosophy
-
-Be bold and creative – avoid generic archetypes. Make each character feel like they have stories worth telling.
-
-Output contract (strict):
-- Return ONLY a JSON object matching the provided schema. No extra keys, no prose outside JSON.
-- Distribute information into the correct fields; do NOT dump everything into the summary.
-- Avoid repeating long content across multiple fields.
-- summary: concise 1–2 sentences, single paragraph, no line breaks or lists. Do NOT include appearance, personality, or background details.
-- appearance: purely visual and stylistic description for imagining or image generation: physique/build, facial structure/features, eyes, skin, hair, posture, wardrobe/style, color palette, materials/textures, accessories, distinctive marks. Avoid personality or backstory.
-- personality: behavioral traits and temperament: how they speak and behave; motivations, strengths, flaws, quirks, and interaction style. Avoid physical details or history.
-- background: origin and history: upbringing, environment, formative events, training/skills learned, and how they became who they are. Avoid physical description.
-- occupation: short phrase; optional if not applicable.
-- extensions: include sparingly and ONLY if the prompt implies extra structured attributes (e.g., skills, universe). Omit the field entirely if not needed.`;
+const personaSystemPrompt = getDefaultPromptDefinitionForMode(
+  "persona",
+  "generate"
+).render();
 
 const SCHEMA = z.object({
-  title: z
-    .string()
-    .describe(
-      "Short, one-line persona title (not the name). Keep it concise and evocative; avoid quotes or emojis."
-    ),
+  title: z.string().describe("Short, one-line persona title."),
   note_for_user: z
     .string()
     .optional()
+    .nullable()
     .describe(
-      "Optional short note for the user: how you approached the prompt and suggested follow-ups. Keep it brief and actionable."
+      "Optional short note for the user: how you approached the prompt and suggested follow-ups. Keep it brief and actionable. One sentence only."
     ),
   name: z.string().describe("Character's full name or alias."),
-  age: z.string().describe("Can be specific number, descriptive, or unknown"),
+  age: z
+    .preprocess(
+      (val) => (typeof val === "number" ? String(val) : val),
+      z.union([z.string(), z.number()])
+    )
+    .describe("Character's age."),
   gender: z
     .union([z.literal("male"), z.literal("female"), z.literal("other")])
     .describe("Character's gender."),
@@ -96,6 +80,7 @@ const SCHEMA = z.object({
     ),
   occupation: z
     .string()
+    .nullable()
     .optional()
     .describe(
       "What they do for work/role in society. Can include secret occupations."
@@ -107,7 +92,7 @@ const SCHEMA = z.object({
     }
 
     return value;
-  }, z.record(z.string(), z.string()).optional().describe("Add ONLY if the user's prompt explicitly implies unique aspects as key-value pairs (e.g., {'skills': 'hacking, stealth'}, {'universe': 'cyberpunk'}). Keep to a focused 2–5 keys. Omit the field entirely if not needed.")),
+  }, z.record(z.string(), z.string()).nullable().optional().describe("Add ONLY if the user's prompt explicitly implies unique aspects as key-value pairs (e.g., {'skills': 'hacking, stealth'}, {'universe': 'cyberpunk'}). Keep to a focused 2–5 keys. Omit the field entirely if not needed.")),
 });
 
 export async function generatePersonaAction(prompt: string) {
@@ -170,7 +155,7 @@ export async function generatePersonaAction(prompt: string) {
   const stream = createStreamableValue();
 
   const openRouter = getOpenRouter();
-  const model = openRouter("x-ai/grok-3-mini", {
+  const model = openRouter("mistralai/mistral-medium-3.1", {
     models: ["openai/gpt-5-mini", "moonshotai/kimi-k2"],
   });
 
@@ -178,8 +163,7 @@ export async function generatePersonaAction(prompt: string) {
     const { partialObjectStream } = streamObject({
       model,
       prompt,
-      system: SYSTEM_PROMPT,
-      mode: "json",
+      system: personaSystemPrompt,
       schema: SCHEMA,
       abortSignal: AbortSignal.timeout(ms("3m")),
       providerOptions: {
@@ -198,44 +182,6 @@ export async function generatePersonaAction(prompt: string) {
               attributes: { object, phase: "validate-output" },
             },
             "Persona not generated"
-          );
-          await refundTokens(
-            userId,
-            tokenResult.tokensFromFree,
-            tokenResult.tokensFromPurchased
-          );
-          await db.delete(personas).where(eq(personas.id, personaId));
-          await logsnag
-            .track({
-              channel: "personas",
-              event: "generate-persona-failed",
-              user_id: userId,
-              icon: "🚨",
-              tags: {
-                model: model.modelId,
-              },
-            })
-            .catch((err) => {});
-          return;
-        }
-
-        // Check if required persona fields are present
-        if (
-          !object.object.name ||
-          !object.object.age ||
-          !object.object.gender ||
-          !object.object.summary ||
-          !object.object.appearance ||
-          !object.object.personality ||
-          !object.object.background
-        ) {
-          userLogger.error(
-            {
-              event: "persona-fields-missing",
-              component: "actions:generate-persona",
-              attributes: { object },
-            },
-            "Required persona fields missing"
           );
           await refundTokens(
             userId,
@@ -281,14 +227,16 @@ export async function generatePersonaAction(prompt: string) {
         // Format the persona data with snake_case extension keys
         const formattedPersonaData = {
           name: object.object.name,
-          age: object.object.age,
+          age: String(object.object.age),
           gender: object.object.gender,
           summary: object.object.summary,
           appearance: object.object.appearance,
           personality: object.object.personality,
           background: object.object.background,
-          occupation: object.object.occupation,
-          extensions: formatExtensionKeys(object.object.extensions),
+          occupation: object.object.occupation ?? undefined,
+          extensions: formatExtensionKeys(
+            object.object.extensions ?? undefined
+          ),
         };
 
         await createPersonaVersion({
@@ -298,7 +246,7 @@ export async function generatePersonaAction(prompt: string) {
           title: object.object.title,
           data: formattedPersonaData,
           versionNumber: 1,
-          aiNote: object.object?.note_for_user,
+          aiNote: object.object?.note_for_user ?? undefined,
         });
 
         await logsnag
@@ -316,6 +264,7 @@ export async function generatePersonaAction(prompt: string) {
         logger.flush();
       },
       onError: async (error) => {
+        console.error(error);
         userLogger.error(
           {
             event: "generation-error",

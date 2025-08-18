@@ -2,7 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import "server-only";
-import { tasks } from "@trigger.dev/sdk/v3";
+import { tasks } from "@trigger.dev/sdk";
 import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
 import { and, eq } from "drizzle-orm";

@@ -1,6 +1,6 @@
 import { db } from "@/db/drizzle";
 import { imageGenerations, images, personas } from "@/db/schema";
-import { metadata, task } from "@trigger.dev/sdk/v3";
+import { metadata, task } from "@trigger.dev/sdk";
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { z } from "zod";
@@ -53,39 +53,6 @@ export const generatePersonaImageTask = task({
   maxDuration: 300,
   retry: {
     maxAttempts: 1,
-  },
-  onFailure: async (payload: GeneratePersonaImageTaskPayload, error) => {
-    const imageGenerationId = metadata.get("imageGenerationId")?.toString();
-
-    if (imageGenerationId) {
-      await db
-        .update(imageGenerations)
-        .set({
-          status: "failed",
-          errorMessage: String(error),
-        })
-        .where(eq(imageGenerations.id, imageGenerationId));
-    }
-
-    if (payload.cost > 0) {
-      // Return tokens to user due to failure using proper token breakdown
-      await refundTokens(
-        payload.userId,
-        payload.tokensFromFree,
-        payload.tokensFromPurchased
-      );
-    }
-  },
-  onSuccess: async (payload: GeneratePersonaImageTaskPayload) => {
-    await logsnag
-      .track({
-        channel: "persona-image-generation",
-        event: "image-generation-completed",
-        description: "Image generation completed",
-        icon: "🖼️",
-        user_id: payload.userId,
-      })
-      .catch(() => {});
   },
   run: async (payload: GeneratePersonaImageTaskPayload, { ctx }) => {
     /**
@@ -250,5 +217,38 @@ export const generatePersonaImageTask = task({
       imageUrl,
       imageId,
     };
+  },
+  onFailure: async ({ payload, error }) => {
+    const imageGenerationId = metadata.get("imageGenerationId")?.toString();
+
+    if (imageGenerationId) {
+      await db
+        .update(imageGenerations)
+        .set({
+          status: "failed",
+          errorMessage: String(error),
+        })
+        .where(eq(imageGenerations.id, imageGenerationId));
+    }
+
+    if (payload.cost > 0) {
+      // Return tokens to user due to failure using proper token breakdown
+      await refundTokens(
+        payload.userId,
+        payload.tokensFromFree,
+        payload.tokensFromPurchased
+      );
+    }
+  },
+  onSuccess: async ({ payload }) => {
+    await logsnag
+      .track({
+        channel: "persona-image-generation",
+        event: "image-generation-completed",
+        description: "Image generation completed",
+        icon: "🖼️",
+        user_id: payload.userId,
+      })
+      .catch(() => {});
   },
 });

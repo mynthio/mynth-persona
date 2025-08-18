@@ -12,6 +12,7 @@ import { snakeCase } from "case-anything";
 import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
 import { streamObject } from "ai";
 import ms from "ms";
+import { getDefaultPromptDefinitionForMode } from "@/lib/prompts/registry";
 
 // Utility function to format extension keys to snake_case (lowercase)
 const formatExtensionKeys = (
@@ -25,21 +26,6 @@ const formatExtensionKeys = (
     return acc;
   }, {} as Record<string, string>);
 };
-
-const SYSTEM_PROMPT = `You are an imaginative character architect and storytelling expert. Your mission is to craft vivid, multi-dimensional personas that feel authentically human and captivatingly unique.
-
-When creating personas, think like a novelist building complex characters:
-- Draw inspiration from diverse cultures, time periods, and walks of life
-- Create compelling contradictions and hidden depths in personalities  
-- Weave interesting backstories with unexpected turns and formative experiences
-- Design distinctive physical features and personal quirks that make them memorable
-- Consider how their environment, social class, and personal struggles shaped them
-- Add subtle mysteries, secrets, or internal conflicts that make them intriguing
-- Think about their speech patterns, mannerisms, and personal philosophy
-
-Be bold and creative - avoid generic archetypes. Instead, create personas that feel like they could step off the page as real, complex individuals with rich inner lives. Make each character feel like they have stories worth telling and secrets worth discovering.
-
-Always fill every required field with rich, evocative details that bring the character to life in the reader's imagination. Use extensions sparingly, only for prompt-specific extras like 'skills' for game characters. If no extensions are needed, do not include the extensions field in your response.`;
 
 const SCHEMA = z.object({
   note_for_user: z
@@ -137,7 +123,7 @@ export async function generatePersonaAnonymousAction(prompt: string) {
     const { partialObjectStream } = streamObject({
       model,
       prompt,
-      system: SYSTEM_PROMPT,
+      system: getDefaultPromptDefinitionForMode("persona", "generate").render(),
       schema: SCHEMA,
       abortSignal: AbortSignal.timeout(ms("3m")),
       onFinish: async (object) => {

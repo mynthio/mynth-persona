@@ -17,6 +17,7 @@ import { streamObject } from "ai";
 import ms from "ms";
 import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
 import { DAILY_FREE_TOKENS } from "@/lib/constants";
+import { getDefaultPromptDefinitionForMode } from "@/lib/prompts/registry";
 
 // Utility function to format extension keys to snake_case (lowercase)
 const formatExtensionKeys = (
@@ -47,71 +48,84 @@ const SCHEMA = z.object({
   title: z
     .string()
     .optional()
+    .nullable()
     .describe(
-      "A creative title for this persona version based on the complete persona after all changes - should capture the essence of who this character is. If not provided, the current persona title will be used."
+      "A short creative title for this persona version that reflects the updated character. Include only if the update changes the persona's theme or identity."
     ),
   note_for_user: z
     .string()
     .optional()
+    .nullable()
     .describe(
-      "Optional creative note with feedback on the persona, insights about the character, or follow-up suggestions for further development. Be engaging and helpful while keeping it concise"
+      "Optional one-sentence note for the user: what changed and one suggestion for next iteration. Keep it brief."
     ),
   name: z
     .string()
     .optional()
+    .nullable()
     .describe(
-      "Character's full name or alias - ONLY include if the user specifically requests a name change"
+      "Character's full name or alias — ONLY include if the user explicitly requests a name change."
     ),
   age: z
-    .string()
+    .preprocess(
+      (val) => (typeof val === "number" ? String(val) : val),
+      z.union([z.string(), z.number()])
+    )
     .optional()
+    .nullable()
     .describe(
-      "Can be specific number, descriptive, or unknown - ONLY include if the user specifically requests an age change"
+      "Treat as text (convert numbers to strings). ONLY include if the user explicitly requests an age change."
     ),
   gender: z
     .string()
     .optional()
+    .nullable()
     .describe(
-      "Gender of the character - ONLY include if the user specifically requests a gender change"
+      "Gender/pronouns — ONLY include if the user explicitly requests a gender change."
     ),
   summary: z
     .string()
     .optional()
+    .nullable()
     .describe(
-      "Concise 1-2 sentence overview of the character's essence, including key traits and potential visual scene for imagery - ONLY include if the user requests summary changes or if other changes significantly impact the character's essence"
+      "Concise 1–2 sentences, single paragraph, no line breaks or lists. Do NOT include appearance or detailed backstory. Include only if the update impacts the essence or the user requests a summary change."
     ),
   appearance: z
     .string()
     .optional()
+    .nullable()
     .describe(
-      "Physical description including build, features, clothing style, distinctive marks - ONLY include if the user requests appearance changes or if other changes would logically affect appearance"
+      "Purely visual and stylistic description: physique/build, facial features, eyes, skin, hair, posture, wardrobe/style, color palette, materials/textures, accessories, distinctive marks. Include only if the request affects appearance or consistency requires it."
     ),
   personality: z
     .string()
     .optional()
+    .nullable()
     .describe(
-      "Character traits, temperament, how they interact with others, emotional patterns - ONLY include if the user requests personality changes or if other changes would logically affect personality"
+      "Behavioral traits and temperament: how they speak and behave; motivations, strengths, flaws, quirks, interaction style. Include only if the request affects personality or consistency requires it."
     ),
   background: z
     .string()
     .optional()
+    .nullable()
     .describe(
-      "Personal history, upbringing, major life events, how they became who they are - ONLY include if the user requests background changes or additions"
+      "Origin and history: upbringing, environment, formative events, training/skills learned. Include only if the request affects background or consistency requires it."
     ),
   occupation: z
     .string()
     .optional()
+    .nullable()
     .describe(
-      "What they do for work/role in society, can include secret occupations - ONLY include if the user specifically requests occupation changes"
+      "Short phrase for their role/work. Include only if the user explicitly requests a change or if necessary for coherence."
     ),
   extensions: z.preprocess((value) => {
-    // If value is not an object return empty object
+    // If value is not an object return empty object (prevents runtime spread errors and keeps semantics of "no changes")
     if (!value || typeof value !== "object" || value === null) {
       return {};
     }
 
     return value;
-  }, z.record(z.string(), z.string()).optional().describe("Use extensions to add extra attributes or world-building details as key–value pairs. You can use them freely to enrich the persona (e.g., abilities, relationships, lore, equipment, affiliations, goals, quirks, rules, tags, constraints, catchphrases). Key naming and casing are flexible and normalized automatically. Write descriptive, imaginative values — include as much detail as needed. Include this field only when you add or change extensions.")),
+  }, z.record(z.string(), z.string()).optional().nullable().describe("Use extensions to add or modify extra attributes/world-building details as key–value pairs (e.g., abilities, relationships, lore, equipment, affiliations, goals, quirks, rules, tags, constraints, catchphrases). Be descriptive with values. Include this field only when you add or change extension entries.")),
 });
 
 export async function enhancePersonaAction(personaId: string, prompt: string) {
@@ -180,50 +194,15 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
 
   // Create system prompt with current persona data
   const currentData = persona.currentVersion.data as PersonaData;
-  const systemPrompt = `You are an expert character writer, a creative partner helping to enhance and evolve character personas. You will receive the current persona data and a user request to enhance, extend, or change some aspects of the persona.
-
-Your primary goal is to ensure the character remains logical, consistent, and compelling after your modifications.
-
-**Using extensions:**
-- You can use 'extensions' freely to add extra attributes or world-building details as key–value pairs (e.g., abilities, relationships, lore, equipment, affiliations, goals, quirks, rules, tags, constraints, catchphrases).
-- Be creative and descriptive. Values can be as detailed and long as needed; do not limit yourself to short phrases.
-- Casing and key style are flexible; they are normalized automatically.
-- Prefer adding an extension when information doesn't naturally fit a core field.
-
-**How to process requests:**
-
-1.  **Holistic Understanding:** View the persona as a whole. A single change can have ripple effects. For instance, a new traumatic event in the 'background' should likely influence 'personality'. A change in 'occupation' from 'librarian' to 'soldier' will affect 'appearance', 'personality', and 'background'. When the user's request implies such connections, you should update all relevant fields to maintain coherence.
-
-2.  **Respect User's Focus:** While you should make related changes for consistency, you must also respect the user's intent.
-    *   If the user makes a broad request (e.g., "make him more intimidating"), you have creative freedom to adjust multiple aspects (appearance, personality, etc.).
-    *   If the user makes a specific request (e.g., "expand on his childhood in the background section" or "change his hair color to red"), you should focus your changes primarily on the mentioned property. Don't rewrite unrelated parts of the persona unless it's essential for consistency.
-
-3.  **Quality of Changes:**
-    *   When a user asks to CHANGE or MODIFY a property, you must provide content that is DIFFERENT from the current value.
-    *   When a user asks to ENHANCE or EXPAND, you can build upon the existing content but make it more detailed and rich.
-    *   Never return the exact same content for a property you are editing.
-    *   For 'extensions', provide descriptive, imaginative values. It's okay for them to be long and detailed when helpful.
-
-**Output instructions:**
-Respond with ONLY the properties that you have changed. DO NOT include properties that remain unchanged. Include 'extensions' only when you add or modify extension entries.
-
-**CRITICAL RULES:**
-- If a field is not being modified, DO NOT include it in your response at all
-- Only include fields that you are actually changing or enhancing
-- For basic fields like name, age, gender - only include them if the user explicitly asks to change them
-- For content fields like appearance, personality, background - only include them if the user's request directly affects them or if logical consistency requires updating them
-- Prefer using 'extensions' for lists, tags, affiliations, abilities, constraints, lore, or other metadata that don't belong in core fields
-- When you do include a field, the content MUST be different from the current value
-
-Current persona data:
-${JSON.stringify(currentData)}
-
-IMPORTANT: If the user asks to change something, you must generate NEW content that is different from the current values shown above. Do not repeat the existing values. Remember: ONLY include fields you are actually modifying - leave out everything else.`;
+  const systemPrompt = getDefaultPromptDefinitionForMode(
+    "persona",
+    "enhance"
+  ).render({ current: currentData });
 
   userLogger.debug({ systemPrompt }, "System prompt for persona enhancement");
 
   const openRouter = getOpenRouter();
-  const model = openRouter("openai/gpt-5-mini", {
+  const model = openRouter("moonshotai/kimi-k2", {
     models: ["openai/gpt-oss-20b:free", "moonshotai/kimi-k2"],
   });
 
@@ -232,10 +211,17 @@ IMPORTANT: If the user asks to change something, you must generate NEW content t
       model,
       prompt,
       system: systemPrompt,
-      mode: "json",
       schema: SCHEMA,
-      abortSignal: AbortSignal.timeout(ms("3m")),
+      abortSignal: AbortSignal.timeout(ms("50s")),
+      providerOptions: {
+        openrouter: {
+          reasoning: {
+            effort: "low",
+          },
+        },
+      },
       onFinish: async (object) => {
+        console.log(object);
         userLogger.debug(
           { data: object.object },
           "Persona enhancement generated"
@@ -305,7 +291,7 @@ IMPORTANT: If the user asks to change something, you must generate NEW content t
         // Merge current data with new data
         const mergedData: PersonaData = {
           name: object.object.name ?? currentData.name,
-          age: object.object.age ?? currentData.age,
+          age: (object.object.age as any) ?? currentData.age,
           gender: object.object.gender ?? currentData.gender,
           appearance: object.object.appearance ?? currentData.appearance,
           personality: object.object.personality ?? currentData.personality,
@@ -340,7 +326,7 @@ IMPORTANT: If the user asks to change something, you must generate NEW content t
           personaEventId,
           title: object.object.title ?? persona.title ?? undefined,
           data: mergedData,
-          aiNote: object.object?.note_for_user,
+          aiNote: object.object?.note_for_user ?? undefined,
           changedProperties,
         });
 
@@ -362,6 +348,7 @@ IMPORTANT: If the user asks to change something, you must generate NEW content t
           .catch((err) => {});
       },
       onError: async (error) => {
+        console.error(error);
         userLogger.error({ error }, "Error enhancing persona");
 
         await db
@@ -386,14 +373,53 @@ IMPORTANT: If the user asks to change something, you must generate NEW content t
             },
           })
           .catch((err) => {});
+
+        // Notify client and terminate the stream to prevent hanging UI
+        stream.update({
+          error: "Enhancement failed. Please try again.",
+        } as any);
+        stream.done();
       },
     });
 
-    for await (const partialObject of partialObjectStream) {
-      stream.update(partialObject);
+    // Guard against providers that don't support partial streaming
+    if (!partialObjectStream) {
+      userLogger.warn(
+        { component: "actions:enhance-persona" },
+        "No partialObjectStream available; finishing without streaming"
+      );
+      stream.done();
+      return;
     }
 
-    stream.done();
+    try {
+      for await (const partialObject of partialObjectStream) {
+        // Normalize extension keys in streamed partials for UI merging consistency
+        if ((partialObject as any)?.extensions) {
+          (partialObject as any).extensions = formatExtensionKeys(
+            (partialObject as any).extensions as Record<string, string>
+          );
+        }
+        stream.update(partialObject);
+      }
+
+      stream.done();
+    } catch (error) {
+      userLogger.error(
+        {
+          event: "streaming-error",
+          component: "actions:enhance-persona",
+          error: {
+            message: (error as any)?.message ?? String(error),
+            name: (error as any)?.name,
+          },
+        },
+        "Error during streaming"
+      );
+      stream.update({ error: "Streaming failed. Please try again." });
+      stream.done();
+      logger.flush();
+    }
   })();
 
   return {

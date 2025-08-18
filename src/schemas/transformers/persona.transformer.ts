@@ -6,16 +6,14 @@ import { PublicPersona, PublicPersonaVersion, publicPersonaSchema, publicPersona
  * Removes sensitive fields and validates the output
  */
 export function transformToPublicPersona(persona: Persona): PublicPersona {
-  const publicData = {
+  // Validate against schema to ensure type safety
+  return publicPersonaSchema.parse({
     id: persona.id,
     title: persona.title,
     profileImageId: persona.profileImageId,
     createdAt: persona.createdAt,
     updatedAt: persona.updatedAt,
-  };
-
-  // Validate against schema to ensure type safety
-  return publicPersonaSchema.parse(publicData);
+  });
 }
 
 /**
@@ -23,15 +21,13 @@ export function transformToPublicPersona(persona: Persona): PublicPersona {
  * Removes sensitive fields and validates the output
  */
 export function transformToPublicPersonaVersion(personaVersion: any): PublicPersonaVersion {
-  const publicData = {
+  // Validate against schema to ensure type safety and proper data structure
+  return publicPersonaVersionSchema.parse({
     id: personaVersion.id,
     personaId: personaVersion.personaId,
     title: personaVersion.title,
     versionNumber: personaVersion.versionNumber,
     data: personaVersion.data, // Will be validated by the schema
     createdAt: personaVersion.createdAt,
-  };
-
-  // Validate against schema to ensure type safety and proper data structure
-  return publicPersonaVersionSchema.parse(publicData);
+  });
 }

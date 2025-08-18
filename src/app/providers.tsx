@@ -1,12 +1,11 @@
 "use client";
 
-import { ClerkProvider, useAuth } from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
 import { SWRConfig } from "swr";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { ToastProvider } from "@/components/ui/toast";
 import { useRouter } from "next/navigation";
 import { Suspense } from "react";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 

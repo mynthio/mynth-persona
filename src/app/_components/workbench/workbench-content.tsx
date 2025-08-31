@@ -3,24 +3,31 @@ import dynamic from "next/dynamic";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MiniWaveLoader } from "@/components/ui/mini-wave-loader";
 import usePersonaGenerationStore from "@/stores/persona-generation.store";
-import PersonaContent from "./content/persona";
-import { useWorkbenchContent } from "@/hooks/use-workbench-content.hook";
+import PersonaContent from "./content/persona/persona";
 
-const GalleryContent = dynamic(() => import("./content/gallery"), {
+import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
+
+const GalleryContent = dynamic(() => import("./content/gallery/gallery"), {
+  ssr: false,
+});
+const ChatContent = dynamic(() => import("./content/chat/chat"), {
   ssr: false,
 });
 const PersonaVersionModal = dynamic(
-  () => import("./content/persona-version-modal"),
+  () => import("./content/persona/persona-version-modal"),
   { ssr: false }
 );
 
 export default function WorkbenchContent() {
-  const [workbenchContent] = useWorkbenchContent();
+  const [workbenchMode] = useWorkbenchMode();
+
   return (
-    <div className="min-h-screen min-w-0 w-full p-4 pb-32 md:pb-64">
+    <div className="min-h-screen min-w-0 w-full flex flex-col">
       <TopBar />
 
-      {workbenchContent === "gallery" ? <GalleryContent /> : <PersonaContent />}
+      {workbenchMode === "gallery" && <GalleryContent />}
+      {workbenchMode === "chat" && <ChatContent />}
+      {workbenchMode === "persona" && <PersonaContent />}
       <PersonaVersionModal />
     </div>
   );
@@ -28,7 +35,7 @@ export default function WorkbenchContent() {
 
 function TopBar() {
   const personaGenerationStore = usePersonaGenerationStore();
-  const [workbenchContent, setWorkbenchContent] = useWorkbenchContent();
+  const [workbenchMode, setWorkbenchMode] = useWorkbenchMode();
 
   if (personaGenerationStore.isGenerating) {
     return (
@@ -39,14 +46,15 @@ function TopBar() {
   }
 
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex justify-center items-center sticky top-2 z-50">
       <Tabs
         defaultValue="persona"
-        value={workbenchContent}
-        onValueChange={setWorkbenchContent}
+        value={workbenchMode}
+        onValueChange={setWorkbenchMode}
       >
         <TabsList>
           <TabsTrigger value="persona">Persona</TabsTrigger>
+          <TabsTrigger value="chat">Chat</TabsTrigger>
           <TabsTrigger value="gallery">Gallery</TabsTrigger>
         </TabsList>
       </Tabs>

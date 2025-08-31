@@ -12,3 +12,8 @@ export {
   transformToPublicPersonaImages,
 } from "./persona-image.transformer";
 export { transformToPublicUserBalance } from "./user-balance.transformer";
+export {
+  transformToPublicChat,
+  transformToPublicChatDetail,
+  transformToPublicChats,
+} from "./chat.transformer";

@@ -12,6 +12,7 @@ import { usePersonaId } from "@/hooks/use-persona-id.hook";
 import { PERSONA_SUGGESTIONS } from "@/lib/persona-suggestions";
 import PersonaStack from "./persona-stack";
 import { useTokensBalanceMutation } from "@/app/_queries/use-tokens-balance.query";
+import { usePersonaEventsMutation } from "../_queries/use-persona-events.query";
 
 const suggestionExamples = PERSONA_SUGGESTIONS;
 
@@ -86,6 +87,9 @@ export default function PersonaCreator() {
             }
           );
         },
+        onFinish: () => {
+          swrConfig.mutate(`/api/personas/${response.personaId}/events`);
+        },
       });
 
       setPersonaId(response.personaId!);
@@ -103,12 +107,36 @@ export default function PersonaCreator() {
 
   return (
     <div className="min-h-screen bg-background h-full flex items-center">
-      <div className="container mx-auto px-4 py-16 max-w-4xl w-full">
+      <div className="container mx-auto px-4 py-6 max-w-4xl w-full">
         <div className="space-y-8">
+          {/* Announcement banner: Chats launch */}
+          <div className="relative">
+            <div className="relative rounded-2xl p-[1px] bg-gradient-to-r from-purple-400 via-indigo-100 to-zinc-100 [background-size:200%_200%] animate-[gradient-x_12s_ease-in-out_infinite]">
+              <div className="rounded-2xl bg-card/80 supports-[backdrop-filter]:bg-card/70 backdrop-blur border border-border/60 p-3 md:p-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium bg-primary/10 text-primary ring-1 ring-primary/20">
+                      <SparkleIcon className="size-3.5" />
+                      <span className="text-sm text-muted-foreground">
+                        Chats are live
+                      </span>
+                    </span>
+                  </div>
+                  <div className="text-sm md:flex-1 text-foreground/90">
+                    Create a persona and start chatting instantly. We also offer
+                    free models to get you going.
+                  </div>
+                </div>
+                <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5" />
+              </div>
+            </div>
+          </div>
+
           <PersonaStack />
 
           <Card className="flex flex-col gap-3 max-w-3xl mx-auto p-3 w-full border border-zinc-200 rounded-3xl shadow-none">
             <TextareaAutosize
+              id="persona-prompt"
               placeholder="Write about your persona"
               value={prompt}
               minRows={2}

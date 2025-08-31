@@ -1,34 +1,40 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
-import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  ButterflyIcon,
-  PaintBrushIcon,
-  PlanetIcon,
-  SparkleIcon,
-  ToolboxIcon,
-} from "@phosphor-icons/react/dist/ssr";
+import { useMediaQuery } from "@/hooks/use-media-query.hook";
+import { ToolboxIcon } from "@phosphor-icons/react/dist/ssr";
 import dynamic from "next/dynamic";
-import { Suspense, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 
-const Creator = dynamic(() => import("./sidebar-content/creator"), {
-  ssr: false,
-});
-const Imagine = dynamic(() => import("./sidebar-content/imagine"), {
-  ssr: false,
-});
-const Interact = dynamic(() => import("./sidebar-content/interact"), {
-  ssr: false,
-});
-const Publish = dynamic(() => import("./sidebar-content/publish"), {
-  ssr: false,
-});
+const PersonaSidebar = dynamic(
+  () => import("./sidebar-content/persona/persona-sidebar"),
+  {
+    ssr: false,
+  }
+);
+const GallerySidebar = dynamic(
+  () => import("./sidebar-content/gallery/gallery-sidebar"),
+  {
+    ssr: false,
+  }
+);
+const ChatSidebar = dynamic(
+  () => import("./sidebar-content/chat/chat-sidebar"),
+  {
+    ssr: false,
+  }
+);
+
+const workbenchModeToSidebarComponent: Record<string, React.ComponentType> = {
+  persona: PersonaSidebar,
+  chat: ChatSidebar,
+  gallery: GallerySidebar,
+};
 
 export default function WorkbenchSidebar() {
-  const isMobile = useIsMobile();
+  // Use Tailwind's xl breakpoint (1280px) as the cutoff for switching to the mobile overlay
+  const isMobile = useMediaQuery("(max-width: 1279px)");
   const [isMobilePanelOpen, setIsMobilePanelOpen] = useState(false);
 
   const openMobilePanel = useCallback(() => setIsMobilePanelOpen(true), []);
@@ -37,13 +43,13 @@ export default function WorkbenchSidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <div className="w-132 shrink-0 p-4 sticky top-0 h-screen hidden md:block">
+      <div className="w-132 shrink-0 grow-0 p-4 sticky top-0 min-h-0 h-screen hidden xl:block">
         <Content />
       </div>
 
       {/* Mobile creator button */}
       {isMobile && !isMobilePanelOpen && (
-        <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 max-w-full px-4">
+        <div className="xl:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 max-w-full px-4">
           <button
             onClick={openMobilePanel}
             className="group relative max-w-full w-64 h-14 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40 transition-transform hover:scale-[1.02] active:scale-[0.99]"
@@ -64,7 +70,7 @@ export default function WorkbenchSidebar() {
 
       {/* Mobile full-screen overlay panel */}
       {isMobile && isMobilePanelOpen && (
-        <div className="md:hidden fixed inset-0 z-50">
+        <div className="xl:hidden fixed inset-0 z-50">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50"
@@ -92,56 +98,13 @@ export default function WorkbenchSidebar() {
 }
 
 function Content() {
-  const [workbenchMode, setWorkbenchMode] = useWorkbenchMode();
-
-  const [creatorPrompt, setCreatorPrompt] = useState("");
+  const [workbenchMode] = useWorkbenchMode();
+  const SidebarComponent =
+    workbenchModeToSidebarComponent[workbenchMode as string];
 
   return (
-    <Tabs
-      className="bg-sidebar h-full rounded-lg p-2"
-      defaultValue="creator"
-      value={workbenchMode}
-      onValueChange={setWorkbenchMode}
-    >
-      <TabsList className="w-full bg-sidebar">
-        <TabsTrigger value="creator">
-          <SparkleIcon />
-          Creator
-        </TabsTrigger>
-        <TabsTrigger value="imagine">
-          <PaintBrushIcon />
-          Imagine
-        </TabsTrigger>
-        <TabsTrigger value="interact">
-          <ButterflyIcon />
-          Interact
-        </TabsTrigger>
-        <TabsTrigger value="publish">
-          <PlanetIcon />
-          Publish
-        </TabsTrigger>
-      </TabsList>
-
-      <TabsContent value="creator" className="h-full min-h-0">
-        <Suspense fallback={<div>Loading...</div>}>
-          <Creator prompt={creatorPrompt} setPrompt={setCreatorPrompt} />
-        </Suspense>
-      </TabsContent>
-      <TabsContent value="imagine" className="h-full min-h-0">
-        <Suspense fallback={<div>Loading...</div>}>
-          <Imagine />
-        </Suspense>
-      </TabsContent>
-      <TabsContent value="interact" className="h-full min-h-0">
-        <Suspense fallback={<div>Loading...</div>}>
-          <Interact />
-        </Suspense>
-      </TabsContent>
-      <TabsContent value="publish" className="h-full min-h-0">
-        <Suspense fallback={<div>Loading...</div>}>
-          <Publish />
-        </Suspense>
-      </TabsContent>
-    </Tabs>
+    <div className="bg-sidebar h-full min-h-0 rounded-lg overflow-hidden">
+      {SidebarComponent ? <SidebarComponent /> : null}
+    </div>
   );
 }

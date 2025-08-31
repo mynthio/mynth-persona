@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { PaperPlaneTiltIcon } from "@phosphor-icons/react/dist/ssr";
+import { PaperPlaneTiltIcon, SparkleIcon } from "@phosphor-icons/react/dist/ssr";
 import { generatePersonaAnonymousAction } from "@/actions/generate-persona-anonymous.action";
 import { readStreamableValue } from "@ai-sdk/rsc";
 import { PERSONA_SUGGESTIONS } from "@/lib/persona-suggestions";
@@ -93,6 +93,38 @@ export default function AnonymousHome() {
   return (
     <div className="w-full h-full min-h-screen flex items-start justify-center py-12">
       <div className="w-full max-w-3xl space-y-8 px-4">
+        {/* Announcement banner: Chats launch */}
+        <div className="relative">
+          <div className="relative rounded-2xl p-[1px] bg-gradient-to-r from-primary via-chart-2 to-chart-4 [background-size:200%_200%] animate-[gradient-x_12s_ease-in-out_infinite]">
+            <div className="rounded-2xl bg-card/80 supports-[backdrop-filter]:bg-card/70 backdrop-blur border border-border/60 p-3 md:p-4">
+              <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium bg-primary/10 text-primary ring-1 ring-primary/20">
+                    <SparkleIcon className="size-3.5" /> New
+                  </span>
+                  <span className="text-sm text-muted-foreground">Chats are live</span>
+                </div>
+                <div className="text-sm md:flex-1 text-foreground/80">
+                  Create a persona and start chatting instantly. We also offer free models to get you going.
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    className="bg-zinc-900 text-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
+                    onClick={() => document.getElementById('persona-prompt')?.focus()}
+                  >
+                    Try it now
+                  </Button>
+                  <Button size="sm" variant="ghost" asChild>
+                    <SignInButton>Sign in</SignInButton>
+                  </Button>
+                </div>
+              </div>
+              <div className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5" />
+            </div>
+          </div>
+        </div>
+
         <div className="rounded-lg border bg-card text-card-foreground p-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-1">
@@ -109,6 +141,7 @@ export default function AnonymousHome() {
         </div>
         <div className="flex flex-col gap-3 w-full">
           <Textarea
+            id="persona-prompt"
             placeholder="Write about your persona"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}

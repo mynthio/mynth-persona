@@ -11,7 +11,9 @@ import {
   FLUX_1_1_PRO_ULTRA_MODEL_ID,
   SEEDREAM_3_MODEL_ID,
   UniversalModelId,
+  BISMUTH_ILLUSTRIOUS_MIX_V4_0_MODEL_ID,
 } from "./constants";
+import { RunwareBismuthIllustriousMixV40 } from "./runware/runware-bismuth-illustrious-mix-v-4-0";
 
 // Provider handler configuration
 export type ProviderHandler = {
@@ -73,6 +75,16 @@ export const imageModelsConfig: Record<UniversalModelId, ModelConfig> = {
     providersHandlers: [
       {
         modelClass: RunwareSeedream3,
+        isEnabled: true,
+        priority: 1, // Primary provider
+      },
+    ],
+  },
+  [BISMUTH_ILLUSTRIOUS_MIX_V4_0_MODEL_ID]: {
+    isDeprecated: false,
+    providersHandlers: [
+      {
+        modelClass: RunwareBismuthIllustriousMixV40,
         isEnabled: true,
         priority: 1, // Primary provider
       },

@@ -10,6 +10,9 @@ import {
   pgEnum,
   boolean,
   index,
+  unique,
+  AnyPgColumn,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -46,6 +49,7 @@ export const personaVersions = pgTable("persona_versions", {
   title: text("title"),
   versionNumber: integer("version_number").notNull(), // For ordering and display
   data: jsonb("data").notNull(), // Generated persona JSON data - now includes summary, optional occupation, and extensions array
+  roleplayData: jsonb("roleplay_data"), // Roleplay data with appearance and summary fields
   changedProperties: text("changed_properties").array(),
   aiModel: varchar("ai_model", { length: 255 }).notNull(), // AI model used
   settings: jsonb("settings"), // Generation settings
@@ -70,6 +74,68 @@ export const transactionTypeEnum = pgEnum("transaction_type_enum", [
   "purchase",
   "refund",
 ]);
+
+export const chatModeEnum = pgEnum("chat_mode_enum", ["roleplay", "story"]);
+
+// Chats table - chat sessions
+export const chats = pgTable(
+  "chats",
+  {
+    id: text("id").primaryKey(),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    title: text("title"), // Optional, by default "New chat" or "Untitled"
+    mode: chatModeEnum("mode").notNull().default("roleplay"),
+    settings: jsonb("settings"), // Chat settings including user persona and model
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [index("chats_user_id_idx").on(t.userId)]
+);
+
+// Chat personas junction table - many-to-many relationship between chats and personas
+export const chatPersonas = pgTable(
+  "chat_personas",
+  {
+    chatId: text("chat_id")
+      .notNull()
+      .references(() => chats.id, { onDelete: "cascade" }),
+    personaId: text("persona_id")
+      .notNull()
+      .references(() => personas.id, { onDelete: "cascade" }),
+    personaVersionId: text("persona_version_id")
+      .notNull()
+      .references(() => personaVersions.id, { onDelete: "cascade" }),
+    settings: jsonb("settings"), // Persona-specific settings for this chat
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.chatId, t.personaId] })]
+);
+
+// Messages table - chat messages with branching support
+export const messages = pgTable(
+  "messages",
+  {
+    id: text("id").primaryKey(),
+    parentId: text("parent_id").references((): AnyPgColumn => messages.id, {
+      onDelete: "cascade",
+    }), // Self-reference for branching, nullable for root messages
+    chatId: text("chat_id")
+      .notNull()
+      .references(() => chats.id, { onDelete: "cascade" }),
+    role: varchar("role", { length: 255 }).notNull(), // 'user', 'assistant', etc.
+    parts: jsonb("parts").notNull(), // Message content and parts
+    metadata: jsonb("metadata"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [
+    index("messages_chat_id_idx").on(t.chatId),
+    index("messages_parent_id_idx").on(t.parentId),
+  ]
+);
 
 // Events table - pure chat/interaction timeline
 export const personaEvents = pgTable(
@@ -119,12 +185,15 @@ export const imageGenerations = pgTable("image_generations", {
   completedAt: timestamp("completed_at"),
 });
 
-// Images table - tracks generated images for gallery
+// Images table - tracks generated images for gallery and chat messages
 export const images = pgTable("images", {
   id: text("id").primaryKey(),
   personaId: text("persona_id")
     .notNull()
     .references(() => personas.id, { onDelete: "cascade" }),
+  messageId: text("message_id").references(() => messages.id, {
+    onDelete: "cascade",
+  }), // Optional reference to message for chat images
   isNSFW: boolean("is_nsfw").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -162,6 +231,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   events: many(personaEvents),
   tokens: one(userTokens),
   tokenTransactions: many(tokenTransactions),
+  chats: many(chats),
 }));
 
 export const personasRelations = relations(personas, ({ one, many }) => ({
@@ -177,6 +247,7 @@ export const personasRelations = relations(personas, ({ one, many }) => ({
   events: many(personaEvents),
   imageGenerations: many(imageGenerations),
   images: many(images),
+  chatPersonas: many(chatPersonas),
   profileImage: one(images, {
     fields: [personas.profileImageId],
     references: [images.id],
@@ -191,8 +262,46 @@ export const personaVersionsRelations = relations(
       references: [personas.id],
     }),
     events: many(personaEvents),
+    chatPersonas: many(chatPersonas),
   })
 );
+
+export const chatsRelations = relations(chats, ({ one, many }) => ({
+  user: one(users, {
+    fields: [chats.userId],
+    references: [users.id],
+  }),
+  messages: many(messages),
+  chatPersonas: many(chatPersonas),
+}));
+
+export const chatPersonasRelations = relations(chatPersonas, ({ one }) => ({
+  chat: one(chats, {
+    fields: [chatPersonas.chatId],
+    references: [chats.id],
+  }),
+  persona: one(personas, {
+    fields: [chatPersonas.personaId],
+    references: [personas.id],
+  }),
+  personaVersion: one(personaVersions, {
+    fields: [chatPersonas.personaVersionId],
+    references: [personaVersions.id],
+  }),
+}));
+
+export const messagesRelations = relations(messages, ({ one, many }) => ({
+  chat: one(chats, {
+    fields: [messages.chatId],
+    references: [chats.id],
+  }),
+  parent: one(messages, {
+    fields: [messages.parentId],
+    references: [messages.id],
+  }),
+  children: many(messages),
+  images: many(images),
+}));
 
 export const personaEventsRelations = relations(
   personaEvents,
@@ -235,6 +344,10 @@ export const imagesRelations = relations(images, ({ one }) => ({
   persona: one(personas, {
     fields: [images.personaId],
     references: [personas.id],
+  }),
+  message: one(messages, {
+    fields: [images.messageId],
+    references: [messages.id],
   }),
 }));
 

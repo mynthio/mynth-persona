@@ -1,7 +1,7 @@
 import { PromptDefinitionPersonaGenerate } from "../../types";
 
 export const personaGenerateV1: PromptDefinitionPersonaGenerate = {
-  id: "persona.generate.v1",
+  id: "system.persona.generate.v1",
   mode: "generate",
   version: "v1",
   label: "Persona generation system prompt",

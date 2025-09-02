@@ -4,7 +4,7 @@ import "server-only";
 
 import { createStreamableValue } from "@ai-sdk/rsc";
 import { z } from "zod";
-import { logger } from "@/lib/logger";
+import { logger, logAiSdkUsage } from "@/lib/logger";
 import { getIpAddress } from "@/utils/headers-utils";
 import { personaAnonymousGenerateRatelimit } from "@/utils/rate-limitting";
 import logsnag from "@/lib/logsnag";
@@ -101,7 +101,7 @@ export async function generatePersonaAnonymousAction(prompt: string) {
   const stream = createStreamableValue();
 
   const openRouter = getOpenRouter();
-  const model = openRouter("openai/gpt-oss-20b:free", {
+  const model = openRouter("moonshotai/kimi-k2", {
     models: [
       "qwen/qwen2.5-vl-32b-instruct:free",
       "mistralai/mistral-small-3.1-24b-instruct:free",
@@ -145,20 +145,9 @@ export async function generatePersonaAnonymousAction(prompt: string) {
           return;
         }
 
-        logger.info({
-          event: "text-generation-usage",
+        logAiSdkUsage(object, {
           component: "generation:text:complete",
-          use_case: "anonymous_persona_generation",
-          ai_meta: { provider: "openrouter", model: model.modelId },
-          attributes: {
-            usage: {
-              input_tokens: object.usage.inputTokens ?? 0,
-              output_tokens: object.usage.outputTokens ?? 0,
-              total_tokens: object.usage.totalTokens ?? 0,
-              reasoning_tokens: object.usage.reasoningTokens ?? 0,
-              cached_input_tokens: object.usage.cachedInputTokens ?? 0,
-            },
-          },
+          useCase: "anonymous_persona_generation",
         });
 
         await logsnag
@@ -171,7 +160,6 @@ export async function generatePersonaAnonymousAction(prompt: string) {
             },
           })
           .catch((err) => {});
-        logger.flush();
       },
       onError: async (error) => {
         logger.error({ error }, "Error generating persona anonymous");

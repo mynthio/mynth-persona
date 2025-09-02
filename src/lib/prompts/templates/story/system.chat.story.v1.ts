@@ -1,7 +1,7 @@
 import { PromptDefinitionStory } from "../../types";
 
 export const storyV1: PromptDefinitionStory = {
-  id: "chat.story.v1",
+  id: "system.chat.story.v1",
   mode: "story",
   version: "v1",
   label: "Story: narrator-led, chapter-based, user-guided progression",

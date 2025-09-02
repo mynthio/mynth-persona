@@ -1,7 +1,10 @@
+import "server-only";
+
 import { db } from "@/db/drizzle";
 import { chats } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { and, eq, sql } from "drizzle-orm";
+import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
 
 // GET /api/chats/:chatId/branches
 // Returns a map of parent message ID -> array of child branches [{ id, createdAt }]
@@ -27,10 +30,10 @@ export async function GET(
     return new Response("Chat not found", { status: 404 });
   }
 
-  // For this endpoint, we only want to expose parents that actually have branching
-  // (i.e., 2 or more children). Parents with a single child are not considered branches.
+  // Expose parents that actually have branching (i.e., 2 or more children),
+  // including the root (parent_id is null) which we map to ROOT_BRANCH_PARENT_ID.
   const result = await db.execute(
-    sql<{ parent_id: string; children: unknown }>`
+    sql<{ parent_id: string | null; children: unknown }>`
       select
         m.parent_id,
         coalesce(
@@ -42,21 +45,30 @@ export async function GET(
         ) as children
       from messages m
       where m.chat_id = ${chatId}
-        and m.parent_id is not null
       group by m.parent_id
       having count(*) > 1;
     `
   );
 
-  const branchesByParent: Record<string, { id: string; createdAt: string | Date }[]> = {};
+  const branchesByParent: Record<
+    string,
+    { id: string; createdAt: string | Date }[]
+  > = {};
 
-  for (const row of result.rows as { parent_id: string; children: unknown }[]) {
-    const parsed = typeof row.children === "string" ? JSON.parse(row.children as string) : row.children;
+  for (const row of result.rows as { parent_id: string | null; children: unknown }[]) {
+    const parsed =
+      typeof row.children === "string"
+        ? JSON.parse(row.children as string)
+        : row.children;
     const children = Array.isArray(parsed)
-      ? (parsed as any[]).map((b) => ({ id: b.id as string, createdAt: (b.created_at as string) }))
+      ? (parsed as any[]).map((b) => ({
+          id: b.id as string,
+          createdAt: b.created_at as string,
+        }))
       : [];
 
-    branchesByParent[row.parent_id] = children;
+    const key = row.parent_id ?? ROOT_BRANCH_PARENT_ID;
+    branchesByParent[key] = children;
   }
 
   return Response.json(branchesByParent);

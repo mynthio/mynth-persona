@@ -1,7 +1,7 @@
 import { PromptDefinitionPersonaEnhance } from "../../types";
 
 export const personaEnhanceV1: PromptDefinitionPersonaEnhance = {
-  id: "persona.enhance.v1",
+  id: "system.persona.enhance.v1",
   mode: "enhance",
   version: "v1",
   label: "Persona enhancement system prompt",

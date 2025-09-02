@@ -41,8 +41,6 @@ function createChat(options: CreateChatOptionsArgs) {
     onFinish: options.onFinish,
 
     transport: new DefaultChatTransport({
-      api: `/api/chats/new/chat`,
-
       prepareSendMessagesRequest({ messages, body }) {
         const chatId = body?.chatId;
 
@@ -107,7 +105,6 @@ export function ChatProvider({ children, chatId }: ChatProviderProps) {
   const onMessageStreamFinishCallback: ChatOnFinishCallback<PersonaUIMessage> =
     useCallback((data) => {
       const currentChatId = chatIdRef.current;
-      console.log(`[${currentChatId}] onMessageStreamFinishCallback`, data);
 
       const regeneratedForId = data.message.metadata?.regeneratedForId;
 

@@ -1,7 +1,10 @@
+import "server-only";
+
 import { db } from "@/db/drizzle";
 import { chats, messages } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
-import { and, eq, asc } from "drizzle-orm";
+import { and, eq, asc, isNull } from "drizzle-orm";
+import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
 
 // GET /api/chats/:chatId/branches/:branchId
 // branchId is the parentId for messages in this branch
@@ -25,6 +28,68 @@ export async function GET(
 
   if (!chat) {
     return new Response("Chat not found", { status: 404 });
+  }
+
+  const isRootBranch = branchId === ROOT_BRANCH_PARENT_ID;
+
+  // For root branch previews, we don't have a parent message to validate.
+  if (isRootBranch) {
+    const siblings = await db.query.messages.findMany({
+      where: and(eq(messages.chatId, chatId), isNull(messages.parentId)),
+      columns: {
+        id: true,
+        role: true,
+        parts: true,
+        createdAt: true,
+      },
+      orderBy: [asc(messages.createdAt)],
+    });
+
+    const extractText = (parts: unknown): string => {
+      try {
+        if (Array.isArray(parts)) {
+          return parts
+            .map((p: any) => {
+              if (!p || typeof p !== "object") return "";
+              if (p.type === "text" && typeof p.text === "string") {
+                return p.text;
+              }
+              return "";
+            })
+            .filter(Boolean)
+            .join("\n\n");
+        }
+
+        if (parts && typeof parts === "object") {
+          const p: any = parts as any;
+          if (p.type === "text" && typeof p.text === "string") return p.text;
+          return "";
+        }
+
+        return "";
+      } catch {
+        return "";
+      }
+    };
+
+    const MAX_PREVIEW_CHARS = 1200;
+
+    const previews = siblings.map((m) => {
+      const fullText = extractText(m.parts);
+      const preview =
+        fullText.length > MAX_PREVIEW_CHARS
+          ? fullText.slice(0, MAX_PREVIEW_CHARS)
+          : fullText;
+
+      return {
+        id: m.id,
+        role: m.role,
+        preview,
+        createdAt: m.createdAt,
+      };
+    });
+
+    return Response.json(previews);
   }
 
   // Validate branch (parent message) exists and belongs to chat
@@ -52,25 +117,27 @@ export async function GET(
   // Utility to extract text content from the message parts
   const extractText = (parts: unknown): string => {
     try {
+      // Only include parts where type === 'text'
       if (Array.isArray(parts)) {
         return parts
           .map((p: any) => {
-            if (!p) return "";
-            if (typeof p === "string") return p;
-            if (typeof p.text === "string") return p.text;
-            if (p.type === "text" && typeof p.text === "string") return p.text;
-            if (typeof p.content === "string") return p.content;
+            if (!p || typeof p !== "object") return "";
+            if (p.type === "text" && typeof p.text === "string") {
+              return p.text;
+            }
             return "";
           })
           .filter(Boolean)
           .join("\n\n");
       }
+
       if (parts && typeof parts === "object") {
         const p: any = parts as any;
-        if (typeof p.text === "string") return p.text;
-        if (typeof p.content === "string") return p.content;
+        if (p.type === "text" && typeof p.text === "string") return p.text;
+        return "";
       }
-      if (typeof parts === "string") return parts;
+
+      // Ignore primitives and anything else
       return "";
     } catch {
       return "";

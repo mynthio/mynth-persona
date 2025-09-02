@@ -1,7 +1,7 @@
 import { PromptDefinitionRoleplay } from "../../types";
 
 export const roleplayV1: PromptDefinitionRoleplay = {
-  id: "chat.roleplay.v1",
+  id: "system.chat.roleplay.v1",
   mode: "roleplay",
   version: "v1",
   label: "Initial Roleplay System Prompt",

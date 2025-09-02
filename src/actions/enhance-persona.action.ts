@@ -2,7 +2,7 @@
 
 import { createStreamableValue } from "@ai-sdk/rsc";
 import { z } from "zod";
-import { logger } from "@/lib/logger";
+import { logger, logAiSdkUsage } from "@/lib/logger";
 import { auth } from "@clerk/nextjs/server";
 import { createPersonaVersion } from "@/services/persona/create-persona-version";
 import { spendTokens } from "@/services/token/token-manager.service";
@@ -227,26 +227,10 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
           "Persona enhancement generated"
         );
 
-        logger.info({
-          userId,
-          event: "text-generation-usage",
+        logAiSdkUsage(object, {
           component: "generation:text:complete",
-          use_case: "persona_enhancement",
-          ai_meta: {
-            provider: "openrouter",
-            model: model.modelId,
-          },
-          attributes: {
-            usage: {
-              input_tokens: object.usage.inputTokens ?? 0,
-              output_tokens: object.usage.outputTokens ?? 0,
-              total_tokens: object.usage.totalTokens ?? 0,
-              reasoning_tokens: object.usage.reasoningTokens ?? 0,
-              cached_input_tokens: object.usage.cachedInputTokens ?? 0,
-            },
-          },
+          useCase: "persona_enhancement",
         });
-        logger.flush();
 
         if (!object.object) {
           userLogger.warn({ object }, "No object generated");

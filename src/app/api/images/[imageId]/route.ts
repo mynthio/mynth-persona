@@ -1,7 +1,7 @@
 import { db } from "@/db/drizzle";
 import { images, imageGenerations } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 export async function GET(

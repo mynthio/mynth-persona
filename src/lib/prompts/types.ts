@@ -1,18 +1,36 @@
 import { PersonaVersionRoleplayData } from "@/schemas";
 import { ChatSettingsUserPersona } from "@/schemas/backend/chats/chat.schema";
 import { PersonaData } from "@/types/persona.type";
+import { ShotType } from "@/types/image-generation/shot-type.type";
+import { ImageStyle } from "@/types/image-generation/image-style.type";
+
+// Kinds of prompts
+export type PromptKind = "system" | "prompt";
 
 // Separate modes for chats and personas
 export type ChatPromptMode = "roleplay" | "story";
 export type PersonaPromptMode = "generate" | "enhance";
-export type PromptUseCase = "chat" | "persona";
+export type ImagePromptMode = "persona"; // image prompts (extendable)
+export type PromptUseCase = "chat" | "persona" | "image";
 
 export type PromptVersion = `v${number}`;
 
-// ID formats with dependent second segment based on the first
-export type PromptIdForChat<M extends ChatPromptMode = ChatPromptMode> = `chat.${M}.${PromptVersion}`;
-export type PromptIdForPersona<M extends PersonaPromptMode = PersonaPromptMode> = `persona.${M}.${PromptVersion}`;
-export type PromptId = PromptIdForChat | PromptIdForPersona;
+// ID formats with first segment being the prompt kind
+export type SystemPromptIdForChat<M extends ChatPromptMode = ChatPromptMode> = `system.chat.${M}.${PromptVersion}`;
+export type SystemPromptIdForPersona<M extends PersonaPromptMode = PersonaPromptMode> = `system.persona.${M}.${PromptVersion}`;
+export type SystemPromptIdForImage<M extends ImagePromptMode = ImagePromptMode> = `system.image.${M}.${PromptVersion}`;
+
+export type UserPromptIdForChat<M extends ChatPromptMode = ChatPromptMode> = `prompt.chat.${M}.${PromptVersion}`;
+export type UserPromptIdForPersona<M extends PersonaPromptMode = PersonaPromptMode> = `prompt.persona.${M}.${PromptVersion}`;
+export type UserPromptIdForImage<M extends ImagePromptMode = ImagePromptMode> = `prompt.image.${M}.${PromptVersion}`;
+
+export type PromptId =
+  | SystemPromptIdForChat
+  | SystemPromptIdForPersona
+  | SystemPromptIdForImage
+  | UserPromptIdForChat
+  | UserPromptIdForPersona
+  | UserPromptIdForImage;
 
 export interface RoleplayRenderArgs {
   character: PersonaVersionRoleplayData;
@@ -32,33 +50,56 @@ export interface PromptDefinitionBase {
   description?: string;
 }
 
+// System prompt definitions
 export interface PromptDefinitionRoleplay extends PromptDefinitionBase {
-  id: PromptIdForChat<"roleplay">;
+  id: SystemPromptIdForChat<"roleplay">;
   mode: "roleplay";
   render: PromptDefinitionRenderFunction<RoleplayRenderArgs>;
 }
 
 export interface PromptDefinitionStory extends PromptDefinitionBase {
-  id: PromptIdForChat<"story">;
+  id: SystemPromptIdForChat<"story">;
   mode: "story";
   render: PromptDefinitionRenderFunction<StoryRenderArgs>;
 }
 
-// Persona prompt definitions
+// Persona system prompt definitions
 export interface PromptDefinitionPersonaGenerate extends PromptDefinitionBase {
-  id: PromptIdForPersona<"generate">;
+  id: SystemPromptIdForPersona<"generate">;
   mode: "generate";
   render: () => string;
 }
 
 export interface PromptDefinitionPersonaEnhance extends PromptDefinitionBase {
-  id: PromptIdForPersona<"enhance">;
+  id: SystemPromptIdForPersona<"enhance">;
   mode: "enhance";
   render: PromptDefinitionRenderFunction<{ current: PersonaData }>;
+}
+
+// Image system prompt definitions
+export interface PromptDefinitionImagePersona extends PromptDefinitionBase {
+  id: SystemPromptIdForImage<"persona">;
+  mode: "persona";
+  render: PromptDefinitionRenderFunction<{ modelName: string; nsfw: boolean }>;
+}
+
+// Non-system (user) prompt definitions
+export interface PromptDefinitionPromptImagePersona extends PromptDefinitionBase {
+  id: UserPromptIdForImage<"persona">;
+  mode: "persona";
+  render: PromptDefinitionRenderFunction<{
+    persona: PersonaData;
+    style: ImageStyle;
+    shotType: ShotType;
+    nsfw: boolean;
+    userNote?: string;
+  }>;
 }
 
 export type PromptDefinition =
   | PromptDefinitionRoleplay
   | PromptDefinitionStory
   | PromptDefinitionPersonaGenerate
-  | PromptDefinitionPersonaEnhance;
+  | PromptDefinitionPersonaEnhance
+  | PromptDefinitionImagePersona
+  | PromptDefinitionPromptImagePersona;

@@ -9,12 +9,13 @@ import { and, eq } from "drizzle-orm";
 import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
 import { generateObject } from "ai";
 import { z } from "zod/v4";
-import { logger } from "@/lib/logger";
+import { logger, logAiSdkUsage } from "@/lib/logger";
 import { nanoid } from "nanoid";
 import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
 import { chatConfig } from "@/config/shared/chat/chat-models.config";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
 import logsnag from "@/lib/logsnag";
+import { generateRoleplaySummary } from "@/services/persona/roleplay-summary.service";
 
 const chatModeSchema = z.enum(["roleplay", "story"]);
 
@@ -68,80 +69,10 @@ export const createChat = async (
   let roleplayData = maybeRoleplayData;
 
   if (!roleplayData) {
-    const openrouter = getOpenRouter();
-
-    const model = openrouter("google/gemini-2.5-flash-lite", {
-      models: [
-        "mistralai/mistral-small-3.2-24b-instruct",
-        "google/gemini-2.5-flash-lite-preview-06-17",
-      ],
-    });
-
     const timeStart = Date.now();
 
     try {
-      const response = await generateObject({
-        model,
-        system:
-          "Generate ultra-concise, token-efficient character details for role-play. Extract only from provided data; never add/invent. Omit age/name/gender. Use plain text, no fluff/emojis/formatting.",
-        prompt: `Character: ${JSON.stringify(data)}`,
-        schema: z.object({
-          appearance: z
-            .string()
-            .describe(
-              "Single comma-separated string of visual descriptors (e.g., slender athletic build, upright posture, oval face, high cheekbones)—include body type, skin tone/ethnicity, hair color/style, eyes, notable features, clothing/style; no articles/prepositions/sentences/trailing period; under 100 words."
-            ),
-          personality: z
-            .string()
-            .describe(
-              "Concise description of traits, speaking style, quirks, and behaviors; semicolon-separated fragments; under 50 tokens."
-            ),
-          background: z
-            .string()
-            .describe(
-              "Key history, relationships, and formative events; 1-2 short sentences or fragments; under 50 tokens."
-            ),
-          interests: z
-            .string()
-            .optional()
-            .describe(
-              "Optional: Hobbies, pursuits, or passions if present in data; comma-separated list; omit if not relevant; under 30 tokens."
-            ),
-          skills: z
-            .string()
-            .optional()
-            .describe(
-              "Optional: Abilities and knowledge domains if present; comma-separated list; omit if not relevant; under 30 tokens."
-            ),
-          motivations: z
-            .string()
-            .optional()
-            .describe(
-              "Optional: Goals, aspirations, motivations, and occupation if present; 1 short sentence or fragments; omit if not relevant; under 40 tokens."
-            ),
-        }),
-      });
-
-      logger.info({
-        userId,
-        event: "text-generation-usage",
-        component: "generation:text:complete",
-        use_case: "persona_roleplay_summary_generation",
-        ai_meta: {
-          provider: "openrouter",
-          model: model.modelId,
-        },
-        attributes: {
-          usage: {
-            input_tokens: response.usage.inputTokens ?? 0,
-            output_tokens: response.usage.outputTokens ?? 0,
-            total_tokens: response.usage.totalTokens ?? 0,
-            reasoning_tokens: response.usage.reasoningTokens ?? 0,
-            cached_input_tokens: response.usage.cachedInputTokens ?? 0,
-          },
-        },
-      });
-      logger.flush();
+      const { summary, modelId } = await generateRoleplaySummary(data);
 
       const {
         appearance,
@@ -150,7 +81,7 @@ export const createChat = async (
         interests,
         skills,
         motivations,
-      } = response.object;
+      } = summary;
 
       await db
         .update(personaVersions)
@@ -173,8 +104,8 @@ export const createChat = async (
         .where(eq(personaVersions.id, persona.currentVersion!.id));
 
       logger.debug({
-        model: response.response.modelId,
-        data: response.object,
+        model: modelId,
+        data: summary,
         timeMs: Date.now() - timeStart,
       });
     } catch (e) {
@@ -183,7 +114,6 @@ export const createChat = async (
           channel: "personas",
           event: "persona-summary-failed",
           icon: "🚨",
-          tags: { model: model.modelId },
         })
         .catch(() => {});
       throw e;
@@ -215,30 +145,13 @@ export const createChat = async (
       }),
     });
 
-    logger.info({
-      userId,
-      event: "text-generation-usage",
+    logAiSdkUsage(titleResult, {
       component: "generation:text:complete",
-      use_case: "chat_title_generation",
-      ai_meta: {
-        provider: "openrouter",
-        model: model.modelId,
-      },
-      attributes: {
-        usage: {
-          input_tokens: titleResult.usage.inputTokens ?? 0,
-          output_tokens: titleResult.usage.outputTokens ?? 0,
-          total_tokens: titleResult.usage.totalTokens ?? 0,
-          reasoning_tokens: titleResult.usage.reasoningTokens ?? 0,
-          cached_input_tokens: titleResult.usage.cachedInputTokens ?? 0,
-        },
-      },
+      useCase: "chat_title_generation",
     });
-    logger.flush();
 
     title = titleResult.object.title;
   } catch (e) {
-    console.log(e);
     title = "Untitled Chat";
   }
 

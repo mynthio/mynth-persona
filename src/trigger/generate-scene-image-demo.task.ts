@@ -7,7 +7,7 @@ import { z } from "zod";
 import { ImageGenerationFactory } from "@/lib/generation/image-generation/image-generation-factory";
 import { processImage } from "@/lib/image-processing/image-processor";
 import { uploadToBunny } from "@/lib/upload";
-import { logger } from "@/lib/logger";
+import { logger, logAiSdkUsage } from "@/lib/logger";
 import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
 import { generateText } from "ai";
 
@@ -57,6 +57,11 @@ export const generateSceneImageDemoTask = schemaTask({
       system:
         "You are a helpful assistant that generates image prompts for a scene. You will receive the user message and a character response. Based on that generate an image prompt that should suit the scene from character's messages. You will be provided with character appearance that you should use when describing how character looks like. Generate prompt that follows natural language, for models like FLUX. Focus on character, while making a prompt. Let's imagine it's user's POV, so we want a full focus on character. Focus on a single image, single shot from the scene. Pick the moment you like, but do not try to make an image of entire scene, just a single shot. Images should always be realistic or semi-realistic. Output the prompt only and nothing else! Plain text only!",
       prompt: `User message: ${userMessage}\nCharacter response: ${aiMessage}\nCharacter: ${characterAppearance}`,
+    });
+
+    logAiSdkUsage(promptResult, {
+      component: "generation:text:complete",
+      useCase: "scene_image_prompt_generation",
     });
 
     if (!promptResult.text) {

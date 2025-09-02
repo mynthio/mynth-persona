@@ -1,6 +1,6 @@
 import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
 import { streamText, UIMessage, convertToModelMessages } from "ai";
-import { logger } from "@/lib/logger";
+import { logger, logAiSdkUsage } from "@/lib/logger";
 import { auth } from "@clerk/nextjs/server";
 import logsnag from "@/lib/logsnag";
 
@@ -36,23 +36,11 @@ export async function POST(req: Request) {
         .catch(() => {});
     },
     onFinish: async (finalData) => {
-      logger.info({
-        userId,
-        event: "text-generation-usage",
+      logAiSdkUsage(finalData, {
         component: "generation:text:complete",
-        use_case: "persona_chat_message_generation",
-        ai_meta: { provider: "openrouter", model: model.modelId },
-        attributes: {
-          usage: {
-            input_tokens: finalData.usage.inputTokens ?? 0,
-            output_tokens: finalData.usage.outputTokens ?? 0,
-            total_tokens: finalData.usage.totalTokens ?? 0,
-            reasoning_tokens: finalData.usage.reasoningTokens ?? 0,
-            cached_input_tokens: finalData.usage.cachedInputTokens ?? 0,
-          },
-        },
+        useCase: "persona_chat_message_generation",
       });
-      logger.flush();
+
     },
   });
 

@@ -1,20 +1,28 @@
 // src/lib/prompts/registry.ts
-import { roleplayV1 } from "./templates/roleplay/roleplay.v1";
-import { storyV1 } from "./templates/story/story.v1";
-import { personaGenerateV1 } from "./templates/persona/generate.v1";
-import { personaEnhanceV1 } from "./templates/persona/enhance.v1";
+import { roleplayV1 } from "./templates/roleplay/system.chat.roleplay.v1";
+import { storyV1 } from "./templates/story/system.chat.story.v1";
+import { personaGenerateV1 } from "./templates/persona/system.persona.generate.v1";
+import { personaEnhanceV1 } from "./templates/persona/system.persona.enhance.v1";
+import { imagePersonaV1 } from "./templates/image/system.image.persona.v1";
+import { imagePersonaPromptV1 } from "./templates/image/prompt.image.persona.v1";
 import {
   PromptDefinition,
   PromptId,
-  PromptIdForChat,
   ChatPromptMode,
   PersonaPromptMode,
   PromptUseCase,
-  PromptIdForPersona,
   PromptDefinitionRoleplay,
   PromptDefinitionStory,
   PromptDefinitionPersonaGenerate,
   PromptDefinitionPersonaEnhance,
+  PromptDefinitionImagePersona,
+  PromptDefinitionPromptImagePersona,
+  SystemPromptIdForChat,
+  SystemPromptIdForPersona,
+  SystemPromptIdForImage,
+  UserPromptIdForChat,
+  UserPromptIdForPersona,
+  UserPromptIdForImage,
 } from "./types";
 
 const PROMPTS: Record<PromptId, PromptDefinition> = {
@@ -22,23 +30,44 @@ const PROMPTS: Record<PromptId, PromptDefinition> = {
   [roleplayV1.id]: roleplayV1,
   [personaGenerateV1.id]: personaGenerateV1,
   [personaEnhanceV1.id]: personaEnhanceV1,
+  [imagePersonaV1.id]: imagePersonaV1,
+  [imagePersonaPromptV1.id]: imagePersonaPromptV1,
 };
 
-// Unified defaults object: useCase -> mode -> default prompt id
-export type DefaultPromptMapByUseCase = {
-  chat: Record<ChatPromptMode, PromptIdForChat>;
-  persona: Record<PersonaPromptMode, PromptIdForPersona>;
+// Separate defaults: system vs user prompts
+export type DefaultSystemPromptMapByUseCase = {
+  chat: Record<ChatPromptMode, SystemPromptIdForChat>;
+  persona: Record<PersonaPromptMode, SystemPromptIdForPersona>;
+  image: Record<"persona", SystemPromptIdForImage>;
 };
 
-export const DEFAULT_PROMPTS_BY_USE_CASE: DefaultPromptMapByUseCase = {
-  chat: {
-    roleplay: roleplayV1.id,
-    story: storyV1.id,
+export type DefaultUserPromptMapByUseCase = {
+  chat: Partial<Record<ChatPromptMode, UserPromptIdForChat>>;
+  persona: Partial<Record<PersonaPromptMode, UserPromptIdForPersona>>;
+  image: Record<"persona", UserPromptIdForImage>;
+};
+
+export const DEFAULT_SYSTEM_PROMPTS_BY_USE_CASE: DefaultSystemPromptMapByUseCase =
+  {
+    chat: {
+      roleplay: roleplayV1.id,
+      story: storyV1.id,
+    },
+    persona: {
+      generate: personaGenerateV1.id,
+      enhance: personaEnhanceV1.id,
+    },
+    image: {
+      persona: imagePersonaV1.id,
+    },
+  };
+
+export const DEFAULT_PROMPTS_BY_USE_CASE: DefaultUserPromptMapByUseCase = {
+  chat: {}, // currently no non-system chat prompts
+  persona: {}, // currently no non-system persona prompts
+  image: {
+    persona: imagePersonaPromptV1.id,
   },
-  persona: {
-    generate: personaGenerateV1.id,
-    enhance: personaEnhanceV1.id,
-  } as Record<PersonaPromptMode, PromptIdForPersona>,
 };
 
 export function getPromptDefinitionById(id: PromptId): PromptDefinition {
@@ -49,7 +78,57 @@ export function getPromptDefinitionById(id: PromptId): PromptDefinition {
   return prompt;
 }
 
-// Overloads for better type inference by use case
+// System defaults (new explicit API)
+export function getDefaultSystemPromptDefinitionForMode(
+  useCase: "chat",
+  mode: ChatPromptMode
+): PromptDefinitionRoleplay | PromptDefinitionStory;
+export function getDefaultSystemPromptDefinitionForMode(
+  useCase: "persona",
+  mode: "generate"
+): PromptDefinitionPersonaGenerate;
+export function getDefaultSystemPromptDefinitionForMode(
+  useCase: "persona",
+  mode: "enhance"
+): PromptDefinitionPersonaEnhance;
+export function getDefaultSystemPromptDefinitionForMode(
+  useCase: "image",
+  mode: "persona"
+): PromptDefinitionImagePersona;
+export function getDefaultSystemPromptDefinitionForMode(
+  useCase: PromptUseCase,
+  mode: ChatPromptMode | PersonaPromptMode | "persona"
+): PromptDefinition {
+  const defaultPromptId = (
+    DEFAULT_SYSTEM_PROMPTS_BY_USE_CASE[useCase] as Record<string, PromptId>
+  )[mode];
+
+  if (!defaultPromptId) throw new Error("No default system prompt found");
+
+  return getPromptDefinitionById(defaultPromptId);
+}
+
+// User (non-system) defaults
+export function getDefaultUserPromptDefinitionForMode(
+  useCase: "image",
+  mode: "persona"
+): PromptDefinitionPromptImagePersona;
+export function getDefaultUserPromptDefinitionForMode(
+  useCase: PromptUseCase,
+  mode: ChatPromptMode | PersonaPromptMode | "persona"
+): PromptDefinition {
+  const defaults = DEFAULT_PROMPTS_BY_USE_CASE[useCase] as Record<
+    string,
+    PromptId | undefined
+  >;
+  const defaultPromptId = defaults[mode];
+
+  if (!defaultPromptId) throw new Error("No default user prompt found");
+
+  return getPromptDefinitionById(defaultPromptId);
+}
+
+// Backward-compatible default getter (returns SYSTEM defaults)
 export function getDefaultPromptDefinitionForMode(
   useCase: "chat",
   mode: ChatPromptMode
@@ -63,14 +142,12 @@ export function getDefaultPromptDefinitionForMode(
   mode: "enhance"
 ): PromptDefinitionPersonaEnhance;
 export function getDefaultPromptDefinitionForMode(
+  useCase: "image",
+  mode: "persona"
+): PromptDefinitionImagePersona;
+export function getDefaultPromptDefinitionForMode(
   useCase: PromptUseCase,
-  mode: ChatPromptMode | PersonaPromptMode
+  mode: ChatPromptMode | PersonaPromptMode | "persona"
 ): PromptDefinition {
-  const defaultPromptId = (
-    DEFAULT_PROMPTS_BY_USE_CASE[useCase] as Record<string, PromptId>
-  )[mode];
-
-  if (!defaultPromptId) throw new Error("No default prompt found");
-
-  return getPromptDefinitionById(defaultPromptId);
+  return getDefaultSystemPromptDefinitionForMode(useCase as any, mode as any);
 }

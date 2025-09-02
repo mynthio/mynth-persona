@@ -1,6 +1,7 @@
 import "server-only";
+
 import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
-import { logger } from "@/lib/logger";
+import { logger, logAiSdkUsage } from "@/lib/logger";
 import {
   streamText,
   UIMessage,
@@ -16,10 +17,7 @@ import { chats, messages as messagesTable } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { tasks } from "@trigger.dev/sdk";
 import { generateSceneImageDemoTask } from "@/trigger/generate-scene-image-demo.task";
-import {
-  getDefaultPromptDefinitionForMode,
-  getPromptDefinitionById,
-} from "@/lib/prompts/registry";
+import { getDefaultPromptDefinitionForMode } from "@/lib/prompts/registry";
 import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
 import {
@@ -28,6 +26,7 @@ import {
 } from "@/services/token/token-manager.service";
 import { chatConfig } from "@/config/shared/chat/chat-models.config";
 import logsnag from "@/lib/logsnag";
+import { messageIdSchema } from "@/schemas/backend/messages/message.schema";
 export const maxDuration = 45;
 
 export async function POST(
@@ -47,10 +46,14 @@ export async function POST(
     messages: UIMessage[];
     parentId?: string | null;
     regenerate?: boolean;
+    newContent?: string;
+    newMessageId?: string;
   } = await req.json();
 
   logger.debug({
     messages,
+    rest,
+    regenerate,
   });
 
   const chatIdFromParam = (await params).chatId;
@@ -99,16 +102,47 @@ export async function POST(
     throw new Error("Roleplay data not found");
   }
 
-  const messageId = `msg_${nanoid()}`;
+  const messageId = `msg_${nanoid(22)}`;
 
   const userMessage = messages[messages.length - 1];
 
+  const safeUserMessageId = rest.newMessageId
+    ? messageIdSchema.parse(rest.newMessageId)
+    : messageIdSchema.parse(userMessage.id);
+
+  // Determine if this is a regeneration request for a USER message (edit + regenerate)
+  const isUserRegenerate =
+    regenerate === true && userMessage.role === "user" && !!rest.newContent;
+
+  // Build the effective user message to use for generation
+  const userMessageForGeneration: UIMessage = isUserRegenerate
+    ? {
+        ...userMessage,
+        // If newContent provided, ensure parts reflect it
+        parts:
+          typeof (rest as any).newContent === "string"
+            ? [{ type: "text", text: (rest as any).newContent } as any]
+            : userMessage.parts,
+        // Keep metadata as-is; parentId is stored separately in DB
+      }
+    : userMessage;
+
+  const userMessageId = isUserRegenerate ? safeUserMessageId : userMessage.id;
+  // Persist branching for user edits: insert a fresh user message with the SAME parentId
   if (regenerate !== true) {
     await db.insert(messagesTable).values({
       id: userMessage.id,
       chatId: chatId!,
       parts: userMessage.parts,
       role: userMessage.role,
+      parentId,
+    });
+  } else if (isUserRegenerate) {
+    await db.insert(messagesTable).values({
+      id: userMessageId,
+      chatId: chatId!,
+      parts: userMessageForGeneration.parts,
+      role: userMessageForGeneration.role,
       parentId,
     });
   }
@@ -229,8 +263,8 @@ export async function POST(
           system: systemPrompt,
           messages: convertToModelMessages(
             messagesHistory.length > 0
-              ? [...(messagesHistory as any), userMessage]
-              : [userMessage]
+              ? [...(messagesHistory as any), userMessageForGeneration]
+              : [userMessageForGeneration]
           ),
           experimental_transform: smoothStream({ chunking: "word" }),
           onError: async (error) => {
@@ -262,26 +296,10 @@ export async function POST(
             }
           },
           onFinish: async (finalData) => {
-            logger.info({
-              userId,
-              event: "text-generation-usage",
+            logAiSdkUsage(finalData, {
               component: "chat:chat_message:complete",
-              use_case: "chat_message_generation",
-              ai_meta: {
-                provider: "openrouter",
-                model: model.modelId,
-              },
-              attributes: {
-                usage: {
-                  input_tokens: finalData.usage.inputTokens ?? 0,
-                  output_tokens: finalData.usage.outputTokens ?? 0,
-                  total_tokens: finalData.usage.totalTokens ?? 0,
-                  reasoning_tokens: finalData.usage.reasoningTokens ?? 0,
-                  cached_input_tokens: finalData.usage.cachedInputTokens ?? 0,
-                },
-              },
+              useCase: "chat_message_generation",
             });
-            logger.flush();
 
             const imageId = `img_${nanoid(32)}`;
             const taskHandle = await tasks.trigger<
@@ -290,7 +308,7 @@ export async function POST(
               userId,
               personaId: chat.chatPersonas[0].personaVersion.personaId,
               // @ts-ignore
-              userMessage: userMessage.parts[0].text,
+              userMessage: userMessageForGeneration.parts[0].text,
               messageId,
               characterAppearance: `Name: ${roleplayData.name} Age: ${roleplayData.age} Gender: ${roleplayData.gender}. Appearance: ${roleplayData.appearance}`,
               aiMessage: finalData.text,
@@ -310,12 +328,12 @@ export async function POST(
                 usage: finalData.usage,
                 publicToken: taskHandle.publicAccessToken,
                 runId: taskHandle.id,
-                parentId: userMessage.id,
+                parentId: userMessageForGeneration.id,
                 cost: generationCost,
                 ...(regenerate
                   ? {
                       regenerate: true,
-                      regeneratedForId: userMessage.id,
+                      regeneratedForId: userMessageForGeneration.id,
                     }
                   : {}),
               },
@@ -344,7 +362,7 @@ export async function POST(
       await db.insert(messagesTable).values({
         id: messageId,
         chatId,
-        parentId: userMessage.id,
+        parentId: userMessageId,
         parts: responseMessage.parts,
         role: responseMessage.role,
         metadata: {

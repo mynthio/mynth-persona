@@ -76,10 +76,6 @@ export function ChatInner() {
   const previousChatId = usePrevious(chatId);
   const { chat } = useChatContext();
   const { messages, setMessages, sendMessage, status } = useChat({
-    // On finish and other callbacks do not work because we use shared context. Do not use this!
-    onFinish: () => {
-      console.log("ONFINISH123");
-    },
     chat,
   });
 
@@ -312,7 +308,7 @@ export function ChatInner() {
         <ChatConversation>
           {/* Render from Chat SDK state when streaming; otherwise show branch-aware messages */}
           {messages.map((message: PersonaUIMessage) => (
-            <ChatMessage key={message.id} message={message} />
+            <ChatMessage key={message.id} message={message} status={status} />
           ))}
           {chat.status === "submitted" && <Loader />}
         </ChatConversation>

@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       '@ai-sdk/react':
-        specifier: ^2.0.28
-        version: 2.0.28(react@19.1.1)(zod@3.25.76)
+        specifier: ^2.0.29
+        version: 2.0.29(react@19.1.1)(zod@3.25.76)
       '@ai-sdk/rsc':
-        specifier: ^1.0.28
-        version: 1.0.28(react@19.1.1)(zod@3.25.76)
+        specifier: ^1.0.29
+        version: 1.0.29(react@19.1.1)(zod@3.25.76)
       '@axiomhq/pino':
         specifier: ^1.3.1
         version: 1.3.1
@@ -33,14 +33,14 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       '@logtail/pino':
-        specifier: ^0.5.5
-        version: 0.5.5(pino@9.9.0)
+        specifier: ^0.5.6
+        version: 0.5.6(pino@9.9.0)
       '@neondatabase/serverless':
         specifier: ^1.0.1
         version: 1.0.1
       '@openrouter/ai-sdk-provider':
         specifier: ^1.1.2
-        version: 1.1.2(ai@5.0.28(zod@3.25.76))(zod@3.25.76)
+        version: 1.1.2(ai@5.0.29(zod@3.25.76))(zod@3.25.76)
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -103,7 +103,7 @@ importers:
         version: 4.0.2(bufferutil@4.0.9)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@trigger.dev/sdk':
         specifier: ^4.0.2
-        version: 4.0.2(ai@5.0.28(zod@3.25.76))(bufferutil@4.0.9)(zod@3.25.76)
+        version: 4.0.2(ai@5.0.29(zod@3.25.76))(bufferutil@4.0.9)(zod@3.25.76)
       '@uidotdev/usehooks':
         specifier: ^2.4.1
         version: 2.4.1(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -111,8 +111,8 @@ importers:
         specifier: ^2.1.3
         version: 2.1.3
       ai:
-        specifier: ^5.0.28
-        version: 5.0.28(zod@3.25.76)
+        specifier: ^5.0.29
+        version: 5.0.29(zod@3.25.76)
       arktype:
         specifier: ^2.1.20
         version: 2.1.20
@@ -141,8 +141,8 @@ importers:
         specifier: ^0.8.3
         version: 0.8.3(drizzle-orm@0.44.5(@neondatabase/serverless@1.0.1)(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(pg@8.16.3))(zod@3.25.76)
       effect:
-        specifier: ^3.17.9
-        version: 3.17.9
+        specifier: ^3.17.10
+        version: 3.17.10
       embla-carousel-react:
         specifier: ^8.6.0
         version: 8.6.0(react@19.1.1)
@@ -322,8 +322,8 @@ packages:
     resolution: {integrity: sha512-6o7Y2SeO9vFKB8lArHXehNuusnpddKPk7xqL7T2/b+OvXMRIXUO1rR4wcv1hAFUAT9avGZshty3Wlua/XA7TvA==}
     engines: {node: '>=18'}
 
-  '@ai-sdk/react@2.0.28':
-    resolution: {integrity: sha512-+1iINCSRvjVgCMfe05Ki1PnV9nMeQvQqCIN45KKV+QhQSItyLsuE+WWQrKt5nDRAF3LFq6cSD0tm5F50SJJh4Q==}
+  '@ai-sdk/react@2.0.29':
+    resolution: {integrity: sha512-RJeI8k//leBrGtgFT0iPGiralLm78J8N6ZY8X0CCsCj2ldEvhQJSPROKR38oLJS3lLwppTK8sxE9LBomggossg==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^18 || ^19 || ^19.0.0-rc
@@ -332,8 +332,8 @@ packages:
       zod:
         optional: true
 
-  '@ai-sdk/rsc@1.0.28':
-    resolution: {integrity: sha512-KNfPKlhbBktAjDzNMFZfPaJNr+VfvDjoBfj3yJY7I49zZpnuKtsRX0eoIgze675AWCC5j4m1jYrrpWwlcdHmvg==}
+  '@ai-sdk/rsc@1.0.29':
+    resolution: {integrity: sha512-LbJXdV41yuA+chJBTZkwpcCdek/RISmBvDruHyicdHecAOWwklXTGUvI+Bu1xlHh8pOatTNH/T4Wd9+UsS/YWw==}
     engines: {node: '>=18'}
     peerDependencies:
       react: ^18 || ^19 || ^19.0.0-rc
@@ -1157,22 +1157,22 @@ packages:
   '@logsnag/node@1.0.1':
     resolution: {integrity: sha512-JW2S1KN91XyOb0oG2PblboZ1Ys4mkOSMn83GDYjM8CXzcFbkYFMnlFQoEgP0Y5z+1A56hOO+a7uLsvxO5IdUFA==}
 
-  '@logtail/core@0.5.4':
-    resolution: {integrity: sha512-UlbxvUg5MDroqk6gEhtfKuuBShrvD/VaXl3T3jGU1U6I19Y1OwfB7e681LvH7RbsCAnOJFziM/7rMQib/CJTdg==}
+  '@logtail/core@0.5.6':
+    resolution: {integrity: sha512-wbExeqFgH8mfEJ0N1X1KmBZVmh1oGyQLtHo329O9TvDqyL3tmyQnXbtEHwB0whfCKrkzHPZvWAamcv/Y8uPOZw==}
 
-  '@logtail/node@0.5.5':
-    resolution: {integrity: sha512-hSZDjl2wFRxe/+pxSlYNSpm0V3a2ZsiWqBifvtCBHTriwrNkd0LjQtedRlrjoBBumVxIMGdDOCPayAIbcux5YQ==}
+  '@logtail/node@0.5.6':
+    resolution: {integrity: sha512-j+Q/LXVrZa6p+7qfNtiT5ANqmrusrSpBXU5Cxe6Wm+tB48NLaNdOiFz1EgqgTW50WzwlTHYl7ZhfPGsYgmyMOA==}
 
-  '@logtail/pino@0.5.5':
-    resolution: {integrity: sha512-RNGWSWmqXHmchWm0MZS69JfnEAULck2uTrbh0/rZDBhnsZjsUTXmviDsA+zfjLr6Y702CmPLwx7ctlhHK7pbEw==}
+  '@logtail/pino@0.5.6':
+    resolution: {integrity: sha512-szpxkyid7dwIBplokRO/nCn5jD1JLnjF7EV6UI1XpcjoTOxN+NDsdgiTUPLDJ/HLadbtrc+70Xwzv6MobVbsKQ==}
     peerDependencies:
       pino: ^7.0.0 || ^8.0.0 || ^9.0.0
 
-  '@logtail/tools@0.5.4':
-    resolution: {integrity: sha512-S0PtfWOVVgvb36q8mLksMw910mO2TahDaqIYnUM/ZEYX+AwqKRGov4zt/X33zHRzCFVpSKoZFv7bFs8TBie/pQ==}
+  '@logtail/tools@0.5.6':
+    resolution: {integrity: sha512-l6VIzOUGZs6eLIWjZD88hNyE61xjRN0xypvFvY7CGl9nH+MlBSoFobA8XPTB+JpU1Zn3UhovOJrRM2SAoVyq4Q==}
 
-  '@logtail/types@0.5.3':
-    resolution: {integrity: sha512-5uKf1xQ7wRqSW0lYIwDpXdXcFHxPKH5EM22MoEjwTpd8suymOYuEdx9qCCHCYey4uOhPq7x6OkZf86bTO83JsA==}
+  '@logtail/types@0.5.6':
+    resolution: {integrity: sha512-a7tkl2rBE24SoV1dG3Jme6sfSRtQjSonlVym0PvoBHFbretqm0FB1SQuba27zOC9qH0kcYtyJGkoFi4vpJE/tQ==}
 
   '@mermaid-js/parser@0.6.2':
     resolution: {integrity: sha512-+PO02uGF6L6Cs0Bw8RpGhikVvMWEysfAyl27qTlroUB8jSWr1lL0Sf6zi78ZxlSnmgSY2AMMKVgghnN9jTtwkQ==}
@@ -2400,8 +2400,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  ai@5.0.28:
-    resolution: {integrity: sha512-tnybAqoDFzuK6O1NOMHX1d/wH7Eug8y0H4l/Gl6swi8BYGtlTPDjniKnGYzgTpLTdpj7SI3qjZuomz7evph9+w==}
+  ai@5.0.29:
+    resolution: {integrity: sha512-jA/d6X5hn3r/PxgZjwzDUMJiEkLBIVVD2gcbpcT/FD4MSLxm5sn6fH1y2VFXVgBEd95mNzQ8ALQubysc6E8Y9g==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4
@@ -3052,8 +3052,8 @@ packages:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
     engines: {node: '>= 0.4'}
 
-  effect@3.17.9:
-    resolution: {integrity: sha512-Nkkn9n1zhy30Dq0MpQatDCH7nfYnOIiebkOHNxmmvoVnEDKCto+2ZwDDWFGzcN/ojwfqjRXWGC9Lo91K5kwZCg==}
+  effect@3.17.10:
+    resolution: {integrity: sha512-CF88II9feS/adKbaW+2yyVg75O2gN6TIIuRslVtND9DQR1kYFOqFImgDuhsfg2goEAOJEOYTuNautT5ICyMbxA==}
 
   embla-carousel-react@8.6.0:
     resolution: {integrity: sha512-0/PjqU7geVmo6F734pmPqpyHqiM99olvyecY7zdweCw+6tKEXnrE90pBiBbMMU8s5tICemzpQ3hi5EpxzGW+JA==}
@@ -3286,10 +3286,6 @@ packages:
   events@3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
-
-  eventsource-parser@3.0.5:
-    resolution: {integrity: sha512-bSRG85ZrMdmWtm7qkF9He9TNRzc/Bm99gEJMaQoHJ9E6Kv9QBbsldh2oMj7iXmYNEAVvNgvv5vPorG6W+XtBhQ==}
-    engines: {node: '>=20.0.0'}
 
   eventsource-parser@3.0.6:
     resolution: {integrity: sha512-Vo1ab+QXPzZ4tCa8SwIHJFaSzy4R6SHf7BY79rFBDf0idraZWAkYrDjDj8uWaSm3S2TK+hJ7/t1CEmZ7jXw+pg==}
@@ -5396,28 +5392,28 @@ snapshots:
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@standard-schema/spec': 1.0.0
-      eventsource-parser: 3.0.5
+      eventsource-parser: 3.0.6
       zod: 3.25.76
 
   '@ai-sdk/provider@2.0.0':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@2.0.28(react@19.1.1)(zod@3.25.76)':
+  '@ai-sdk/react@2.0.29(react@19.1.1)(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
-      ai: 5.0.28(zod@3.25.76)
+      ai: 5.0.29(zod@3.25.76)
       react: 19.1.1
       swr: 2.3.6(react@19.1.1)
       throttleit: 2.1.0
     optionalDependencies:
       zod: 3.25.76
 
-  '@ai-sdk/rsc@1.0.28(react@19.1.1)(zod@3.25.76)':
+  '@ai-sdk/rsc@1.0.29(react@19.1.1)(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@ai-sdk/provider-utils': 3.0.7(zod@3.25.76)
-      ai: 5.0.28(zod@3.25.76)
+      ai: 5.0.29(zod@3.25.76)
       jsondiffpatch: 0.6.0
       react: 19.1.1
     optionalDependencies:
@@ -6011,33 +6007,33 @@ snapshots:
 
   '@logsnag/node@1.0.1': {}
 
-  '@logtail/core@0.5.4':
+  '@logtail/core@0.5.6':
     dependencies:
-      '@logtail/tools': 0.5.4
-      '@logtail/types': 0.5.3
+      '@logtail/tools': 0.5.6
+      '@logtail/types': 0.5.6
       serialize-error: 8.1.0
 
-  '@logtail/node@0.5.5':
+  '@logtail/node@0.5.6':
     dependencies:
-      '@logtail/core': 0.5.4
-      '@logtail/types': 0.5.3
+      '@logtail/core': 0.5.6
+      '@logtail/types': 0.5.6
       '@msgpack/msgpack': 2.8.0
       '@types/stack-trace': 0.0.33
       minimatch: 9.0.5
       stack-trace: 0.0.10
 
-  '@logtail/pino@0.5.5(pino@9.9.0)':
+  '@logtail/pino@0.5.6(pino@9.9.0)':
     dependencies:
-      '@logtail/node': 0.5.5
-      '@logtail/types': 0.5.3
+      '@logtail/node': 0.5.6
+      '@logtail/types': 0.5.6
       pino: 9.9.0
       pino-abstract-transport: 1.2.0
 
-  '@logtail/tools@0.5.4':
+  '@logtail/tools@0.5.6':
     dependencies:
-      '@logtail/types': 0.5.3
+      '@logtail/types': 0.5.6
 
-  '@logtail/types@0.5.3': {}
+  '@logtail/types@0.5.6': {}
 
   '@mermaid-js/parser@0.6.2':
     dependencies:
@@ -6101,9 +6097,9 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
-  '@openrouter/ai-sdk-provider@1.1.2(ai@5.0.28(zod@3.25.76))(zod@3.25.76)':
+  '@openrouter/ai-sdk-provider@1.1.2(ai@5.0.29(zod@3.25.76))(zod@3.25.76)':
     dependencies:
-      ai: 5.0.28(zod@3.25.76)
+      ai: 5.0.29(zod@3.25.76)
       zod: 3.25.76
 
   '@opentelemetry/api-logs@0.203.0':
@@ -6908,7 +6904,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@trigger.dev/sdk@4.0.2(ai@5.0.28(zod@3.25.76))(bufferutil@4.0.9)(zod@3.25.76)':
+  '@trigger.dev/sdk@4.0.2(ai@5.0.29(zod@3.25.76))(bufferutil@4.0.9)(zod@3.25.76)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/semantic-conventions': 1.36.0
@@ -6924,7 +6920,7 @@ snapshots:
       ws: 8.18.3(bufferutil@4.0.9)
       zod: 3.25.76
     optionalDependencies:
-      ai: 5.0.28(zod@3.25.76)
+      ai: 5.0.29(zod@3.25.76)
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -7317,7 +7313,7 @@ snapshots:
 
   acorn@8.15.0: {}
 
-  ai@5.0.28(zod@3.25.76):
+  ai@5.0.29(zod@3.25.76):
     dependencies:
       '@ai-sdk/gateway': 1.0.15(zod@3.25.76)
       '@ai-sdk/provider': 2.0.0
@@ -7917,7 +7913,7 @@ snapshots:
       es-errors: 1.3.0
       gopd: 1.2.0
 
-  effect@3.17.9:
+  effect@3.17.10:
     dependencies:
       '@standard-schema/spec': 1.0.0
       fast-check: 3.23.2
@@ -8379,8 +8375,6 @@ snapshots:
   event-target-shim@5.0.1: {}
 
   events@3.3.0: {}
-
-  eventsource-parser@3.0.5: {}
 
   eventsource-parser@3.0.6: {}
 

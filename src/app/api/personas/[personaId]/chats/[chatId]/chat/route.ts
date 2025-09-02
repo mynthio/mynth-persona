@@ -1,6 +1,6 @@
 import "server-only";
 import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
-import { logger } from "@/lib/logger";
+import { logger, logAiSdkUsage } from "@/lib/logger";
 import {
   streamText,
   UIMessage,
@@ -198,26 +198,10 @@ export async function POST(
         },
 
         onFinish: async (finalData) => {
-          logger.info({
-            userId,
-            event: "text-generation-usage",
-            component: "chat:chat_message:complete",
-            use_case: "persona_chat_message_generation",
-            ai_meta: {
-              provider: "openrouter",
-              model: model.modelId,
-            },
-            attributes: {
-              usage: {
-                input_tokens: finalData.usage.inputTokens ?? 0,
-                output_tokens: finalData.usage.outputTokens ?? 0,
-                total_tokens: finalData.usage.totalTokens ?? 0,
-                reasoning_tokens: finalData.usage.reasoningTokens ?? 0,
-                cached_input_tokens: finalData.usage.cachedInputTokens ?? 0,
-              },
-            },
-          });
-          logger.flush();
+          logAiSdkUsage(finalData, {
+              component: "chat:persona_chat_message:complete",
+              useCase: "persona_chat_message_generation",
+            });
           const imageId = `img_${nanoid(32)}`;
           const taskHandle = await tasks.trigger<
             typeof generateSceneImageDemoTask

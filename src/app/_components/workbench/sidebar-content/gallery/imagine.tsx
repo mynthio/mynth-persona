@@ -24,6 +24,7 @@ import {
 
 import Link from "next/link";
 import { useToast } from "@/components/ui/toast";
+import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 
 type Size = "portrait" | "landscape";
 
@@ -40,6 +41,7 @@ export default function Imagine() {
   const [personaId] = usePersonaId();
   const personaGenerationStore = usePersonaGenerationStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [, setWorkbenchMode] = useWorkbenchMode();
 
   const { data: balance } = useTokensBalance();
   const mutateBalance = useTokensBalanceMutation();
@@ -106,21 +108,16 @@ export default function Imagine() {
         mutateBalance(() => newBalance);
       }
 
-      personaGenerationStore.setImageGenerationRuns({
-        ...personaGenerationStore.imageGenerationRuns,
-        [runId]: {
-          runId,
-          publicAccessToken,
-          personaId,
-          startedAt: Date.now(),
-        },
+      // Use action method to avoid stale state issues
+      personaGenerationStore.addImageGenerationRun(runId, {
+        runId,
+        publicAccessToken,
+        personaId,
+        startedAt: Date.now(),
       });
 
-      // Switch main content to Gallery to show the pending generation
-      // TODO: setWorkbenchContent("gallery");
-
-      // Optionally, optimistically reflect a new image placeholder in the gallery cache
-      // We avoid adding an empty id; gallery will read runs from the store for in-progress display.
+      // Ensure main content is the Gallery so the in-progress tile is visible
+      setWorkbenchMode("gallery");
     } catch (error) {
       toast.add({ title: "Failed to generate image" });
     } finally {

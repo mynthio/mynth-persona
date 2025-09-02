@@ -6,12 +6,13 @@ import { getImageUrl } from "@/lib/utils";
 import { MiniWaveLoader } from "@/components/ui/mini-wave-loader";
 import { usePersonaGenerationStore } from "@/stores/persona-generation.store";
 import { useMemo, useEffect } from "react";
-import { useRealtimeRun } from "@trigger.dev/react-hooks";
+import { useRealtimeRun, useRun } from "@trigger.dev/react-hooks";
 import { usePersonaImagesMutation } from "@/app/_queries/use-persona-images.query";
 import { SWRConfig } from "swr";
 import { useImageId } from "@/hooks/use-image-id.hook";
 import GalleryImageModal from "./gallery-image-modal";
 import { ImageBrokenIcon, WarningCircle } from "@phosphor-icons/react/dist/ssr";
+import ms from "ms";
 
 export default function GalleryContent() {
   const [personaId] = usePersonaId();
@@ -33,7 +34,8 @@ export default function GalleryContent() {
       });
   }, [personaId, personaGenerationStore.imageGenerationRuns]);
 
-  if (isLoading) {
+  // Only show a generic loading state if there are no in-progress runs to display
+  if (isLoading && inProgressRuns.length === 0) {
     return (
       <div className="mt-12 max-w-4xl mx-auto text-center text-muted-foreground">
         Loading...
@@ -103,10 +105,9 @@ function GalleryImageInProgress({
   runId: string;
   publicAccessToken: string;
 }) {
-  const { run } = useRealtimeRun(runId, {
+  const { run } = useRun(runId, {
     accessToken: publicAccessToken,
-    stopOnCompletion: true,
-    enabled: true,
+    refreshInterval: ms("5s"),
   });
   const mutateImages = usePersonaImagesMutation(personaId);
   const personaGenerationStore = usePersonaGenerationStore();
@@ -134,7 +135,7 @@ function GalleryImageInProgress({
     status === "TIMED_OUT";
 
   return (
-    <div className="aspect-square rounded-md overflow-hidden relative bg-gradient-to-br from-muted/50 to-background/60 border border-border">
+    <div className="aspect-square w-full h-full min-w-32 min-h-32 rounded-md overflow-hidden relative bg-gradient-to-br from-muted/50 to-background/60 border border-border">
       <div className="absolute inset-0 flex items-center justify-center">
         {isFailed ? (
           <div className="flex flex-col items-center gap-2 text-red-400">
@@ -148,6 +149,7 @@ function GalleryImageInProgress({
           </div>
         )}
       </div>
+
       <div className="w-full h-full bg-zinc-100 dark:bg-zinc-900" />
     </div>
   );

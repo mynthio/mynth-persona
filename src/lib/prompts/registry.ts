@@ -25,14 +25,14 @@ import {
   UserPromptIdForImage,
 } from "./types";
 
-const PROMPTS: Record<PromptId, PromptDefinition> = {
+const PROMPTS = {
   [storyV1.id]: storyV1,
   [roleplayV1.id]: roleplayV1,
   [personaGenerateV1.id]: personaGenerateV1,
   [personaEnhanceV1.id]: personaEnhanceV1,
   [imagePersonaV1.id]: imagePersonaV1,
   [imagePersonaPromptV1.id]: imagePersonaPromptV1,
-};
+} as const satisfies Partial<Record<PromptId, PromptDefinition>>;
 
 // Separate defaults: system vs user prompts
 export type DefaultSystemPromptMapByUseCase = {

@@ -45,10 +45,6 @@ export function logAiSdkUsage(
 ): void {
   const { component, useCase, provider = "openrouter" } = params;
 
-  if ("object" in response) {
-    return;
-  }
-
   const usage = response.usage;
   const modelId = response.response.modelId;
 

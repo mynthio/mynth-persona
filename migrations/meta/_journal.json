@@ -29,6 +29,13 @@
       "when": 1756657855898,
       "tag": "0003_first_mastermind",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1756995858863,
+      "tag": "0004_lumpy_justin_hammer",
+      "breakpoints": true
     }
   ]
 }

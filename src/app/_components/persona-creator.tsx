@@ -12,7 +12,6 @@ import { usePersonaId } from "@/hooks/use-persona-id.hook";
 import { PERSONA_SUGGESTIONS } from "@/lib/persona-suggestions";
 import PersonaStack from "./persona-stack";
 import { useTokensBalanceMutation } from "@/app/_queries/use-tokens-balance.query";
-import { usePersonaEventsMutation } from "../_queries/use-persona-events.query";
 
 const suggestionExamples = PERSONA_SUGGESTIONS;
 
@@ -25,7 +24,7 @@ export default function PersonaCreator() {
 
   const getRandomSuggestions = () => {
     const shuffled = [...suggestionExamples].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 7);
+    return shuffled.slice(0, 3);
   };
 
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -88,7 +87,7 @@ export default function PersonaCreator() {
           );
         },
         onFinish: () => {
-          swrConfig.mutate(`/api/personas/${response.personaId}/events`);
+          swrConfig.mutate(`/api/personas/${response.personaId}/versions`);
         },
       });
 

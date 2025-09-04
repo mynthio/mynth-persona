@@ -48,6 +48,11 @@ export const publicPersonaSchema = z.object({
   updatedAt: z.date(),
 });
 
+export const publicPersonaVersionMetadataSchema = z.object({
+  aiNote: z.string().optional().nullable(),
+  userMessage: z.string().optional().nullable(),
+});
+
 /**
  * Public persona version schema - version information without sensitive metadata
  */
@@ -58,6 +63,10 @@ export const publicPersonaVersionSchema = z.object({
   versionNumber: z.number(),
   data: publicPersonaDataSchema,
   createdAt: z.date(),
+  metadata: publicPersonaVersionMetadataSchema
+    .optional()
+    .nullable()
+    .default({}),
 });
 
 // Type exports

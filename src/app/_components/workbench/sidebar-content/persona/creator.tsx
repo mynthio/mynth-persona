@@ -1,11 +1,12 @@
 "use client";
 
 import { enhancePersonaAction } from "@/actions/enhance-persona.action";
+// removed events hooks; using versions list instead
 import {
-  usePersonaEventsMutation,
-  usePersonaEventsQuery,
-} from "@/app/_queries/use-persona-events.query";
-import { usePersonaVersionMutation, usePersonaVersionQuery } from "@/app/_queries/use-persona-version.query";
+  usePersonaVersionMutation,
+  usePersonaVersionQuery,
+} from "@/app/_queries/use-persona-version.query";
+import { usePersonaVersionsQuery } from "@/app/_queries/use-persona-versions.query";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 // Replace basic Textarea/Button with the shared PromptInput components for a cleaner, chat-like UI
@@ -17,7 +18,7 @@ import {
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input";
 import { usePersonaId } from "@/hooks/use-persona-id.hook";
-import { PublicPersonaEventWithVersion } from "@/schemas";
+import { PublicPersonaVersion } from "@/schemas/shared";
 import usePersonaGenerationStore from "@/stores/persona-generation.store";
 import { CoinsIcon, SpinnerIcon } from "@phosphor-icons/react/dist/ssr";
 import { useEffect, useRef } from "react";
@@ -52,7 +53,7 @@ function EventsWrapper({ children }: EventsWrapperProps) {
   const endRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [personaId] = usePersonaId();
-  const { data } = usePersonaEventsQuery(personaId, {
+  const { data } = usePersonaVersionsQuery(personaId, {
     revalidateIfStale: false,
   });
 
@@ -88,39 +89,39 @@ function EventsWrapper({ children }: EventsWrapperProps) {
 
 function Events() {
   const [personaId] = usePersonaId();
-  const { data, isLoading } = usePersonaEventsQuery(personaId, {
+  const { data, isLoading } = usePersonaVersionsQuery(personaId, {
     revalidateIfStale: false,
   });
 
   if (isLoading) return <SpinnerIcon className="animate-spinner-linear-spin" />;
 
   return data?.length
-    ? data.map((event) => <Event key={event.id} event={event} />)
+    ? data.map((version) => <Event key={version.id} version={version} />)
     : null;
 }
 
 type EventProps = {
-  event: PublicPersonaEventWithVersion;
+  version: PublicPersonaVersion;
 };
 
-function Event({ event }: EventProps) {
+function Event({ version }: EventProps) {
   return (
     <div className="flex flex-col gap-6 shrink-0">
       <EventMessage
-        content={event.userMessage ?? ""}
-        createdAt={event.createdAt}
+        content={version.metadata?.userMessage ?? "-"}
+        createdAt={version.createdAt}
       />
 
       <div className="self-start w-auto flex flex-col gap-0.5">
-        <EventPersonaVersion version={event.version} />
-        <EventAiNote content={event.aiNote} />
+        <EventPersonaVersion version={version} />
+        <EventAiNote content={version.metadata?.aiNote} />
       </div>
     </div>
   );
 }
 
 type EventPersonaVersionProps = {
-  version: PublicPersonaEventWithVersion["version"];
+  version: PublicPersonaVersion;
 };
 
 function EventPersonaVersion({ version }: EventPersonaVersionProps) {
@@ -189,16 +190,18 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
   const [personaId] = usePersonaId();
   const personaGenerationStore = usePersonaGenerationStore();
   const mutateCurrentVersion = usePersonaVersionMutation(personaId);
-  const mutatePersonaEvents = usePersonaEventsMutation(personaId!);
-  const mutatePersona = usePersonaMutation(personaId!);
   const [, setWorkbenchMode] = useWorkbenchMode();
   const mutateBalance = useTokensBalanceMutation();
   const toast = useToast();
   const { mutate: swrMutate } = useSWRConfig();
-  const { data: currentVersion } = usePersonaVersionQuery(personaId, "current", {
-    revalidateIfStale: false,
-    revalidateOnFocus: false,
-  });
+  const { data: currentVersion } = usePersonaVersionQuery(
+    personaId,
+    "current",
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+    }
+  );
 
   const handleClick = async () => {
     if (!personaId) return;
@@ -215,13 +218,10 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
       mutateBalance(() => response.balance);
     }
 
-    const promptNow = prompt;
-
     personaGenerationStore.stream(response.object!, {
       onData: (data) => {
         mutateCurrentVersion((state) => {
-          const base =
-            state ??
+          const base = state ??
             (currentVersion as any) ?? {
               id: "",
               personaId: personaId!,
@@ -241,43 +241,15 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
           };
         });
       },
-      onFinish: (data) => {
+      onFinish: () => {
         toast.add({
           title: "Finished generating version",
         });
 
-        mutatePersonaEvents(
-          (state) => {
-            if (!state) return [];
-
-            return [
-              ...state,
-              {
-                aiNote: "",
-                errorMessage: null,
-                createdAt: new Date(),
-                id: response.personaEventId!,
-                personaId: personaId,
-                tokensCost: 1,
-                type: "persona_edit",
-                userMessage: promptNow,
-                versionId: "",
-                version: {
-                  id: "",
-                  versionNumber: 0,
-                  title: "",
-                },
-              },
-            ];
-          },
-          {
-            revalidate: true,
-          }
-        );
-
-        // Revalidate current version to fetch the persisted server-side version
+        // Revalidate current version and versions list to fetch the persisted server-side version
         if (personaId) {
           swrMutate(`/api/personas/${personaId}/versions/current`);
+          swrMutate(`/api/personas/${personaId}/versions`);
         }
       },
     });
@@ -305,7 +277,9 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
             </Badge>
           </PromptInputTools>
           <PromptInputSubmit
-            status={personaGenerationStore.isGenerating ? "submitted" : undefined}
+            status={
+              personaGenerationStore.isGenerating ? "submitted" : undefined
+            }
             size="icon"
             disabled={!prompt.trim() || personaGenerationStore.isGenerating}
             className="size-10 shadow-none transition duration-250 hover:scale-110 bg-gradient-to-tr from-zinc-100 to-zinc-100/70 hover:to-zinc-100/80 text-sm text-zinc-600"

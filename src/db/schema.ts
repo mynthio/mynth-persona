@@ -50,21 +50,13 @@ export const personaVersions = pgTable("persona_versions", {
   versionNumber: integer("version_number").notNull(), // For ordering and display
   data: jsonb("data").notNull(), // Generated persona JSON data - now includes summary, optional occupation, and extensions array
   roleplayData: jsonb("roleplay_data"), // Roleplay data with appearance and summary fields
-  changedProperties: text("changed_properties").array(),
   aiModel: varchar("ai_model", { length: 255 }).notNull(), // AI model used
   settings: jsonb("settings"), // Generation settings
+  metadata: jsonb("metadata"), // Additional generation info (aiNote, userMessage, tokensCost, etc.)
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // Enums for better type safety
-export const personaEventTypeEnum = pgEnum("persona_event_type_enum", [
-  "persona_create",
-  "persona_edit",
-  "image_generate",
-  "persona_revert",
-  "persona_clone",
-]);
-
 export const imageGenerationStatusEnum = pgEnum(
   "image_generation_status_enum",
   ["pending", "processing", "completed", "failed"]
@@ -137,29 +129,7 @@ export const messages = pgTable(
   ]
 );
 
-// Events table - pure chat/interaction timeline
-export const personaEvents = pgTable(
-  "persona_events",
-  {
-    id: text("id").primaryKey(),
-    personaId: text("persona_id")
-      .notNull()
-      .references(() => personas.id, { onDelete: "cascade" }),
-    userId: varchar("user_id", { length: 255 })
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    type: personaEventTypeEnum("type").notNull(), // 'generation', 'edit', 'image', 'revert'
-    versionId: text("version_id").references(() => personaVersions.id, {
-      onDelete: "cascade",
-    }), // Link to version (only for generation/edit)
-    userMessage: text("user_message"), // User's input message
-    errorMessage: text("error_message"), // Error message if generation failed
-    aiNote: text("ai_note"), // AI's note/response for chat display
-    tokensCost: integer("tokens_cost").notNull().default(0), // Tokens spent on this operation
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-  },
-  (t) => [index("persona_events_persona_id_idx").on(t.personaId)]
-);
+
 
 // Image generations table - tracks the AI generation process/request
 export const imageGenerations = pgTable("image_generations", {
@@ -228,7 +198,6 @@ export const tokenTransactions = pgTable("token_transactions", {
 // Relations for better querying
 export const usersRelations = relations(users, ({ one, many }) => ({
   personas: many(personas),
-  events: many(personaEvents),
   tokens: one(userTokens),
   tokenTransactions: many(tokenTransactions),
   chats: many(chats),
@@ -244,7 +213,6 @@ export const personasRelations = relations(personas, ({ one, many }) => ({
     references: [personaVersions.id],
   }),
   versions: many(personaVersions),
-  events: many(personaEvents),
   imageGenerations: many(imageGenerations),
   images: many(images),
   chatPersonas: many(chatPersonas),
@@ -261,7 +229,6 @@ export const personaVersionsRelations = relations(
       fields: [personaVersions.personaId],
       references: [personas.id],
     }),
-    events: many(personaEvents),
     chatPersonas: many(chatPersonas),
   })
 );
@@ -303,23 +270,7 @@ export const messagesRelations = relations(messages, ({ one, many }) => ({
   images: many(images),
 }));
 
-export const personaEventsRelations = relations(
-  personaEvents,
-  ({ one, many }) => ({
-    persona: one(personas, {
-      fields: [personaEvents.personaId],
-      references: [personas.id],
-    }),
-    user: one(users, {
-      fields: [personaEvents.userId],
-      references: [users.id],
-    }),
-    version: one(personaVersions, {
-      fields: [personaEvents.versionId],
-      references: [personaVersions.id],
-    }),
-  })
-);
+
 
 export const imageGenerationsRelations = relations(
   imageGenerations,

@@ -7,9 +7,8 @@ import { auth } from "@clerk/nextjs/server";
 import { createPersonaVersion } from "@/services/persona/create-persona-version";
 import { spendTokens } from "@/services/token/token-manager.service";
 import { db } from "@/db/drizzle";
-import { personas, personaEvents, userTokens } from "@/db/schema";
+import { personas, userTokens } from "@/db/schema";
 import { and, eq, sql } from "drizzle-orm";
-import { nanoid } from "nanoid";
 import { PersonaData } from "@/types/persona.type";
 import logsnag from "@/lib/logsnag";
 import { snakeCase } from "case-anything";
@@ -155,7 +154,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
       success: false,
       error: "PERSONA_NOT_FOUND",
       message: "Persona not found or has no current version",
-    };
+    } as const;
   }
 
   // Check and deduct tokens for persona enhancement
@@ -167,7 +166,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
       success: false,
       error: "INSUFFICIENT_TOKENS",
       message: tokenResult.error || "Insufficient tokens",
-    };
+    } as const;
   }
 
   userLogger.debug(
@@ -178,17 +177,6 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
     },
     "Tokens deducted for persona enhancement"
   );
-
-  // Create persona event first
-  const personaEventId = `pev_${nanoid()}`;
-  await db.insert(personaEvents).values({
-    id: personaEventId,
-    personaId,
-    userId,
-    type: "persona_edit",
-    userMessage: prompt,
-    tokensCost: tokenCost,
-  });
 
   const stream = createStreamableValue();
 
@@ -307,17 +295,13 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
         await createPersonaVersion({
           aiModel: model.modelId,
           personaId,
-          personaEventId,
           title: object.object.title ?? persona.title ?? undefined,
           data: mergedData,
           aiNote: object.object?.note_for_user ?? undefined,
-          changedProperties,
+          userMessage: prompt,
         });
 
-        userLogger.debug(
-          { mergedData, personaEventId },
-          "Persona enhancement completed"
-        );
+        userLogger.debug({ mergedData }, "Persona enhancement completed");
 
         await logsnag
           .track({
@@ -335,13 +319,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
         console.error(error);
         userLogger.error({ error }, "Error enhancing persona");
 
-        await db
-          .update(personaEvents)
-          .set({
-            errorMessage: "Something went wrong while enhancing persona",
-          })
-          .where(eq(personaEvents.id, personaEventId));
-
+        // Refund tokens on error
         await db.update(userTokens).set({
           balance: sql`balance + ${tokenCost}`,
         });
@@ -410,7 +388,6 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
     success: true,
     object: stream.value,
     personaId,
-    personaEventId,
     tokensUsed: tokenResult.tokensUsed,
     remainingBalance: tokenResult.remainingBalance,
     remainingDailyTokens: tokenResult.remainingDailyTokens,
@@ -422,5 +399,5 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
       dailyTokensUsed: DAILY_FREE_TOKENS - tokenResult.remainingDailyTokens,
       balance: tokenResult.remainingBalance + tokenResult.remainingDailyTokens,
     },
-  };
+  } as const;
 }

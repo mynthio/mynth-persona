@@ -51,7 +51,7 @@ export const getPersonaWithCurrentVersion = async (
   const { currentVersion, ...persona } = maybePersona;
 
   return {
-    ...persona,
+    ...(persona as any),
     version: currentVersion as PersonaVersion,
   };
 };
@@ -91,7 +91,7 @@ export const getPersonaWithSpecificVersion = async (
   const { versions, ...persona } = maybePersona;
 
   return {
-    ...persona,
+    ...(persona as any),
     version: versions[0] as PersonaVersion,
   };
 };

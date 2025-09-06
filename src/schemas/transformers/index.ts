@@ -2,11 +2,8 @@
 export {
   transformToPublicPersona,
   transformToPublicPersonaVersion,
+  transformToPublicPersonaListItem,
 } from "./persona.transformer";
-export {
-  transformToPublicPersonaEvent,
-  transformToPublicPersonaEvents,
-} from "./persona-event.transformer";
 export {
   transformToPublicPersonaImage,
   transformToPublicPersonaImages,

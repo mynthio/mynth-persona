@@ -5,7 +5,7 @@ import "server-only";
 import { tasks } from "@trigger.dev/sdk";
 import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import {
   spendTokens,
   spendPurchasedTokensOnly,
@@ -43,7 +43,11 @@ export const generatePersonaImage = async (
   }
 
   const persona = await db.query.personas.findFirst({
-    where: and(eq(personas.id, personaId), eq(personas.userId, userId)),
+    where: and(
+      eq(personas.id, personaId),
+      eq(personas.userId, userId),
+      ne(personas.visibility, "deleted")
+    ),
     with: {
       currentVersion: true,
     },

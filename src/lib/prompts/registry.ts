@@ -3,6 +3,8 @@ import { roleplayV1 } from "./templates/roleplay/system.chat.roleplay.v1";
 import { storyV1 } from "./templates/story/system.chat.story.v1";
 import { personaGenerateV1 } from "./templates/persona/system.persona.generate.v1";
 import { personaEnhanceV1 } from "./templates/persona/system.persona.enhance.v1";
+import { personaPublishV1 } from "./templates/persona/system.persona.publish.v1";
+import { personaPublishPromptV1 } from "./templates/persona/prompt.persona.publish.v1";
 import { imagePersonaV1 } from "./templates/image/system.image.persona.v1";
 import { imagePersonaPromptV1 } from "./templates/image/prompt.image.persona.v1";
 import {
@@ -15,6 +17,8 @@ import {
   PromptDefinitionStory,
   PromptDefinitionPersonaGenerate,
   PromptDefinitionPersonaEnhance,
+  PromptDefinitionPersonaPublish,
+  PromptDefinitionPromptPersonaPublish,
   PromptDefinitionImagePersona,
   PromptDefinitionPromptImagePersona,
   SystemPromptIdForChat,
@@ -30,6 +34,8 @@ const PROMPTS = {
   [roleplayV1.id]: roleplayV1,
   [personaGenerateV1.id]: personaGenerateV1,
   [personaEnhanceV1.id]: personaEnhanceV1,
+  [personaPublishV1.id]: personaPublishV1,
+  [personaPublishPromptV1.id]: personaPublishPromptV1,
   [imagePersonaV1.id]: imagePersonaV1,
   [imagePersonaPromptV1.id]: imagePersonaPromptV1,
 } as const satisfies Partial<Record<PromptId, PromptDefinition>>;
@@ -56,6 +62,7 @@ export const DEFAULT_SYSTEM_PROMPTS_BY_USE_CASE: DefaultSystemPromptMapByUseCase
     persona: {
       generate: personaGenerateV1.id,
       enhance: personaEnhanceV1.id,
+      publish: personaPublishV1.id,
     },
     image: {
       persona: imagePersonaV1.id,
@@ -64,7 +71,9 @@ export const DEFAULT_SYSTEM_PROMPTS_BY_USE_CASE: DefaultSystemPromptMapByUseCase
 
 export const DEFAULT_PROMPTS_BY_USE_CASE: DefaultUserPromptMapByUseCase = {
   chat: {}, // currently no non-system chat prompts
-  persona: {}, // currently no non-system persona prompts
+  persona: {
+    publish: personaPublishPromptV1.id,
+  },
   image: {
     persona: imagePersonaPromptV1.id,
   },
@@ -92,6 +101,10 @@ export function getDefaultSystemPromptDefinitionForMode(
   mode: "enhance"
 ): PromptDefinitionPersonaEnhance;
 export function getDefaultSystemPromptDefinitionForMode(
+  useCase: "persona",
+  mode: "publish"
+): PromptDefinitionPersonaPublish;
+export function getDefaultSystemPromptDefinitionForMode(
   useCase: "image",
   mode: "persona"
 ): PromptDefinitionImagePersona;
@@ -109,6 +122,10 @@ export function getDefaultSystemPromptDefinitionForMode(
 }
 
 // User (non-system) defaults
+export function getDefaultUserPromptDefinitionForMode(
+  useCase: "persona",
+  mode: "publish"
+): PromptDefinitionPromptPersonaPublish;
 export function getDefaultUserPromptDefinitionForMode(
   useCase: "image",
   mode: "persona"
@@ -141,6 +158,10 @@ export function getDefaultPromptDefinitionForMode(
   useCase: "persona",
   mode: "enhance"
 ): PromptDefinitionPersonaEnhance;
+export function getDefaultPromptDefinitionForMode(
+  useCase: "persona",
+  mode: "publish"
+): PromptDefinitionPersonaPublish;
 export function getDefaultPromptDefinitionForMode(
   useCase: "image",
   mode: "persona"

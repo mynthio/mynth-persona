@@ -1,10 +1,9 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { personaEvents, personas, personaVersions } from "@/db/schema";
+import { personas, personaVersions } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { and, eq } from "drizzle-orm";
-import { nanoid } from "nanoid";
 import "server-only";
 
 export async function setPersonaCurrentVersion(
@@ -46,25 +45,16 @@ export async function setPersonaCurrentVersion(
   }
 
   /**
-   * Now we will set the current version for persona adding a new event and settign active version
+   * Set the current version for persona by updating the active version
    */
 
   await db.transaction(async (tx) => {
-    const updateResult = await tx
+    await tx
       .update(personas)
       .set({
         currentVersionId: versionId,
       })
       .where(and(eq(personas.id, personaId), eq(personas.userId, userId)));
-
-    await tx.insert(personaEvents).values({
-      id: `pse_${nanoid()}`,
-      personaId,
-      userId,
-      type: "persona_revert",
-      userMessage: `Revert to ${maybeVersion.versionNumber} version`,
-      versionId: maybeVersion.id,
-    });
   });
 
   return {

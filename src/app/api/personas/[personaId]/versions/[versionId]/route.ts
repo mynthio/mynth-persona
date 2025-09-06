@@ -2,7 +2,7 @@ import { db } from "@/db/drizzle";
 import { personas, personaVersions } from "@/db/schema";
 import { transformToPublicPersonaVersion } from "@/schemas/transformers";
 import { auth } from "@clerk/nextjs/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 
 export async function GET(
   _request: Request,
@@ -21,7 +21,7 @@ export async function GET(
   if (versionId === "current") {
     // Get the current version of the persona
     const persona = await db.query.personas.findFirst({
-      where: eq(personas.id, personaId),
+      where: and(eq(personas.id, personaId), ne(personas.visibility, "deleted")),
       columns: {
         userId: true,
         currentVersionId: true,

@@ -30,7 +30,7 @@ import Link from "next/link";
 import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
-import { and, desc, eq, isNotNull } from "drizzle-orm";
+import { and, desc, eq, isNotNull, ne } from "drizzle-orm";
 import { Suspense } from "react";
 import { TokensBalance } from "./tokens-balance";
 import { AppSidebarHeader } from "./app-sidebar-header";
@@ -164,7 +164,8 @@ async function RecentPersonas() {
   const projects = await db.query.personas.findMany({
     where: and(
       eq(personas.userId, userId),
-      isNotNull(personas.currentVersionId)
+      isNotNull(personas.currentVersionId),
+      ne(personas.visibility, "deleted")
     ),
     orderBy: desc(personas.createdAt),
     limit: 5,

@@ -5,7 +5,7 @@ import "server-only";
 import { db } from "@/db/drizzle";
 import { chatPersonas, chats, personas, personaVersions } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
 import { generateObject } from "ai";
 import { z } from "zod/v4";
@@ -34,7 +34,11 @@ export const createChat = async (
   }
 
   const persona = await db.query.personas.findFirst({
-    where: and(eq(personas.id, personaId), eq(personas.userId, userId)),
+    where: and(
+      eq(personas.id, personaId),
+      eq(personas.userId, userId),
+      ne(personas.visibility, "deleted")
+    ),
 
     columns: {
       id: true,

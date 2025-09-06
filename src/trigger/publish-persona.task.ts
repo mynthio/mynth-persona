@@ -1,0 +1,282 @@
+import { db } from "@/db/drizzle";
+import { personas, personaVersions, personaTags, tags } from "@/db/schema";
+import { and, eq, ne } from "drizzle-orm";
+import { schemaTask } from "@trigger.dev/sdk";
+import { z } from "zod";
+import { customAlphabet } from "nanoid";
+import slugify from "slugify";
+
+import { logAiSdkUsage, logger } from "@/lib/logger";
+import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
+import { generateObject } from "ai";
+import {
+  getDefaultPromptDefinitionForMode,
+  getDefaultUserPromptDefinitionForMode,
+} from "@/lib/prompts/registry";
+import { personaDataSchema } from "@/schemas";
+
+const PublishPersonaPayloadSchema = z.object({
+  personaId: z.string(),
+  versionId: z.string(),
+  userId: z.string(),
+  force: z
+    .boolean()
+    .default(false)
+    .describe("Force update of published version"),
+});
+
+// Known predefined tags (kept in sync with scripts/seed-tags.ts)
+const KNOWN_TAGS = new Set<string>([
+  // appearance
+  "blue-eyes",
+  "green-eyes",
+  "brown-eyes",
+  "hazel-eyes",
+  "long-hair",
+  "short-hair",
+  "blonde-hair",
+  "brunette",
+  "redhead",
+  "pale-skin",
+  "tan-skin",
+  "dark-skin",
+  // physical
+  "slim",
+  "fit",
+  "curvy",
+  "petite",
+  "tall",
+  "athletic",
+  // age
+  "young",
+  "mature",
+  "teen",
+  "adult",
+  "middle-aged",
+  // personality
+  "sweet",
+  "confident",
+  "shy",
+  "outgoing",
+  "mysterious",
+  "playful",
+  "serious",
+  "caring",
+  "independent",
+  "annoying",
+  // style
+  "sexy",
+  "cute",
+  "elegant",
+  "casual",
+  "gothic",
+  "dark",
+  "romantic",
+  "adventurous",
+  "intellectual",
+  // other
+  "fantasy",
+  "modern",
+  "historical",
+  "sci-fi",
+  "professional",
+  "student",
+  "artist",
+]);
+
+export const publishPersonaTask = schemaTask({
+  id: "publish-persona",
+  maxDuration: 300,
+  retry: { maxAttempts: 1 },
+  schema: PublishPersonaPayloadSchema,
+  run: async (payload, { ctx }) => {
+    const { personaId, versionId, userId, force } = payload;
+
+    const { persona, version } = await db.query.personas
+      .findFirst({
+        where: and(
+          eq(personas.id, personaId),
+          eq(personas.userId, userId),
+          ne(personas.visibility, "deleted")
+        ),
+        columns: {
+          id: true,
+          visibility: true,
+          userId: true,
+        },
+        with: {
+          versions: {
+            where: eq(personaVersions.id, versionId),
+            limit: 1,
+            columns: {
+              id: true,
+              data: true,
+            },
+          },
+        },
+      })
+      .then((res) => {
+        logger.debug({
+          persona: res,
+        });
+        return {
+          persona: res,
+          version: res?.versions?.[0],
+        };
+      });
+
+    if (!persona || !version) {
+      throw new Error("Persona or version not found");
+    }
+
+    if (persona.visibility === "deleted") {
+      throw new Error("Persona is deleted");
+    }
+
+    if (!force && persona.visibility === "public") {
+      throw new Error("Persona is already public");
+    }
+
+    const personaData = personaDataSchema.parse(version.data);
+
+    const system = getDefaultPromptDefinitionForMode(
+      "persona",
+      "publish"
+    ).render();
+
+    // Fetch user-level prompt (first non-system default) and render it
+    const prompt = getDefaultUserPromptDefinitionForMode(
+      "persona",
+      "publish"
+    ).render({
+      persona: personaData,
+    });
+
+    const openrouter = getOpenRouter();
+    const model = openrouter("openai/gpt-5-mini");
+
+    const promptResult = await generateObject({
+      schema: z.object({
+        allow: z.boolean().describe("Allow the persona to be published"),
+        headline: z
+          .string()
+          .describe("Headline, one sentence, something catchy and engaging"),
+        nsfwRating: z.enum(["sfw", "suggestive", "explicit"]),
+        gender: z.enum(["male", "female", "other"]),
+        ageBucket: z.enum([
+          "unknown",
+          "0-5",
+          "6-12",
+          "13-17",
+          "18-24",
+          "25-34",
+          "35-44",
+          "45-54",
+          "55-64",
+          "65-plus",
+        ]),
+        tags: z
+          .array(
+            z.object({
+              tag: z.string(),
+              category: z.enum([
+                "appearance",
+                "personality",
+                "physical",
+                "age",
+                "style",
+                "other",
+              ]),
+            })
+          )
+          .describe(
+            "Prefer known general tags (see system prompt); lowercase; hyphens allowed. Use the predefined tags when they fit; you may add additional custom tags if a relevant concept isn’t covered by the known list. Add as many relevant tags as needed and place each under the best-fitting category. Avoid duplicates."
+          ),
+      }),
+      model,
+      system,
+      prompt,
+    });
+
+    logAiSdkUsage(promptResult, {
+      component: "generation:text:complete",
+      useCase: "scene_image_prompt_generation",
+    });
+
+    // Create a stable slug: slugify the text parts, then append a lowercase alphanumeric ID
+    const baseSlug = slugify(
+      `${personaData.name}-${promptResult.object.headline}`,
+      {
+        lower: true,
+        strict: true,
+      }
+    );
+    const genId = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 10);
+    const slug = `${baseSlug}-${genId()}`;
+
+    logger.debug({
+      result: promptResult.object,
+      slug,
+    });
+
+    const resultTags = promptResult.object.tags;
+
+    // Insert into DB
+    await db.transaction(async (tx) => {
+      if (resultTags.length === 0) return;
+
+      // Dedupe on name just in case
+      const byName = new Map<string, (typeof resultTags)[number]>();
+      resultTags.forEach((t, i) => {
+        if (!byName.has(t.tag)) byName.set(t.tag, { ...t, _sort: i } as any);
+      });
+      const uniqueTags = Array.from(byName.values());
+
+      await tx
+        .insert(tags)
+        .values(
+          uniqueTags.map((t: any) => ({
+            id: t.tag, // if your PK is the name
+            name: t.tag,
+            category: t.category,
+            isVisible: false,
+          }))
+        )
+        .onConflictDoNothing({ target: tags.name });
+
+      await tx
+        .insert(personaTags)
+        .values(
+          uniqueTags.map((t: any) => ({
+            personaId,
+            tagId: t.tag,
+            confidence: 50,
+          }))
+        )
+        .onConflictDoNothing({
+          target: [personaTags.personaId, personaTags.tagId],
+        });
+
+      await tx
+        .update(personas)
+        .set({
+          visibility: "public",
+          ageBucket: promptResult.object.ageBucket,
+          headline: promptResult.object.headline,
+          nsfwRating: promptResult.object.nsfwRating,
+          slug,
+          publicName: personaData.name,
+          publicVersionId: versionId,
+          gender: promptResult.object.gender,
+          publishedAt: new Date(),
+
+          lastPublishAttempt: {
+            status: "success",
+            attemptedAt: new Date().toISOString(),
+            runId: ctx.run.id,
+          },
+        })
+        .where(eq(personas.id, personaId));
+    });
+  },
+});

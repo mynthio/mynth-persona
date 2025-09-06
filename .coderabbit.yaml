@@ -1,0 +1,6 @@
+# CodeRabbit configuration
+reviews:
+  # Exclude the following paths from code review
+  path_filters:
+    - "!migrations/**"
+    - "!src/components/ai-elements/**"

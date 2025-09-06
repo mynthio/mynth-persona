@@ -155,7 +155,7 @@ export function ChatInner() {
   }, [branchesCtx.branchId]);
 
   useEffect(() => {
-    if (!chatId || !previousChatId) return;
+    if (!chatId) return;
 
     const abortController = new AbortController();
     setIsLoadingChat(true);

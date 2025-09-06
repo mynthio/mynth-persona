@@ -13,12 +13,68 @@ import {
   unique,
   AnyPgColumn,
   primaryKey,
+  smallint,
+  check,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
+
+// Enums for better type safety
+export const imageGenerationStatusEnum = pgEnum(
+  "image_generation_status_enum",
+  ["pending", "processing", "completed", "failed"]
+);
+
+export const transactionTypeEnum = pgEnum("transaction_type_enum", [
+  "purchase",
+  "refund",
+]);
+
+export const chatModeEnum = pgEnum("chat_mode_enum", ["roleplay", "story"]);
+
+// New enums for public personas
+export const personaVisibilityEnum = pgEnum("persona_visibility", [
+  "private",
+  "public",
+  "deleted",
+]);
+
+export const nsfwRatingEnum = pgEnum("nsfw_rating", [
+  "sfw",
+  "suggestive",
+  "explicit",
+]);
+
+export const personaGenderEnum = pgEnum("persona_gender", [
+  "female",
+  "male",
+  "other",
+]);
+
+export const personaAgeBucketEnum = pgEnum("persona_age_bucket", [
+  "unknown",
+  "0-5",
+  "6-12",
+  "13-17",
+  "18-24",
+  "25-34",
+  "35-44",
+  "45-54",
+  "55-64",
+  "65-plus",
+]);
+
+export const tagCategoryEnum = pgEnum("tag_category", [
+  "appearance",
+  "personality",
+  "physical",
+  "age",
+  "style",
+  "other",
+]);
 
 // Users table - references Clerk auth
 export const users = pgTable("users", {
-  id: varchar("id", { length: 255 }).primaryKey(), // Use Clerk user ID directly
+  id: varchar("id", { length: 255 }).primaryKey(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -34,10 +90,31 @@ export const personas = pgTable(
     title: text("title"),
     currentVersionId: text("current_version_id"),
     profileImageId: text("profile_image_id"),
+    // Public publishing fields (MVP)
+    visibility: personaVisibilityEnum("visibility")
+      .notNull()
+      .default("private"),
+    publicVersionId: text("public_version_id"),
+    nsfwRating: nsfwRatingEnum("nsfw_rating").notNull().default("sfw"),
+    gender: personaGenderEnum("gender").notNull().default("other"),
+    headline: text("headline"),
+    publicName: varchar("public_name", { length: 100 }),
+    ageBucket: personaAgeBucketEnum("age_bucket").notNull().default("unknown"),
+    likesCount: integer("likes_count").notNull().default(0),
+    publishedAt: timestamp("published_at"),
+    deletedAt: timestamp("deleted_at"),
+    slug: varchar("slug", { length: 200 }),
+    lastPublishAttempt: jsonb("last_publish_attempt"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (t) => [index("personas_user_id_idx").on(t.userId)]
+  (t) => [
+    index("personas_user_id_idx").on(t.userId),
+    index("personas_visibility_idx").on(t.visibility),
+    index("personas_nsfw_rating_idx").on(t.nsfwRating),
+    index("personas_gender_idx").on(t.gender),
+    unique("personas_slug_unique").on(t.slug),
+  ]
 );
 
 // Persona versions - actual persona data and versions
@@ -50,32 +127,11 @@ export const personaVersions = pgTable("persona_versions", {
   versionNumber: integer("version_number").notNull(), // For ordering and display
   data: jsonb("data").notNull(), // Generated persona JSON data - now includes summary, optional occupation, and extensions array
   roleplayData: jsonb("roleplay_data"), // Roleplay data with appearance and summary fields
-  changedProperties: text("changed_properties").array(),
   aiModel: varchar("ai_model", { length: 255 }).notNull(), // AI model used
   settings: jsonb("settings"), // Generation settings
+  metadata: jsonb("metadata"), // Additional generation info (aiNote, userMessage, tokensCost, etc.)
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
-
-// Enums for better type safety
-export const personaEventTypeEnum = pgEnum("persona_event_type_enum", [
-  "persona_create",
-  "persona_edit",
-  "image_generate",
-  "persona_revert",
-  "persona_clone",
-]);
-
-export const imageGenerationStatusEnum = pgEnum(
-  "image_generation_status_enum",
-  ["pending", "processing", "completed", "failed"]
-);
-
-export const transactionTypeEnum = pgEnum("transaction_type_enum", [
-  "purchase",
-  "refund",
-]);
-
-export const chatModeEnum = pgEnum("chat_mode_enum", ["roleplay", "story"]);
 
 // Chats table - chat sessions
 export const chats = pgTable(
@@ -137,30 +193,6 @@ export const messages = pgTable(
   ]
 );
 
-// Events table - pure chat/interaction timeline
-export const personaEvents = pgTable(
-  "persona_events",
-  {
-    id: text("id").primaryKey(),
-    personaId: text("persona_id")
-      .notNull()
-      .references(() => personas.id, { onDelete: "cascade" }),
-    userId: varchar("user_id", { length: 255 })
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    type: personaEventTypeEnum("type").notNull(), // 'generation', 'edit', 'image', 'revert'
-    versionId: text("version_id").references(() => personaVersions.id, {
-      onDelete: "cascade",
-    }), // Link to version (only for generation/edit)
-    userMessage: text("user_message"), // User's input message
-    errorMessage: text("error_message"), // Error message if generation failed
-    aiNote: text("ai_note"), // AI's note/response for chat display
-    tokensCost: integer("tokens_cost").notNull().default(0), // Tokens spent on this operation
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-  },
-  (t) => [index("persona_events_persona_id_idx").on(t.personaId)]
-);
-
 // Image generations table - tracks the AI generation process/request
 export const imageGenerations = pgTable("image_generations", {
   id: text("id").primaryKey(),
@@ -198,6 +230,42 @@ export const images = pgTable("images", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Tags table - predefined tags for personas
+export const tags = pgTable(
+  "tags",
+  {
+    id: text("id").primaryKey(),
+    name: varchar("name", { length: 50 }).notNull(),
+    category: tagCategoryEnum("category").notNull(),
+    isVisible: boolean("is_visible").notNull().default(true),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [unique("tags_name_unique").on(t.name)]
+);
+
+// Persona-Tags junction with confidence 0-100
+export const personaTags = pgTable(
+  "persona_tags",
+  {
+    personaId: text("persona_id")
+      .notNull()
+      .references(() => personas.id, { onDelete: "cascade" }),
+    tagId: text("tag_id")
+      .notNull()
+      .references(() => tags.id, { onDelete: "cascade" }),
+    confidence: smallint("confidence").notNull().default(100),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.personaId, t.tagId] }),
+    check(
+      "persona_tags_confidence_check",
+      sql`${t.confidence} >= 0 AND ${t.confidence} <= 100`
+    ),
+  ]
+);
+
 // User tokens - current balance and daily usage tracking
 export const userTokens = pgTable("user_tokens", {
   userId: varchar("user_id", { length: 255 })
@@ -228,7 +296,6 @@ export const tokenTransactions = pgTable("token_transactions", {
 // Relations for better querying
 export const usersRelations = relations(users, ({ one, many }) => ({
   personas: many(personas),
-  events: many(personaEvents),
   tokens: one(userTokens),
   tokenTransactions: many(tokenTransactions),
   chats: many(chats),
@@ -243,8 +310,11 @@ export const personasRelations = relations(personas, ({ one, many }) => ({
     fields: [personas.currentVersionId],
     references: [personaVersions.id],
   }),
+  publicVersion: one(personaVersions, {
+    fields: [personas.publicVersionId],
+    references: [personaVersions.id],
+  }),
   versions: many(personaVersions),
-  events: many(personaEvents),
   imageGenerations: many(imageGenerations),
   images: many(images),
   chatPersonas: many(chatPersonas),
@@ -252,6 +322,7 @@ export const personasRelations = relations(personas, ({ one, many }) => ({
     fields: [personas.profileImageId],
     references: [images.id],
   }),
+  personaTags: many(personaTags),
 }));
 
 export const personaVersionsRelations = relations(
@@ -261,7 +332,6 @@ export const personaVersionsRelations = relations(
       fields: [personaVersions.personaId],
       references: [personas.id],
     }),
-    events: many(personaEvents),
     chatPersonas: many(chatPersonas),
   })
 );
@@ -303,24 +373,6 @@ export const messagesRelations = relations(messages, ({ one, many }) => ({
   images: many(images),
 }));
 
-export const personaEventsRelations = relations(
-  personaEvents,
-  ({ one, many }) => ({
-    persona: one(personas, {
-      fields: [personaEvents.personaId],
-      references: [personas.id],
-    }),
-    user: one(users, {
-      fields: [personaEvents.userId],
-      references: [users.id],
-    }),
-    version: one(personaVersions, {
-      fields: [personaEvents.versionId],
-      references: [personaVersions.id],
-    }),
-  })
-);
-
 export const imageGenerationsRelations = relations(
   imageGenerations,
   ({ one, many }) => ({
@@ -348,6 +400,21 @@ export const imagesRelations = relations(images, ({ one }) => ({
   message: one(messages, {
     fields: [images.messageId],
     references: [messages.id],
+  }),
+}));
+
+export const tagsRelations = relations(tags, ({ many }) => ({
+  personaTags: many(personaTags),
+}));
+
+export const personaTagsRelations = relations(personaTags, ({ one }) => ({
+  persona: one(personas, {
+    fields: [personaTags.personaId],
+    references: [personas.id],
+  }),
+  tag: one(tags, {
+    fields: [personaTags.tagId],
+    references: [tags.id],
   }),
 }));
 

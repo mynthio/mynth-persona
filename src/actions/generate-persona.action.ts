@@ -138,7 +138,7 @@ export async function generatePersonaAction(prompt: string) {
     "Tokens deducted for persona generation"
   );
 
-  const { personaId, personaEventId } = await createPersona({
+  const { personaId } = await createPersona({
     userId,
     prompt,
   });
@@ -147,9 +147,9 @@ export async function generatePersonaAction(prompt: string) {
     {
       event: "persona-created",
       component: "actions:generate-persona",
-      attributes: { persona_id: personaId, persona_event_id: personaEventId },
+      attributes: { persona_id: personaId },
     },
-    "Persona created and event created"
+    "Persona created"
   );
 
   const stream = createStreamableValue();
@@ -226,11 +226,11 @@ export async function generatePersonaAction(prompt: string) {
         await createPersonaVersion({
           aiModel: model.modelId,
           personaId,
-          personaEventId,
           title: object.object.title,
           data: formattedPersonaData,
           versionNumber: 1,
           aiNote: object.object?.note_for_user ?? undefined,
+          userMessage: prompt,
         });
 
         await logsnag
@@ -325,7 +325,6 @@ export async function generatePersonaAction(prompt: string) {
     success: true,
     object: stream.value,
     personaId,
-    personaEventId,
     tokensUsed: tokenResult.tokensUsed,
     remainingBalance: tokenResult.remainingBalance,
     remainingDailyTokens: tokenResult.remainingDailyTokens,

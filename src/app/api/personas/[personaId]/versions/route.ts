@@ -2,7 +2,7 @@ import { db } from "@/db/drizzle";
 import { personas, personaVersions } from "@/db/schema";
 import { transformToPublicPersonaVersion } from "@/schemas/transformers";
 import { auth } from "@clerk/nextjs/server";
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq, ne } from "drizzle-orm";
 import "server-only";
 
 export async function GET(
@@ -19,7 +19,7 @@ export async function GET(
 
   // Verify persona ownership
   const persona = await db.query.personas.findFirst({
-    where: eq(personas.id, personaId),
+    where: and(eq(personas.id, personaId), ne(personas.visibility, "deleted")),
     columns: {
       id: true,
       userId: true,

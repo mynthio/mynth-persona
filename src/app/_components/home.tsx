@@ -6,6 +6,12 @@ import WorkbenchContent from "./workbench/workbench-content";
 import WorkbenchSidebar from "./workbench/workbench-sidebar";
 import { usePersonaId } from "@/hooks/use-persona-id.hook";
 import PersonaCreator from "./persona-creator";
+import dynamic from "next/dynamic";
+import { Suspense } from "react";
+
+const PublicPersonas = dynamic(() => import("./public-personas"), {
+  ssr: false,
+});
 
 type HomeProps = {
   persona?: PublicPersona;
@@ -16,7 +22,14 @@ export default function Home(props: HomeProps) {
   const [personaId] = usePersonaId();
 
   if (!personaId) {
-    return <PersonaCreator />;
+    return (
+      <>
+        <PersonaCreator />
+        <Suspense fallback={<div>Loading...</div>}>
+          <PublicPersonas />
+        </Suspense>
+      </>
+    );
   }
 
   return (

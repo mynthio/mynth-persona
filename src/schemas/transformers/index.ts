@@ -2,6 +2,7 @@
 export {
   transformToPublicPersona,
   transformToPublicPersonaVersion,
+  transformToPublicPersonaListItem,
 } from "./persona.transformer";
 export {
   transformToPublicPersonaImage,

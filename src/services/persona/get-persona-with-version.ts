@@ -1,7 +1,7 @@
 import { db } from "@/db/drizzle";
 import { personas, personaVersions } from "@/db/schema";
 import { Persona, PersonaVersion, PersonaWithVersion } from "@/schemas/backend";
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 
 type GetPersonaWithVersionParams = {
   userId: string;
@@ -30,7 +30,11 @@ export const getPersonaWithCurrentVersion = async (
   const { userId, personaId } = params;
 
   const maybePersona = await db.query.personas.findFirst({
-    where: and(eq(personas.id, personaId), eq(personas.userId, userId)),
+    where: and(
+      eq(personas.id, personaId),
+      eq(personas.userId, userId),
+      ne(personas.visibility, "deleted")
+    ),
     with: {
       currentVersion: true,
     },
@@ -64,7 +68,11 @@ export const getPersonaWithSpecificVersion = async (
   const { userId, personaId, versionId } = params;
 
   const maybePersona = await db.query.personas.findFirst({
-    where: and(eq(personas.id, personaId), eq(personas.userId, userId)),
+    where: and(
+      eq(personas.id, personaId),
+      eq(personas.userId, userId),
+      ne(personas.visibility, "deleted")
+    ),
     with: {
       versions: {
         where: eq(personaVersions.id, versionId),

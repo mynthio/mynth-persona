@@ -52,7 +52,7 @@ export default function PersonaStack() {
 
   return (
     <div className="flex flex-col items-center gap-8 mb-12">
-      <div
+      {/* <div
         className="relative"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -99,7 +99,7 @@ export default function PersonaStack() {
             );
           })}
         </div>
-      </div>
+      </div> */}
 
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-semibold text-default-800 flex items-start justify-center">

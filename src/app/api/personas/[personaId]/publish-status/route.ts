@@ -1,8 +1,7 @@
 import { db } from "@/db/drizzle";
-import { images, personas } from "@/db/schema";
-import { transformToPublicPersonaImages } from "@/schemas/transformers";
+import { personas } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
-import { and, desc, eq, ne } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 
 export async function GET(
   _request: Request,
@@ -16,24 +15,28 @@ export async function GET(
 
   const { personaId } = await params;
 
-  // Validate persona ownership
+  // Verify persona ownership and fetch publish-related fields
   const persona = await db.query.personas.findFirst({
     where: and(eq(personas.id, personaId), eq(personas.userId, userId), ne(personas.visibility, "deleted")),
-    columns: { id: true },
+    columns: {
+      id: true,
+      visibility: true,
+      lastPublishAttempt: true,
+      publicVersionId: true,
+      publicName: true,
+      publishedAt: true,
+    },
   });
 
   if (!persona) {
     return new Response("Persona not found", { status: 404 });
   }
 
-  // Fetch images for persona, newest first
-  const personaImages = await db.query.images.findMany({
-    where: eq(images.personaId, personaId),
-    columns: { id: true },
-    orderBy: desc(images.createdAt),
+  return Response.json({
+    visibility: persona.visibility,
+    lastPublishAttempt: persona.lastPublishAttempt ?? null,
+    publicVersionId: persona.publicVersionId ?? null,
+    publicName: persona.publicName ?? null,
+    publishedAt: persona.publishedAt ?? null,
   });
-
-  const publicImages = transformToPublicPersonaImages(personaImages);
-
-  return Response.json(publicImages);
 }

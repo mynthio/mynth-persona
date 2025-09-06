@@ -9,7 +9,7 @@ import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
 import { PersonaData } from "@/types/persona.type";
 import { auth } from "@clerk/nextjs/server";
-import { and, desc, eq, isNotNull } from "drizzle-orm";
+import { and, desc, eq, isNotNull, ne } from "drizzle-orm";
 import Link from "next/link";
 import dayjs from "dayjs";
 
@@ -46,7 +46,8 @@ export default async function LibraryPage({
     },
     where: and(
       eq(personas.userId, userId),
-      isNotNull(personas.currentVersionId)
+      isNotNull(personas.currentVersionId),
+      ne(personas.visibility, "deleted")
     ),
     limit: PERSONAS_PER_PAGE,
     offset: (Number(page) - 1) * PERSONAS_PER_PAGE,

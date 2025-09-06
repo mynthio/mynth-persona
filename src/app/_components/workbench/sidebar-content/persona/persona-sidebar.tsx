@@ -5,6 +5,7 @@ import Creator from "./creator";
 import { useState } from "react";
 import { useWorkbenchPersonaSidebarMode } from "@/hooks/use-workbench-persona-sidebar-mode";
 import { GlobeIcon, SparkleIcon } from "@phosphor-icons/react/dist/ssr";
+import WorkbenchSidebarManage from "./manage";
 
 export default function PersonaSidebar() {
   const [prompt, setPrompt] = useState("");
@@ -23,15 +24,18 @@ export default function PersonaSidebar() {
             <SparkleIcon />
             Creator
           </TabsTrigger>
-          <TabsTrigger value="Publish">
+          <TabsTrigger value="manage">
             <GlobeIcon />
-            Publish
+            Manage
           </TabsTrigger>
         </TabsList>
       </div>
 
       <TabsContent value="creator" className="h-full min-h-0">
         <Creator prompt={prompt} setPrompt={setPrompt} />
+      </TabsContent>
+      <TabsContent value="manage" className="h-full min-h-0">
+        <WorkbenchSidebarManage />
       </TabsContent>
     </Tabs>
   );

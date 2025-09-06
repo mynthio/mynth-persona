@@ -3,7 +3,7 @@ import { chatPersonas, chats, personas } from "@/db/schema";
 import { logger } from "@/lib/logger";
 import { transformToPublicChats } from "@/schemas/transformers";
 import { auth } from "@clerk/nextjs/server";
-import { and, eq, desc } from "drizzle-orm";
+import { and, eq, desc, ne } from "drizzle-orm";
 
 export async function GET(
   _request: Request,
@@ -19,7 +19,7 @@ export async function GET(
 
   // First verify that the persona belongs to the user
   const persona = await db.query.personas.findFirst({
-    where: and(eq(personas.id, personaId), eq(personas.userId, userId)),
+    where: and(eq(personas.id, personaId), eq(personas.userId, userId), ne(personas.visibility, "deleted")),
   });
 
   if (!persona) {

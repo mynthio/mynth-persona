@@ -2,7 +2,7 @@ import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
 import { transformToPublicPersona } from "@/schemas/transformers";
 import { auth } from "@clerk/nextjs/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 
 export async function GET(
   _request: Request,
@@ -17,13 +17,17 @@ export async function GET(
   const { personaId } = await params;
 
   const persona = await db.query.personas.findFirst({
-    where: and(eq(personas.id, personaId), eq(personas.userId, userId)),
+    where: and(
+      eq(personas.id, personaId),
+      eq(personas.userId, userId),
+      ne(personas.visibility, "deleted")
+    ),
   });
 
   if (!persona) {
     return new Response("Persona not found", { status: 404 });
   }
 
-  const publicPersona = transformToPublicPersona(persona);
+  const publicPersona = transformToPublicPersona(persona as any);
   return Response.json(publicPersona);
 }

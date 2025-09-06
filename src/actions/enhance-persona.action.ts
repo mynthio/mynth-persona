@@ -8,7 +8,7 @@ import { createPersonaVersion } from "@/services/persona/create-persona-version"
 import { spendTokens } from "@/services/token/token-manager.service";
 import { db } from "@/db/drizzle";
 import { personas, userTokens } from "@/db/schema";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { PersonaData } from "@/types/persona.type";
 import logsnag from "@/lib/logsnag";
 import { snakeCase } from "case-anything";
@@ -143,7 +143,11 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
 
   // Get persona with current version
   const persona = await db.query.personas.findFirst({
-    where: and(eq(personas.id, personaId), eq(personas.userId, userId)),
+    where: and(
+      eq(personas.id, personaId),
+      eq(personas.userId, userId),
+      ne(personas.visibility, "deleted")
+    ),
     with: {
       currentVersion: true,
     },

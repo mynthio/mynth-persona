@@ -5,3 +5,4 @@ export * from "./user-balance.schema";
 export * from "./chat.schema";
 export * from "./messages/message-branches.schema";
 export * from "./messages/public-message-preview.schema";
+export * from "./persona-public.schema";

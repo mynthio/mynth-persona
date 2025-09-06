@@ -1,7 +1,7 @@
 import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, ne } from "drizzle-orm";
 
 export async function GET(request: Request) {
   const { userId } = await auth();
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   }
 
   const _personas = await db.query.personas.findMany({
-    where: eq(personas.userId, userId),
+    where: and(eq(personas.userId, userId), ne(personas.visibility, "deleted")),
     columns: {
       id: true,
       title: true,

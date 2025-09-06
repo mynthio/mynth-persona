@@ -9,6 +9,8 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const cursorParam = searchParams.get('cursor');
+    const includeNsfwParam = searchParams.get('includeNsfw');
+    const includeNsfw = includeNsfwParam === 'true';
 
     // Parse cursor if provided
     let cursor: { id: string; publishedAt: Date } | undefined;
@@ -27,9 +29,15 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // NSFW filter: if includeNsfw is false, only allow 'sfw'
+    const nsfwCondition = includeNsfw
+      ? undefined
+      : eq(personas.nsfwRating, 'sfw');
+
     // Build where condition
     const whereCondition = and(
       isNotNull(personas.publishedAt),
+      nsfwCondition,
       cursor
         ? or(
             lt(personas.publishedAt, cursor.publishedAt),

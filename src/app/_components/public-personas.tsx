@@ -6,24 +6,85 @@ import { Masonry, useInfiniteLoader } from "masonic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useLocalStorage } from "@uidotdev/usehooks";
 
 export default function PublicPersonas() {
   const [items, setItems] = useState<PublicPersonaListItem[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [includeNsfw, setIncludeNsfw] = useLocalStorage("show-nsfw", false);
   const loadingLock = useRef(false);
+  const includeNsfwRef = useRef(includeNsfw);
+
+  // Update ref when includeNsfw changes
+  useEffect(() => {
+    includeNsfwRef.current = includeNsfw;
+  }, [includeNsfw]);
+
+  const loadInitialPage = useCallback(async () => {
+    if (loadingLock.current) return;
+    
+    loadingLock.current = true;
+    setIsLoading(true);
+    
+    try {
+      const base = "/api/public/personas";
+      const params = new URLSearchParams();
+      
+      if (includeNsfw) {
+        params.set("includeNsfw", "true");
+      }
+      
+      const url = params.toString() ? `${base}?${params.toString()}` : base;
+      const res = await fetch(url);
+      
+      if (!res.ok) {
+        throw new Error(`Failed to load personas: ${res.status}`);
+      }
+      
+      const json: {
+        data: PublicPersonaListItem[];
+        nextCursor: string | null;
+        hasMore: boolean;
+      } = await res.json();
+
+      setItems(json.data);
+      setCursor(json.nextCursor);
+      setHasMore(json.hasMore);
+    } finally {
+      setIsLoading(false);
+      loadingLock.current = false;
+    }
+  }, [includeNsfw]);
 
   const loadPage = useCallback(async () => {
     if (loadingLock.current || !hasMore) return;
+    
     loadingLock.current = true;
     setIsLoading(true);
+    
     try {
-      const url = cursor
-        ? `/api/public/personas?cursor=${encodeURIComponent(cursor)}`
-        : "/api/public/personas";
+      const base = "/api/public/personas";
+      const params = new URLSearchParams();
+      
+      if (cursor) {
+        params.set("cursor", cursor);
+      }
+      
+      if (includeNsfwRef.current) {
+        params.set("includeNsfw", "true");
+      }
+      
+      const url = params.toString() ? `${base}?${params.toString()}` : base;
       const res = await fetch(url);
-      if (!res.ok) throw new Error(`Failed to load personas: ${res.status}`);
+      
+      if (!res.ok) {
+        throw new Error(`Failed to load personas: ${res.status}`);
+      }
+      
       const json: {
         data: PublicPersonaListItem[];
         nextCursor: string | null;
@@ -39,11 +100,15 @@ export default function PublicPersonas() {
     }
   }, [cursor, hasMore]);
 
-  // Initial load
+  // Initial load and reload when includeNsfw changes
   useEffect(() => {
-    loadPage();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    // Reset pagination state whenever filter changes
+    setItems([]);
+    setCursor(null);
+    setHasMore(true);
+    // Load first page
+    loadInitialPage();
+  }, [includeNsfw, loadInitialPage]);
 
   // Setup infinite loader for Masonry
   const maybeLoadMore = useInfiniteLoader(
@@ -69,6 +134,17 @@ export default function PublicPersonas() {
 
   return (
     <div className="p-2 px-6">
+      <div className="flex items-center justify-end gap-3 py-2">
+        <Label htmlFor="nsfw-toggle" className="text-sm text-muted-foreground">
+          Show NSFW
+        </Label>
+        <Switch
+          id="nsfw-toggle"
+          checked={includeNsfw}
+          onCheckedChange={(checked) => setIncludeNsfw(!!checked)}
+        />
+      </div>
+
       <Masonry<PublicPersonaListItem>
         items={items}
         columnGutter={16}

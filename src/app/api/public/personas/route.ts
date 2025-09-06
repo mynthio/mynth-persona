@@ -2,15 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { and, desc, eq, isNotNull, lt, or } from 'drizzle-orm';
 import { db } from '@/db/drizzle';
 import { personas } from '@/db/schema';
+import { logger } from '@/lib/logger';
 
 const PERSONAS_PER_PAGE = 24; // Testing value
 
 export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const cursorParam = searchParams.get('cursor');
+  const includeNsfwParam = searchParams.get('includeNsfw');
+  const includeNsfw = includeNsfwParam === 'true';
+
   try {
-    const { searchParams } = new URL(request.url);
-    const cursorParam = searchParams.get('cursor');
-    const includeNsfwParam = searchParams.get('includeNsfw');
-    const includeNsfw = includeNsfwParam === 'true';
 
     // Parse cursor if provided
     let cursor: { id: string; publishedAt: Date } | undefined;
@@ -88,7 +90,14 @@ export async function GET(request: NextRequest) {
       hasMore,
     });
   } catch (error) {
-    console.error('Error fetching public personas:', error);
+    logger.error({
+      message: 'Error fetching public personas',
+      error: error,
+      route: '/api/public/personas',
+      handler: 'GET',
+      cursor: cursorParam || null,
+      includeNsfw: includeNsfw
+    });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

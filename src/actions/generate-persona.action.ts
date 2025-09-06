@@ -155,8 +155,12 @@ export async function generatePersonaAction(prompt: string) {
   const stream = createStreamableValue();
 
   const openRouter = getOpenRouter();
-  const model = openRouter("mistralai/mistral-medium-3.1", {
-    models: ["openai/gpt-5-mini", "moonshotai/kimi-k2"],
+
+  const mainModelId =
+    Math.random() > 0.5 ? "openai/gpt-5-mini" : "sao10k/l3.3-euryale-70b";
+
+  const model = openRouter(mainModelId, {
+    models: ["moonshotai/kimi-k2"],
   });
 
   (async () => {

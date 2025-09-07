@@ -103,7 +103,7 @@ function Content() {
     workbenchModeToSidebarComponent[workbenchMode as string];
 
   return (
-    <div className="bg-sidebar h-full min-h-0 rounded-lg overflow-hidden">
+    <div className="bg-surface-100 h-full min-h-0 rounded-lg overflow-hidden">
       {SidebarComponent ? <SidebarComponent /> : null}
     </div>
   );

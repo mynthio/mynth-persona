@@ -1,18 +1,26 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Onest, Space_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppRail } from "@/components/app-rail";
+import { cookies } from "next/headers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const onest = Onest({
+  variable: "--font-onest",
   subsets: ["latin"],
+});
+
+const spaceMono = Space_Mono({
+  variable: "--font-space-mono",
+  subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -113,24 +121,30 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
+
   return (
     <html lang="en" className="min-h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-full`}
+        className={`${inter.variable} ${onest.variable} ${spaceMono.variable} antialiased min-h-full`}
       >
         <Providers>
-          <SidebarProvider className="h-full">
-            <AppSidebar />
-            <SidebarTrigger className="md:hidden fixed top-2 left-2 z-10 p-6" />
+          <SidebarProvider defaultOpen={defaultOpen} className="h-full w-full">
+            <AppRail />
 
-            <main className="h-full w-full min-h-screen min-w-0 self-center">
-              {children}
-            </main>
+            <AppSidebar />
+
+            <div className="p-[8px] pl-0 h-full w-full grow-0">
+              <main className="h-full w-full min-h-screen min-w-0 self-center bg-surface border-[2.5px] border-background/80 rounded-[18px] overflow-hidden">
+                {children}
+              </main>
+            </div>
           </SidebarProvider>
         </Providers>
       </body>

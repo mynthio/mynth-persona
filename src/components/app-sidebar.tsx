@@ -3,143 +3,23 @@ import "server-only";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarMenuSkeleton,
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
-  SidebarMenuBadge,
 } from "@/components/ui/sidebar";
-import {
-  BookIcon,
-  CoinsIcon,
-  DiscordLogoIcon,
-  GithubLogoIcon,
-  InfoIcon,
-  MoneyIcon,
-  SparkleIcon,
-} from "@phosphor-icons/react/dist/ssr";
 
 import Link from "next/link";
 import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { and, desc, eq, isNotNull, ne } from "drizzle-orm";
-import { Suspense } from "react";
-import { TokensBalance } from "./tokens-balance";
-import { AppSidebarHeader } from "./app-sidebar-header";
-import { AppSidebarUser } from "./app-sidebar-user";
-import { DISCORD_INVITE_URL, GITHUB_REPO_URL } from "@/lib/constants";
+import { SidebarContentRouter } from "./app-sidebar-content";
 
 export function AppSidebar() {
   return (
-    <Sidebar collapsible="icon">
-      <AppSidebarHeader />
-
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>My Persona</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem key="creator">
-                <SidebarMenuButton asChild>
-                  <Link href="/" prefetch={false}>
-                    <SparkleIcon weight="duotone" />
-                    Generate
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem key="library">
-                <SidebarMenuButton asChild>
-                  <Link href="/library" prefetch={false}>
-                    <BookIcon weight="duotone" />
-                    Library
-                  </Link>
-                </SidebarMenuButton>
-                <Suspense fallback={<RecentPersonasSkeleton />}>
-                  <RecentPersonas />
-                </Suspense>
-              </SidebarMenuItem>
-              <SidebarMenuItem key="tokens">
-                <SidebarMenuButton asChild>
-                  <Link href="/tokens" prefetch={false}>
-                    <CoinsIcon weight="duotone" />
-                    <span>Tokens</span>
-                  </Link>
-                </SidebarMenuButton>
-                <SidebarMenuBadge>
-                  <TokensBalance />
-                </SidebarMenuBadge>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/*
-          A sidebar part with Persona app information 
-        */}
-        <SidebarGroup>
-          <SidebarGroupLabel>More</SidebarGroupLabel>
-
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem key="about">
-                <SidebarMenuButton asChild>
-                  <Link href="/about" prefetch={false}>
-                    <InfoIcon weight="duotone" />
-                    <span>About</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem key="pricing">
-                <SidebarMenuButton asChild>
-                  <Link href="/pricing" prefetch={false}>
-                    <MoneyIcon weight="duotone" />
-                    <span>Pricing</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup className="mt-auto">
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem key="discord">
-                <SidebarMenuButton asChild>
-                  <Link
-                    href={DISCORD_INVITE_URL}
-                    prefetch={false}
-                    target="_blank"
-                  >
-                    <DiscordLogoIcon weight="duotone" />
-                    <span>Discord</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem key="github">
-                <SidebarMenuButton asChild>
-                  <Link href={GITHUB_REPO_URL} prefetch={false} target="_blank">
-                    <GithubLogoIcon weight="duotone" />
-                    <span>GitHub</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter>
-        <AppSidebarUser />
-      </SidebarFooter>
+    <Sidebar collapsible="offcanvas" className="left-[64px]">
+      <SidebarContentRouter />
     </Sidebar>
   );
 }

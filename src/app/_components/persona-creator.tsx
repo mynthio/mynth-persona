@@ -1,17 +1,22 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { TextareaAutosize } from "@/components/ui/textarea";
+import { Textarea, TextareaAutosize } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import usePersonaGenerationStore from "@/stores/persona-generation.store";
-import { CoinsIcon, SparkleIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+  CoinsIcon,
+  QuestionMarkIcon,
+  SparkleIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import { useSWRConfig } from "swr";
 import { generatePersonaAction } from "@/actions/generate-persona.action";
 import { usePersonaId } from "@/hooks/use-persona-id.hook";
 import { PERSONA_SUGGESTIONS } from "@/lib/persona-suggestions";
 import PersonaStack from "./persona-stack";
 import { useTokensBalanceMutation } from "@/app/_queries/use-tokens-balance.query";
+import FloatingOrbs from "@/components/backgrounds/floating-orbs";
 
 const suggestionExamples = PERSONA_SUGGESTIONS;
 
@@ -105,12 +110,49 @@ export default function PersonaCreator() {
   };
 
   return (
-    <div className="bg-background h-full flex items-center">
-      <div className="container mx-auto px-4 py-6 max-w-4xl w-full">
-        <div className="space-y-8 mt-16">
-          {/* Announcement banner: Chats launch */}
+    <div className="h-full flex flex-col items-center justify-center relative overflow-hidden rounded-[18px] min-h-[66vh]">
+      <FloatingOrbs className="absolute left-0 top-0 right-0 z-0" />
+      <div className="flex flex-col justify-center items-center z-10">
+        <h1 className="font-onest text-[4.8rem] leading-[4.6rem] font-[150]">
+          Hi. I’m Persona
+        </h1>
+        <h3 className="font-onest font-[100] text-[1.48rem] mt-[8px] text-[#64646A]/80">
+          Let me help you with your new perfect companion
+        </h3>
+      </div>
 
-          <PersonaStack />
+      <div className="w-full max-w-[720px] flex flex-col items-center justify-center mt-[52px] z-10">
+        <TextareaAutosize
+          minRows={3}
+          placeholder="Kim Impossible, an adult version of Kim Possible"
+          className="bg-surface-100/15 rounded-[22px] py-[16px] px-[22px] ring-0 ring-none focus:ring-none active:ring-none  border-[2px] border-surface-100/30 font-mono placeholder:text-[1.050rem] text-[0.98rem] placeholder:text-[#9998A0]  outline-none focus:shadow-none focus:outline-none focus:border-[#E5E4E8]/80 focus-visible:ring-none focus-visible:outline-none focus-visible:border-[#E5E4E8]/80 active:border-[#E5E4E8]/80"
+        />
+
+        <div className="flex items-center justify-between w-full mt-[24px]">
+          <button
+            type="button"
+            className="text-foreground/50 font-onest text-[0.96rem] flex items-center gap-[12px] h-[52px] px-[24px]"
+          >
+            How to
+            <QuestionMarkIcon size={16} />
+          </button>
+
+          <button
+            type="button"
+            className="font-onest font-bold flex items-center gap-[12px] text-[1.05rem] h-[52px] px-[24px]"
+          >
+            Generate
+            <SparkleIcon weight="bold" size={20} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* <div className="container mx-auto px-4 py-6 max-w-4xl w-full">
+        <div className="space-y-8 mt-16">
+          
 
           <Card className="flex flex-col gap-3 max-w-3xl mx-auto p-3 w-full border border-zinc-200 rounded-3xl shadow-none">
             <TextareaAutosize
@@ -144,7 +186,7 @@ export default function PersonaCreator() {
             </div>
           </Card>
 
-          {/* Quick suggestion buttons */}
+          
           <div className="max-w-5xl px-2 mx-auto">
             <div className="flex flex-wrap gap-2 justify-center">
               {suggestions.map((suggestion, index) => (
@@ -162,7 +204,5 @@ export default function PersonaCreator() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
+      </div> 
+*/

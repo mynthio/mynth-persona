@@ -47,18 +47,6 @@ export const creatorPersonaGenerateSchema = z.object({
       "What they do for work/role in society. Can include secret occupations."
     ),
   extensions: z.preprocess((value) => {
-    /**
-     * Sometimes models may return an array.
-     *
-     * For example, array of skills.
-     *
-     * TO avoid breaking generation, let's just handle it, as it's the
-     * same as a comma-separated string.
-     */
-    if (Array.isArray(value)) {
-      return value.join(", ");
-    }
-
     // If value is not an object, omit the field entirely
     if (!value || typeof value !== "object" || value === null) {
       return undefined;

@@ -16,16 +16,14 @@ export const creatorPersonaGenerateSchema = z.object({
       z.union([z.string(), z.number()])
     )
     .describe(
-      "Character's age. Prefer just a number unless the age is unknown."
+      "Character's age. Use number. Only if age is unkown, use 'unknown' or max 3 sentence to describe age."
     ),
   gender: z
     .union([z.literal("male"), z.literal("female"), z.literal("other")])
     .describe("Character's gender."),
   summary: z
     .string()
-    .describe(
-      "Concise 1–2 sentence, short overview capturing only the essence. Single paragraph, no line breaks or lists."
-    ),
+    .describe("Short, concise 1 sentence summary of the character."),
   appearance: z
     .string()
     .describe(

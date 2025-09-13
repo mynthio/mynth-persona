@@ -107,7 +107,7 @@ export default function Home() {
           <div
             className="
               bg-background/70 text-surface-100/80 font-[500] backdrop-blur-lg border border-surface-200/50
-              rounded-[12px] rounded-br-[6px] px-[24px] py-[12px]
+              rounded-[16px] rounded-br-[6px] px-[24px] py-[12px]
               max-w-[460px]
               text-right
               self-end w-auto grow-0
@@ -120,7 +120,7 @@ export default function Home() {
             <div
               className="
               bg-surface-200/70 mt-[12px] text-surface-foreground/80 font-[500] backdrop-blur-lg border border-surface-200/50
-              rounded-[12px] rounded-bl-[6px] px-[24px] py-[12px]
+              rounded-[16px] rounded-bl-[6px] px-[24px] py-[12px]
               max-w-[460px]
               text-left
               self-start w-auto grow-0
@@ -390,6 +390,10 @@ function PersonaStreamingResult({
             )}
           </div>
         </div>
+      )}
+
+      {persona?.summary && (
+        <p className="text-[1.05rem] font-[300]">{persona.summary}</p>
       )}
 
       {persona?.appearance && (

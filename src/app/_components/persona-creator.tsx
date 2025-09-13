@@ -2,7 +2,12 @@
 
 import { TextareaAutosize } from "@/components/ui/textarea";
 import { useEffect, useRef, useState } from "react";
-import { QuestionMarkIcon, SparkleIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+  QuestionMarkIcon,
+  ShuffleIcon,
+  SparkleIcon,
+} from "@phosphor-icons/react/dist/ssr";
+import { Tooltip, TooltipPopup, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function PersonaCreator({
   onGenerate,
@@ -123,13 +128,45 @@ export default function PersonaCreator({
         />
 
         <div className="flex items-center justify-between w-full mt-[24px] md:px-[12px]">
-          <button
-            type="button"
-            className="text-foreground/50 font-onest text-[0.96rem] flex items-center gap-[12px] h-[52px] px-[24px]"
-          >
-            How to
-            <QuestionMarkIcon size={16} />
-          </button>
+          <div className="flex items-center gap-[2px]">
+            {/* <button
+              type="button"
+              className="
+            font-onest font-bold cursor-pointer
+            flex items-center justify-center gap-[12px] 
+            text-[1.05rem]
+            size-[42px] rounded-[16px]
+            transition-all duration-250
+            hover:bg-surface-100/50 hover:scale-105 active:scale-100
+            "
+            >
+              <QuestionMarkIcon size={16} />
+            </button> */}
+
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <button
+                    onClick={() => onGenerate("Random")}
+                    type="button"
+                    className="
+              font-onest font-bold cursor-pointer
+              flex items-center justify-center gap-[12px] 
+              text-[1.05rem]
+              size-[42px] rounded-[16px]
+              transition-all duration-250
+              hover:bg-surface-100/50 hover:scale-105 active:scale-100
+              "
+                  >
+                    <ShuffleIcon size={16} />
+                  </button>
+                }
+              />
+              <TooltipPopup>
+                <p>Generate a random persona</p>
+              </TooltipPopup>
+            </Tooltip>
+          </div>
 
           <button
             onClick={() => onGenerate(prompt)}

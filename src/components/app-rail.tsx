@@ -20,7 +20,7 @@ import { ComponentProps, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth, useClerk, useUser } from "@clerk/nextjs";
 import { useTokensBalance } from "@/app/_queries/use-tokens-balance.query";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { Tooltip, TooltipPopup, TooltipTrigger } from "./ui/tooltip";
 import { motion } from "motion/react";
 import { Link } from "./ui/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -323,14 +323,12 @@ function RailsTookens() {
   }, [data, isLoading]);
 
   return (
-    <Tooltip delayDuration={400}>
+    <Tooltip>
       <TooltipTrigger className="bg-gradient-to-tr from-[#5527DD] via-purple-700 to-violet-900 text-white/90 px-[6px] md:px-0 w-full rounded-lg h-[32px] flex items-center justify-center font-bold text-[11px]">
         {content}
       </TooltipTrigger>
 
-      <TooltipContent align="center" side="right">
-        {data?.balance}
-      </TooltipContent>
+      <TooltipPopup>{data?.balance}</TooltipPopup>
     </Tooltip>
   );
 }

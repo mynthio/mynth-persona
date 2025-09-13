@@ -3,6 +3,8 @@
 import {
   ChatsTeardropIcon,
   CircleNotchIcon,
+  DiscordLogoIcon,
+  GithubLogoIcon,
   ImagesIcon,
   PlanetIcon,
   SidebarIcon,
@@ -24,6 +26,7 @@ import { Tooltip, TooltipPopup, TooltipTrigger } from "./ui/tooltip";
 import { motion } from "motion/react";
 import { Link } from "./ui/link";
 import { usePathname, useRouter } from "next/navigation";
+import { DISCORD_INVITE_URL, GITHUB_REPO_URL } from "@/lib/constants";
 
 export function AppRail() {
   const { setView, open, setOpen, setOpenMobile } = useSidebar();
@@ -235,7 +238,26 @@ function RailsFooter() {
   const { user, isLoaded, isSignedIn } = useUser();
 
   return (
-    <div className="flex md:flex-col items-center md:items-start gap-[8px]">
+    <div className="flex md:flex-col items-center justify-center gap-[8px]">
+      <div className="hidden md:flex md:flex-col items-center justify-center gap-[2px] mb-[12px]">
+        <a
+          href={DISCORD_INVITE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center size-[40px] md:size-[34px] rounded-[12px] hover:bg-foreground/10"
+        >
+          <DiscordLogoIcon />
+        </a>
+        <a
+          href={GITHUB_REPO_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center size-[40px] md:size-[34px] rounded-[12px] hover:bg-foreground/10"
+        >
+          <GithubLogoIcon />
+        </a>
+      </div>
+
       {isLoaded && isSignedIn && <RailsTookens />}
 
       <RailSection>

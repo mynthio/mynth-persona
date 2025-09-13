@@ -47,9 +47,9 @@ const MODELS_CONFIG = [
  * Picks a main model and exactly two fallbacks (or fewer if not enough models)
  * using a weighted random ordering where higher priority increases chance of earlier positions.
  */
-export type ModelConfig = { id: string; priority: number };
+type ModelConfig = { id: string; priority: number };
 
-export function pickModels(config: ModelConfig[] = MODELS_CONFIG): {
+function pickModels(config: ModelConfig[] = MODELS_CONFIG): {
   main: string;
   fallbacks: string[];
 } {

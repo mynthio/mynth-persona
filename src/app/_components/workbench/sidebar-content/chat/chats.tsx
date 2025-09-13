@@ -3,14 +3,15 @@
 import { usePersonaChatsQuery } from "@/app/_queries/use-persona-chats.query";
 // removed MiniWaveLoader import
 import { useChatId } from "@/hooks/use-chat-id.hook";
-import { usePersonaId } from "@/hooks/use-persona-id.hook";
+import { useParams } from "next/navigation";
 // removed Button and Badge imports
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 
 export default function Chats() {
-  const [personaId] = usePersonaId();
+  const params = useParams<{ personaId: string }>();
+  const personaId = params.personaId;
   const [chatId, setChatId] = useChatId();
 
   const { data, isLoading } = usePersonaChatsQuery(personaId);

@@ -1,40 +1,39 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { and, desc, eq, isNotNull, lt, or } from 'drizzle-orm';
-import { db } from '@/db/drizzle';
-import { personas } from '@/db/schema';
-import { logger } from '@/lib/logger';
+import { NextRequest, NextResponse } from "next/server";
+import { and, desc, eq, isNotNull, lt, or } from "drizzle-orm";
+import { db } from "@/db/drizzle";
+import { personas } from "@/db/schema";
+import { logger } from "@/lib/logger";
 
 const PERSONAS_PER_PAGE = 24; // Testing value
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const cursorParam = searchParams.get('cursor');
-  const includeNsfwParam = searchParams.get('includeNsfw');
-  const includeNsfw = includeNsfwParam === 'true';
+  const cursorPublishedAtParam = searchParams.get("cursorPublishedAt");
+  const cursorIdParam = searchParams.get("cursorId");
+  const includeNsfwParam = searchParams.get("includeNsfw");
+  const includeNsfw = includeNsfwParam === "true";
 
   try {
-
-    // Parse cursor if provided
+    // Parse cursor if provided (2-param scheme)
     let cursor: { id: string; publishedAt: Date } | undefined;
-    if (cursorParam) {
-      try {
-        const parsed = JSON.parse(cursorParam);
-        cursor = {
-          id: parsed.id,
-          publishedAt: new Date(parsed.publishedAt),
-        };
-      } catch (error) {
+    if (cursorPublishedAtParam && cursorIdParam) {
+      const publishedAtDate = new Date(cursorPublishedAtParam);
+      if (isNaN(publishedAtDate.getTime())) {
         return NextResponse.json(
-          { error: 'Invalid cursor format' },
+          { error: "Invalid cursorPublishedAt format" },
           { status: 400 }
         );
       }
+      cursor = {
+        id: cursorIdParam,
+        publishedAt: publishedAtDate,
+      };
     }
 
     // NSFW filter: if includeNsfw is false, only allow 'sfw'
     const nsfwCondition = includeNsfw
       ? undefined
-      : eq(personas.nsfwRating, 'sfw');
+      : eq(personas.nsfwRating, "sfw");
 
     // Build where condition
     const whereCondition = and(
@@ -74,32 +73,41 @@ export async function GET(request: NextRequest) {
     const hasMore = data.length > PERSONAS_PER_PAGE;
     const pageRows = data.slice(0, PERSONAS_PER_PAGE);
 
-    // Generate next cursor from the last item
-    let nextCursor: string | null = null;
+    // Generate next cursor values from the last item
+    let nextPublishedAt: string | null = null;
+    let nextId: string | null = null;
     if (hasMore && pageRows.length > 0) {
       const lastItem = pageRows[pageRows.length - 1];
-      nextCursor = JSON.stringify({
-        id: lastItem.id,
-        publishedAt: lastItem.publishedAt?.toISOString(),
-      });
+      nextPublishedAt = lastItem.publishedAt?.toISOString() ?? null;
+      nextId = lastItem.id ?? null;
     }
 
     return NextResponse.json({
       data: pageRows,
-      nextCursor,
       hasMore,
+      nextPublishedAt,
+      nextId,
     });
   } catch (error) {
-    logger.error({
-      message: 'Error fetching public personas',
-      error: error,
-      route: '/api/public/personas',
-      handler: 'GET',
-      cursor: cursorParam || null,
-      includeNsfw: includeNsfw
-    });
+    logger.error(
+      {
+        error,
+        event: "fetch_public_personas",
+        component: "public_personas_route",
+        attributes: {
+          route: "/api/public/personas",
+          handler: "GET",
+        },
+        payload: {
+          cursor_published_at: cursorPublishedAtParam || null,
+          cursor_id: cursorIdParam || null,
+          include_nsfw: includeNsfw,
+        },
+      },
+      "Error fetching public personas"
+    );
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useImageId } from "@/hooks/use-image-id.hook";
-import { usePersonaId } from "@/hooks/use-persona-id.hook";
+import { useParams } from "next/navigation";
 import { ImageDialog, ImageDialogContent } from "@/components/ui/image-dialog";
 import { MiniWaveLoader } from "@/components/ui/mini-wave-loader";
 import { Button } from "@/components/ui/button";
@@ -13,16 +13,19 @@ import { setPersonaProfileImage } from "@/actions/set-persona-profile-image.acti
 
 import { useMemo, useState } from "react";
 import { useToast } from "@/components/ui/toast";
+import { fetcher } from "@/lib/fetcher";
 
 export default function GalleryImageModal() {
   const [imageId, setImageId] = useImageId();
-  const [personaId] = usePersonaId();
+  const params = useParams<{ personaId: string }>();
+  const personaId = params.personaId;
   const isOpen = Boolean(imageId);
 
   const toast = useToast();
 
   const { data, isLoading } = useSWR(
-    isOpen && imageId ? `/api/images/${imageId}` : null
+    isOpen && imageId ? `/api/images/${imageId}` : null,
+    fetcher
   );
   const { mutate } = useSWRConfig();
   const [isSettingProfileImage, setIsSettingProfileImage] = useState(false);

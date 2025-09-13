@@ -1,18 +1,26 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Onest, Space_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppRail } from "@/components/app-rail";
+import { cookies } from "next/headers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const onest = Onest({
+  variable: "--font-onest",
   subsets: ["latin"],
+});
+
+const spaceMono = Space_Mono({
+  variable: "--font-space-mono",
+  subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -113,24 +121,32 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const sidebarCookieValue = cookieStore.get("sidebar_state")?.value ?? "true";
+  const defaultOpen = sidebarCookieValue === "true";
+
   return (
-    <html lang="en" className="min-h-full">
+    <html lang="en" className="h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-full`}
+        className={`${inter.variable} ${onest.variable} ${spaceMono.variable} antialiased h-full text-foreground`}
       >
         <Providers>
-          <SidebarProvider className="h-full">
-            <AppSidebar />
-            <SidebarTrigger className="md:hidden fixed top-2 left-2 z-10 p-6" />
+          <SidebarProvider defaultOpen={defaultOpen} className="min-h-full">
+            <AppRail />
 
-            <main className="h-full w-full min-h-screen min-w-0 self-center">
-              {children}
-            </main>
+            <AppSidebar />
+
+            <div className="p-[8px] md:pl-0 min-h-full w-full flex flex-col md:block">
+              <main className="h-full w-full min-w-0 min-h-0 self-center bg-surface border-[2.5px] border-black/70 text-surface-foreground rounded-[18px]">
+                {children}
+              </main>
+              <div className="md:hidden shrink-0 h-[79px]" />
+            </div>
           </SidebarProvider>
         </Providers>
       </body>

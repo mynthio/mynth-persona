@@ -1,7 +1,5 @@
-import { generatePersonaAction } from "@/actions/generate-persona.action";
-import { PersonaData } from "@/types/persona.type";
-import { readStreamableValue, StreamableValue } from '@ai-sdk/rsc';
-import { create, createStore } from "zustand";
+import { readStreamableValue, StreamableValue } from "@ai-sdk/rsc";
+import { create } from "zustand";
 
 export type PersonaGenerationState = {
   // TEMPORARY STREAMING DATA

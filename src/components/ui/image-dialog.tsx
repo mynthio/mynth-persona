@@ -107,7 +107,7 @@ function ImageDialogContent({
 
           {/* Right: Info box (scrolls on desktop) */}
           <div className="md:h-full md:overflow-hidden">
-            <div className="rounded-2xl border border-border bg-background/90 backdrop-blur p-0 shadow-sm md:h-full">
+            <div className="rounded-2xl border border-border bg-surface p-0 shadow-sm md:h-full">
               <ScrollArea className="h-auto md:h-full">
                 <div className="p-4">{box}</div>
               </ScrollArea>

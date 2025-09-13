@@ -4,6 +4,7 @@ import useSWR, {
   type MutatorOptions,
 } from "swr";
 import { MessageBranchesByParent } from "@/schemas/shared";
+import { fetcher } from "@/lib/fetcher";
 
 export const useChatBranchesQuery = (
   chatId?: string | null,
@@ -11,6 +12,7 @@ export const useChatBranchesQuery = (
 ) => {
   return useSWR<MessageBranchesByParent>(
     chatId ? `/api/chats/${chatId}/branches` : null,
+    fetcher,
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,

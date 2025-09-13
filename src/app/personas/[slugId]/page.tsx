@@ -1,11 +1,9 @@
 import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
-import { and, eq, isNotNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { getImageUrl } from "@/lib/utils";
-import { transformToPublicPersonaVersion } from "@/schemas/transformers";
 import { PersonaData } from "@/schemas";
-// import type { PageProps } from "next";
 
 export const revalidate = 0;
 
@@ -46,28 +44,23 @@ export default async function PersonaPublicPage(
   const displayName = persona.publicName ?? data.name;
 
   return (
-    <div className="container mx-auto max-w-5xl px-4 py-10">
-      <div className="flex flex-col md:flex-row gap-8">
-        <div className="w-full md:w-1/3">
-          {persona.profileImageId ? (
-            <img
-              src={getImageUrl(persona.profileImageId, "full")}
-              alt={`${displayName} profile image`}
-              className="w-full rounded-xl border border-border object-cover"
-              draggable={false}
-            />
-          ) : (
-            <div className="aspect-square w-full rounded-xl border border-dashed border-border flex items-center justify-center text-muted-foreground">
-              No image
-            </div>
-          )}
+    <div className="container mx-auto max-w-5xl pb-[24px] md:py-[32px]">
+      <div className="flex flex-col md:flex-row gap-8 p-0">
+        <div className="w-full md:w-1/3 p-0">
+          {/* Public Personas always have profile image */}
+          <img
+            src={getImageUrl(persona.profileImageId!, "full")}
+            alt={`${displayName} profile image`}
+            className="w-full rounded-[16px] rounded-b-[0px] md:rounded-[32px] object-cover"
+            draggable={false}
+          />
         </div>
-        <div className="flex-1 max-w-3xl">
-          <h1 className="text-3xl font-semibold leading-tight">
+        <div className="flex-1 max-w-3xl px-[12px] md:px-0">
+          <h1 className="text-[2.2rem] font-onest font-[500] text-surface-foreground/90 leading-tight">
             {displayName}
           </h1>
           {persona.headline && (
-            <p className="mt-2 text-muted-foreground">{persona.headline}</p>
+            <p className="mt-[2px] text-muted-foreground">{persona.headline}</p>
           )}
 
           <div className="mt-6 grid grid-cols-2 sm:grid-cols-2 gap-4 text-sm">

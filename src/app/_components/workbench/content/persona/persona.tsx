@@ -2,20 +2,23 @@
 
 import { usePersonaVersionQuery } from "@/app/_queries/use-persona-version.query";
 import { usePersonaQuery } from "@/app/_queries/use-persona.query";
-import { usePersonaId } from "@/hooks/use-persona-id.hook";
+
 import { getImageUrl } from "@/lib/utils";
 import { spaceCase } from "case-anything";
 import { Button } from "@/components/ui/button";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
+import { useParams } from "next/navigation";
 
 export default function PersonaContent() {
   return <Persona />;
 }
 
 function Persona() {
-  const [personaId] = usePersonaId();
+  const params = useParams<{ personaId: string }>();
+
   const [, setWorkbenchMode] = useWorkbenchMode();
 
+  const personaId = params.personaId;
   const { data: persona } = usePersonaQuery(personaId);
   const { isLoading, data: personaVersion } = usePersonaVersionQuery(personaId);
 

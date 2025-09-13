@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { usePersonaId } from "@/hooks/use-persona-id.hook";
+import { useParams, useRouter } from "next/navigation";
 import { usePersonaPublishStatusQuery } from "@/app/_queries/use-persona-publish-status.query";
 import { publishPersonaAction } from "@/actions/publish-persona.action";
 import { useSWRConfig } from "swr";
@@ -22,7 +22,9 @@ import { updatePersonaVisibilityAction } from "@/actions/update-persona-visibili
 import { TrashIcon, ProhibitIcon } from "@phosphor-icons/react/dist/ssr";
 
 export default function WorkbenchSidebarManage() {
-  const [personaId, setPersonaId] = usePersonaId();
+  const params = useParams<{ personaId: string }>();
+  const router = useRouter();
+  const personaId = params.personaId;
   const { data, isLoading } = usePersonaPublishStatusQuery(personaId);
   // removed consent state
   const [submitting, setSubmitting] = useState(false);
@@ -87,8 +89,8 @@ export default function WorkbenchSidebarManage() {
         mutate(`/api/personas/${personaId}/publish-status`),
         mutate(`/api/personas/${personaId}`),
       ]);
-      // Clear selection so UI doesn't reference a deleted persona
-      setPersonaId(null);
+      // Navigate to workbench without persona ID
+      router.push('/workbench');
       setShowDeleteDialog(false);
     } catch (e: any) {
       const message = e?.message || "Failed to delete persona";

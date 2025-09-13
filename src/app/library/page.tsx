@@ -55,7 +55,7 @@ export default async function LibraryPage({
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-full bg-background">
       <div className="container mx-auto px-4 py-16 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-12">
@@ -139,7 +139,7 @@ function PersonaCard({
   };
 }) {
   return (
-    <Link href={`/?persona_id=${persona.id}&panel=true`} prefetch={false}>
+    <Link href={`/workbench/${persona.id}`} prefetch={false}>
       <div className="bg-card rounded-lg border border-border overflow-hidden hover:border-border/80 transition-colors group">
         {persona.profileImageId ? (
           <img

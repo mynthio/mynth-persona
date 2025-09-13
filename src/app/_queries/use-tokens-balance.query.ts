@@ -5,14 +5,19 @@ import useSWR, {
 } from "swr";
 import { PublicUserBalance } from "@/schemas/shared";
 import { useAuth } from "@clerk/nextjs";
+import { fetcher } from "@/lib/fetcher";
 
 export const useTokensBalance = (config?: SWRConfiguration) => {
   const { isSignedIn } = useAuth();
-  return useSWR<PublicUserBalance>(isSignedIn ? "/api/me/balance" : null, {
-    revalidateOnFocus: false,
-    revalidateIfStale: false,
-    ...config,
-  });
+  return useSWR<PublicUserBalance>(
+    isSignedIn ? "/api/me/balance" : null,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateIfStale: false,
+      ...config,
+    }
+  );
 };
 
 export const useTokensBalanceMutation = (options?: MutatorOptions) => {

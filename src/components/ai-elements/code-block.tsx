@@ -66,7 +66,6 @@ export const CodeBlock = ({
         >
           {code}
         </SyntaxHighlighter>
-
         <SyntaxHighlighter
           className="hidden overflow-hidden dark:block"
           codeTagProps={{

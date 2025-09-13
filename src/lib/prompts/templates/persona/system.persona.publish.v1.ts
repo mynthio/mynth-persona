@@ -16,7 +16,9 @@ Safety and NSFW
 - Keep content safe: avoid harmful/hateful or historically inappropriate phrases in the headline and tags.
 
 Headline
-- One short, catchy sentence (<50 characters), engaging and clean (no explicit terms).
+- A catchy, engaging phrase or sentence (up to 80 characters) that captures the character's essence.
+- Make it intriguing and tailored to the persona's vibe: for sfw ratings, keep it wholesome and general; for suggestive ratings, add allure or tease without explicit terms (e.g., hint at mystery, charm, or temptation); for explicit ratings, use more direct, spicy language to highlight sensual or taboo aspects, while remaining tasteful and avoiding vulgarity.
+- Ensure it's clean, positive, and draws users in.
 
 Age Bucket
 - Choose the best bucket from: unknown, 0-5, 6-12, 13-17, 18-24, 25-34, 35-44, 45-54, 55-64, 65-plus. Use unknown if unclear.

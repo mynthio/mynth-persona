@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 import { useMediaQuery } from "@/hooks/use-media-query.hook";
-import { ToolboxIcon } from "@phosphor-icons/react/dist/ssr";
+import { ToolboxIcon, SparkleIcon, ChatsCircleIcon } from "@phosphor-icons/react/dist/ssr";
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 
@@ -36,34 +36,41 @@ export default function WorkbenchSidebar() {
   // Use Tailwind's xl breakpoint (1280px) as the cutoff for switching to the mobile overlay
   const isMobile = useMediaQuery("(max-width: 1279px)");
   const [isMobilePanelOpen, setIsMobilePanelOpen] = useState(false);
+  const [workbenchMode] = useWorkbenchMode();
 
   const openMobilePanel = useCallback(() => setIsMobilePanelOpen(true), []);
   const closeMobilePanel = useCallback(() => setIsMobilePanelOpen(false), []);
 
+  // Determine mobile button icon and label based on workbench mode
+  const MobileIcon =
+    workbenchMode === "chat"
+      ? ChatsCircleIcon
+      : workbenchMode === "gallery"
+      ? SparkleIcon
+      : ToolboxIcon; // default persona
+  const mobileLabel =
+    workbenchMode === "chat"
+      ? "settings / chats"
+      : workbenchMode === "gallery"
+      ? "create"
+      : "workbench";
+
   return (
     <>
       {/* Desktop sidebar */}
-      <div className="w-132 shrink-0 grow-0 p-4 sticky top-0 min-h-0 h-screen hidden xl:block">
+      <div className="w-[420px] shrink-0 grow-0 p-4 fixed  right-[9px] top-[9px] min-h-0 h-auto bottom-[9px] hidden xl:block">
         <Content />
       </div>
 
       {/* Mobile creator button */}
       {isMobile && !isMobilePanelOpen && (
-        <div className="xl:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 max-w-full px-4">
+        <div className="xl:hidden fixed bottom-[90px] left-1/2 -translate-x-1/2 z-40 max-w-full px-4">
           <button
             onClick={openMobilePanel}
-            className="group relative max-w-full w-64 h-14 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40 transition-transform hover:scale-[1.02] active:scale-[0.99]"
+            className="inline-flex items-center justify-center gap-2 w-56 h-12 rounded-full bg-sidebar text-sidebar-foreground text-sm font-medium px-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40 transition-transform hover:scale-[1.02] active:scale-[0.99]"
           >
-            <span
-              className="absolute -inset-[1px] rounded-full bg-gradient-to-r from-fuchsia-500 via-cyan-400 to-emerald-400 opacity-90 blur-[6px] group-hover:blur-[8px] transition-all duration-300"
-              aria-hidden="true"
-            />
-            <span className="relative block h-full rounded-full p-[2px]">
-              <span className="flex h-full w-full items-center justify-center gap-2 rounded-full bg-sidebar text-sidebar-foreground text-base font-medium shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_8px_20px_-12px_rgba(6,182,212,0.25)] transition-shadow duration-300">
-                <ToolboxIcon className="h-5 w-5" />
-                Workbench
-              </span>
-            </span>
+            <MobileIcon className="h-4 w-4" />
+            {mobileLabel}
           </button>
         </div>
       )}
@@ -77,11 +84,11 @@ export default function WorkbenchSidebar() {
             onClick={closeMobilePanel}
           />
           {/* Panel container with small spacing from sides */}
-          <div className="absolute inset-2 rounded-lg border shadow-lg bg-sidebar text-sidebar-foreground flex flex-col overflow-hidden">
+          <div className="absolute inset-2 rounded-lg text-sidebar-foreground flex flex-col overflow-hidden pb-[80px]">
             <div className="flex-1 min-h-0 overflow-y-auto p-2">
               <Content />
             </div>
-            <div className="p-3 border-t border-sidebar-border">
+            <div className="p-3">
               <Button
                 onClick={closeMobilePanel}
                 className="w-full rounded-full py-6 text-base"
@@ -103,7 +110,7 @@ function Content() {
     workbenchModeToSidebarComponent[workbenchMode as string];
 
   return (
-    <div className="bg-sidebar h-full min-h-0 rounded-lg overflow-hidden">
+    <div className="bg-surface-100 h-full min-h-0 rounded-lg overflow-hidden">
       {SidebarComponent ? <SidebarComponent /> : null}
     </div>
   );

@@ -18,8 +18,11 @@ import {
 import { getIpAddress } from "@/utils/headers-utils";
 import { createPersonaVersion } from "@/services/persona/create-persona-version";
 import { trackGeneratePersonaCompleted } from "@/lib/logsnag";
+import { db } from "@/db/drizzle";
+import { personas } from "@/db/schema";
+import { and, eq, ne } from "drizzle-orm";
 
-export const maxDuration = 45;
+export const maxDuration = 90;
 
 const jsonRequestSchema = z.object({
   prompt: z.string().min(1).max(2048),
@@ -67,7 +70,9 @@ export async function POST(req: Request) {
 
   const openrouter = getOpenRouter();
 
-  const model = openrouter("openrouter/sonoma-dusk-alpha", {
+  const MAIN_MODEL = "thedrummer/anubis-70b-v1.1";
+
+  const model = openrouter(MAIN_MODEL, {
     models: ["moonshotai/kimi-k2-0905"],
   });
 
@@ -76,7 +81,7 @@ export async function POST(req: Request) {
     schema: creatorPersonaGenerateSchema,
     system: SYSTEM,
     prompt,
-    abortSignal: AbortSignal.timeout(ms("40s")),
+    abortSignal: AbortSignal.timeout(ms("80s")),
   });
 
   const { textStream } = result;
@@ -121,6 +126,36 @@ export async function POST(req: Request) {
       if (userId) {
         if (json.personaId) {
           /**
+           * Verify persona ownership before creating version
+           */
+          const persona = await db.query.personas.findFirst({
+            where: and(
+              eq(personas.id, json.personaId),
+              eq(personas.userId, userId),
+              ne(personas.visibility, "deleted")
+            ),
+            columns: {
+              id: true,
+              userId: true,
+            },
+          });
+
+          if (!persona) {
+            return new Response(
+              JSON.stringify({
+                error: "PERSONA_NOT_FOUND",
+                message: "Persona not found or access denied",
+              }),
+              {
+                status: 403,
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+          }
+
+          /**
            * Add version to persona
            */
           try {
@@ -139,11 +174,14 @@ export async function POST(req: Request) {
             const error = err instanceof Error ? err : new Error(String(err));
 
             logger.error({
-              event: "create_persona_version_failed",
-              error: {
-                message: error.message,
-                stack: error.stack,
-                name: error.name,
+              event: "create-persona-version-failed",
+              component: "api/creator/personas/generate",
+              attributes: {
+                error: {
+                  message: error.message,
+                  stack: error.stack,
+                  name: error.name,
+                },
               },
             });
 
@@ -170,10 +208,15 @@ export async function POST(req: Request) {
 
             logger.error({
               event: "create_persona_failed",
-              error: {
-                message: error.message,
-                stack: error.stack,
-                name: error.name,
+              component: "api/creator/personas/generate",
+              attributes: {
+                error: {
+                  message: error.message,
+                  stack: error.stack,
+                  name: error.name,
+                },
+                userId,
+                prompt,
               },
             });
 

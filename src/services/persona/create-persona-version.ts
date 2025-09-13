@@ -22,7 +22,7 @@ export const createPersonaVersion = async (
   const title =
     payload.title && payload.title.length < 3
       ? payload.data.name
-      : payload.title;
+      : payload.title ?? payload.data.name;
 
   await db.transaction(async (tx) => {
     let versionNumber = payload.versionNumber;

@@ -18,7 +18,6 @@ Safety and NSFW
 Headline
 - A catchy, engaging phrase or sentence (up to 80 characters) that captures the character's essence.
 - Make it intriguing and tailored to the persona's vibe: for sfw ratings, keep it wholesome and general; for suggestive ratings, add allure or tease without explicit terms (e.g., hint at mystery, charm, or temptation); for explicit ratings, use more direct, spicy language to highlight sensual or taboo aspects, while remaining tasteful and avoiding vulgarity.
-- If the persona involves taboo familial relationships (e.g., step-sister, step-mom), incorporate that element prominently to enhance catchiness, but only for adult characters with suggestive or explicit nsfwRating.
 - Ensure it's clean, positive, and draws users in.
 
 Age Bucket

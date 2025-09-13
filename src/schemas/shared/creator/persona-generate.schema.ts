@@ -15,29 +15,31 @@ export const creatorPersonaGenerateSchema = z.object({
       (val) => (typeof val === "number" ? String(val) : val),
       z.union([z.string(), z.number()])
     )
-    .describe("Character's age."),
+    .describe(
+      "Character's age. Prefer just a number unless the age is unknown."
+    ),
   gender: z
     .union([z.literal("male"), z.literal("female"), z.literal("other")])
     .describe("Character's gender."),
   summary: z
     .string()
     .describe(
-      "Concise 1–2 sentence overview capturing only the essence. Single paragraph, no line breaks or lists. Do NOT include appearance, personality, or background details."
+      "Concise 1–2 sentence, short overview capturing only the essence. Single paragraph, no line breaks or lists."
     ),
   appearance: z
     .string()
     .describe(
-      "Purely visual and stylistic description for imagining or image generation: physique/build, facial structure/features, eyes, skin, hair, posture, wardrobe/style, color palette, materials/textures, accessories, and distinctive marks. Avoid personality or backstory."
+      "Purely visual and stylistic description for imagining or image generation: physique/build, facial structure/features, eyes, skin, hair, posture, wardrobe/style, color palette, materials/textures, accessories, and, optionally, distinctive marks. Avoid overuse of scars, marks and things like this, especially if not explicitly asked."
     ),
   personality: z
     .string()
     .describe(
-      "Behavioral traits and temperament: how they speak and behave; motivations, strengths, flaws, quirks, and interaction style. Avoid physical details and history."
+      "Behavioral traits and temperament: how they speak and behave; motivations, strengths, flaws, quirks, and interaction style."
     ),
   background: z
     .string()
     .describe(
-      "Origin and history: upbringing, environment, formative events, training/skills learned, and how they became who they are. Avoid physical description."
+      "Origin and history: upbringing, family, environment, formative events, training/skills learned, and how they became who they are."
     ),
   occupation: z
     .string()
@@ -47,6 +49,18 @@ export const creatorPersonaGenerateSchema = z.object({
       "What they do for work/role in society. Can include secret occupations."
     ),
   extensions: z.preprocess((value) => {
+    /**
+     * Sometimes models may return an array.
+     *
+     * For example, array of skills.
+     *
+     * TO avoid breaking generation, let's just handle it, as it's the
+     * same as a comma-separated string.
+     */
+    if (Array.isArray(value)) {
+      return value.join(", ");
+    }
+
     // If value is not an object, omit the field entirely
     if (!value || typeof value !== "object" || value === null) {
       return undefined;

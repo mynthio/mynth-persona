@@ -256,6 +256,7 @@ function RailsFooter() {
                   <img
                     className="size-[38px] md:size-[34px] object-cover rounded-[12px]"
                     src={user?.imageUrl}
+                    alt={user.firstName ?? user.username ?? "Avatar"}
                   />
                 ) : (
                   <UserIcon />

@@ -194,19 +194,6 @@ body {
   }
 }
 
-/* Utilities to opt into Onest & Space Mono usage when needed */
-@layer utilities {
-  /* .font-onest {
-    font-family: var(--font-onest);
-  } */
-  .font-inter {
-    font-family: var(--font-inter);
-  }
-  .font-space-mono {
-    font-family: var(--font-space-mono);
-  }
-}
-
 /* Subtle animated gradient utility used by announcement banners */
 @keyframes gradient-x {
   0%,

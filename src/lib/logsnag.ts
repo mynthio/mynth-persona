@@ -27,7 +27,7 @@ export const trackGeneratePersonaCompleted = async ({
         ? "generate-persona-anonymous-success"
         : "generate-persona-success",
       user_id: hashedUserId,
-      icon: "🚨",
+      icon: "🦔",
       tags: {
         model: modelId,
         user: hashedUserId,

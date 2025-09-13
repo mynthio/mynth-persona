@@ -25,6 +25,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useAuth, useClerk, useUser } from "@clerk/nextjs";
 import { parseAsBoolean, useQueryState } from "nuqs";
+import { spaceCase } from "case-anything";
 
 dayjs.extend(relativeTime);
 
@@ -255,7 +256,7 @@ function Footer({
       className="flex items-center justify-center gap-[12px] self-center mt-[42px]
       rounded-[22px]
       p-[6px]
-                  sticky bottom-[100px] md:bottom-[24px] bg-background min-w-content w-auto"
+                  sticky bottom-[100px] md:bottom-[24px] bg-background/70 backdrop-blur-[12px] min-w-content w-auto"
     >
       {isLoading ? (
         loader
@@ -408,10 +409,10 @@ function PersonaStreamingResult({
       )}
 
       {persona?.extensions &&
-        Object.entries(persona.extensions).map(([key, value]) =>
-          value && <Section key={key} title={key} content={value} />
+        Object.entries(persona.extensions).map(
+          ([key, value]) =>
+            value && <Section key={key} title={key} content={value} />
         )}
-
     </div>
   );
 }
@@ -419,8 +420,10 @@ function PersonaStreamingResult({
 function Section({ title, content }: { title: string; content: string }) {
   return (
     <div className="flex flex-col gap-[6px]">
-      <div className="text-[1.1rem] font-bold capitalize">{title}</div>
-      <div className="text-[1.05rem]">{content}</div>
+      <h3 className="text-[1.1rem] font-bold capitalize">
+        {spaceCase(title, { keepSpecialCharacters: false })}
+      </h3>
+      <p className="text-[1.05rem]">{content}</p>
     </div>
   );
 }

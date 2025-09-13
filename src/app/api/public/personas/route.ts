@@ -89,15 +89,23 @@ export async function GET(request: NextRequest) {
       nextId,
     });
   } catch (error) {
-    logger.error({
-      message: "Error fetching public personas",
-      error: error,
-      route: "/api/public/personas",
-      handler: "GET",
-      cursorPublishedAt: cursorPublishedAtParam || null,
-      cursorId: cursorIdParam || null,
-      includeNsfw: includeNsfw,
-    });
+    logger.error(
+      {
+        error,
+        event: "fetch_public_personas",
+        component: "public_personas_route",
+        attributes: {
+          route: "/api/public/personas",
+          handler: "GET",
+        },
+        payload: {
+          cursor_published_at: cursorPublishedAtParam || null,
+          cursor_id: cursorIdParam || null,
+          include_nsfw: includeNsfw,
+        },
+      },
+      "Error fetching public personas"
+    );
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

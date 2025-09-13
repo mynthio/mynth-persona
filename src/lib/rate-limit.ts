@@ -2,7 +2,11 @@ import "server-only";
 
 import { Ratelimit } from "@unkey/ratelimit";
 
-const ROOT_KEY = process.env.UNKEY_ROOT_KEY!;
+const ROOT_KEY = process.env.UNKEY_ROOT_KEY;
+
+if (!ROOT_KEY) {
+  throw new Error("UNKEY_ROOT_KEY is required");
+}
 
 export const GeneratePersonaUnauthenticatedRatelimit = new Ratelimit({
   rootKey: ROOT_KEY,

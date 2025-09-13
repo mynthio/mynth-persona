@@ -9,7 +9,14 @@ type Props = {
 
 export default function FloatingOrbs({ className }: Props) {
   return (
-    <div className={cn("w-full h-full relative overflow-hidden", className)}>
+    <div
+      className={cn(
+        "w-full h-full relative overflow-hidden pointer-events-none motion-reduce:hidden",
+        className
+      )}
+      aria-hidden="true"
+      role="presentation"
+    >
       {/* Violet orb */}
       <motion.div
         className="absolute rounded-full opacity-15 blur-3xl"

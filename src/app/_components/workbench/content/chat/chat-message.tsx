@@ -54,7 +54,14 @@ function ChatMessageContent({ message }: ChatMessageContentProps) {
       {message.parts.map((part, i) => {
         switch (part.type) {
           case "text": // we don't use any reasoning or tool calls in this example
-            return <Response key={`${message.id}-${i}`}>{part.text}</Response>;
+            return (
+              <Response
+                className="text-surface-foreground"
+                key={`${message.id}-${i}`}
+              >
+                {part.text}
+              </Response>
+            );
           case "reasoning":
             return (
               <Reasoning

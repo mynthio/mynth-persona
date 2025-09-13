@@ -49,15 +49,31 @@ export default function PublicPersonas() {
       // Stop if no more pages
       if (!previousPageData || !previousPageData.hasMore) return null;
 
-      // Compute next cursor from the last item of the previous page
-      const prevItems = previousPageData.data || [];
-      if (!prevItems.length) return null;
+      // Prefer server-provided cursors, fall back to computing from last item
+      let cursorPublishedAt: string | null = null;
+      let cursorId: string | null = null;
 
-      const last = prevItems[prevItems.length - 1]!;
+      // Check for server-provided cursor values first
+      if (previousPageData.nextPublishedAt && previousPageData.nextId) {
+        cursorPublishedAt = previousPageData.nextPublishedAt;
+        cursorId = previousPageData.nextId;
+      } else {
+        // Fall back to computing from the last item of the previous page
+        const prevItems = previousPageData.data || [];
+        if (!prevItems.length) return null;
 
-      const publishedAtIso = new Date(last.publishedAt as any).toISOString();
-      params.set("cursorPublishedAt", publishedAtIso);
-      params.set("cursorId", last.id);
+        const last = prevItems[prevItems.length - 1]!;
+        cursorPublishedAt = new Date(last.publishedAt as any).toISOString();
+        cursorId = last.id;
+      }
+
+      // Only set URLSearchParams keys when cursor values exist
+      if (cursorPublishedAt) {
+        params.set("cursorPublishedAt", cursorPublishedAt);
+      }
+      if (cursorId) {
+        params.set("cursorId", cursorId);
+      }
 
       const qs = params.toString();
       return `${base}?${qs}`;

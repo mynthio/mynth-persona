@@ -24,6 +24,58 @@ import { and, eq, ne } from "drizzle-orm";
 
 export const maxDuration = 90;
 
+const MODELS_CONFIG = [
+  {
+    id: "thedrummer/anubis-70b-v1.1",
+    priority: 0.7,
+  },
+  {
+    id: "meta-llama/llama-4-maverick",
+    priority: 0.2,
+  },
+  {
+    id: "openrouter/sonoma-dusk-alpha",
+    priority: 0.3,
+  },
+  {
+    id: "sao10k/l3.3-euryale-70b",
+    priority: 0.5,
+  },
+];
+
+/**
+ * Picks a main model and exactly two fallbacks (or fewer if not enough models)
+ * using a weighted random ordering where higher priority increases chance of earlier positions.
+ */
+export type ModelConfig = { id: string; priority: number };
+
+export function pickModels(config: ModelConfig[] = MODELS_CONFIG): {
+  main: string;
+  fallbacks: string[];
+} {
+  // Use Efraimidis–Spirakis method for weighted random ordering without replacement
+  // key = -ln(U) / weight; sort ascending by key
+  const valid = config.filter(
+    (m) => m && typeof m.priority === "number" && m.priority > 0
+  );
+  const pool = valid.length > 0 ? valid : config;
+
+  const keyed = pool.map((m) => {
+    const u = Math.random();
+    const weight = Math.max(1e-6, m.priority || 0); // safeguard to avoid divide-by-zero
+    const key = -Math.log(u) / weight;
+    return { id: m.id, key };
+  });
+
+  keyed.sort((a, b) => a.key - b.key);
+
+  const picks = keyed.slice(0, 3).map((k) => k.id);
+  const main = picks[0] ?? pool[0]?.id ?? config[0]?.id ?? "";
+  const fallbacks = picks.slice(1, 3).filter(Boolean);
+
+  return { main, fallbacks };
+}
+
 const jsonRequestSchema = z.object({
   prompt: z.string().min(1).max(2048),
   personaId: z.string().optional(),
@@ -70,11 +122,11 @@ export async function POST(req: Request) {
 
   const openrouter = getOpenRouter();
 
-  // const MAIN_MODEL = "thedrummer/anubis-70b-v1.1"; GOOD
-  // const MAIN_MODEL = "meta-llama/llama-4-maverick"; OK
-  const MAIN_MODEL = "sao10k/l3.3-euryale-70b";
+  const { main, fallbacks } = pickModels(MODELS_CONFIG);
 
-  const model = openrouter(MAIN_MODEL);
+  const model = openrouter(main, {
+    models: fallbacks,
+  });
 
   const result = streamObject({
     model,

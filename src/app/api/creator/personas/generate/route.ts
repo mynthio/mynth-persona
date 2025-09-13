@@ -27,14 +27,18 @@ export const maxDuration = 90;
 const MODELS_CONFIG = [
   {
     id: "thedrummer/anubis-70b-v1.1",
-    priority: 0.7,
+    priority: 0.5,
   },
   {
     id: "meta-llama/llama-4-maverick",
     priority: 0.2,
   },
   {
-    id: "openrouter/sonoma-dusk-alpha",
+    id: "moonshotai/kimi-k2-0905",
+    priority: 0.5,
+  },
+  {
+    id: "x-ai/grok-3-mini",
     priority: 0.3,
   },
   {

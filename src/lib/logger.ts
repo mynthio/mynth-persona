@@ -5,13 +5,7 @@ import pino, { Logger } from "pino";
 import "@axiomhq/pino";
 
 import "@logtail/pino";
-import {
-  GenerateObjectResult,
-  StreamObjectOnFinishCallback,
-  LanguageModelResponseMetadata,
-  StreamTextResult,
-  LanguageModelUsage,
-} from "ai";
+import { LanguageModelResponseMetadata, LanguageModelUsage } from "ai";
 
 const isProduction =
   process.env.VERCEL_ENV === "production" ||

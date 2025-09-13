@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams, useRouter, useParams } from "next/navigation";
-import { usePersonaId } from "@/hooks/use-persona-id.hook";
+
 import { usePersonaVersionQuery } from "@/app/_queries/use-persona-version.query";
 import {
   Dialog,

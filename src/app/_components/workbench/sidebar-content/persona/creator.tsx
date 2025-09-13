@@ -263,7 +263,7 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
   return (
     <div className="shrink-0 h-auto min-h-content px-4 pb-4">
       <PromptInput
-        onSubmit={(e) => {
+        onSubmit={(_msg, e) => {
           e.preventDefault();
           void handleClick();
         }}

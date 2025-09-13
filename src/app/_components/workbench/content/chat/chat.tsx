@@ -2,6 +2,7 @@
 
 import {
   PromptInput,
+  PromptInputMessage,
   PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
 
@@ -237,7 +238,10 @@ export function ChatInner() {
     };
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (
+    _message: PromptInputMessage,
+    e: React.FormEvent
+  ) => {
     e.preventDefault();
 
     let newChatId: string | undefined = undefined;

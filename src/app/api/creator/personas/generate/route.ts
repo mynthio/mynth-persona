@@ -70,11 +70,11 @@ export async function POST(req: Request) {
 
   const openrouter = getOpenRouter();
 
-  const MAIN_MODEL = "thedrummer/anubis-70b-v1.1";
+  // const MAIN_MODEL = "thedrummer/anubis-70b-v1.1"; GOOD
+  // const MAIN_MODEL = "meta-llama/llama-4-maverick"; OK
+  const MAIN_MODEL = "sao10k/l3.3-euryale-70b";
 
-  const model = openrouter(MAIN_MODEL, {
-    models: ["moonshotai/kimi-k2-0905"],
-  });
+  const model = openrouter(MAIN_MODEL);
 
   const result = streamObject({
     model,

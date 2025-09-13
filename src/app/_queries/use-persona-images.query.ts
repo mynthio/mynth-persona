@@ -1,5 +1,6 @@
 import useSWR, { useSWRConfig, type SWRConfiguration } from "swr";
 import type { PublicPersonaImage } from "@/schemas/shared";
+import { fetcher } from "@/lib/fetcher";
 
 export const usePersonaImagesQuery = (
   personaId?: string | null,
@@ -7,10 +8,10 @@ export const usePersonaImagesQuery = (
 ) => {
   return useSWR<PublicPersonaImage[]>(
     personaId ? `/api/personas/${personaId}/images` : null,
+    fetcher,
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,
-
       ...config,
     }
   );

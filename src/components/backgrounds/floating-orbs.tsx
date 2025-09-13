@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -10,10 +12,10 @@ export default function FloatingOrbs({ className }: Props) {
     <div className={cn("w-full h-full relative overflow-hidden", className)}>
       {/* Violet orb */}
       <motion.div
-        className="absolute rounded-full opacity-10 blur-3xl"
+        className="absolute rounded-full opacity-15 blur-3xl"
         style={{
-          width: "500px",
-          height: "500px",
+          width: "550px",
+          height: "550px",
           background:
             "radial-gradient(circle, #8b5cf6 0%, #a855f7 50%, transparent 70%)",
           top: "-25%",
@@ -32,10 +34,10 @@ export default function FloatingOrbs({ className }: Props) {
 
       {/* Purple orb */}
       <motion.div
-        className="absolute rounded-full opacity-5 blur-3xl"
+        className="absolute rounded-full opacity-10 blur-3xl"
         style={{
-          width: "600px",
-          height: "600px",
+          width: "660px",
+          height: "660px",
           background:
             "radial-gradient(circle, #9333ea 0%, #7c3aed 50%, transparent 70%)",
           top: "-35%",
@@ -54,10 +56,10 @@ export default function FloatingOrbs({ className }: Props) {
 
       {/* Navy orb */}
       <motion.div
-        className="absolute rounded-full opacity-15 blur-3xl"
+        className="absolute rounded-full opacity-20 blur-3xl"
         style={{
-          width: "450px",
-          height: "450px",
+          width: "500px",
+          height: "500px",
           background:
             "radial-gradient(circle, #1e40af 0%, #1d4ed8 50%, transparent 70%)",
           top: "-20%",

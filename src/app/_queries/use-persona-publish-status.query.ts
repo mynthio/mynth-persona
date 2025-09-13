@@ -1,4 +1,5 @@
 import useSWR, { SWRConfiguration } from "swr";
+import { fetcher } from "@/lib/fetcher";
 
 export type PersonaPublishStatus = {
   visibility: "private" | "public" | "deleted";
@@ -19,6 +20,7 @@ export const usePersonaPublishStatusQuery = (
 ) => {
   return useSWR<PersonaPublishStatus>(
     personaId ? `/api/personas/${personaId}/publish-status` : null,
+    fetcher,
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,

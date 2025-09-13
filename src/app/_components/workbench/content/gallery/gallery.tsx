@@ -1,7 +1,7 @@
 "use client";
 
 import { usePersonaImagesQuery } from "@/app/_queries/use-persona-images.query";
-import { usePersonaId } from "@/hooks/use-persona-id.hook";
+import { useParams } from "next/navigation";
 import { getImageUrl } from "@/lib/utils";
 import { MiniWaveLoader } from "@/components/ui/mini-wave-loader";
 import { usePersonaGenerationStore } from "@/stores/persona-generation.store";
@@ -15,7 +15,8 @@ import { ImageBrokenIcon, WarningCircle } from "@phosphor-icons/react/dist/ssr";
 import ms from "ms";
 
 export default function GalleryContent() {
-  const [personaId] = usePersonaId();
+  const params = useParams<{ personaId: string }>();
+  const personaId = params.personaId;
   const { data: images, isLoading } = usePersonaImagesQuery(personaId);
   const personaGenerationStore = usePersonaGenerationStore();
   const [, setImageId] = useImageId();

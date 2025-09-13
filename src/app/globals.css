@@ -9,10 +9,21 @@
 
 :root {
   --radius: 0.83rem;
+
+  /* Background  */
   --background: oklch(0.1291 0.0026 286.03);
-  --surface: oklch(0.947 0.004 286.32);
-  --surface-100: oklch(0.8975 0.0071 304.23);
-  --foreground: oklch(0.141 0.005 285.823);
+  --background-100: oklch(0.1591 0.0026 286.03);
+  --background-200: oklch(0.1891 0.0026 286.03);
+
+  --foreground: oklch(0.6929 0.0263 299.01);
+
+  /* Surface */
+  --surface: oklch(0.977 0.004 286.32);
+  --surface-100: oklch(0.947 0.004 286.32);
+  --surface-200: oklch(0.917 0.004 286.32);
+
+  --surface-foreground: oklch(0.3753 0.0094 286.06);
+
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.141 0.005 285.823);
   --popover: oklch(1 0 0);
@@ -123,10 +134,21 @@ body {
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Background */
   --color-background: var(--background);
+  --color-background-100: var(--background-100);
+  --color-background-200: var(--background-200);
+
+  --color-foreground: var(--foreground);
+
+  /* Surface */
   --color-surface: var(--surface);
   --color-surface-100: var(--surface-100);
-  --color-foreground: var(--foreground);
+  --color-surface-200: var(--surface-200);
+
+  --color-surface-foreground: var(--surface-foreground);
+
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);

@@ -4,6 +4,7 @@ import useSWR, {
   type MutatorOptions,
 } from "swr";
 import { PublicChat } from "@/schemas/shared";
+import { fetcher } from "@/lib/fetcher";
 
 export const usePersonaChatsQuery = (
   personaId?: string | null,
@@ -11,6 +12,7 @@ export const usePersonaChatsQuery = (
 ) => {
   return useSWR<PublicChat[]>(
     personaId ? `/api/personas/${personaId}/chats` : null,
+    fetcher,
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,

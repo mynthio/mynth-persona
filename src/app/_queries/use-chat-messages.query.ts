@@ -4,6 +4,7 @@ import useSWR, {
   type MutatorOptions,
 } from "swr";
 import { PublicChat } from "@/schemas/shared";
+import { fetcher } from "@/lib/fetcher";
 
 export const useChatMessagesQuery = (
   chatId?: string | null,
@@ -16,6 +17,7 @@ export const useChatMessagesQuery = (
           branchId ? `?message_id=${branchId}` : ""
         }`
       : null,
+    fetcher,
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,

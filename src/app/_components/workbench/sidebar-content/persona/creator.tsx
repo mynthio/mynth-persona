@@ -17,13 +17,13 @@ import {
   PromptInputToolbar,
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input";
-import { usePersonaId } from "@/hooks/use-persona-id.hook";
+
 import { PublicPersonaVersion } from "@/schemas/shared";
 import usePersonaGenerationStore from "@/stores/persona-generation.store";
 import { CoinsIcon, SpinnerIcon } from "@phosphor-icons/react/dist/ssr";
 import { useEffect, useRef } from "react";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSWRConfig } from "swr";
 import { useTokensBalanceMutation } from "@/app/_queries/use-tokens-balance.query";
 import { useToast } from "@/components/ui/toast";
@@ -52,7 +52,8 @@ type EventsWrapperProps = {
 function EventsWrapper({ children }: EventsWrapperProps) {
   const endRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [personaId] = usePersonaId();
+  const params = useParams<{ personaId: string }>();
+  const personaId = params.personaId;
   const { data } = usePersonaVersionsQuery(personaId, {
     revalidateIfStale: false,
   });
@@ -88,7 +89,9 @@ function EventsWrapper({ children }: EventsWrapperProps) {
 }
 
 function Events() {
-  const [personaId] = usePersonaId();
+  const params = useParams<{ personaId: string }>();
+  const personaId = params.personaId;
+
   const { data, isLoading } = usePersonaVersionsQuery(personaId, {
     revalidateIfStale: false,
   });
@@ -141,7 +144,7 @@ function EventPersonaVersion({ version }: EventPersonaVersionProps) {
     );
   return (
     <div
-      className="w-auto self-start bg-background px-2 py-1 rounded-md cursor-pointer hover:bg-accent"
+      className="w-auto self-start bg-surface px-2 py-1 rounded-md cursor-pointer hover:bg-accent"
       onClick={handleOpenVersion}
       role="button"
       tabIndex={0}
@@ -187,7 +190,9 @@ type PromptProps = {
 };
 
 function Prompt({ prompt, setPrompt }: PromptProps) {
-  const [personaId] = usePersonaId();
+  const params = useParams<{ personaId: string }>();
+  const personaId = params.personaId;
+
   const personaGenerationStore = usePersonaGenerationStore();
   const mutateCurrentVersion = usePersonaVersionMutation(personaId);
   const [, setWorkbenchMode] = useWorkbenchMode();

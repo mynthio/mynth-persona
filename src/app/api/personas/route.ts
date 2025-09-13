@@ -3,7 +3,7 @@ import { personas } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { and, desc, eq, ne, lt, or, ilike } from "drizzle-orm";
 
-const PERSONAS_PER_PAGE = 24;
+const PERSONAS_PER_PAGE = 50;
 
 export async function GET(request: Request) {
   const { userId } = await auth();
@@ -48,11 +48,18 @@ export async function GET(request: Request) {
   const paginationCondition = cursor
     ? or(
         lt(personas.createdAt, cursor.createdAt),
-        and(eq(personas.createdAt, cursor.createdAt), lt(personas.id, cursor.id))
+        and(
+          eq(personas.createdAt, cursor.createdAt),
+          lt(personas.id, cursor.id)
+        )
       )
     : undefined;
 
-  const whereCondition = and(baseCondition, searchCondition, paginationCondition);
+  const whereCondition = and(
+    baseCondition,
+    searchCondition,
+    paginationCondition
+  );
 
   const data = await db
     .select({

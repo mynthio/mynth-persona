@@ -1,6 +1,11 @@
 "use client";
 
-import { PlanetIcon, ShootingStarIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+  CircleNotchIcon,
+  PencilRulerIcon,
+  PlanetIcon,
+  ShootingStarIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import {
   SidebarContent,
   SidebarGroup,
@@ -8,19 +13,28 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "./ui/sidebar";
-import { usePublicPersonasQuery } from "@/app/_queries/use-public-personas.query";
+
 import { useUserPersonasQuery } from "@/app/_queries/use-user-personas.query";
 import { getImageUrl } from "@/lib/utils";
 import { ScrollArea } from "./ui/scroll-area";
 import { Search } from "./ui/search";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "./ui/link";
+import { usePathname } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
+import { useDebounce } from "@uidotdev/usehooks";
 
 export function SidebarContentRouter() {
-  const { view } = useSidebar();
+  const pathname = usePathname();
+
+  const view = useMemo(() => {
+    if (pathname.startsWith("/chats")) return "chats";
+    if (pathname.startsWith("/images")) return "images";
+
+    return "personas";
+  }, [pathname]);
 
   const getContentComponent = () => {
     switch (view) {
@@ -46,7 +60,7 @@ export function SidebarContentRouter() {
           duration: 0.2,
           ease: "easeInOut",
         }}
-        className="h-full w-full md:flex"
+        className="flex flex-1 min-h-0 h-0 w-full flex-col"
       >
         {getContentComponent()}
       </motion.div>
@@ -55,14 +69,19 @@ export function SidebarContentRouter() {
 }
 
 function SidebarPersonasContent() {
+  const { isSignedIn } = useAuth();
+
   return (
-    <SidebarContent className="gap-0">
+    <SidebarContent className="gap-0 !overflow-hidden">
       <SidebarGroup className="mt-[8px]">
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <Link href={"/personas"} className="h-[38px] text-[16px]">
+                <Link
+                  href={"/"}
+                  className="h-[38px] text-[16px] rounded-[16px]"
+                >
                   <PlanetIcon />
                   <span>Universe</span>
                 </Link>
@@ -71,7 +90,10 @@ function SidebarPersonasContent() {
 
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
-                <Link href={"/"} className="h-[38px] text-[16px]">
+                <Link
+                  href={"/"}
+                  className="h-[38px] text-[16px] rounded-[16px]"
+                >
                   <ShootingStarIcon />
                   <span>New Persona</span>
                 </Link>
@@ -81,63 +103,96 @@ function SidebarPersonasContent() {
         </SidebarGroupContent>
       </SidebarGroup>
 
-      <PersonasList />
+      {isSignedIn ? <PersonasList /> : <LogInToSavePersonas />}
     </SidebarContent>
   );
 }
 
+function LogInToSavePersonas() {
+  return (
+    <div className="mt-[24px]">
+      <p className="text-center text-sm text-zinc-300">
+        Sign in to save personas
+      </p>
+    </div>
+  );
+}
+
 function PersonasList() {
-  const [query, setQuery] = useState("");
+  const [searchValue, setSearchValue] = useState("");
+  const debouncedQuery = useDebounce(searchValue, 300);
 
   const { data, isLoading } = useUserPersonasQuery({
-    q: query,
+    q: debouncedQuery,
   });
-
-  // if (!data) return null;
 
   return (
     <>
       <SidebarGroup className="mb-0 pb-0">
-        <SidebarMenu className="w-full min-w-0">
+        <SidebarMenu autoFocus={false} className="w-full min-w-0">
           <SidebarMenuItem className="w-full min-w-0 mb-[8px]">
-            <Search placeholder="Search" onSearchChange={setQuery} />
+            <Search placeholder="Search" onSearchChange={setSearchValue} />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroup>
-      <ScrollArea className="h-full w-full min-h-0 min-w-0 grow-0 max-w-full">
+
+      <ScrollArea className="flex-1 min-h-0 h-0 w-full min-w-0 max-w-full">
         <SidebarGroup className="w-full min-w-0 mt-0 pt-0">
-          <SidebarMenu>
-            {data?.data.map((item) => (
-              <SidebarMenuItem
-                key={item.id}
-                className="w-full overflow-hidden min-w-0"
+          <AnimatePresence mode="wait">
+            {isLoading ? (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="w-full h-[120px] flex items-center justify-center"
               >
-                <SidebarMenuButton asChild>
-                  <Link
-                    prefetch={false}
-                    href={`/?persona_id=${item.id}`}
-                    className="w-full min-w-0 max-w-full overflow-hidden truncate"
-                  >
-                    {item.profileImageId ? (
-                      <img
-                        className="size-[20px] rounded-[6px] shrink-0"
-                        src={getImageUrl(
-                          item.profileImageId ?? undefined,
-                          "thumb"
-                        )}
-                        alt={item.title}
-                      />
-                    ) : (
-                      <div className="size-[20px] rounded-[6px] bg-surface/10 shrink-0"></div>
-                    )}
-                    <span className="block truncate grow-0 w-full max-w-full">
-                      {item.title}
-                    </span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
+                <CircleNotchIcon
+                  className="animate-spin text-muted-foreground"
+                  size={20}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="content"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.225, ease: "easeOut" }}
+              >
+                <SidebarMenu>
+                  {data?.data.map((item) => (
+                    <SidebarMenuItem
+                      key={item.id}
+                      className="w-full overflow-hidden min-w-0"
+                    >
+                      <SidebarMenuButton asChild>
+                        <Link
+                          prefetch={false}
+                          href={`/workbench/${item.id}`}
+                          className="w-full min-w-0 max-w-full overflow-hidden truncate"
+                        >
+                          {item.profileImageId ? (
+                            <img
+                              className="size-[20px] rounded-[6px] shrink-0"
+                              src={getImageUrl(item.profileImageId!, "thumb")}
+                              alt={item.title ?? "Persona"}
+                            />
+                          ) : (
+                            <div className="size-[20px] rounded-[6px] bg-surface/10 shrink-0"></div>
+                          )}
+                          <span className="block truncate grow-0 w-full max-w-full">
+                            {item.title}
+                          </span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </SidebarGroup>
       </ScrollArea>
     </>
@@ -145,17 +200,22 @@ function PersonasList() {
 }
 
 function SidebarChatsContent() {
-  return (
-    <SidebarContent>
-      <SidebarGroup>Chats</SidebarGroup>
-    </SidebarContent>
-  );
+  return <WorkInProgressContent />;
 }
 
 function SidebarImagesContent() {
+  return <WorkInProgressContent />;
+}
+
+function WorkInProgressContent() {
   return (
     <SidebarContent>
-      <SidebarGroup>Images</SidebarGroup>
+      <SidebarGroup>
+        <div className="min-h-[120px] mt-[24px] flex flex-col gap-[12px] items-center justify-center py-[24px]">
+          <PencilRulerIcon size={32} />
+          <p className="font-onest font-[300]">Work In Progress</p>
+        </div>
+      </SidebarGroup>
     </SidebarContent>
   );
 }

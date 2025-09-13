@@ -94,7 +94,7 @@ export const publishPersonaTask = schemaTask({
     try {
       const { personaId, versionId, userId, force } = payload;
 
-      const { persona, version } = await db.query.personas
+      const { persona, version, profileImage } = await db.query.personas
         .findFirst({
           where: and(
             eq(personas.id, personaId),
@@ -115,6 +115,12 @@ export const publishPersonaTask = schemaTask({
                 data: true,
               },
             },
+            profileImage: {
+              columns: {
+                id: true,
+                isNSFW: true,
+              },
+            },
           },
         })
         .then((res) => {
@@ -124,6 +130,7 @@ export const publishPersonaTask = schemaTask({
           return {
             persona: res,
             version: res?.versions?.[0],
+            profileImage: res?.profileImage,
           };
         });
 
@@ -146,7 +153,6 @@ export const publishPersonaTask = schemaTask({
         "publish"
       ).render();
 
-      // Fetch user-level prompt (first non-system default) and render it
       const prompt = getDefaultUserPromptDefinitionForMode(
         "persona",
         "publish"
@@ -207,28 +213,30 @@ export const publishPersonaTask = schemaTask({
 
       // If model signals disallow, mark as failed and emit LogSnag event (no user data)
       if (!promptResult.object.allow) {
-        await db
-          .update(personas)
-          .set({
-            lastPublishAttempt: {
-              status: "failed",
-              attemptedAt: new Date().toISOString(),
-              runId: ctx.run.id,
-              error: "disallowed_by_model",
-            },
-          })
-          .where(eq(personas.id, personaId));
+        // Temporary disable this and the team will manually double-check based on logsnag event
+
+        // await db
+        //   .update(personas)
+        //   .set({
+        //     lastPublishAttempt: {
+        //       status: "failed",
+        //       attemptedAt: new Date().toISOString(),
+        //       runId: ctx.run.id,
+        //       error: "disallowed_by_model",
+        //     },
+        //   })
+        //   .where(eq(personas.id, personaId));
 
         await logsnag
           .track({
             channel: "personas",
-            event: "persona-publish-disallowed",
+            event: "persona-publish-warning",
             icon: "🚫",
-            tags: ({ personaId, versionId } as any),
+            tags: { personaId, versionId } as any,
           })
           .catch(() => {});
 
-        return;
+        // return;
       }
 
       // Create a stable slug: slugify the text parts, then append a lowercase alphanumeric ID
@@ -285,13 +293,17 @@ export const publishPersonaTask = schemaTask({
             target: [personaTags.personaId, personaTags.tagId],
           });
 
+        const nsfwRating = profileImage?.isNSFW
+          ? "explicit"
+          : promptResult.object.nsfwRating;
+
         await tx
           .update(personas)
           .set({
             visibility: "public",
             ageBucket: promptResult.object.ageBucket,
             headline: promptResult.object.headline,
-            nsfwRating: promptResult.object.nsfwRating,
+            nsfwRating,
             slug,
             publicName: personaData.name,
             publicVersionId: versionId,
@@ -313,7 +325,7 @@ export const publishPersonaTask = schemaTask({
           channel: "personas",
           event: "persona-published",
           icon: "✅",
-          tags: ({ personaId, versionId } as any),
+          tags: { personaId, versionId } as any,
         })
         .catch(() => {});
     } catch (error) {
@@ -329,8 +341,7 @@ export const publishPersonaTask = schemaTask({
               status: "failed",
               attemptedAt: new Date().toISOString(),
               runId: ctx.run.id,
-              error:
-                (error as any)?.message?.slice(0, 300) || "unknown_error",
+              error: (error as any)?.message?.slice(0, 300) || "unknown_error",
             },
           })
           .where(eq(personas.id, personaId));
@@ -340,7 +351,7 @@ export const publishPersonaTask = schemaTask({
             channel: "personas",
             event: "persona-publish-failed",
             icon: "🚨",
-            tags: ({ personaId, versionId } as any),
+            tags: { personaId, versionId } as any,
           })
           .catch(() => {});
       } catch {

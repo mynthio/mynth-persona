@@ -14,3 +14,4 @@ export {
   transformToPublicChatDetail,
   transformToPublicChats,
 } from "./chat.transformer";
+export { transformCreatorPersonaGenerateToPersonaData } from "./persona-data.transformer";

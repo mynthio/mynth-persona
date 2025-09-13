@@ -127,23 +127,25 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
-  const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
+  const sidebarCookieValue = cookieStore.get("sidebar_state")?.value ?? "true";
+  const defaultOpen = sidebarCookieValue === "true";
 
   return (
-    <html lang="en" className="min-h-full">
+    <html lang="en" className="h-full">
       <body
-        className={`${inter.variable} ${onest.variable} ${spaceMono.variable} antialiased min-h-full`}
+        className={`${inter.variable} ${onest.variable} ${spaceMono.variable} antialiased h-full text-foreground`}
       >
         <Providers>
-          <SidebarProvider defaultOpen={defaultOpen} className="h-full w-full">
+          <SidebarProvider defaultOpen={defaultOpen} className="min-h-full">
             <AppRail />
 
             <AppSidebar />
 
-            <div className="p-[8px] pl-0 h-full w-full grow-0">
-              <main className="h-full w-full min-h-screen min-w-0 self-center bg-surface border-[2.5px] border-background/80 rounded-[18px] overflow-hidden">
+            <div className="p-[8px] md:pl-0 min-h-full w-full flex flex-col md:block">
+              <main className="h-full w-full min-w-0 min-h-0 self-center bg-surface border-[2.5px] border-black/70 text-surface-foreground rounded-[18px]">
                 {children}
               </main>
+              <div className="md:hidden shrink-0 h-[79px]" />
             </div>
           </SidebarProvider>
         </Providers>

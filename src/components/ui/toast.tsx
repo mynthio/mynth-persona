@@ -43,7 +43,7 @@ function ToastList() {
         "data-[starting-style]:opacity-0 data-[starting-style]:translate-y-[-6px]",
         "data-[ending-style]:opacity-0 data-[ending-style]:translate-y-[-6px]",
         "transition-all duration-200",
-        "pointer-events-auto rounded-md border bg-background text-foreground shadow-lg",
+        "pointer-events-auto rounded-md border bg-surface-100 text-foreground shadow-lg",
         "grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 px-4 py-3",
         // Type styles
         "data-[type=success]:border-green-300/60 data-[type=success]:bg-green-50 dark:data-[type=success]:bg-green-950/40",

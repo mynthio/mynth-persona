@@ -1,5 +1,6 @@
 import useSWR, { MutatorOptions, SWRConfiguration, useSWRConfig } from "swr";
 import { PublicPersonaVersion } from "@/schemas/shared";
+import { fetcher } from "@/lib/fetcher";
 
 export const usePersonaVersionQuery = (
   personaId?: string | null,
@@ -8,6 +9,7 @@ export const usePersonaVersionQuery = (
 ) => {
   return useSWR<PublicPersonaVersion>(
     personaId ? `/api/personas/${personaId}/versions/${id}` : null,
+    fetcher,
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,

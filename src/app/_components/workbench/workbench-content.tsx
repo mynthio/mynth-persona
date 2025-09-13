@@ -22,7 +22,7 @@ export default function WorkbenchContent() {
   const [workbenchMode] = useWorkbenchMode();
 
   return (
-    <div className="min-h-screen min-w-0 w-full flex flex-col">
+    <div className="h-full min-w-0 w-full px-[12px] md:px-[24px] flex flex-col pb-[80px] md:pb-[12px]">
       <TopBar />
 
       {workbenchMode === "gallery" && <GalleryContent />}
@@ -39,14 +39,14 @@ function TopBar() {
 
   if (personaGenerationStore.isGenerating) {
     return (
-      <div className="flex justify-center items-center">
+      <div className="flex justify-center items-center mt-[12px]">
         <MiniWaveLoader aria-label="Generating persona" />
       </div>
     );
   }
 
   return (
-    <div className="flex justify-center items-center sticky top-2 z-50">
+    <div className="flex justify-center items-center sticky top-[12px] mt-[12px] z-50">
       <Tabs
         defaultValue="persona"
         value={workbenchMode}

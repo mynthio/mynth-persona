@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, useParams } from "next/navigation";
 import { usePersonaId } from "@/hooks/use-persona-id.hook";
 import { usePersonaVersionQuery } from "@/app/_queries/use-persona-version.query";
 import {
@@ -18,10 +18,12 @@ import { useSWRConfig } from "swr";
 export default function PersonaVersionModal() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [personaId] = usePersonaId();
+  const params = useParams<{ personaId: string }>();
   const versionId = searchParams.get("versionId");
   const isOpen = Boolean(versionId);
   const { mutate } = useSWRConfig();
+
+  const personaId = params.personaId;
 
   const { data, isLoading } = usePersonaVersionQuery(
     personaId,

@@ -8,15 +8,17 @@ type SearchProps = {
 
 export function Search({ placeholder, onSearchChange }: SearchProps) {
   return (
-    <div className="relative w-full bg-surface/10 h-[30px] rounded-[10px]">
+    <div className="relative w-full bg-foreground/15 h-[30px] rounded-[10px]">
       <Input
-        className="pr-[28px] w-full outline-none h-full py-[2px] px-[8px] text-[12px]"
+        autoFocus={false}
+        className="pr-[28px] w-full text-foreground outline-none h-full py-[2px] px-[8px] text-[12px]
+        placeholder:text-foreground/80"
         onValueChange={onSearchChange}
         placeholder={placeholder}
       />
       <MagnifyingGlassIcon
         size={14}
-        className="absolute top-[50%] translate-y-[-50%] right-[8px]"
+        className="absolute top-[50%] translate-y-[-50%] right-[8px] text-foreground/80"
       />
     </div>
   );

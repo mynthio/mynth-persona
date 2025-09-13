@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { usePersonaId } from "@/hooks/use-persona-id.hook";
+import { useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { usePersonaGenerationStore } from "@/stores/persona-generation.store";
 import { ImageStyle } from "@/types/image-generation/image-style.type";
@@ -38,7 +38,8 @@ type GenerationOptions = {
 };
 
 export default function Imagine() {
-  const [personaId] = usePersonaId();
+  const params = useParams<{ personaId: string }>();
+  const personaId = params.personaId;
   const personaGenerationStore = usePersonaGenerationStore();
   const [isLoading, setIsLoading] = useState(false);
   const [, setWorkbenchMode] = useWorkbenchMode();

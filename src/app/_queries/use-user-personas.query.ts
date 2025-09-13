@@ -1,4 +1,5 @@
 import useSWR, { SWRConfiguration } from "swr";
+import { fetcher } from "@/lib/fetcher";
 
 export type UserPersonaListItem = {
   id: string;
@@ -28,12 +29,13 @@ export const useUserPersonasQuery = (
 ) => {
   const query = new URLSearchParams();
   if (params?.q) query.set("q", params.q);
-  if (params?.cursorCreatedAt) query.set("cursorCreatedAt", params.cursorCreatedAt);
+  if (params?.cursorCreatedAt)
+    query.set("cursorCreatedAt", params.cursorCreatedAt);
   if (params?.cursorId) query.set("cursorId", params.cursorId);
 
   const key = `/api/personas${query.toString() ? `?${query.toString()}` : ""}`;
 
-  return useSWR<UserPersonasResponse>(key, {
+  return useSWR<UserPersonasResponse>(key, fetcher, {
     revalidateIfStale: false,
     revalidateOnFocus: false,
     ...config,

@@ -7,7 +7,7 @@ import {
 
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { useChat } from "@ai-sdk/react";
-import { usePersonaId } from "@/hooks/use-persona-id.hook";
+import { useParams } from "next/navigation";
 import { useChatId } from "@/hooks/use-chat-id.hook";
 import { createChat } from "@/actions/create-chat.action";
 import { useSWRConfig } from "swr";
@@ -70,7 +70,8 @@ export function ChatInner() {
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
   const [isLoadingChat, setIsLoadingChat] = useState(false);
   const [isLoadingBranch, setIsLoadingBranch] = useState(false);
-  const [personaId] = usePersonaId();
+  const params = useParams<{ personaId: string }>();
+  const personaId = params.personaId;
   // Branch selection is handled by ChatBranchesContext (with its own localStorage persistence)
 
   const previousChatId = usePrevious(chatId);
@@ -316,7 +317,7 @@ export function ChatInner() {
 
       <PromptInput
         onSubmit={handleSubmit}
-        className="w-full max-w-2xl mx-auto sticky bottom-4 p-2 bg-gradient-to-t from-zinc-50/80 to-white/70 backdrop-blur-lg border-zinc-200 shadow-lg shadow-zinc-100/50"
+        className="w-full max-w-2xl mx-auto md:sticky bottom-4 p-2 bg-gradient-to-t from-zinc-50/80 to-white/70 backdrop-blur-lg border-zinc-200 shadow-lg shadow-zinc-100/50"
       >
         <PromptInputTextarea
           value={input}

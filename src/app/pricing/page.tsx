@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-full bg-background">
       <div className="container mx-auto px-4 py-16 max-w-2xl">
         {/* Header */}
         <div className="text-center mb-12">
@@ -144,7 +144,6 @@ export default function PricingPage() {
                     <span className="text-sm text-muted-foreground">
                       Available for Medium and High quality
                     </span>
-
                   </div>
                 </TableCell>
                 <TableCell className="py-6 px-6 text-right">
@@ -165,16 +164,21 @@ export default function PricingPage() {
           <div className="bg-card rounded-lg border border-border p-6 text-center relative">
             {/* Promotional Badge */}
             <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge variant="destructive" className="bg-gradient-to-r from-red-500 to-pink-500 text-white">
+              <Badge
+                variant="destructive"
+                className="bg-gradient-to-r from-red-500 to-pink-500 text-white"
+              >
                 🔥 Limited Time Offer
               </Badge>
             </div>
-            
+
             <div className="text-3xl font-light text-foreground mb-2">
               100 tokens
             </div>
             <div className="flex items-center justify-center gap-2 mb-4">
-              <div className="text-lg text-muted-foreground line-through">$5.00</div>
+              <div className="text-lg text-muted-foreground line-through">
+                $5.00
+              </div>
               <div className="text-2xl font-semibold text-red-500">$1.99</div>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -189,7 +193,8 @@ export default function PricingPage() {
         {/* Footer Note */}
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground">
-            High quality generations require purchased tokens and cannot use daily free tokens
+            High quality generations require purchased tokens and cannot use
+            daily free tokens
           </p>
         </div>
       </div>

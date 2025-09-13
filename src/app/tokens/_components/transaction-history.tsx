@@ -55,11 +55,9 @@ export default function TransactionHistory({
     <TableRow key={transaction.id} className="border-b border-border/50">
       <TableCell className="py-4 px-6">
         <div className="text-sm text-foreground">
-          - {new Date(transaction.createdAt).toLocaleDateString()}+{" "}
           {dayjs(transaction.createdAt).format("MMM D, YYYY")}
         </div>
         <div className="text-xs text-muted-foreground">
-          - {new Date(transaction.createdAt).toLocaleTimeString()}+{" "}
           {dayjs(transaction.createdAt).format("HH:mm")}
         </div>
       </TableCell>

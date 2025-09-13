@@ -4,6 +4,8 @@ import {
   ChatsTeardropIcon,
   CircleNotchIcon,
   ImagesIcon,
+  PlanetIcon,
+  SidebarIcon,
   SignInIcon,
   SignOutIcon,
   SparkleIcon,
@@ -21,21 +23,59 @@ import { useTokensBalance } from "@/app/_queries/use-tokens-balance.query";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { motion } from "motion/react";
 import { Link } from "./ui/link";
+import { usePathname, useRouter } from "next/navigation";
 
 export function AppRail() {
-  const { view, setView, open, setOpen, setOpenMobile } = useSidebar();
+  const { setView, open, setOpen, setOpenMobile } = useSidebar();
+  const { replace } = useRouter();
+  const pathname = usePathname();
+
+  const view = useMemo(() => {
+    if (pathname.startsWith("/chats")) return "chats";
+    if (pathname.startsWith("/images")) return "images";
+
+    return "personas";
+  }, [pathname]);
 
   return (
     <>
-      <div className="md:hidden w-[64px] shrink-0" />
-      <div className="fixed justify-between bg-background z-50 left-0 top-0 bottom-0 w-[64px] py-4 h-full shrink-0 flex flex-col text-sidebar-foreground items-center gap-[8px]">
-        <div className="flex flex-col gap-[8px]">
+      {/* <div className="md:hidden w-[64px] shrink-0" /> */}
+      <div
+        className="
+                    fixed z-[999999999] px-[12px] md:px-0 justify-between 
+                    bg-background/80 backdrop-blur-lg md:bg-background md:backdrop-blur-none
+                    rounded-[14px] md:rounded-none
+                    left-[12px] md:left-0
+                    md:top-0 
+                    md:right-auto right-[12px] 
+                    bottom-[3px] md:bottom-0 
+                    md:w-[64px] 
+                    py-4 
+                    h-[84px] md:h-full 
+                    shrink-0 flex md:flex-col 
+                    text-sidebar-foreground items-center gap-[8px]
+                  "
+      >
+        <div className="flex md:flex-col gap-[8px] items-center md:items-start">
           <PersonaButton />
+
+          <RailSection className="md:hidden">
+            <RailSectionButton
+              isActive={false}
+              onPress={() => {
+                setOpenMobile(true);
+              }}
+            >
+              <SidebarIcon />
+            </RailSectionButton>
+          </RailSection>
 
           <RailSection>
             <RailSectionButton
               isActive={view === "personas"}
               onPress={() => {
+                replace("/");
+
                 if (view === "personas" && open) {
                   setOpen(false);
                 } else {
@@ -43,7 +83,7 @@ export function AppRail() {
                   setOpen(true);
                 }
 
-                setOpenMobile(true);
+                if (view === "personas") setOpenMobile(true);
               }}
             >
               <UsersThreeIcon />
@@ -52,6 +92,8 @@ export function AppRail() {
             <RailSectionButton
               isActive={view === "chats"}
               onPress={() => {
+                replace("/chats");
+
                 if (view === "chats" && open) {
                   setOpen(false);
                 } else {
@@ -59,7 +101,7 @@ export function AppRail() {
                   setOpen(true);
                 }
 
-                setOpenMobile(true);
+                if (view === "chats") setOpenMobile(true);
               }}
             >
               <ChatsTeardropIcon />
@@ -68,6 +110,8 @@ export function AppRail() {
             <RailSectionButton
               isActive={view === "images"}
               onPress={() => {
+                replace("/images");
+
                 if (view === "images" && open) {
                   setOpen(false);
                 } else {
@@ -75,7 +119,7 @@ export function AppRail() {
                   setOpen(true);
                 }
 
-                setOpenMobile(true);
+                if (view === "images") setOpenMobile(true);
               }}
             >
               <ImagesIcon />
@@ -94,12 +138,14 @@ function PersonaButton() {
       prefetch={false}
       href="/"
       className="
-        relative inline-flex size-[42px] items-center justify-center
+        relative inline-flex size-[52px] md:size-[42px] items-center justify-center
         rounded-lg text-white overflow-hidden ring-1 ring-white/10
         bg-transparent
+        transition-all duration-200 will-change-transform
+        hover:scale-110
       "
     >
-      <SparkleIcon size={20} />
+      <PlanetIcon className="size-[24px] md:size-[18px] text-white/80" />
 
       <svg
         viewBox="0 0 40 40"
@@ -133,11 +179,17 @@ function PersonaButton() {
 
 type RailSectionProps = {
   children: React.ReactNode;
+  className?: string;
 };
 
-function RailSection({ children }: RailSectionProps) {
+function RailSection({ children, className }: RailSectionProps) {
   return (
-    <div className="flex flex-col items-center justify-center w-[42px] bg-surface/10 rounded-[16px] py-[4px] gap-[4px]">
+    <div
+      className={cn([
+        "flex md:flex-col relative items-center justify-center h-[48px] md:h-auto md:w-[42px] bg-foreground/20 rounded-[16px] px-[4px] md:px-0 md:py-[4px] gap-[4px]",
+        className,
+      ])}
+    >
       {children}
     </div>
   );
@@ -159,11 +211,11 @@ function RailSectionButton({
       type="button"
       onClick={onPress}
       className={cn([
-        "relative size-[34px] rounded-[12px]",
-        "flex items-center justify-center text-sidebar-foreground/80",
+        "relative size-[40px] md:size-[34px] rounded-[12px]",
+        "flex items-center justify-center text-foreground/80",
         "transition-all duration-250 will-change-transform",
-        "hover:scale-110 hover:text-sidebar-foreground",
-        isActive && "text-sidebar-foreground",
+        "hover:scale-110 hover:text-foreground",
+        isActive && "text-foreground",
       ])}
     >
       {children}
@@ -171,7 +223,7 @@ function RailSectionButton({
         <motion.div
           layoutId="rail-button-active-indicator"
           id="rail-button-active-indicator"
-          className="absolute bg-surface/10 left-0 right-0 top-0 bottom-0 rounded-[12px]"
+          className="absolute bg-foreground/30 left-0 right-0 top-0 bottom-0 rounded-[12px]"
         />
       ) : null}
     </button>
@@ -183,26 +235,26 @@ function RailsFooter() {
   const { user, isLoaded, isSignedIn } = useUser();
 
   return (
-    <div className="flex flex-col gap-[8px]">
+    <div className="flex md:flex-col items-center md:items-start gap-[8px]">
       {isLoaded && isSignedIn && <RailsTookens />}
 
       <RailSection>
-        <div className="size-[34px] rounded-[12px] flex items-center justify-center">
+        <div className="size-[38px] md:size-[34px] rounded-[12px] flex items-center justify-center">
           {!isLoaded ? (
             <CircleNotchIcon className="animate-spin" />
           ) : !isSignedIn ? (
             <button
               onClick={() => openSignIn()}
-              className="size-[34px] flex items-center justify-center"
+              className="size-[38px] md:size-[34px] flex items-center justify-center"
             >
               <SignInIcon />
             </button>
           ) : (
             <Menu.Root modal={false}>
-              <Menu.Trigger>
+              <Menu.Trigger className="cursor-pointer">
                 {user?.imageUrl ? (
                   <img
-                    className="size-[34px] object-cover rounded-[12px]"
+                    className="size-[38px] md:size-[34px] object-cover rounded-[12px]"
                     src={user?.imageUrl}
                   />
                 ) : (
@@ -216,11 +268,11 @@ function RailsFooter() {
                   align="end"
                   side="right"
                   sideOffset={8}
-                  className="outline-0 z-100"
+                  className="outline-0 z-[99999999999999]"
                 >
                   <Menu.Popup
                     className={cn(
-                      "p-[4px] bg-surface rounded-[16px] min-w-[222px] z-100 border-2 border-surface-100/50",
+                      "p-[4px] bg-background/90 backdrop-blur-[4px] text-foreground/90 rounded-[16px] min-w-[222px] z-100 border-2 border-foreground/20 shadow-2xl shadow-foreground/15",
                       "transition-all duration-250",
                       "",
                       "data-[starting-style]:scale-90 data-[starting-style]:opacity-0",
@@ -229,7 +281,7 @@ function RailsFooter() {
                   >
                     <Menu.Item
                       className={cn(
-                        "h-[42px] flex items-center justify-start px-[12px] gap-[12px] hover:bg-surface-100 rounded-[12px] cursor-pointer transition-colors duration-225"
+                        "h-[42px] flex items-center justify-start px-[12px] gap-[12px] hover:bg-foreground/10 rounded-[12px] cursor-pointer transition-colors duration-225"
                       )}
                       onClick={() => openUserProfile()}
                     >
@@ -239,7 +291,7 @@ function RailsFooter() {
 
                     <Menu.Item
                       className={cn(
-                        "h-[42px] flex items-center justify-start px-[12px] gap-[12px] hover:bg-surface-100 rounded-[12px] cursor-pointer transition-colors duration-225"
+                        "h-[42px] flex items-center justify-start px-[12px] gap-[12px] hover:bg-foreground/10 rounded-[12px] cursor-pointer transition-colors duration-225"
                       )}
                       onClick={() => signOut()}
                     >
@@ -263,15 +315,16 @@ function RailsTookens() {
   const content = useMemo(() => {
     if (!data && isLoading) return <CircleNotchIcon className="animate-spin" />;
     if (!data) return 0;
-    return data.balance > 999 ? "999+" : data.balance;
+
+    return (
+      <Link href="/tokens">{data.balance > 999 ? "999+" : data.balance}</Link>
+    );
   }, [data, isLoading]);
 
   return (
     <Tooltip delayDuration={400}>
-      <TooltipTrigger>
-        <div className="bg-[#572BDB]/50 w-full rounded-lg h-[32px] flex items-center justify-center font-bold text-[11px]">
-          {content}
-        </div>
+      <TooltipTrigger className="bg-gradient-to-tr from-[#5527DD] via-purple-700 to-violet-900 text-white/90 px-[6px] md:px-0 w-full rounded-lg h-[32px] flex items-center justify-center font-bold text-[11px]">
+        {content}
       </TooltipTrigger>
 
       <TooltipContent align="center" side="right">

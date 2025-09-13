@@ -19,6 +19,11 @@ export const createPersonaVersion = async (
 ) => {
   const id = `prv_${nanoid()}`;
 
+  const title =
+    payload.title && payload.title.length < 3
+      ? payload.data.name
+      : payload.title;
+
   await db.transaction(async (tx) => {
     let versionNumber = payload.versionNumber;
 
@@ -43,7 +48,7 @@ export const createPersonaVersion = async (
       settings: {
         system: "1.0.0",
       },
-      title: payload.title,
+      title,
       metadata:
         payload.aiNote || payload.userMessage
           ? { aiNote: payload.aiNote, userMessage: payload.userMessage }
@@ -54,8 +59,10 @@ export const createPersonaVersion = async (
       .update(personas)
       .set({
         currentVersionId: id,
-        title: payload.title,
+        title,
       })
       .where(eq(personas.id, payload.personaId));
   });
+
+  return id;
 };

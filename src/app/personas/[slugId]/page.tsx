@@ -4,8 +4,71 @@ import { and, eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { getImageUrl } from "@/lib/utils";
 import { PersonaData } from "@/schemas";
+import type { Metadata } from "next";
 
 export const revalidate = 0;
+
+export async function generateMetadata(
+  props: PageProps<"/personas/[slugId]">
+): Promise<Metadata> {
+  const { slugId } = await props.params;
+
+  const persona = await db.query.personas.findFirst({
+    where: and(eq(personas.slug, slugId), eq(personas.visibility, "public")),
+    columns: {
+      id: true,
+      slug: true,
+      publicName: true,
+      headline: true,
+      profileImageId: true,
+    },
+  });
+
+  if (!persona) {
+    return {
+      title: { absolute: "Persona not found" },
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const displayName = persona.publicName!;
+  const headline = persona.headline!;
+  const title = `${displayName} - ${headline}`;
+  const imageUrl = persona.profileImageId
+    ? getImageUrl(persona.profileImageId, "full")
+    : undefined;
+  const description = `${headline}`;
+
+  return {
+    title: { absolute: title },
+    description,
+    alternates: {
+      canonical: `/personas/${persona.slug}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/personas/${persona.slug}`,
+      type: "profile",
+      images: imageUrl
+        ? [
+            {
+              url: imageUrl,
+              alt: `${displayName} profile image`,
+              type: "image/webp",
+            },
+          ]
+        : undefined,
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+      creator: "@mynth",
+      images: imageUrl ? [imageUrl] : undefined,
+    },
+  };
+}
 
 export default async function PersonaPublicPage(
   props: PageProps<"/personas/[slugId]">
@@ -56,42 +119,44 @@ export default async function PersonaPublicPage(
           />
         </div>
         <div className="flex-1 max-w-3xl px-[12px] md:px-0">
-          <h1 className="text-[2.2rem] font-onest font-[500] text-surface-foreground/90 leading-tight">
-            {displayName}
-          </h1>
-          {persona.headline && (
-            <p className="mt-[2px] text-muted-foreground">{persona.headline}</p>
-          )}
-
-          <div className="mt-6 grid grid-cols-2 sm:grid-cols-2 gap-4 text-sm">
-            <div>
-              <div className="text-muted-foreground">Gender</div>
-              <div className="capitalize">{data.gender}</div>
-            </div>
-            <div>
-              <div className="text-muted-foreground">Age</div>
-              <div className="capitalize">{data.age}</div>
-            </div>
-          </div>
-
-          {/* Summary */}
-          <div className="mt-8">
-            <h2 className="text-xl font-medium mb-2">Summary</h2>
-            <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-              {data.summary}
-            </p>
-          </div>
-
-          {/* Details */}
-          <div className="mt-8 space-y-8">
-            <div>
-              <h3 className="font-medium mb-2">Appearance</h3>
-              <p className="text-muted-foreground whitespace-pre-line">
-                {data.appearance}
+          {/* Header */}
+          <div className="pb-[8px] border-b border-border">
+            <h1 className="text-[32px] md:text-[48px] leading-none font-medium tracking-tight">
+              {displayName}
+            </h1>
+            {persona.headline && (
+              <p className="mt-[8px] text-base md:text-lg text-muted-foreground">
+                {persona.headline}
               </p>
-            </div>
+            )}
+          </div>
+
+          {/* Attributes */}
+          <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+            {data.age && (
+              <div>
+                <div className="text-muted-foreground">Age</div>
+                <div className="font-medium">{data.age}</div>
+              </div>
+            )}
+            {data.gender && (
+              <div>
+                <div className="text-muted-foreground">Gender</div>
+                <div className="font-medium">{data.gender}</div>
+              </div>
+            )}
+            {data.occupation && (
+              <div>
+                <div className="text-muted-foreground">Occupation</div>
+                <div className="font-medium">{data.occupation}</div>
+              </div>
+            )}
+          </div>
+
+          {/* About */}
+          <div className="mt-8 space-y-6">
             <div>
-              <h3 className="font-medium mb-2">Personality</h3>
+              <h3 className="font-medium mb-2">About</h3>
               <p className="text-muted-foreground whitespace-pre-line">
                 {data.personality}
               </p>

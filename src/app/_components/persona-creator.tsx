@@ -3,18 +3,26 @@
 import { TextareaAutosize } from "@/components/ui/textarea";
 import { useEffect, useRef, useState } from "react";
 import {
+  CaretUpIcon,
+  CheckIcon,
   QuestionMarkIcon,
   ShuffleIcon,
+  SlidersHorizontalIcon,
   SparkleIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
+import { Select } from "@base-ui-components/react/select";
+import { Field } from "@base-ui-components/react/field";
+import { Form } from "@base-ui-components/react/form";
 
 export default function PersonaCreator({
   onGenerate,
 }: {
-  onGenerate: (text: string) => void;
+  onGenerate: (text: string, options?: { model?: string }) => void;
 }) {
   const [prompt, setPrompt] = useState("");
+  const [model, setModel] = useState("auto");
 
   // Animated placeholder: typewriter effect that cycles through prompts until focus
   const [animatedPlaceholder, setAnimatedPlaceholder] = useState("");
@@ -86,7 +94,7 @@ export default function PersonaCreator({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      onGenerate(prompt);
+      onGenerate(prompt, { model });
     }
   };
 
@@ -143,11 +151,10 @@ export default function PersonaCreator({
               <QuestionMarkIcon size={16} />
             </button> */}
 
-            <Tooltip>
-              <TooltipTrigger
+            <Popover modal={false}>
+              <PopoverTrigger
                 render={
                   <button
-                    onClick={() => onGenerate("Random")}
                     type="button"
                     className="
               font-onest font-bold cursor-pointer
@@ -158,34 +165,186 @@ export default function PersonaCreator({
               hover:bg-surface-100/50 hover:scale-105 active:scale-100
               "
                   >
-                    <ShuffleIcon size={16} />
+                    <SlidersHorizontalIcon size={16} />
                   </button>
                 }
               />
-              <TooltipPopup>
-                <p>Generate a random persona</p>
-              </TooltipPopup>
-            </Tooltip>
+
+              <PopoverPopup
+                positioner={{
+                  side: "top",
+                }}
+              >
+                <Form
+                  onSubmit={async (event) => {
+                    event.preventDefault();
+                  }}
+                >
+                  <Field.Root>
+                    <Field.Label
+                      className="text-surface-foreground/80 text-[0.85rem] 
+                      font-[500] font-onest px-[4px]"
+                    >
+                      Model
+                    </Field.Label>
+
+                    <ModelSelector
+                      onModelSelect={setModel}
+                      defaultValue={model}
+                    />
+                  </Field.Root>
+                </Form>
+              </PopoverPopup>
+            </Popover>
           </div>
 
-          <button
-            onClick={() => onGenerate(prompt)}
-            disabled={prompt.trim() === ""}
-            type="button"
-            className="
-              font-onest font-bold cursor-pointer
-              flex items-center gap-[12px] 
-              text-[1.05rem]
-              h-[48px] px-[22px] rounded-[16px]
-              transition-all duration-250
-              hover:bg-surface-100/50 hover:scale-105 active:scale-100
-              "
-          >
-            Generate
-            <SparkleIcon weight="bold" size={20} />
-          </button>
+          <div className="flex items-center gap-[2px]">
+            {prompt.trim() === "" && (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <button
+                      onClick={() => onGenerate("Random", { model })}
+                      type="button"
+                      className="
+                  font-onest font-bold cursor-pointer
+                  flex items-center justify-center gap-[12px] 
+                  text-[1.05rem]
+                  size-[42px] rounded-[16px]
+                  transition-all duration-250
+                  hover:bg-surface-100/50 hover:scale-105 active:scale-100
+                  "
+                    >
+                      <ShuffleIcon weight="bold" size={16} />
+                    </button>
+                  }
+                />
+                <TooltipPopup>
+                  <p>Generate a random persona</p>
+                </TooltipPopup>
+              </Tooltip>
+            )}
+
+            <button
+              onClick={() => onGenerate(prompt, { model })}
+              disabled={prompt.trim() === ""}
+              type="button"
+              className="
+            font-onest font-bold cursor-pointer
+            flex items-center gap-[12px] 
+            text-[1.05rem]
+            disabled:text-surface-foreground/80 disabled:cursor-not-allowed
+            h-[48px] px-[22px] rounded-[16px]
+            transition-all duration-250
+            hover:bg-surface-100/50 hover:scale-105 active:scale-100
+            "
+            >
+              Generate
+              <SparkleIcon weight="bold" size={20} />
+            </button>
+          </div>
         </div>
       </div>
     </div>
+  );
+}
+
+const models = [
+  {
+    value: "auto",
+    label: <>Auto</>,
+  },
+  {
+    value: "thedrummer/anubis-70b-v1.1",
+    label: <>Anubis 70B</>,
+  },
+  {
+    value: "meta-llama/llama-4-maverick",
+    label: <>Llama 4 Maverick</>,
+  },
+  {
+    value: "moonshotai/kimi-k2-0905",
+    label: <>Kimi K2</>,
+  },
+  {
+    value: "x-ai/grok-3-mini",
+    label: <>Grok 3 Mini</>,
+  },
+  {
+    value: "sao10k/l3.3-euryale-70b",
+    label: <>L3.3 Euryale 70B</>,
+  },
+];
+
+export function ModelSelector({
+  onModelSelect,
+  defaultValue,
+}: {
+  onModelSelect: (model: string) => void;
+  defaultValue: string;
+}) {
+  return (
+    <Select.Root
+      items={models}
+      value={defaultValue}
+      modal={true}
+      name="model"
+      onValueChange={onModelSelect}
+    >
+      <Select.Trigger
+        className="
+      flex h-10 min-w-[230px] items-center justify-between gap-3 rounded-md 
+      bg-surface text-surface-foreground/80
+      border-[2px] border-surface-100 pr-3 pl-3.5 text-base select-none 
+      hover:bg-surface-100 focus-visible:outline-2 focus-visible:-outline-offset-1 
+      focus-visible:outline-blue-800 
+      data-[popup-open]:bg-surface-100 cursor-default"
+      >
+        <Select.Value />
+        <Select.Icon className="flex">
+          <CaretUpIcon />
+        </Select.Icon>
+      </Select.Trigger>
+      <Select.Portal>
+        <Select.Positioner
+          className="outline-none select-none z-10"
+          sideOffset={8}
+        >
+          <Select.ScrollUpArrow className="top-0 z-[1] flex h-4 w-full cursor-default items-center justify-center rounded-md bg-[canvas] text-center text-xs before:absolute before:top-[-100%] before:left-0 before:h-full before:w-full before:content-[''] data-[direction=down]:bottom-0 data-[direction=down]:before:bottom-[-100%]" />
+          <Select.Popup
+            className="group max-h-[var(--available-height)] origin-[var(--transform-origin)] 
+          overflow-y-auto bg-clip-padding rounded-md bg-surface 
+          py-1 text-surface-foreground/80 shadow-lg shadow-gray-200
+          outline-1 outline-gray-200 
+          transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[side=none]:data-[ending-style]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[side=none]:data-[starting-style]:scale-100 data-[side=none]:data-[starting-style]:opacity-100 data-[side=none]:data-[starting-style]:transition-none data-[side=none]:scroll-py-5 dark:shadow-none dark:outline-gray-300"
+          >
+            {models.map(({ label, value }) => (
+              <Select.Item
+                key={value}
+                value={value}
+                className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] 
+                items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 outline-none 
+                select-none group-data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] 
+                group-data-[side=none]:pr-12 group-data-[side=none]:text-base 
+                group-data-[side=none]:leading-4 group-data-[side=none]:scroll-my-1 
+                data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-surface-foreground 
+                data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 
+                data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] 
+                data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-surface-100 
+                pointer-coarse:py-2.5 pointer-coarse:text-[0.925rem]"
+              >
+                <Select.ItemIndicator className="col-start-1">
+                  <CheckIcon className="size-3" />
+                </Select.ItemIndicator>
+                <Select.ItemText className="col-start-2">
+                  {label}
+                </Select.ItemText>
+              </Select.Item>
+            ))}
+          </Select.Popup>
+          <Select.ScrollDownArrow className="bottom-0 z-[1] flex h-4 w-full cursor-default items-center justify-center rounded-md bg-[canvas] text-center text-xs before:absolute before:top-[-100%] before:left-0 before:h-full before:w-full before:content-[''] data-[direction=down]:bottom-0 data-[direction=down]:before:bottom-[-100%]" />
+        </Select.Positioner>
+      </Select.Portal>
+    </Select.Root>
   );
 }

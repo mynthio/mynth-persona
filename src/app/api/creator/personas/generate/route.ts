@@ -26,6 +26,10 @@ export const maxDuration = 90;
 
 const MODELS_CONFIG = [
   {
+    id: "auto",
+    priority: 0,
+  },
+  {
     id: "thedrummer/anubis-70b-v1.1",
     priority: 0.5,
   },
@@ -83,6 +87,7 @@ function pickModels(config: ModelConfig[] = MODELS_CONFIG): {
 const jsonRequestSchema = z.object({
   prompt: z.string().min(1).max(2048),
   personaId: z.string().optional(),
+  modelId: z.enum(MODELS_CONFIG.map((m) => m.id)).optional(),
 });
 
 const SYSTEM = getDefaultPromptDefinitionForMode(
@@ -124,9 +129,17 @@ export async function POST(req: Request) {
 
   const { prompt, ...json } = await req.json().then(jsonRequestSchema.parse);
 
+  logger.debug({
+    prompt,
+    json,
+  });
+
   const openrouter = getOpenRouter();
 
-  const { main, fallbacks } = pickModels(MODELS_CONFIG);
+  const { main, fallbacks } =
+    json.modelId && json.modelId !== "auto"
+      ? { main: json.modelId, fallbacks: undefined }
+      : pickModels(MODELS_CONFIG);
 
   const model = openrouter(main, {
     models: fallbacks,

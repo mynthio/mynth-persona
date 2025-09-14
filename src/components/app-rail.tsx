@@ -266,7 +266,11 @@ function RailsFooter() {
             <CircleNotchIcon className="animate-spin" />
           ) : !isSignedIn ? (
             <button
-              onClick={() => openSignIn()}
+              onClick={() =>
+                openSignIn({
+                  fallbackRedirectUrl: "https://persona.mynth.io",
+                })
+              }
               className="size-[38px] md:size-[34px] flex items-center justify-center"
             >
               <SignInIcon />

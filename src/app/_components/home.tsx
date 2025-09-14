@@ -1,8 +1,8 @@
 "use client";
-
+import { Field } from "@base-ui-components/react/field";
 import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { DeepPartial } from "ai";
-import PersonaCreator from "./persona-creator";
+import PersonaCreator, { ModelSelector } from "./persona-creator";
 import dynamic from "next/dynamic";
 
 import { Suspense, useCallback, useMemo, useState } from "react";
@@ -26,6 +26,10 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { useAuth, useClerk, useUser } from "@clerk/nextjs";
 import { parseAsBoolean, useQueryState } from "nuqs";
 import { spaceCase } from "case-anything";
+import { Response } from "@/components/ai-elements/response";
+import { Popover, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip, TooltipPopup, TooltipTrigger } from "@/components/ui/tooltip";
+import { Form } from "@base-ui-components/react/form";
 
 dayjs.extend(relativeTime);
 
@@ -75,23 +79,30 @@ export default function Home() {
   });
 
   const handleSubmit = useCallback(
-    (text: string) => {
+    (text: string, options?: { model?: string }) => {
       if (text.trim() === "") {
         return;
       }
       setIscreator(true);
       setSubmittedPrompt(text.trim());
-      submit({ prompt: text.trim() });
+      submit({ prompt: text.trim(), modelId: options?.model });
     },
     [submit]
   );
 
-  const handleRetry = useCallback(() => {
-    if (submittedPrompt.trim() === "") {
-      return;
-    }
-    submit({ prompt: submittedPrompt.trim(), personaId });
-  }, [personaId, submittedPrompt, submit]);
+  const handleRetry = useCallback(
+    (options?: { model?: string }) => {
+      if (submittedPrompt.trim() === "") {
+        return;
+      }
+      submit({
+        prompt: submittedPrompt.trim(),
+        personaId,
+        modelId: options?.model,
+      });
+    },
+    [personaId, submittedPrompt, submit]
+  );
 
   return (
     <AnimatePresence mode="wait">
@@ -178,7 +189,7 @@ export default function Home() {
                     <button
                       className="mt-[24px] font-onest font-[800] cursor-pointer"
                       type="button"
-                      onClick={handleRetry}
+                      onClick={() => handleRetry()}
                     >
                       Retry
                     </button>
@@ -215,8 +226,8 @@ export default function Home() {
           transition={{ duration: 0.2, ease: "easeInOut" }}
         >
           <PersonaCreator
-            onGenerate={(prompt) => {
-              handleSubmit(prompt);
+            onGenerate={(prompt, options) => {
+              handleSubmit(prompt, options);
             }}
           />
           <Suspense fallback={<div>Loading...</div>}>
@@ -241,6 +252,7 @@ function Footer({
 }) {
   const { isSignedIn } = useAuth();
   const { openSignIn } = useClerk();
+  const [model, setModel] = useState<string>("auto");
 
   const loader = useMemo(
     () => (
@@ -279,6 +291,7 @@ function Footer({
           >
             <EraserIcon size={16} />
           </Link>
+
           <button
             type="button"
             onClick={onRetry}
@@ -393,7 +406,9 @@ function PersonaStreamingResult({
       )}
 
       {persona?.summary && (
-        <p className="text-[1.05rem] font-[300]">{persona.summary}</p>
+        <Response className="text-[1.05rem] font-[300]">
+          {persona.summary}
+        </Response>
       )}
 
       {persona?.appearance && (
@@ -427,7 +442,8 @@ function Section({ title, content }: { title: string; content: string }) {
       <h3 className="text-[1.1rem] font-bold capitalize">
         {spaceCase(title, { keepSpecialCharacters: false })}
       </h3>
-      <p className="text-[1.05rem]">{content}</p>
+
+      <Response className="text-[1.05rem]">{content}</Response>
     </div>
   );
 }

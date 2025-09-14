@@ -34,7 +34,7 @@ function TooltipPopup({
 }: React.ComponentProps<typeof TooltipPrimitive.Popup>) {
   return (
     <TooltipPrimitive.Portal>
-      <TooltipPrimitive.Positioner sideOffset={10} className="z-[999999]">
+      <TooltipPrimitive.Positioner sideOffset={10} className="z-10">
         <TooltipPrimitive.Popup
           data-slot="tooltip-content"
           className={cn(

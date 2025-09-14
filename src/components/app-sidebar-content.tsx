@@ -23,7 +23,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
 import { Link } from "./ui/link";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
+import { SignInButton, useAuth } from "@clerk/nextjs";
 import { useDebounce } from "@uidotdev/usehooks";
 
 export function SidebarContentRouter() {
@@ -112,7 +112,9 @@ function LogInToSavePersonas() {
   return (
     <div className="mt-[24px]">
       <p className="text-center text-sm text-zinc-300">
-        Sign in to save personas
+        <SignInButton fallbackRedirectUrl={"https://persona.mynth.io"}>
+          Sign in to save personas
+        </SignInButton>
       </p>
     </div>
   );

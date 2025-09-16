@@ -10,7 +10,6 @@ import {
   SidebarIcon,
   SignInIcon,
   SignOutIcon,
-  SparkleIcon,
   UserGearIcon,
   UserIcon,
   UsersThreeIcon,
@@ -20,7 +19,7 @@ import { Menu } from "@base-ui-components/react/menu";
 import { useSidebar } from "./ui/sidebar";
 import { ComponentProps, useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { useAuth, useClerk, useUser } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
 import { useTokensBalance } from "@/app/_queries/use-tokens-balance.query";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "./ui/tooltip";
 import { motion } from "motion/react";

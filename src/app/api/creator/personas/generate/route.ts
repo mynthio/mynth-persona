@@ -12,8 +12,9 @@ import { transformCreatorPersonaGenerateToPersonaData } from "@/schemas/transfor
 import ms from "ms";
 import { z } from "zod/v4";
 import {
-  GeneratePersonaAuthenticatedRatelimit,
-  GeneratePersonaUnauthenticatedRatelimit,
+  PersonaCreatorAuthenticatedRateLimit,
+  PersonaCreatorUnauthenticatedRateLimit,
+  rateLimitGuard,
 } from "@/lib/rate-limit";
 import { getIpAddress } from "@/utils/headers-utils";
 import { createPersonaVersion } from "@/services/persona/create-persona-version";
@@ -101,38 +102,33 @@ export async function POST(req: Request) {
   /**
    * Rate Limit -->
    */
-  if (process.env.NODE_ENV === "production") {
-    const rateLimitter = userId
-      ? GeneratePersonaAuthenticatedRatelimit
-      : GeneratePersonaUnauthenticatedRatelimit;
+  const rateLimitter = userId
+    ? PersonaCreatorAuthenticatedRateLimit
+    : PersonaCreatorUnauthenticatedRateLimit;
 
-    // Use user ID for logged in users, IP address for anonymous users
-    const rateLimitIdentifier = userId ? userId : await getIpAddress();
-    const rateLimitResult = await rateLimitter.limit(rateLimitIdentifier);
+  // Use user ID for logged in users, IP address for anonymous users
+  const rateLimitIdentifier = userId ? userId : await getIpAddress();
+  const rateLimitResult = await rateLimitGuard(
+    rateLimitter,
+    rateLimitIdentifier
+  );
 
-    if (!rateLimitResult.success) {
-      return new Response(
-        JSON.stringify({
-          error: "rate_limit_exceeded" as const,
-
-          limit: rateLimitResult.limit,
-          remaining: rateLimitResult.remaining,
-          reset: rateLimitResult.reset,
-        }),
-        {
-          status: 429,
-        }
-      );
-    }
+  if (!rateLimitResult.success) {
+    return rateLimitResult.rateLimittedResponse;
   }
   // <-- Rate Limit
 
   const { prompt, ...json } = await req.json().then(jsonRequestSchema.parse);
 
-  logger.debug({
-    prompt,
-    json,
-  });
+  logger.debug(
+    {
+      payload: {
+        prompt,
+        ...json,
+      },
+    },
+    "Creator - Persona Generate"
+  );
 
   const openrouter = getOpenRouter();
 

@@ -7,6 +7,7 @@ import { personaPublishV1 } from "./templates/persona/system.persona.publish.v1"
 import { personaPublishPromptV1 } from "./templates/persona/prompt.persona.publish.v1";
 import { imagePersonaV1 } from "./templates/image/system.image.persona.v1";
 import { imagePersonaPromptV1 } from "./templates/image/prompt.image.persona.v1";
+import { personaPropertyActionV1 } from "./templates/persona/system.persona.property-action.v1";
 import {
   PromptDefinition,
   PromptId,
@@ -38,6 +39,7 @@ const PROMPTS = {
   [personaPublishPromptV1.id]: personaPublishPromptV1,
   [imagePersonaV1.id]: imagePersonaV1,
   [imagePersonaPromptV1.id]: imagePersonaPromptV1,
+  [personaPropertyActionV1.id]: personaPropertyActionV1,
 } as const satisfies Partial<Record<PromptId, PromptDefinition>>;
 
 // Separate defaults: system vs user prompts

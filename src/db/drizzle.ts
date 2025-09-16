@@ -1,17 +1,31 @@
 // import "server-only";
 
 import { config } from "dotenv";
+import { neonConfig, Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
-import { neonConfig } from "@neondatabase/serverless";
-
+import { WebSocket } from "ws";
 import * as schema from "./schema";
+import { logger } from "@/lib/logger";
 
 config({ path: [".env.local", ".env"], quiet: true });
 
-// Configure WebSocket for Node.js environments
-if (typeof WebSocket === "undefined") {
-  const { WebSocket } = require("ws");
+const connectionString =
+  process.env.NODE_ENV === "production"
+    ? process.env.DATABASE_URL
+    : process.env.LOCAL_DATABASE_URL;
+
+logger.info({ connectionString });
+
+if (process.env.NODE_ENV === "production") {
   neonConfig.webSocketConstructor = WebSocket;
+  neonConfig.poolQueryViaFetch = true;
+} else {
+  neonConfig.wsProxy = (host) => `${host}:5433/v1`;
+  neonConfig.useSecureWebSocket = false;
+  neonConfig.pipelineTLS = false;
+  neonConfig.pipelineConnect = false;
 }
 
-export const db = drizzle(process.env.DATABASE_URL!, { schema });
+const pool = new Pool({ connectionString });
+
+export const db = drizzle(pool, { schema });

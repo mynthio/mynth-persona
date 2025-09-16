@@ -17,6 +17,9 @@ import { personaNewCustomPropertyNameSchema } from "@/schemas/shared/persona/per
 import { pickByWeightedPriority } from "@/lib/utils";
 import { personaGenerationModelWeights } from "@/config/shared/models/persona-generation-models.config";
 import { NextResponse } from "next/server";
+import ms from "ms";
+
+export const maxDuration = 60;
 
 const jsonRequestSchema = z.object({
   personaId: z.string(),
@@ -106,6 +109,7 @@ export async function POST(req: Request) {
     schema: dynamicSchema,
     system,
     prompt: `${JSON.stringify(persona.currentVersion.data)}`,
+    abortSignal: AbortSignal.timeout(ms("40s")),
   });
 
   const { textStream } = result;

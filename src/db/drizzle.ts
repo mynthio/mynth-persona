@@ -1,11 +1,10 @@
-// import "server-only";
+import "server-only";
 
 import { config } from "dotenv";
 import { neonConfig, Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { WebSocket } from "ws";
 import * as schema from "./schema";
-import { logger } from "@/lib/logger";
 
 config({ path: [".env.local", ".env"], quiet: true });
 
@@ -13,8 +12,6 @@ const connectionString =
   process.env.NODE_ENV === "production"
     ? process.env.DATABASE_URL
     : process.env.LOCAL_DATABASE_URL;
-
-logger.info({ connectionString });
 
 if (process.env.NODE_ENV === "production") {
   neonConfig.webSocketConstructor = WebSocket;

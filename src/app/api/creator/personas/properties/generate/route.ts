@@ -3,22 +3,21 @@ import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-r
 import { logger } from "@/lib/logger";
 import {
   PersonaCreatorAuthenticatedRateLimit,
-  PersonaCreatorUnauthenticatedRateLimit,
   rateLimitGuard,
 } from "@/lib/rate-limit";
 import { createPersonaVersion } from "@/services/persona/create-persona-version";
-import { getIpAddress } from "@/utils/headers-utils";
 import { auth } from "@clerk/nextjs/server";
 import { streamObject } from "ai";
 import { spaceCase } from "case-anything";
-import { forbidden, unauthorized } from "next/navigation";
+import { unauthorized } from "next/navigation";
 import { z } from "zod/v4";
 import { getPromptDefinitionById } from "@/lib/prompts/registry";
 import { PromptDefinitionPersonaPropertyAction } from "@/lib/prompts/types";
+import { personaNewCustomPropertyNameSchema } from "@/schemas/shared/persona/persona-property-name.schema";
 
 const jsonRequestSchema = z.object({
   personaId: z.string(),
-  property: z.string().min(1).max(100),
+  property: personaNewCustomPropertyNameSchema,
   action: z.enum(["expand", "rewrite", "create"]),
 });
 

@@ -137,7 +137,7 @@ export async function POST(req: Request) {
       ? { main: json.modelId, fallbacks: undefined }
       : pickModels(MODELS_CONFIG);
 
-  const model = openrouter(main, {
+  const model = openrouter("openrouter/sonoma-sky-alpha", {
     models: fallbacks,
   });
 

@@ -76,7 +76,9 @@ export function AppRail() {
             <RailSectionButton
               isActive={view === "personas"}
               onPress={() => {
-                replace("/");
+                if (view !== "personas") {
+                  replace("/");
+                }
 
                 if (view === "personas" && open) {
                   setOpen(false);
@@ -94,7 +96,9 @@ export function AppRail() {
             <RailSectionButton
               isActive={view === "chats"}
               onPress={() => {
-                replace("/chats");
+                if (view !== "chats") {
+                  replace("/chats");
+                }
 
                 if (view === "chats" && open) {
                   setOpen(false);
@@ -112,7 +116,9 @@ export function AppRail() {
             <RailSectionButton
               isActive={view === "images"}
               onPress={() => {
-                replace("/images");
+                if (view !== "images") {
+                  replace("/images");
+                }
 
                 if (view === "images" && open) {
                   setOpen(false);
@@ -141,7 +147,7 @@ function PersonaButton() {
       href="/"
       className="
         relative inline-flex size-[52px] md:size-[42px] items-center justify-center
-        rounded-lg text-white overflow-hidden ring-1 ring-white/10
+        rounded-lg text-white overflow-hidden
         bg-transparent
         transition-all duration-200 will-change-transform
         hover:scale-110

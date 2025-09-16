@@ -16,7 +16,6 @@ import {
   CircleNotchIcon,
   EraserIcon,
   ImageIcon,
-  LightbulbIcon,
   PencilLineIcon,
   PlusIcon,
   ShootingStarIcon,
@@ -28,10 +27,27 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useAuth, useClerk, useUser } from "@clerk/nextjs";
 import { parseAsBoolean, useQueryState } from "nuqs";
-import { spaceCase } from "case-anything";
+import { snakeCase, spaceCase } from "case-anything";
 import { Response } from "@/components/ai-elements/response";
 import { useGenerationContext } from "@/contexts/generation-context";
 import { z } from "zod/v4";
+import { Button } from "@/components/mynth-ui/base/button";
+import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
+import {
+  Popover,
+  PopoverContent,
+  PopoverFooter,
+  PopoverPopup,
+  PopoverPositioner,
+  PopoverSubmitButton,
+  PopoverTrigger,
+} from "@/components/mynth-ui/base/popover";
+import { Input } from "@/components/mynth-ui/base/input";
+import { Form } from "@base-ui-components/react/form";
+import {
+  CUSTOM_PROPERTY_NAME_MAX_LENGTH,
+  personaNewCustomPropertyNameSchema,
+} from "@/schemas/shared/persona/persona-property-name.schema";
 
 dayjs.extend(relativeTime);
 
@@ -130,7 +146,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -8, scale: 0.98 }}
           transition={{ duration: 0.25, ease: "easeInOut" }}
-          className="max-w-3xl mx-auto flex flex-col gap-[12px] mt-[32px] px-[12px] md:px-0 relative z-50"
+          className="max-w-3xl mx-auto flex flex-col gap-[12px] mt-[32px] px-[12px] md:px-0 relative"
         >
           <div
             className="
@@ -540,28 +556,91 @@ function PersonaStreamingResult({
 
       {/* Follow-up suggestions (3 random), filtered by existing extensions and newly added sections */}
       {object?.personaId && randomFollowUps.length > 0 && (
-        <div className="flex flex-wrap items-center gap-[12px]">
-          {randomFollowUps.map((item) => (
-            <button
-              key={`suggest_${item.key}`}
-              type="button"
-              disabled={isGenerating}
-              onClick={() => addNewSection(item.key)}
-              className="
-                font-mono cursor-pointer
-                flex items-center justify-center gap-[12px]
-                text-[0.80rem] text-surface-foreground/80 disabled:text-surface-foreground/30 disabled:cursor-not-allowed
-                h-[36px] px-[9px] rounded-[12px]
-                transition-all duration-250 will-change-transform
-                hover:bg-surface-100/50 hover:scale-105 active:scale-100 hover:text-surface-foreground
-              "
-            >
-              + {item.label}
-            </button>
-          ))}
-        </div>
+        <>
+          <ButtonGroup>
+            <AddCustomPropertyPopover onAdd={addNewSection} />
+
+            <ButtonGroup.Separator />
+
+            {randomFollowUps.map((item) => (
+              <Button
+                key={`suggest_${item.key}`}
+                disabled={isGenerating}
+                onClick={() => addNewSection(item.key)}
+              >
+                <ShootingStarIcon size={12} /> {item.label}
+              </Button>
+            ))}
+          </ButtonGroup>
+        </>
       )}
     </div>
+  );
+}
+
+function AddCustomPropertyPopover({
+  onAdd,
+}: {
+  onAdd: (property: string) => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger
+        render={
+          <Button>
+            <PlusIcon size={12} /> Custom
+          </Button>
+        }
+      />
+
+      <PopoverPositioner side="top" align="start">
+        <PopoverPopup className="min-w-[260px]">
+          <Form
+            onSubmit={async (e) => {
+              e.preventDefault();
+
+              const formData = new FormData(e.currentTarget);
+
+              /**
+               * Normalize before validation, so users can use spaces, dashes, and underscores
+               */
+              const normalizedProperty = snakeCase(
+                formData.get("property")?.toString() ?? "",
+                {
+                  keepSpecialCharacters: false,
+                }
+              );
+
+              const property =
+                await personaNewCustomPropertyNameSchema.parseAsync(
+                  normalizedProperty
+                );
+
+              onAdd(property);
+              setIsOpen(false);
+            }}
+          >
+            <PopoverContent>
+              <p className="font-onest text-[0.75rem] font-[500] text-surface-foreground/50 mb-[6px] px-[4px]">
+                Property name
+              </p>
+              <Input
+                placeholder="Custom property name"
+                name="property"
+                required
+                minLength={1}
+                maxLength={CUSTOM_PROPERTY_NAME_MAX_LENGTH}
+              />
+            </PopoverContent>
+            <PopoverFooter>
+              <PopoverSubmitButton type="submit">Add</PopoverSubmitButton>
+            </PopoverFooter>
+          </Form>
+        </PopoverPopup>
+      </PopoverPositioner>
+    </Popover>
   );
 }
 
@@ -656,57 +735,23 @@ function Section({
       <Response className="text-[1.05rem] mt-[3px]">{currentContent}</Response>
 
       {personaId && activeStream !== "persona" && (
-        <div className="flex items-center gap-[12px] mt-[12px]">
-          <button
+        <ButtonGroup className="mt-[12px]">
+          <Button
             disabled={isGenerating}
-            type="button"
             onClick={() => handleAction("expand")}
-            className="
-            font-mono cursor-pointer
-            flex items-center justify-center gap-[12px] 
-            text-[0.80rem] text-surface-foreground/80 disabled:text-surface-foreground/30 disabled:cursor-not-allowed
-            h-[36px] px-[9px] rounded-[12px]
-            transition-all duration-250 will-change-transform
-            hover:bg-surface-100/50 hover:scale-105 active:scale-100 hover:text-surface-foreground
-            "
           >
             <ArrowsVerticalIcon size={12} />
             Expand
-          </button>
+          </Button>
 
-          <button
+          <Button
             disabled={isGenerating}
-            type="button"
             onClick={() => handleAction("rewrite")}
-            className="
-            font-mono cursor-pointer
-            flex items-center justify-center gap-[12px] 
-            text-[0.80rem] text-surface-foreground/80 disabled:text-surface-foreground/30 disabled:cursor-not-allowed
-            h-[36px] px-[9px] rounded-[12px]
-            transition-all duration-250 will-change-transform
-            hover:bg-surface-100/50 hover:scale-105 active:scale-100 hover:text-surface-foreground
-            "
           >
             <PencilLineIcon size={12} />
             Rewrite
-          </button>
-
-          {/* <button
-            disabled={isGenerating}
-            type="button"
-            className="
-            font-mono cursor-pointer
-            flex items-center justify-center gap-[12px] 
-            text-[0.80rem] text-surface-foreground/80 disabled:text-surface-foreground/30 disabled:cursor-not-allowed
-            h-[36px] px-[9px] rounded-[12px]
-            transition-all duration-250 will-change-transform
-            hover:bg-surface-100/50 hover:scale-105 active:scale-100 hover:text-surface-foreground
-            "
-          >
-            <LightbulbIcon size={12} />
-            Suggest
-          </button> */}
-        </div>
+          </Button>
+        </ButtonGroup>
       )}
     </div>
   );

@@ -16,6 +16,7 @@ import { Select } from "@base-ui-components/react/select";
 import { Field } from "@base-ui-components/react/field";
 import { Form } from "@base-ui-components/react/form";
 import { AnimatePresence, motion } from "motion/react";
+import { Button } from "@/components/mynth-ui/base/button";
 
 export default function PersonaCreator({
   onGenerate,
@@ -138,36 +139,12 @@ export default function PersonaCreator({
 
         <div className="flex items-center justify-between w-full mt-[24px] md:px-[12px]">
           <div className="flex items-center gap-[2px]">
-            {/* <button
-              type="button"
-              className="
-            font-onest font-bold cursor-pointer
-            flex items-center justify-center gap-[12px] 
-            text-[1.05rem]
-            size-[42px] rounded-[16px]
-            transition-all duration-250
-            hover:bg-surface-100/50 hover:scale-105 active:scale-100
-            "
-            >
-              <QuestionMarkIcon size={16} />
-            </button> */}
-
             <Popover modal={false}>
               <PopoverTrigger
                 render={
-                  <button
-                    type="button"
-                    className="
-              font-onest font-bold cursor-pointer
-              flex items-center justify-center gap-[12px] 
-              text-[1.05rem]
-              size-[42px] rounded-[16px]
-              transition-all duration-250
-              hover:bg-surface-100/50 hover:scale-105 active:scale-100
-              "
-                  >
+                  <Button size="icon">
                     <SlidersHorizontalIcon size={16} />
-                  </button>
+                  </Button>
                 }
               />
 

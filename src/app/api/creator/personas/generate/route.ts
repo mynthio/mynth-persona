@@ -81,6 +81,37 @@ export async function POST(req: Request) {
     "Creator - Persona Generate"
   );
 
+  if (userId && json.personaId) {
+    /**
+     * Verify persona ownership before creating version
+     */
+    const persona = await db.query.personas.findFirst({
+      where: and(
+        eq(personas.id, json.personaId),
+        eq(personas.userId, userId),
+        ne(personas.visibility, "deleted")
+      ),
+      columns: {
+        id: true,
+      },
+    });
+
+    if (!persona) {
+      return new Response(
+        JSON.stringify({
+          error: "PERSONA_NOT_FOUND",
+          message: "Persona not found or access denied",
+        }),
+        {
+          status: 403,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+  }
+
   const openrouter = getOpenRouter();
 
   const { main, fallbacks } =
@@ -141,36 +172,6 @@ export async function POST(req: Request) {
       // If we have a user, we're going to create a persona in DB
       if (userId) {
         if (json.personaId) {
-          /**
-           * Verify persona ownership before creating version
-           */
-          const persona = await db.query.personas.findFirst({
-            where: and(
-              eq(personas.id, json.personaId),
-              eq(personas.userId, userId),
-              ne(personas.visibility, "deleted")
-            ),
-            columns: {
-              id: true,
-              userId: true,
-            },
-          });
-
-          if (!persona) {
-            return new Response(
-              JSON.stringify({
-                error: "PERSONA_NOT_FOUND",
-                message: "Persona not found or access denied",
-              }),
-              {
-                status: 403,
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              }
-            );
-          }
-
           /**
            * Add version to persona
            */

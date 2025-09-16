@@ -16,6 +16,7 @@ import { PromptDefinitionPersonaPropertyAction } from "@/lib/prompts/types";
 import { personaNewCustomPropertyNameSchema } from "@/schemas/shared/persona/persona-property-name.schema";
 import { pickByWeightedPriority } from "@/lib/utils";
 import { personaGenerationModelWeights } from "@/config/shared/models/persona-generation-models.config";
+import { NextResponse } from "next/server";
 
 const jsonRequestSchema = z.object({
   personaId: z.string(),
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
   const { userId } = await auth();
 
   if (!userId) {
-    throw unauthorized();
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   /**

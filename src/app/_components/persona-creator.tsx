@@ -15,6 +15,8 @@ import { Popover, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
 import { Select } from "@base-ui-components/react/select";
 import { Field } from "@base-ui-components/react/field";
 import { Form } from "@base-ui-components/react/form";
+import { AnimatePresence, motion } from "motion/react";
+import { Button } from "@/components/mynth-ui/base/button";
 
 export default function PersonaCreator({
   onGenerate,
@@ -137,36 +139,12 @@ export default function PersonaCreator({
 
         <div className="flex items-center justify-between w-full mt-[24px] md:px-[12px]">
           <div className="flex items-center gap-[2px]">
-            {/* <button
-              type="button"
-              className="
-            font-onest font-bold cursor-pointer
-            flex items-center justify-center gap-[12px] 
-            text-[1.05rem]
-            size-[42px] rounded-[16px]
-            transition-all duration-250
-            hover:bg-surface-100/50 hover:scale-105 active:scale-100
-            "
-            >
-              <QuestionMarkIcon size={16} />
-            </button> */}
-
             <Popover modal={false}>
               <PopoverTrigger
                 render={
-                  <button
-                    type="button"
-                    className="
-              font-onest font-bold cursor-pointer
-              flex items-center justify-center gap-[12px] 
-              text-[1.05rem]
-              size-[42px] rounded-[16px]
-              transition-all duration-250
-              hover:bg-surface-100/50 hover:scale-105 active:scale-100
-              "
-                  >
+                  <Button size="icon">
                     <SlidersHorizontalIcon size={16} />
-                  </button>
+                  </Button>
                 }
               />
 
@@ -199,41 +177,51 @@ export default function PersonaCreator({
           </div>
 
           <div className="flex items-center gap-[2px]">
-            {prompt.trim() === "" && (
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <button
-                      onClick={() => onGenerate("Random", { model })}
-                      type="button"
-                      className="
-                  font-onest font-bold cursor-pointer
-                  flex items-center justify-center gap-[12px] 
-                  text-[1.05rem]
-                  size-[42px] rounded-[16px]
-                  transition-all duration-250
-                  hover:bg-surface-100/50 hover:scale-105 active:scale-100
-                  "
-                    >
-                      <ShuffleIcon weight="bold" size={16} />
-                    </button>
-                  }
-                />
-                <TooltipPopup>
-                  <p>Generate a random persona</p>
-                </TooltipPopup>
-              </Tooltip>
-            )}
+            <AnimatePresence>
+              {prompt.trim() === "" && (
+                <motion.div
+                  key="random"
+                  initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                  transition={{ duration: 0.2, ease: "easeInOut" }}
+                >
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <button
+                          onClick={() => onGenerate("Random", { model })}
+                          type="button"
+                          className="
+                    font-onest font-bold cursor-pointer
+                    flex items-center justify-center gap-[12px] 
+                    text-[1.05rem]
+                    size-[42px] rounded-[16px]
+                    transition-all duration-250
+                    hover:bg-surface-100/50 hover:scale-105 active:scale-100
+                    "
+                        >
+                          <ShuffleIcon weight="bold" size={16} />
+                        </button>
+                      }
+                    />
+                    <TooltipPopup>
+                      <p>Generate a random persona</p>
+                    </TooltipPopup>
+                  </Tooltip>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <button
               onClick={() => onGenerate(prompt, { model })}
               disabled={prompt.trim() === ""}
               type="button"
               className="
-            font-onest font-bold cursor-pointer
+            font-mono font-bold cursor-pointer
             flex items-center gap-[12px] 
             text-[1.05rem]
-            disabled:text-surface-foreground/80 disabled:cursor-not-allowed
+            disabled:text-surface-foreground/30 disabled:cursor-not-allowed
             h-[48px] px-[22px] rounded-[16px]
             transition-all duration-250
             hover:bg-surface-100/50 hover:scale-105 active:scale-100

@@ -10,7 +10,6 @@ import {
   SidebarIcon,
   SignInIcon,
   SignOutIcon,
-  SparkleIcon,
   UserGearIcon,
   UserIcon,
   UsersThreeIcon,
@@ -20,7 +19,7 @@ import { Menu } from "@base-ui-components/react/menu";
 import { useSidebar } from "./ui/sidebar";
 import { ComponentProps, useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { useAuth, useClerk, useUser } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
 import { useTokensBalance } from "@/app/_queries/use-tokens-balance.query";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "./ui/tooltip";
 import { motion } from "motion/react";
@@ -77,7 +76,9 @@ export function AppRail() {
             <RailSectionButton
               isActive={view === "personas"}
               onPress={() => {
-                replace("/");
+                if (view !== "personas") {
+                  replace("/");
+                }
 
                 if (view === "personas" && open) {
                   setOpen(false);
@@ -95,7 +96,9 @@ export function AppRail() {
             <RailSectionButton
               isActive={view === "chats"}
               onPress={() => {
-                replace("/chats");
+                if (view !== "chats") {
+                  replace("/chats");
+                }
 
                 if (view === "chats" && open) {
                   setOpen(false);
@@ -113,7 +116,9 @@ export function AppRail() {
             <RailSectionButton
               isActive={view === "images"}
               onPress={() => {
-                replace("/images");
+                if (view !== "images") {
+                  replace("/images");
+                }
 
                 if (view === "images" && open) {
                   setOpen(false);
@@ -142,7 +147,7 @@ function PersonaButton() {
       href="/"
       className="
         relative inline-flex size-[52px] md:size-[42px] items-center justify-center
-        rounded-lg text-white overflow-hidden ring-1 ring-white/10
+        rounded-lg text-white overflow-hidden
         bg-transparent
         transition-all duration-200 will-change-transform
         hover:scale-110

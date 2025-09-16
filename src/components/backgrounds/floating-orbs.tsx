@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 type Props = {
   className?: string;
@@ -25,8 +25,8 @@ export default function FloatingOrbs({ className }: Props) {
           height: "550px",
           background:
             "radial-gradient(circle, #8b5cf6 0%, #a855f7 50%, transparent 70%)",
-          top: "-25%",
-          left: "5%",
+          top: "-200px",
+          left: "50px",
         }}
         animate={{
           y: [-20, -120, -60, -180, -80, -20],
@@ -47,8 +47,8 @@ export default function FloatingOrbs({ className }: Props) {
           height: "660px",
           background:
             "radial-gradient(circle, #9333ea 0%, #7c3aed 50%, transparent 70%)",
-          top: "-35%",
-          left: "35%",
+          top: "-350px",
+          left: "350px",
         }}
         animate={{
           y: [0, -140, -70, -200, -100, 0],
@@ -69,8 +69,8 @@ export default function FloatingOrbs({ className }: Props) {
           height: "500px",
           background:
             "radial-gradient(circle, #1e40af 0%, #1d4ed8 50%, transparent 70%)",
-          top: "-20%",
-          right: "0%",
+          top: "-200px",
+          right: "0px",
         }}
         animate={{
           y: [-10, -100, -130, -80, -220, -10],

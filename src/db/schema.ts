@@ -90,7 +90,7 @@ export const personas = pgTable(
     title: text("title"),
     currentVersionId: text("current_version_id"),
     profileImageId: text("profile_image_id"),
-    // Public publishing fields (MVP)
+
     visibility: personaVisibilityEnum("visibility")
       .notNull()
       .default("private"),

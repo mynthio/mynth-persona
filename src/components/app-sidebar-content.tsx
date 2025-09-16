@@ -163,7 +163,7 @@ function PersonasList() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.225, ease: "easeOut" }}
               >
-                <SidebarMenu>
+                <SidebarMenu className="gap-[1px]">
                   {data?.data.map((item) => (
                     <SidebarMenuItem
                       key={item.id}
@@ -173,16 +173,16 @@ function PersonasList() {
                         <Link
                           prefetch={false}
                           href={`/workbench/${item.id}`}
-                          className="w-full min-w-0 max-w-full overflow-hidden truncate"
+                          className="w-full max-md:h-[42px] min-w-0 max-w-full overflow-hidden truncate"
                         >
                           {item.profileImageId ? (
                             <img
-                              className="size-[20px] rounded-[6px] shrink-0"
+                              className="size-[20px] max-md:size-[32px] rounded-[12px] md:rounded-[6px] shrink-0"
                               src={getImageUrl(item.profileImageId!, "thumb")}
                               alt={item.title ?? "Persona"}
                             />
                           ) : (
-                            <div className="size-[20px] rounded-[6px] bg-surface/10 shrink-0"></div>
+                            <div className="size-[20px] max-md:size-[32px] rounded-[12px] md:rounded-[6px] bg-surface/10 shrink-0"></div>
                           )}
                           <span className="block truncate grow-0 w-full max-w-full">
                             {item.title}

@@ -25,6 +25,9 @@ export type SystemPromptIdForImage<
   M extends ImagePromptMode = ImagePromptMode
 > = `system.image.${M}.${PromptVersion}`;
 
+// New: Specific ID type for persona property action prompts
+export type SystemPromptIdForPersonaPropertyAction =
+  `system.persona.property-action.${PromptVersion}`;
 export type UserPromptIdForChat<M extends ChatPromptMode = ChatPromptMode> =
   `prompt.chat.${M}.${PromptVersion}`;
 export type UserPromptIdForPersona<
@@ -37,6 +40,7 @@ export type PromptId =
   | SystemPromptIdForChat
   | SystemPromptIdForPersona
   | SystemPromptIdForImage
+  | SystemPromptIdForPersonaPropertyAction
   | UserPromptIdForChat
   | UserPromptIdForPersona
   | UserPromptIdForImage;
@@ -92,6 +96,17 @@ export interface PromptDefinitionPersonaPublish extends PromptDefinitionBase {
   render: () => string;
 }
 
+// New: Persona property action system prompt definition
+export interface PromptDefinitionPersonaPropertyAction
+  extends PromptDefinitionBase {
+  id: SystemPromptIdForPersonaPropertyAction;
+  mode: "property-action";
+  render: PromptDefinitionRenderFunction<{
+    property: string;
+    action: "expand" | "rewrite";
+  }>;
+}
+
 export interface PromptDefinitionPromptPersonaPublish
   extends PromptDefinitionBase {
   id: UserPromptIdForPersona<"publish">;
@@ -128,4 +143,5 @@ export type PromptDefinition =
   | PromptDefinitionPersonaPublish
   | PromptDefinitionPromptPersonaPublish
   | PromptDefinitionImagePersona
-  | PromptDefinitionPromptImagePersona;
+  | PromptDefinitionPromptImagePersona
+  | PromptDefinitionPersonaPropertyAction;

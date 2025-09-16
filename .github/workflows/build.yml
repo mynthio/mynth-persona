@@ -1,5 +1,5 @@
 
-name: Build Next.js App
+name: Build App
 
 on:
   pull_request:
@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      UNKEY_ROOT_KEY: dummy
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

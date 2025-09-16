@@ -2,14 +2,19 @@
 
 import { config } from "dotenv";
 import { drizzle } from "drizzle-orm/neon-serverless";
-import { neon } from "@neondatabase/serverless";
+import { neonConfig } from "@neondatabase/serverless";
 import { users, userTokens } from "../src/db/schema";
 
 // Load environment variables
 config({ path: [".env.local", ".env"], quiet: true });
 
+neonConfig.wsProxy = (host) => `${host}:5433/v1`;
+neonConfig.useSecureWebSocket = false;
+neonConfig.pipelineTLS = false;
+neonConfig.pipelineConnect = false;
+
 // Initialize database connection
-export const db = drizzle(process.env.DATABASE_URL!);
+export const db = drizzle(process.env.LOCAL_DATABASE_URL!);
 
 // DRY RUN MODE - Set to true to see what would be synced without actually doing it
 const DRY_RUN = true;

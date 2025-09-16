@@ -1,11 +1,10 @@
 "use client";
-import { Field } from "@base-ui-components/react/field";
 import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { DeepPartial } from "ai";
-import PersonaCreator, { ModelSelector } from "./persona-creator";
+import PersonaCreator from "./persona-creator";
 import dynamic from "next/dynamic";
 
-import { Suspense, useCallback, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import {
   creatorPersonaGenerateClientSchema,
   CreatorPersonaGenerateClientResponse,
@@ -13,9 +12,12 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowsClockwiseIcon,
+  ArrowsVerticalIcon,
   CircleNotchIcon,
   EraserIcon,
   ImageIcon,
+  PencilLineIcon,
+  PlusIcon,
   ShootingStarIcon,
   SparkleIcon,
 } from "@phosphor-icons/react/dist/ssr";
@@ -25,13 +27,32 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useAuth, useClerk, useUser } from "@clerk/nextjs";
 import { parseAsBoolean, useQueryState } from "nuqs";
-import { spaceCase } from "case-anything";
+import { snakeCase, spaceCase } from "case-anything";
 import { Response } from "@/components/ai-elements/response";
-import { Popover, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
-import { Tooltip, TooltipPopup, TooltipTrigger } from "@/components/ui/tooltip";
+import { useGenerationContext } from "@/contexts/generation-context";
+import { z } from "zod/v4";
+import { Button } from "@/components/mynth-ui/base/button";
+import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
+import {
+  Popover,
+  PopoverContent,
+  PopoverFooter,
+  PopoverPopup,
+  PopoverPositioner,
+  PopoverSubmitButton,
+  PopoverTrigger,
+} from "@/components/mynth-ui/base/popover";
+import { Input } from "@/components/mynth-ui/base/input";
 import { Form } from "@base-ui-components/react/form";
+import {
+  CUSTOM_PROPERTY_NAME_MAX_LENGTH,
+  personaNewCustomPropertyNameSchema,
+} from "@/schemas/shared/persona/persona-property-name.schema";
 
 dayjs.extend(relativeTime);
+
+// Prevent duplicate auto-generation submissions (e.g., React StrictMode double-invoking effects in dev)
+const AUTO_CREATE_STARTED = new Set<string>();
 
 const PublicPersonas = dynamic(() => import("./public-personas"), {
   ssr: false,
@@ -45,6 +66,8 @@ export default function Home() {
   );
   const [submittedPrompt, setSubmittedPrompt] = useState("");
   const [personaId, setPersonaId] = useState<string | undefined>(undefined);
+  const { isGenerating, activeStream, setActiveStream } =
+    useGenerationContext();
 
   const [rateLimitError, setRateLimitError] = useState<{
     limit: number;
@@ -57,6 +80,7 @@ export default function Home() {
     schema: creatorPersonaGenerateClientSchema,
 
     onError: (error: any) => {
+      setActiveStream(null);
       try {
         const errorObject = JSON.parse(error.message);
         if (errorObject.error === "rate_limit_exceeded") {
@@ -72,6 +96,7 @@ export default function Home() {
     },
 
     onFinish: (data) => {
+      setActiveStream(null);
       if (data.object?.personaId) {
         setPersonaId(data.object.personaId);
       }
@@ -80,6 +105,10 @@ export default function Home() {
 
   const handleSubmit = useCallback(
     (text: string, options?: { model?: string }) => {
+      if (isGenerating) {
+        return;
+      }
+      setActiveStream("persona");
       if (text.trim() === "") {
         return;
       }
@@ -92,6 +121,10 @@ export default function Home() {
 
   const handleRetry = useCallback(
     (options?: { model?: string }) => {
+      if (isGenerating) {
+        return;
+      }
+      setActiveStream("persona");
       if (submittedPrompt.trim() === "") {
         return;
       }
@@ -113,7 +146,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -8, scale: 0.98 }}
           transition={{ duration: 0.25, ease: "easeInOut" }}
-          className="max-w-3xl mx-auto flex flex-col gap-[12px] mt-[32px] px-[12px] md:px-0 relative z-50"
+          className="max-w-3xl mx-auto flex flex-col gap-[12px] mt-[32px] px-[12px] md:px-0 relative"
         >
           <div
             className="
@@ -130,7 +163,7 @@ export default function Home() {
           {object?.persona?.note_for_user && (
             <div
               className="
-              bg-surface-200/70 mt-[12px] text-surface-foreground/80 font-[500] backdrop-blur-lg border border-surface-200/50
+              bg-white/50 mt-[12px] text-surface-foreground/80 font-[500] backdrop-blur-lg border-[1px] border-surface-200/70
               rounded-[16px] rounded-bl-[6px] px-[24px] py-[12px]
               max-w-[460px]
               text-left
@@ -252,6 +285,7 @@ function Footer({
 }) {
   const { isSignedIn } = useAuth();
   const { openSignIn } = useClerk();
+  const { isGenerating } = useGenerationContext();
   const [model, setModel] = useState<string>("auto");
 
   const loader = useMemo(
@@ -265,12 +299,12 @@ function Footer({
 
   return (
     <div
-      className="flex items-center justify-center gap-[12px] self-center mt-[42px]
+      className="flex items-center justify-center gap-[12px] self-center mt-[64px]
       rounded-[22px]
       p-[6px]
-                  sticky bottom-[100px] md:bottom-[24px] bg-background/70 backdrop-blur-[12px] min-w-content w-auto"
+                  sticky bottom-[100px] md:bottom-[24px] bg-background min-w-content w-auto"
     >
-      {isLoading ? (
+      {isGenerating ? (
         loader
       ) : (
         <>
@@ -380,9 +414,63 @@ function PersonaStreamingResult({
   object: DeepPartial<CreatorPersonaGenerateClientResponse> | undefined;
 }) {
   const persona = object?.persona;
+  const { isGenerating } = useGenerationContext();
+  const [extraSections, setExtraSections] = useState<string[]>([]);
+
+  const addNewSection = useCallback(
+    (name: string) => {
+      if (isGenerating) return;
+      if (!name) return;
+      if (extraSections.includes(name)) return;
+      // avoid adding if already exists on persona (extensions only)
+      if (persona && (persona as any)?.extensions?.[name]) return;
+      setExtraSections((prev) => [...prev, name]);
+    },
+    [extraSections, isGenerating, persona]
+  );
+
+  // Candidate follow-up suggestions (exclude required/core properties)
+  const FOLLOW_UP_SUGGESTIONS = useMemo(
+    () => [
+      { key: "hobbies", label: "Hobbies" },
+      { key: "top_5_movies", label: "Top 5 Movies" },
+      { key: "favorite_foods", label: "Favorite Foods" },
+      { key: "skills", label: "Skills" },
+      { key: "fears", label: "Fears" },
+      { key: "goals", label: "Goals" },
+      { key: "relationships", label: "Relationships" },
+      { key: "quirks", label: "Quirks" },
+      { key: "favorite_music", label: "Favorite Music" },
+      { key: "favorite_books", label: "Favorite Books" },
+      { key: "favorite_places", label: "Favorite Places" },
+      { key: "daily_routine", label: "Daily Routine" },
+      { key: "secrets", label: "Secrets" },
+      { key: "catchphrases", label: "Catchphrases" },
+      { key: "strengths", label: "Strengths" },
+      { key: "weaknesses", label: "Weaknesses" },
+      { key: "values", label: "Values" },
+      { key: "habits", label: "Habits" },
+    ],
+    []
+  );
+
+  // Compute 3 random suggestions not already present in extensions or newly added
+  const randomFollowUps = useMemo(() => {
+    const extensionKeys = persona?.extensions
+      ? Object.keys(persona.extensions)
+      : [];
+
+    const available = FOLLOW_UP_SUGGESTIONS.filter(
+      (item) =>
+        !extensionKeys.includes(item.key) && !extraSections.includes(item.key)
+    );
+
+    const shuffled = [...available].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 3);
+  }, [FOLLOW_UP_SUGGESTIONS, persona?.extensions, extraSections]);
 
   return (
-    <div className="flex flex-col gap-[42px] mt-[36px]">
+    <div className="flex flex-col gap-[42px] mt-[36px] min-h-[calc(50vh)]">
       {persona?.name && (
         <div>
           <h2 className="text-[2.3rem] text-left font-[200] font-onest">
@@ -412,38 +500,260 @@ function PersonaStreamingResult({
       )}
 
       {persona?.appearance && (
-        <Section title="Appearance" content={persona.appearance} />
+        <Section
+          title="appearance"
+          content={persona.appearance}
+          personaId={object?.personaId}
+        />
       )}
 
       {persona?.personality && (
-        <Section title="Personality" content={persona.personality} />
+        <Section
+          title="personality"
+          content={persona.personality}
+          personaId={object?.personaId}
+        />
       )}
 
       {persona?.background && (
-        <Section title="Background" content={persona.background} />
+        <Section
+          title="background"
+          content={persona.background}
+          personaId={object?.personaId}
+        />
       )}
 
       {persona?.occupation && (
-        <Section title="Occupation" content={persona.occupation} />
+        <Section
+          title="occupation"
+          content={persona.occupation}
+          personaId={object?.personaId}
+        />
       )}
 
       {persona?.extensions &&
         Object.entries(persona.extensions).map(
           ([key, value]) =>
-            value && <Section key={key} title={key} content={value} />
+            value && (
+              <Section
+                key={key}
+                title={key}
+                content={value}
+                personaId={object?.personaId}
+              />
+            )
         )}
+
+      {extraSections.map((prop) => (
+        <Section
+          key={`extra__${prop}`}
+          title={prop}
+          content=""
+          personaId={object?.personaId}
+          autoGenerateAction="create"
+        />
+      ))}
+
+      {/* Follow-up suggestions (3 random), filtered by existing extensions and newly added sections */}
+      {object?.personaId && randomFollowUps.length > 0 && (
+        <>
+          <ButtonGroup>
+            <AddCustomPropertyPopover onAdd={addNewSection} />
+
+            <ButtonGroup.Separator />
+
+            {randomFollowUps.map((item) => (
+              <Button
+                key={`suggest_${item.key}`}
+                disabled={isGenerating}
+                onClick={() => addNewSection(item.key)}
+              >
+                <ShootingStarIcon size={12} /> {item.label}
+              </Button>
+            ))}
+          </ButtonGroup>
+        </>
+      )}
     </div>
   );
 }
 
-function Section({ title, content }: { title: string; content: string }) {
+function AddCustomPropertyPopover({
+  onAdd,
+}: {
+  onAdd: (property: string) => void;
+}) {
+  const { isGenerating } = useGenerationContext();
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <div className="flex flex-col gap-[6px]">
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger
+        render={
+          <Button disabled={isGenerating}>
+            <PlusIcon size={12} /> Custom
+          </Button>
+        }
+      />
+
+      <PopoverPositioner side="top" align="start">
+        <PopoverPopup className="min-w-[260px]">
+          <Form
+            onSubmit={async (e) => {
+              e.preventDefault();
+
+              const formData = new FormData(e.currentTarget);
+
+              /**
+               * Normalize before validation, so users can use spaces, dashes, and underscores
+               */
+              const normalizedProperty = snakeCase(
+                formData.get("property")?.toString() ?? "",
+                {
+                  keepSpecialCharacters: false,
+                }
+              );
+
+              const property =
+                await personaNewCustomPropertyNameSchema.parseAsync(
+                  normalizedProperty
+                );
+
+              onAdd(property);
+              setIsOpen(false);
+            }}
+          >
+            <PopoverContent>
+              <p className="font-onest text-[0.75rem] font-[500] text-surface-foreground/50 mb-[6px] px-[4px]">
+                Property name
+              </p>
+              <Input
+                placeholder="Custom property name"
+                name="property"
+                required
+                minLength={1}
+                maxLength={CUSTOM_PROPERTY_NAME_MAX_LENGTH}
+              />
+            </PopoverContent>
+            <PopoverFooter>
+              <PopoverSubmitButton type="submit">Add</PopoverSubmitButton>
+            </PopoverFooter>
+          </Form>
+        </PopoverPopup>
+      </PopoverPositioner>
+    </Popover>
+  );
+}
+
+function Section({
+  title,
+  content,
+  personaId,
+  autoGenerateAction,
+}: {
+  title: string;
+  content: string;
+  personaId?: string;
+  autoGenerateAction?: "create";
+}) {
+  const { isGenerating, activeStream, setActiveStream } =
+    useGenerationContext();
+
+  const { submit, isLoading, object } = useObject({
+    api: "/api/creator/personas/properties/generate",
+    schema: z.object({
+      [title]: z.string(),
+    }),
+    onError: (error) => {
+      setActiveStream(null);
+    },
+    onFinish: (data) => {
+      setActiveStream(null);
+      console.log(data);
+    },
+  });
+
+  const currentContent = useMemo(() => {
+    return isLoading ? object?.[title] : object?.[title] || content;
+  }, [object, title, content, isLoading]);
+
+  const handleAction = useCallback(
+    (action: "expand" | "rewrite" | "create") => {
+      if (isGenerating) {
+        return;
+      }
+      setActiveStream(`section__${title}`);
+      submit({
+        personaId: personaId,
+        property: title,
+        action,
+      });
+    },
+    [submit, personaId, title, isGenerating, setActiveStream]
+  );
+
+  // Auto-start generation for new sections if requested
+  const [autoStarted, setAutoStarted] = useState(false);
+  const autoKey = useMemo(
+    () => `${personaId ?? "none"}::${title}`,
+    [personaId, title]
+  );
+  useEffect(() => {
+    if (
+      autoGenerateAction === "create" &&
+      !autoStarted &&
+      !content &&
+      personaId &&
+      !isGenerating &&
+      !isLoading &&
+      !AUTO_CREATE_STARTED.has(autoKey)
+    ) {
+      AUTO_CREATE_STARTED.add(autoKey);
+      setAutoStarted(true);
+      handleAction("create");
+    }
+  }, [
+    autoGenerateAction,
+    autoStarted,
+    content,
+    personaId,
+    isGenerating,
+    isLoading,
+    handleAction,
+    autoKey,
+  ]);
+
+  return (
+    <div>
       <h3 className="text-[1.1rem] font-bold capitalize">
         {spaceCase(title, { keepSpecialCharacters: false })}
       </h3>
 
-      <Response className="text-[1.05rem]">{content}</Response>
+      {isLoading && !currentContent && (
+        <CircleNotchIcon className="animate-spin my-[24px] ml-[6px]" />
+      )}
+
+      <Response className="text-[1.05rem] mt-[3px]">{currentContent}</Response>
+
+      {personaId && activeStream !== "persona" && (
+        <ButtonGroup className="mt-[12px]">
+          <Button
+            disabled={isGenerating}
+            onClick={() => handleAction("expand")}
+          >
+            <ArrowsVerticalIcon size={12} />
+            Expand
+          </Button>
+
+          <Button
+            disabled={isGenerating}
+            onClick={() => handleAction("rewrite")}
+          >
+            <PencilLineIcon size={12} />
+            Rewrite
+          </Button>
+        </ButtonGroup>
+      )}
     </div>
   );
 }

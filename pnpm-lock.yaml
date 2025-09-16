@@ -45,11 +45,11 @@ importers:
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@polar-sh/nextjs':
-        specifier: ^0.4.6
-        version: 0.4.6(next@15.5.3(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))
+        specifier: ^0.4.7
+        version: 0.4.7(next@15.5.3(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))
       '@polar-sh/sdk':
-        specifier: ^0.34.16
-        version: 0.34.16
+        specifier: ^0.34.17
+        version: 0.34.17
       '@radix-ui/react-avatar':
         specifier: ^1.1.10
         version: 1.1.10(@types/react-dom@19.1.9(@types/react@19.1.13))(@types/react@19.1.13)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -150,8 +150,8 @@ importers:
         specifier: ^8.6.0
         version: 8.6.0(react@19.1.1)
       framer-motion:
-        specifier: ^12.23.12
-        version: 12.23.12(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        specifier: ^12.23.13
+        version: 12.23.13(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       harden-react-markdown:
         specifier: ^1.0.5
         version: 1.0.5(react-markdown@10.1.0(@types/react@19.1.13)(react@19.1.1))(react@19.1.1)
@@ -165,8 +165,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0(react@19.1.1)
       motion:
-        specifier: ^12.23.12
-        version: 12.23.12(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+        specifier: ^12.23.13
+        version: 12.23.13(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       ms:
         specifier: ^2.1.3
         version: 2.1.3
@@ -1391,17 +1391,17 @@ packages:
       react: '>= 16.8'
       react-dom: '>= 16.8'
 
-  '@polar-sh/adapter-utils@0.2.5':
-    resolution: {integrity: sha512-IFB5xuajsS4G/KpyXVf+6aKHE5UeJgLxebZhlAwXEClhNVTK3gHFKziKi/HF9okcYw/mn3mOaOLfWzRArhXlFw==}
+  '@polar-sh/adapter-utils@0.2.6':
+    resolution: {integrity: sha512-vQ21YCm/pTSl/K8dt6zSXK0c4Um6xcI+eJWaeJHRxziL5OMgELtA3Da1bTnw8urUOka91PDr35vO2xezr+vmXQ==}
 
-  '@polar-sh/nextjs@0.4.6':
-    resolution: {integrity: sha512-6TuS6olxjmmSKcli+4rX0cQvjogTKRnS7Vsc2zRKvDVBQl+dSs+0AhqWUVPCA01dMSOT3I+InQBzQbjEK0hmjA==}
+  '@polar-sh/nextjs@0.4.7':
+    resolution: {integrity: sha512-3mJcP0bGqgCbxngMnt0Bkk5X1ap8tpXffhdi7lrqEo2wHDIjWIO6MXoSYbqSYBsPFWx6LaV7oH33OvMQbbEgWA==}
     engines: {node: '>=16'}
     peerDependencies:
       next: ^15.0.0 || ^15.2.0-canary.*
 
-  '@polar-sh/sdk@0.34.16':
-    resolution: {integrity: sha512-yCY0ve1GF7n/IsQZcc2IHUrC6ep4Vzn0LEKkCkR6AGftx7Ljwws14mD8Q4uG63WHLiGHplfK3cSV05+TUdojdw==}
+  '@polar-sh/sdk@0.34.17':
+    resolution: {integrity: sha512-+eJAAyyP4CAtMy9Hd6gaNXErjaH3KuTXJFv72kqlCCvv7SweBlM4U2+zpeYAZvd/YMRZq/c447f0a0DD2e7UEA==}
     hasBin: true
     peerDependencies:
       '@modelcontextprotocol/sdk': '>=1.5.0 <1.10.0'
@@ -3489,8 +3489,8 @@ packages:
     resolution: {integrity: sha512-wzsgA6WOq+09wrU1tsJ09udeR/YZRaeArL9e1wPbFg3GG2yDnC2ldKpxs4xunpFF9DgqCqOIra3bc1HWrJ37Ww==}
     engines: {node: '>=0.4.x'}
 
-  framer-motion@12.23.12:
-    resolution: {integrity: sha512-6e78rdVtnBvlEVgu6eFEAgG9v3wLnYEboM8I5O5EXvfKC8gxGQB8wXJdhkMy10iVcn05jl6CNw7/HTsTCfwcWg==}
+  framer-motion@12.23.13:
+    resolution: {integrity: sha512-OMF57Xh0fuTXfJQPtCieYGeU9Fam4SxqPLVz78YI7ATRFrfz8SARtqr1+qv56cX45kPFcIEfkUorVfxlOsjcUg==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -4289,8 +4289,8 @@ packages:
   motion-utils@12.23.6:
     resolution: {integrity: sha512-eAWoPgr4eFEOFfg2WjIsMoqJTW6Z8MTUCgn/GZ3VRpClWBdnbjryiA3ZSNLyxCTmCQx4RmYX6jX1iWHbenUPNQ==}
 
-  motion@12.23.12:
-    resolution: {integrity: sha512-8jCD8uW5GD1csOoqh1WhH1A6j5APHVE15nuBkFeRiMzYBdRwyAHmSP/oXSuW0WJPZRXTFdBoG4hY9TFWNhhwng==}
+  motion@12.23.13:
+    resolution: {integrity: sha512-kqmtRlqMuSJAMeHmYD+BPJNPGCUBXKqDuYpfuEh+mud9Y2gpSUrIXQRhCNkKzGlwOpbgbJocSJR5aKvhzyqFQg==}
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0 || ^19.0.0
@@ -6357,21 +6357,21 @@ snapshots:
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
 
-  '@polar-sh/adapter-utils@0.2.5':
+  '@polar-sh/adapter-utils@0.2.6':
     dependencies:
-      '@polar-sh/sdk': 0.34.16
+      '@polar-sh/sdk': 0.34.17
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
 
-  '@polar-sh/nextjs@0.4.6(next@15.5.3(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))':
+  '@polar-sh/nextjs@0.4.7(next@15.5.3(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))':
     dependencies:
-      '@polar-sh/adapter-utils': 0.2.5
-      '@polar-sh/sdk': 0.34.16
+      '@polar-sh/adapter-utils': 0.2.6
+      '@polar-sh/sdk': 0.34.17
       next: 15.5.3(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
 
-  '@polar-sh/sdk@0.34.16':
+  '@polar-sh/sdk@0.34.17':
     dependencies:
       standardwebhooks: 1.0.0
       zod: 3.25.76
@@ -8691,7 +8691,7 @@ snapshots:
 
   format@0.2.2: {}
 
-  framer-motion@12.23.12(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+  framer-motion@12.23.13(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
     dependencies:
       motion-dom: 12.23.12
       motion-utils: 12.23.6
@@ -9768,9 +9768,9 @@ snapshots:
 
   motion-utils@12.23.6: {}
 
-  motion@12.23.12(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
+  motion@12.23.13(react-dom@19.1.1(react@19.1.1))(react@19.1.1):
     dependencies:
-      framer-motion: 12.23.12(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      framer-motion: 12.23.13(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       tslib: 2.8.1
     optionalDependencies:
       react: 19.1.1

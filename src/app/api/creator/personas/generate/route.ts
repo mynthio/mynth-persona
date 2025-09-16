@@ -22,35 +22,13 @@ import { trackGeneratePersonaCompleted } from "@/lib/logsnag";
 import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
 import { and, eq, ne } from "drizzle-orm";
+import {
+  personaGenerationModelIds,
+  personaGenerationModelWeights,
+} from "@/config/shared/models/persona-generation-models.config";
+import { pickByWeightedPriority } from "@/lib/utils";
 
 export const maxDuration = 90;
-
-const MODELS_CONFIG = [
-  {
-    id: "auto",
-    priority: 0,
-  },
-  {
-    id: "thedrummer/anubis-70b-v1.1",
-    priority: 0.5,
-  },
-  {
-    id: "meta-llama/llama-4-maverick",
-    priority: 0.2,
-  },
-  {
-    id: "moonshotai/kimi-k2-0905",
-    priority: 0.5,
-  },
-  {
-    id: "x-ai/grok-3-mini",
-    priority: 0.3,
-  },
-  {
-    id: "sao10k/l3.3-euryale-70b",
-    priority: 0.5,
-  },
-];
 
 /**
  * Picks a main model and exactly two fallbacks (or fewer if not enough models)
@@ -58,37 +36,10 @@ const MODELS_CONFIG = [
  */
 type ModelConfig = { id: string; priority: number };
 
-function pickModels(config: ModelConfig[] = MODELS_CONFIG): {
-  main: string;
-  fallbacks: string[];
-} {
-  // Use Efraimidis–Spirakis method for weighted random ordering without replacement
-  // key = -ln(U) / weight; sort ascending by key
-  const valid = config.filter(
-    (m) => m && typeof m.priority === "number" && m.priority > 0
-  );
-  const pool = valid.length > 0 ? valid : config;
-
-  const keyed = pool.map((m) => {
-    const u = Math.random();
-    const weight = Math.max(1e-6, m.priority || 0); // safeguard to avoid divide-by-zero
-    const key = -Math.log(u) / weight;
-    return { id: m.id, key };
-  });
-
-  keyed.sort((a, b) => a.key - b.key);
-
-  const picks = keyed.slice(0, 3).map((k) => k.id);
-  const main = picks[0] ?? pool[0]?.id ?? config[0]?.id ?? "";
-  const fallbacks = picks.slice(1, 3).filter(Boolean);
-
-  return { main, fallbacks };
-}
-
 const jsonRequestSchema = z.object({
   prompt: z.string().min(1).max(2048),
   personaId: z.string().optional(),
-  modelId: z.enum(MODELS_CONFIG.map((m) => m.id)).optional(),
+  modelId: z.enum(personaGenerationModelIds).optional(),
 });
 
 const SYSTEM = getDefaultPromptDefinitionForMode(
@@ -135,9 +86,9 @@ export async function POST(req: Request) {
   const { main, fallbacks } =
     json.modelId && json.modelId !== "auto"
       ? { main: json.modelId, fallbacks: undefined }
-      : pickModels(MODELS_CONFIG);
+      : pickByWeightedPriority(personaGenerationModelWeights);
 
-  const model = openrouter("openrouter/sonoma-sky-alpha", {
+  const model = openrouter(main, {
     models: fallbacks,
   });
 

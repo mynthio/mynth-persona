@@ -1,8 +1,10 @@
 import FloatingOrbs from "@/components/backgrounds/floating-orbs";
+
 import Home from "./_components/home";
+
 import { GenerationContextProvider } from "@/contexts/generation-context";
 
-export default async function HomePage({ searchParams }: PageProps<"/">) {
+export default async function HomePage() {
   return (
     <>
       <GenerationContextProvider>

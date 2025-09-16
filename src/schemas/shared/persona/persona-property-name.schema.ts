@@ -42,7 +42,9 @@ export const personaPropertyNameSchema = z.union([
 export const personaNewCustomPropertyNameSchema =
   personaCustomPropertyNameSchema.refine(
     (property) =>
-      !personaBuiltInPropertyNamesSchema.options.includes(property as any),
+      !personaNonExtendableBuiltInPropertyNamesSchema.options.includes(
+        property as any
+      ),
     {
       message: "Property is not a non-extendable built-in property",
     }

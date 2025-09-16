@@ -14,6 +14,8 @@ import { z } from "zod/v4";
 import { getPromptDefinitionById } from "@/lib/prompts/registry";
 import { PromptDefinitionPersonaPropertyAction } from "@/lib/prompts/types";
 import { personaNewCustomPropertyNameSchema } from "@/schemas/shared/persona/persona-property-name.schema";
+import { pickByWeightedPriority } from "@/lib/utils";
+import { personaGenerationModelWeights } from "@/config/shared/models/persona-generation-models.config";
 
 const jsonRequestSchema = z.object({
   personaId: z.string(),
@@ -75,8 +77,12 @@ export async function POST(req: Request) {
     throw new Error("Persona not found");
   }
 
+  const pickedModels = pickByWeightedPriority(personaGenerationModelWeights);
+
   const openrouter = getOpenRouter();
-  const model = openrouter("openrouter/sonoma-dusk-alpha");
+  const model = openrouter(pickedModels.main, {
+    models: pickedModels.fallbacks,
+  });
 
   const dynamicSchema = z.object({
     [payload.property]: z.string(),

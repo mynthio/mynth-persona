@@ -470,7 +470,7 @@ function PersonaStreamingResult({
   }, [FOLLOW_UP_SUGGESTIONS, persona?.extensions, extraSections]);
 
   return (
-    <div className="flex flex-col gap-[42px] mt-[36px]">
+    <div className="flex flex-col gap-[42px] mt-[36px] min-h-[calc(50vh)]">
       {persona?.name && (
         <div>
           <h2 className="text-[2.3rem] text-left font-[200] font-onest">
@@ -583,13 +583,14 @@ function AddCustomPropertyPopover({
 }: {
   onAdd: (property: string) => void;
 }) {
+  const { isGenerating } = useGenerationContext();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger
         render={
-          <Button>
+          <Button disabled={isGenerating}>
             <PlusIcon size={12} /> Custom
           </Button>
         }

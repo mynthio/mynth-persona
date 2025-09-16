@@ -5,7 +5,11 @@ export type TextGenerationModelId =
   | "meta-llama/llama-3.3-70b-instruct"
   | "mistralai/mistral-nemo"
   | "deepseek/deepseek-chat-v3.1"
-  | "x-ai/grok-3-mini";
+  | "x-ai/grok-3-mini"
+  | "thedrummer/anubis-70b-v1.1"
+  | "meta-llama/llama-4-maverick"
+  | "moonshotai/kimi-k2-0905"
+  | "sao10k/l3.3-euryale-70b";
 
 export type TextGenerationModelConfig = {
   enabled: boolean;
@@ -52,5 +56,26 @@ export const textGenerationModels: Record<
     enabled: true,
     isFreeVersionAvailable: false,
     modelId: "x-ai/grok-3-mini",
+  },
+  // Additional global models used by persona generation
+  "thedrummer/anubis-70b-v1.1": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    modelId: "thedrummer/anubis-70b-v1.1",
+  },
+  "meta-llama/llama-4-maverick": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    modelId: "meta-llama/llama-4-maverick",
+  },
+  "moonshotai/kimi-k2-0905": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    modelId: "moonshotai/kimi-k2-0905",
+  },
+  "sao10k/l3.3-euryale-70b": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    modelId: "sao10k/l3.3-euryale-70b",
   },
 };

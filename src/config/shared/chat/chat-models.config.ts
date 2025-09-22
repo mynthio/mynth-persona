@@ -17,6 +17,11 @@ export type ChatConfig = {
 export const chatConfig: ChatConfig = {
   models: [
     {
+      modelId: "x-ai/grok-4-fast",
+      displayName: "Grok 4 Fast",
+      cost: 0,
+    },
+    {
       modelId: "moonshotai/kimi-k2",
       displayName: "Kimi K2",
       cost: 0,

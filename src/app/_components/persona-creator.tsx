@@ -259,6 +259,10 @@ const models = [
     label: <>Grok 3 Mini</>,
   },
   {
+    value: "x-ai/grok-4-fast:free",
+    label: <>Grok 4 Fast (BETA)</>,
+  },
+  {
     value: "sao10k/l3.3-euryale-70b",
     label: <>L3.3 Euryale 70B</>,
   },

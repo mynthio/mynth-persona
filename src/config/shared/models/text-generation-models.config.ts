@@ -9,7 +9,8 @@ export type TextGenerationModelId =
   | "thedrummer/anubis-70b-v1.1"
   | "meta-llama/llama-4-maverick"
   | "moonshotai/kimi-k2-0905"
-  | "sao10k/l3.3-euryale-70b";
+  | "sao10k/l3.3-euryale-70b"
+  | "x-ai/grok-4-fast";
 
 export type TextGenerationModelConfig = {
   enabled: boolean;
@@ -56,6 +57,11 @@ export const textGenerationModels: Record<
     enabled: true,
     isFreeVersionAvailable: false,
     modelId: "x-ai/grok-3-mini",
+  },
+  "x-ai/grok-4-fast": {
+    enabled: true,
+    isFreeVersionAvailable: true,
+    modelId: "x-ai/grok-4-fast",
   },
   // Additional global models used by persona generation
   "thedrummer/anubis-70b-v1.1": {

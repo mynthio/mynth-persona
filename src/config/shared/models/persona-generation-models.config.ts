@@ -5,6 +5,7 @@ export const personaGenerationModelIds = [
   "meta-llama/llama-4-maverick",
   "moonshotai/kimi-k2-0905",
   "x-ai/grok-3-mini",
+  "x-ai/grok-4-fast:free",
   "sao10k/l3.3-euryale-70b",
 ] as const;
 
@@ -39,8 +40,12 @@ export const personaGenerationModelWeights: PersonaGenerationModelWeight[] = [
     priority: 0.3,
   },
   {
-    id: "sao10k/l3.3-euryale-70b",
+    id: "x-ai/grok-4-fast:free",
     priority: 0.5,
+  },
+  {
+    id: "sao10k/l3.3-euryale-70b",
+    priority: 0.3,
   },
 ];
 

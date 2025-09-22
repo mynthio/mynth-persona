@@ -10,6 +10,7 @@ import {
   getDefaultPromptDefinitionForMode,
   getDefaultUserPromptDefinitionForMode,
 } from "@/lib/prompts/registry";
+import { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
 
 type CraftImagePromptForPersonaPayload = {
   personaData: PersonaData;
@@ -75,7 +76,9 @@ export async function craftImagePromptForPersona(
   });
 
   const openRouter = getOpenRouter();
-  const model = openRouter(nsfw ? "moonshotai/kimi-k2" : "openai/gpt-5-nano");
+  const model = openRouter("x-ai/grok-4-fast:free", {
+    models: ["moonshotai/kimi-k2-0905"] satisfies TextGenerationModelId[],
+  });
 
   const result = await generateObject({
     model,

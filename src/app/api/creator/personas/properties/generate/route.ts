@@ -1,6 +1,6 @@
 import { db } from "@/db/drizzle";
 import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
-import { logger } from "@/lib/logger";
+import { logAiSdkUsage, logger } from "@/lib/logger";
 import {
   PersonaCreatorAuthenticatedRateLimit,
   rateLimitGuard,
@@ -119,6 +119,20 @@ export async function POST(req: Request) {
       for await (const chunk of textStream) {
         controller.enqueue(new TextEncoder().encode(chunk));
       }
+
+      const response = await result.response;
+      const usage = await result.usage;
+
+      logAiSdkUsage(
+        {
+          response: response,
+          usage: usage,
+        },
+        {
+          component: "generation:text:complete",
+          useCase: "persona_generation",
+        }
+      );
 
       const propertyResult = await result.object;
       const propertyValue = propertyResult[payload.property];

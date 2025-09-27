@@ -49,7 +49,7 @@ function createChat(options: CreateChatOptionsArgs) {
         }
 
         return {
-          api: `/api/chats/${chatId}/chat`,
+          api: `/api/chats-legacy/${chatId}/chat`,
           body: {
             messages: [messages.at(-1)],
             parentId: messages.at(-2)?.id ?? null,

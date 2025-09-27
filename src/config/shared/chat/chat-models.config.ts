@@ -14,6 +14,8 @@ export type ChatConfig = {
   models: ChatConfigModels;
 };
 
+export const DEFAULT_CHAT_MODEL = "x-ai/grok-4-fast";
+
 export const chatConfig: ChatConfig = {
   models: [
     {

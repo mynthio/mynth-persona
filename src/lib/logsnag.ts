@@ -36,6 +36,29 @@ export const trackGeneratePersonaCompleted = async ({
     .catch((err) => {});
 };
 
+export const trackChatError = async ({
+  userId,
+  modelId,
+}: {
+  userId: string;
+  modelId: string;
+}) => {
+  const hashedUserId = hashSensitive(userId);
+
+  await logsnag
+    .track({
+      channel: "chats",
+      event: "chat-error",
+      user_id: hashedUserId,
+      icon: "🚨",
+      tags: {
+        model: modelId,
+        user: hashedUserId,
+      },
+    })
+    .catch((err) => {});
+};
+
 function hashSensitive(userId: string): string {
   const hash = crypto.createHash("sha256");
   hash.update(userId);

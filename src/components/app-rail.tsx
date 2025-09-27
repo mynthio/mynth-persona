@@ -41,10 +41,9 @@ export function AppRail() {
 
   return (
     <>
-      {/* <div className="md:hidden w-[64px] shrink-0" /> */}
       <div
         className="
-                    fixed z-[999999999] px-[12px] md:px-0 justify-between 
+                    fixed z-rail px-[12px] md:px-0 justify-between 
                     bg-background/80 backdrop-blur-lg md:bg-background md:backdrop-blur-none
                     rounded-[14px] md:rounded-none
                     left-[12px] md:left-0
@@ -300,7 +299,7 @@ function RailsFooter() {
                   align="end"
                   side="right"
                   sideOffset={8}
-                  className="outline-0 z-[99999999999999]"
+                  className="outline-0 z-popup"
                 >
                   <Menu.Popup
                     className={cn(

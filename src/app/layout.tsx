@@ -142,7 +142,7 @@ export default async function RootLayout({
             <AppSidebar />
 
             <div className="p-[8px] md:pl-0 min-h-full w-full flex flex-col md:block">
-              <main className="h-full w-full min-w-0 min-h-0 self-center bg-surface border-[2.5px] border-black/70 text-surface-foreground rounded-[18px] relative z-0">
+              <main className="h-full w-full min-w-0 min-h-0 self-center bg-surface border-[2.5px] border-black/70 text-surface-foreground rounded-[18px] relative">
                 {children}
               </main>
               <div className="md:hidden shrink-0 h-[79px]" />

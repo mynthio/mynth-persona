@@ -126,7 +126,7 @@ export default function PersonaCreator({
                   animatedPlaceholder ? "" : ""
                 }${cursorChar}`
           }
-          className="bg-surface-100/50 
+          className="bg-white
           rounded-[22px] py-[14px] px-[16px] md:py-[16px] md:px-[22px] 
           border-none ring ring-surface-200
           font-mono 

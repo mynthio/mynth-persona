@@ -6,6 +6,8 @@ import { logger } from "@/lib/logger";
 import { auth } from "@clerk/nextjs/server";
 import { and, eq } from "drizzle-orm";
 import { getChatMessagesData } from "@/data/messages/get-chat-messages.data";
+import { kv } from "@vercel/kv";
+import ms from "ms";
 
 export async function GET(
   req: Request,
@@ -40,21 +42,6 @@ export async function GET(
   const limitParam = url.searchParams.get("limit");
   const limit = limitParam ? parseInt(limitParam, 10) : undefined;
 
-  if (messageIdFromQuery) {
-    // Validate provided messageId belongs to this chat
-    const exists = await db.query.messages.findFirst({
-      where: and(
-        eq(messages.id, messageIdFromQuery),
-        eq(messages.chatId, chatId)
-      ),
-      columns: { id: true },
-    });
-
-    if (!exists) {
-      return new Response("Message not found", { status: 404 });
-    }
-  }
-
   const { leafId, messages: items } = await getChatMessagesData(chatId, {
     messageId: messageIdFromQuery ?? null,
     limit,
@@ -68,6 +55,13 @@ export async function GET(
     // No messages in chat
     return Response.json({ leafId: null, messages: [] });
   }
+
+  // Set the branch ID so we remember what's the current branch for user
+  // remove after 14 days, it's not big deal, as it will fallback to latest message
+  // classic behavior. But we will keep redis cleaner.
+  await kv.set<string>(`chat:${chatId}:leaf`, leafId, {
+    px: ms("14d"),
+  });
 
   logger.debug({
     messages: items.map((i) => ({

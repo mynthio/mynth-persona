@@ -2,216 +2,120 @@
 
 import "server-only";
 
-import { db } from "@/db/drizzle";
-import { chatPersonas, chats, personas, personaVersions } from "@/db/schema";
-import { auth } from "@clerk/nextjs/server";
-import { and, eq, ne } from "drizzle-orm";
-import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
-import { generateObject } from "ai";
-import { z } from "zod/v4";
-import { logger, logAiSdkUsage } from "@/lib/logger";
-import { nanoid } from "nanoid";
-import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
-import { chatConfig } from "@/config/shared/chat/chat-models.config";
-import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
-import logsnag from "@/lib/logsnag";
+import { logger } from "@/lib/logger";
 import { generateRoleplaySummary } from "@/services/persona/roleplay-summary.service";
+import { db } from "@/db/drizzle";
+import { auth } from "@clerk/nextjs/server";
+import { notFound, redirect } from "next/navigation";
+import { PersonaData, PersonaVersionRoleplayData } from "@/schemas";
+import { updatePersonaVersionRoleplayData } from "@/services/persona/update-roleplay-data.service";
+import { DEFAULT_CHAT_MODEL } from "@/config/shared/chat/chat-models.config";
+import { nanoid } from "nanoid";
+import { chatPersonas, chats } from "@/db/schema";
+import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
 
-const chatModeSchema = z.enum(["roleplay", "story"]);
-
-export const createChat = async (
-  personaId: string,
-  userMessage: string,
-  mode: "roleplay" | "story" = "roleplay",
-  modelId?: string
-) => {
-  // Validate mode parameter
-  const validatedMode = chatModeSchema.parse(mode);
-  const { userId } = await auth();
-
-  if (!userId) {
-    throw new Error("Unauthorised");
-  }
+export const createChatAction = async (personaId: string) => {
+  const { userId } = await auth.protect();
 
   const persona = await db.query.personas.findFirst({
-    where: and(
-      eq(personas.id, personaId),
-      eq(personas.userId, userId),
-      ne(personas.visibility, "deleted")
-    ),
-
+    where: (personasTable, { eq, and, or }) =>
+      or(
+        and(
+          eq(personasTable.id, personaId),
+          eq(personasTable.userId, userId),
+          eq(personasTable.visibility, "private")
+        ),
+        and(
+          eq(personasTable.id, personaId),
+          eq(personasTable.visibility, "public")
+        )
+      ),
     columns: {
       id: true,
+      visibility: true,
+      publicVersionId: true,
+      currentVersionId: true,
     },
+  });
 
-    with: {
-      currentVersion: {
-        columns: {
-          id: true,
-          roleplayData: true,
-          data: true,
-        },
+  if (!persona) notFound();
+  if (persona.visibility === "public" && !persona.publicVersionId) {
+    notFound();
+  }
+  if (persona.visibility === "private" && !persona.currentVersionId) {
+    notFound();
+  }
+
+  const version = await db.query.personaVersions
+    .findFirst({
+      where: (table, { eq }) =>
+        eq(
+          table.id,
+          persona.visibility === "public"
+            ? persona.publicVersionId!
+            : persona.currentVersionId!
+        ),
+      columns: {
+        id: true,
+        data: true,
+        roleplayData: true,
       },
-    },
-  });
+    })
+    .then(
+      (version) =>
+        version as {
+          id: string;
+          data: PersonaData;
+          roleplayData?: PersonaVersionRoleplayData;
+        }
+    );
 
-  if (!persona) {
-    throw new Error("Persona not found");
-  }
+  const rolePlayData = version.roleplayData;
 
-  if (!persona.currentVersion) {
-    throw new Error("Persona Version not found");
-  }
+  if (!rolePlayData) {
+    /**
+     * We need to generate persona role-play data first if it doesn't exists
+     */
+    logger.debug(
+      {
+        personaId: version.id,
+      },
+      "Missing Persona Roleplay Data. Generating and Updating."
+    );
 
-  const { roleplayData: maybeRoleplayData, data } =
-    persona.currentVersion || {};
-
-  if (!data) {
-    throw new Error("Persona Version Invalid");
-  }
-
-  let roleplayData = maybeRoleplayData;
-
-  if (!roleplayData) {
-    const timeStart = Date.now();
-
-    try {
-      const { summary, modelId } = await generateRoleplaySummary(data);
-
-      const {
-        appearance,
-        personality,
-        background,
-        interests,
-        skills,
-        motivations,
-      } = summary;
-
-      await db
-        .update(personaVersions)
-        .set({
-          roleplayData: {
-            // @ts-ignore
-            name: data.name as string,
-            // @ts-ignore
-            age: data.age as string,
-            // @ts-ignore
-            gender: data.gender as string,
-            appearance,
-            personality,
-            background,
-            interests,
-            skills,
-            motivations,
-          },
-        })
-        .where(eq(personaVersions.id, persona.currentVersion!.id));
-
-      logger.debug({
-        model: modelId,
-        data: summary,
-        timeMs: Date.now() - timeStart,
-      });
-    } catch (e) {
-      await logsnag
-        .track({
-          channel: "personas",
-          event: "persona-summary-failed",
-          icon: "🚨",
-        })
-        .catch(() => {});
-      throw e;
-    }
-  }
-
-  const chatId = `pch_${nanoid()}`;
-
-  const openrouter = getOpenRouter();
-  const model = openrouter("openai/gpt-oss-20b:free", {
-    models: ["openai/gpt-oss-20b"],
-  });
-
-  let title: string;
-  try {
-    const titleResult = await generateObject({
-      model,
-      system:
-        "Generate a title for a chat based on User's first message and role-play character summary",
-      prompt: `Character: ${(data as any).summary}
-    
-    User message: ${userMessage}`,
-      schema: z.object({
-        title: z
-          .string()
-          .describe(
-            "Short, one sentence, maximum 100 characters title for a chat"
-          ),
-      }),
+    const { summary } = await generateRoleplaySummary(version.data);
+    await updatePersonaVersionRoleplayData({
+      personaVersionId: version.id,
+      personaData: version.data,
+      summary,
     });
-
-    logAiSdkUsage(titleResult, {
-      component: "generation:text:complete",
-      useCase: "chat_title_generation",
-    });
-
-    title = titleResult.object.title;
-  } catch (e) {
-    title = "Untitled Chat";
-  }
-
-  // Resolve and validate the chat model to use
-  const availableModels = chatConfig.models;
-  if (!availableModels || availableModels.length === 0) {
-    throw new Error("No chat models configured");
-  }
-
-  let selectedModelId: TextGenerationModelId;
-  if (modelId) {
-    const found = availableModels.find((m) => m.modelId === modelId);
-    if (!found) {
-      throw new Error("Chat model not found");
-    }
-    selectedModelId = found.modelId;
   } else {
-    selectedModelId = availableModels[0].modelId;
+    logger.debug({ rolePlayData });
   }
 
-  const newChat = {
-    id: chatId,
-    personaId,
-    personaVersionId: persona.currentVersion.id,
-    userId,
-    mode: validatedMode,
-    settings: {
-      model: selectedModelId,
-    } satisfies ChatSettings,
-    title: title || "New Chat",
-  };
+  const modelId = DEFAULT_CHAT_MODEL;
 
-  await db.transaction(async (tx) => {
-    await tx.insert(chats).values({
+  const { chatId } = await db.transaction(async (tx) => {
+    const chatId = `pch_${nanoid()}`;
+
+    await db.insert(chats).values({
       id: chatId,
+      title: `${version.data.name} Chat`,
       userId,
-      mode: validatedMode,
-      settings: newChat.settings,
-      title: title || "New Chat",
+      mode: "roleplay",
+      settings: {
+        model: modelId,
+      } satisfies ChatSettings,
     });
 
-    await tx.insert(chatPersonas).values({
+    await db.insert(chatPersonas).values({
       chatId,
       personaId,
-      personaVersionId: persona.currentVersion!.id!,
+      personaVersionId: version.id,
     });
+
+    return { chatId };
   });
 
-  await logsnag
-    .track({
-      channel: "chats",
-      event: "chat-created",
-      icon: "💬",
-      tags: { model: selectedModelId },
-    })
-    .catch(() => {});
-
-  return newChat;
+  redirect(`/chats/${chatId}`);
 };

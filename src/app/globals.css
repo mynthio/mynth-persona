@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@source "../node_modules/streamdown/dist/index.js";
+@source "../../node_modules/streamdown/dist/index.js";
 
 @plugin "@tailwindcss/typography";
 @plugin 'tailwind-scrollbar';
@@ -185,6 +185,31 @@ body {
   --font-mono: var(--font-space-mono);
 
   --font-onest: var(--font-onest);
+
+  /* Z-index scale: named layers for consistent stacking order */
+  --z-auto: auto;
+
+  /* Base numeric scale (kept for interop) */
+  --z-0: 0;
+  --z-10: 10;
+  --z-20: 20;
+  --z-30: 30;
+  --z-40: 40;
+  --z-50: 50;
+
+  /* Named layers */
+  --z-below: -1; /* decorations/background or when you need to sit behind content */
+  --z-content: 1; /* default content inside local stacking contexts */
+  --z-header: 20; /* top nav/header bars */
+  --z-rail: 30; /* app rail / floating action bars */
+  --z-sidebar: 40; /* sidebars, drawers */
+  --z-overlay: 50; /* scrims/backdrops behind dialogs/sheets */
+  --z-dialog: 60; /* modals, sheets, image viewers */
+  --z-popup: 70; /* dropdowns, popovers, hovercards */
+  --z-dropdown: 70; /* alias for popups */
+  --z-tooltip: 80; /* tooltips */
+  --z-toast: 90; /* toasts/notifications */
+  --z-max: 9999; /* escape hatch for rare cases */
 }
 
 @layer base {

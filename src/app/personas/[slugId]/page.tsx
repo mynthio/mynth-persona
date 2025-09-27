@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import { getImageUrl } from "@/lib/utils";
 import { PersonaData } from "@/schemas";
 import type { Metadata } from "next";
+import { Link } from "@/components/ui/link";
+import { CreateChatButton } from "@/components/create-chat-button";
 
 export const revalidate = 0;
 
@@ -129,6 +131,12 @@ export default async function PersonaPublicPage(
                 {persona.headline}
               </p>
             )}
+          </div>
+
+          <div>
+            <CreateChatButton personaId={persona.id}>
+              Chat with {displayName}
+            </CreateChatButton>
           </div>
 
           {/* Attributes */}

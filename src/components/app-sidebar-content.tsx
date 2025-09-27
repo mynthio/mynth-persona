@@ -25,6 +25,8 @@ import { Link } from "./ui/link";
 import { usePathname } from "next/navigation";
 import { SignInButton, useAuth } from "@clerk/nextjs";
 import { useDebounce } from "@uidotdev/usehooks";
+import { useUserChatsQuery } from "@/app/_queries/use-user-chats.query";
+import { useChatId } from "@/hooks/use-chat-id.hook";
 
 export function SidebarContentRouter() {
   const pathname = usePathname();
@@ -202,7 +204,93 @@ function PersonasList() {
 }
 
 function SidebarChatsContent() {
-  return <WorkInProgressContent />;
+  const [searchValue, setSearchValue] = useState("");
+  const debouncedQuery = useDebounce(searchValue, 300);
+
+  const { data, isLoading } = useUserChatsQuery({ q: debouncedQuery });
+
+  return (
+    <>
+      <SidebarGroup className="mt-[8px]">
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link
+                  href={"/chats"}
+                  className="h-[38px] text-[16px] rounded-[16px]"
+                >
+                  <PlanetIcon />
+                  <span>New chat</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+
+      <SidebarGroup className="mb-0 pb-0">
+        <SidebarMenu autoFocus={false} className="w-full min-w-0">
+          <SidebarMenuItem className="w-full min-w-0 mb-[8px]">
+            <Search placeholder="Search" onSearchChange={setSearchValue} />
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroup>
+
+      <ScrollArea className="flex-1 min-h-0 h-0 w-full min-w-0 max-w-full">
+        <SidebarGroup className="w-full min-w-0 mt-0 pt-0">
+          <AnimatePresence mode="wait">
+            {isLoading ? (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="w-full h-[120px] flex items-center justify-center"
+              >
+                <CircleNotchIcon
+                  className="animate-spin text-muted-foreground"
+                  size={20}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="content"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.225, ease: "easeOut" }}
+              >
+                <SidebarMenu className="gap-[1px]">
+                  {data?.data.map((item) => (
+                    <SidebarMenuItem
+                      key={item.id}
+                      className="w-full overflow-hidden min-w-0"
+                    >
+                      <SidebarMenuButton asChild>
+                        <Link
+                          prefetch={false}
+                          href={`/chats/${item.id}`}
+                          className="w-full max-md:h-[42px] min-w-0 max-w-full overflow-hidden truncate"
+                        >
+                          <div className="size-[20px] max-md:size-[32px] rounded-[12px] md:rounded-[6px] bg-surface/10 shrink-0"></div>
+
+                          <span className="block truncate grow-0 w-full max-w-full">
+                            {item.title}
+                          </span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </SidebarGroup>
+      </ScrollArea>
+    </>
+  );
 }
 
 function SidebarImagesContent() {

@@ -12,6 +12,7 @@ import { ParseIssueTitleAnnotationId } from "effect/SchemaAST";
 export type GetChatMessagesOptions = {
   messageId?: string | null;
   limit?: number; // how many messages to fetch in the thread (root -> leaf)
+  strict?: boolean; // if true and messageId is provided, fetch history strictly up to this message (do not resolve latest leaf)
 };
 
 type GetChatMessagesResponseData = {
@@ -21,11 +22,11 @@ type GetChatMessagesResponseData = {
 
 export async function getChatMessagesData(
   chatId: string,
-  { messageId, limit }: GetChatMessagesOptions = {}
+  { messageId, limit, strict }: GetChatMessagesOptions = {}
 ): Promise<GetChatMessagesResponseData> {
   // Determine the leafId to use for the thread
   const leafId = messageId
-    ? await getLatestLeafForMessage(chatId, messageId)
+    ? (strict ? messageId : await getLatestLeafForMessage(chatId, messageId))
     : await getLatestLeafForChat(chatId);
 
   if (!leafId) {
@@ -66,7 +67,7 @@ export async function getChatMessagesData(
     `
   );
 
-  const items = result.rows.map(
+  const items: PersonaUIMessage[] = result.rows.map(
     (r) =>
       ({
         id: r.id as string,

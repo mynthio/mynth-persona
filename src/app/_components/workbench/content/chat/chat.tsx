@@ -10,7 +10,7 @@ import { ReactNode, useEffect, useMemo, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { useParams } from "next/navigation";
 import { useChatId } from "@/hooks/use-chat-id.hook";
-import { createChat } from "@/actions/create-chat.action";
+import { createChatAction } from "@/actions/create-chat.action";
 import { useSWRConfig } from "swr";
 import { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 import {
@@ -122,7 +122,7 @@ export function ChatInner() {
     setIsLoadingBranch(true);
 
     fetch(
-      `/api/chats/${chatId}/messages${
+      `/api/chats-legacy/${chatId}/messages${
         branchesCtx.branchId ? `?messageId=${branchesCtx.branchId}` : ""
       }`,
       { signal: abortController.signal }
@@ -249,7 +249,7 @@ export function ChatInner() {
     if (!chatId) {
       setMessages([]);
       setIsCreatingChat(true);
-      const response = await createChat(
+      const response = await createChatAction(
         personaId!,
         input,
         selectedMode,

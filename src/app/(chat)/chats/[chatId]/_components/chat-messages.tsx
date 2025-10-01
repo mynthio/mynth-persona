@@ -1,0 +1,512 @@
+"use client";
+
+import React, { useCallback } from "react";
+import { Virtuoso } from "react-virtuoso";
+
+import { useEffect, useRef, useState } from "react";
+import {
+  useWindowVirtualizer,
+  defaultRangeExtractor,
+} from "@tanstack/react-virtual";
+import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
+import {
+  useChatActions,
+  useChatMessageCount,
+  useChatMessages,
+  useChatStatus,
+} from "@ai-sdk-tools/store";
+import {
+  Message,
+  MessageAvatar,
+  MessageContent,
+} from "@/components/mynth-ui/ai/message";
+import { Button } from "@/components/mynth-ui/base/button";
+import {
+  ArrowsCounterClockwiseIcon,
+  BrainIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
+  PencilSimpleIcon,
+} from "@phosphor-icons/react/dist/ssr";
+import { useChatBranchesContext } from "../_contexts/chat-branches.context";
+import { useChatMain } from "../_contexts/chat-main.context";
+import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
+import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
+import { Response } from "@/components/mynth-ui/ai/response";
+import { TextareaAutosize } from "@/components/ui/textarea";
+import { nanoid } from "nanoid";
+import { useUser } from "@clerk/nextjs";
+import { useChatPersonas } from "../_contexts/chat-personas.context";
+import { cn, getImageUrl } from "@/lib/utils";
+import { ApiChatMessagesResponse } from "@/app/(chat)/api/chats/[chatId]/messages/route";
+import {
+  Conversation,
+  ConversationContent,
+} from "@/components/mynth-ui/ai/conversation";
+import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger,
+} from "@/components/mynth-ui/ai/reasoning";
+
+type ChatMessagesProps = {
+  initialMessages: PersonaUIMessage[];
+};
+
+export default function ChatMessages(props: ChatMessagesProps) {
+  /**
+   * States & Data
+   */
+  const messages = useChatMessages<PersonaUIMessage>();
+  const { setMessages } = useChatActions();
+
+  const { chatId } = useChatMain();
+
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const previousHeightRef = useRef(0);
+  const previousScrollYRef = useRef(0);
+
+  const [justPrepended, setJustPrepended] = useState(false);
+  const [initialScrollDone, setInitialScrollDone] = useState(false);
+
+  // Use initialMessages until the client store has loaded actual messages
+  const displayMessages =
+    messages.length > 0 ? messages : props.initialMessages;
+
+  const loadMore = useCallback(async () => {
+    const firstMessage = messages[0];
+
+    if (isLoadingMore || !firstMessage || !firstMessage.metadata?.parentId)
+      return;
+
+    previousHeightRef.current = containerRef.current?.scrollHeight ?? 0;
+    previousScrollYRef.current = window.pageYOffset;
+
+    setIsLoadingMore(true);
+
+    try {
+      const response = await fetch(
+        `/api/chats/${chatId}/messages?message_id=${firstMessage.id}&strict=true`
+      );
+      const json: ApiChatMessagesResponse = await response.json();
+      console.log("Infinite response length", json.messages.length);
+
+      const newMessages = json.messages.slice(0, -1);
+      setMessages((state) => [...newMessages, ...state] as any[]);
+
+      setJustPrepended(true);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [setMessages, isLoadingMore, setIsLoadingMore, messages, chatId]);
+
+  // Scroll to bottom on initial load (instant)
+  useEffect(() => {
+    // Ensure we scroll after first paint
+    window.requestAnimationFrame(() => {
+      const scrollY = Math.max(
+        document.documentElement.scrollHeight,
+        document.body?.scrollHeight || 0
+      );
+      try {
+        window.scrollTo({ top: scrollY, behavior: "auto" });
+      } catch (e) {
+        // fallback in environments without smooth/auto support
+        window.scrollTo(0, scrollY);
+      }
+      setInitialScrollDone(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!initialScrollDone) return;
+
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore) {
+          loadMore();
+        }
+      },
+      {
+        root: null,
+        rootMargin: "400px 0px 0px 0px",
+        threshold: 0,
+      }
+    );
+
+    observer.observe(sentinel);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [initialScrollDone, loadMore, isLoadingMore, setIsLoadingMore]);
+
+  useEffect(() => {
+    if (justPrepended) {
+      const addedHeight =
+        (containerRef.current?.scrollHeight ?? 0) - previousHeightRef.current;
+      window.scrollTo(0, previousScrollYRef.current + addedHeight);
+      setJustPrepended(false);
+    }
+  }, [justPrepended]);
+
+  if (displayMessages.length === 0) return null;
+
+  return (
+    <div ref={containerRef} className="w-full h-full max-w-[42rem] mx-auto">
+      {isLoadingMore && (
+        <div className="text-center py-4">Loading older messages...</div>
+      )}
+      {displayMessages[0]?.metadata?.parentId ? (
+        <div ref={sentinelRef} style={{ height: "1px" }} />
+      ) : null}
+      {displayMessages.map((message) => (
+        <ChatMessage key={message.id} message={message} />
+      ))}
+    </div>
+  );
+}
+
+type ChatMessageProps = {
+  message: PersonaUIMessage;
+};
+
+function ChatMessage(props: ChatMessageProps) {
+  const { user } = useUser();
+  const { personas } = useChatPersonas();
+  const { editMessageId } = useChatMain();
+
+  const avatarUrl = React.useMemo(() => {
+    if (props.message.role === "user") {
+      return user?.imageUrl;
+    } else if (props.message.role === "assistant") {
+      if (personas[0]?.profileImageId) {
+        return getImageUrl(personas[0].profileImageId, "thumb");
+      }
+    }
+    return null;
+  }, [user, props.message.role, personas]);
+
+  return (
+    <Message
+      from={props.message.role}
+      className="py-[1.5rem] flex-col gap-[12px]"
+    >
+      <div className="w-full flex items-end justify-end group-[.is-assistant]:flex-row-reverse gap-[4px]">
+        <MessageContent>
+          {editMessageId === props.message.id &&
+          props.message.role === "user" ? (
+            <EditMessage
+              messageId={props.message.id}
+              parentId={props.message.metadata?.parentId ?? null}
+              parts={props.message.parts}
+            />
+          ) : (
+            props.message.parts?.map((part, partIndex) => (
+              <ChatMessagePart
+                key={partIndex}
+                messageId={props.message.id}
+                part={part}
+              />
+            ))
+          )}
+        </MessageContent>
+        {avatarUrl && (
+          <MessageAvatar src={avatarUrl} fallback={user?.username ?? "??"} />
+        )}
+      </div>
+
+      <ChatMessageActions message={props.message} />
+    </Message>
+  );
+}
+
+type EditMessageProps = {
+  messageId: string;
+  parentId: string | null;
+  parts: PersonaUIMessage["parts"];
+};
+
+function EditMessage(props: EditMessageProps) {
+  const { setEditMessageId } = useChatMain();
+  const { regenerate, setMessages } = useChatActions();
+  const { addMessageToBranch } = useChatBranchesContext();
+
+  const initialMessage = props.parts.find((p) => p.type === "text")?.text ?? "";
+
+  const handleSubmit = React.useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+
+      const formData = new FormData(event.currentTarget);
+      const message = formData.get("message");
+
+      if (typeof message !== "string") return;
+
+      const editedMessage = {
+        id: `msg_${nanoid(32)}`,
+        role: "user",
+        parts: [{ type: "text", text: message }],
+        metadata: {
+          parentId: props.parentId,
+        },
+      } as PersonaUIMessage;
+
+      setMessages((state) =>
+        state.map((stateMessage) =>
+          stateMessage.id === props.messageId
+            ? {
+                ...stateMessage,
+                ...editedMessage,
+              }
+            : stateMessage
+        )
+      );
+
+      regenerate({
+        messageId: editedMessage.id,
+        body: {
+          event: "edit_message",
+
+          editedMessage,
+        },
+      });
+
+      addMessageToBranch(props.parentId, {
+        id: props.messageId,
+        createdAt: new Date(Date.now() - 1000),
+      });
+
+      addMessageToBranch(props.parentId, {
+        id: editedMessage.id,
+        createdAt: new Date(),
+      });
+
+      setEditMessageId(null);
+    },
+    [regenerate, props.messageId]
+  );
+
+  return (
+    <div className="flex flex-col gap-[12px]">
+      <form onSubmit={handleSubmit}>
+        <TextareaAutosize
+          name="message"
+          placeholder="Enter edited message..."
+          className="font-sans bg-none focus-visible:outline-none focus-visible:border-none focus-visible:ring-0 outline-none border-none shadow-none focus:outline-none focus:ring-0 focus:border-none min-h-0"
+          minRows={1}
+          defaultValue={initialMessage}
+        />
+
+        <ButtonGroup className="justify-end mt-[12px]">
+          <Button
+            onClick={() => {
+              setEditMessageId(null);
+            }}
+            size="sm"
+          >
+            Cancel
+          </Button>
+          <Button type="submit" size="sm" color="primary">
+            Save
+          </Button>
+        </ButtonGroup>
+      </form>
+    </div>
+  );
+}
+
+type ChatMessagePartProps = {
+  messageId: string;
+  part: PersonaUIMessage["parts"][0];
+};
+
+function ChatMessagePart(props: ChatMessagePartProps) {
+  switch (props.part.type) {
+    case "text":
+      return (
+        <Response className="prose [&_em]:font-onest [&_em]:text-purple-800 [&_span.md-doublequoted]:font-[500] [&_span.md-doublequoted]:text-surface-foreground/95 [&_span.md-doublequoted]:font-onest">
+          {props.part.text}
+        </Response>
+      );
+    case "reasoning":
+      return <ReasoningIndicator messageId={props.messageId} />;
+  }
+
+  return null;
+}
+
+function ReasoningIndicator(props: { messageId: string }) {
+  const messages = useChatMessages();
+  const status = useChatStatus();
+
+  const isActive =
+    status === "streaming" && messages.at(-1)?.id === props.messageId;
+
+  if (!isActive) return null;
+
+  return (
+    <div
+      className={cn("size-[36px] flex items-center justify-center", {
+        "animate-pulse": isActive,
+      })}
+    >
+      <BrainIcon />
+    </div>
+  );
+}
+
+type ChatMessageActions = {
+  message: PersonaUIMessage;
+};
+
+function ChatMessageActions(props: ChatMessageActions) {
+  const { message } = props;
+
+  const { editMessageId } = useChatMain();
+
+  if (editMessageId === message.id) return null;
+
+  return (
+    <ButtonGroup
+      spacing="compact"
+      className="group-[.is-assistant]:self-start pointer-fine:opacity-20 pointer-fine:hover:opacity-100 transition-opacity duration-250"
+    >
+      {message.role === "assistant" && (
+        <>
+          <ChatMessageRegenerate messageId={message.id} />
+          <ButtonGroup.Separator />
+        </>
+      )}
+      <ChatMessageBranches
+        messageId={message.id}
+        parentId={message.metadata?.parentId}
+      />
+
+      {message.role === "user" && (
+        <>
+          <ButtonGroup.Separator />
+          <ChatMessageEditButton messageId={message.id} />
+        </>
+      )}
+    </ButtonGroup>
+  );
+}
+
+type ChatMessageEditButtonProps = {
+  messageId: string;
+};
+
+function ChatMessageEditButton(props: ChatMessageEditButtonProps) {
+  const { editMessageId, setEditMessageId } = useChatMain();
+
+  return (
+    <Button
+      size="icon-sm"
+      disabled={editMessageId === props.messageId}
+      onClick={() => {
+        setEditMessageId(props.messageId);
+      }}
+    >
+      <PencilSimpleIcon />
+    </Button>
+  );
+}
+
+type ChatMessageRegenerateProps = {
+  messageId: string;
+};
+
+function ChatMessageRegenerate(props: ChatMessageRegenerateProps) {
+  const { messageId } = props;
+
+  const { regenerate } = useChatActions();
+  const status = useChatStatus();
+
+  return (
+    <Button
+      size="icon-sm"
+      onClick={() => {
+        regenerate({
+          messageId,
+          body: {
+            event: "regenerate",
+          },
+        });
+      }}
+      disabled={status === "submitted" || status === "streaming"}
+    >
+      <ArrowsCounterClockwiseIcon />
+    </Button>
+  );
+}
+
+type ChatMessageBranchesProps = {
+  messageId: string;
+  parentId?: string | null;
+};
+
+function ChatMessageBranches(props: ChatMessageBranchesProps) {
+  const { branches, branchId, setActiveId } = useChatBranchesContext();
+  const { chatId } = useChatMain();
+  const { setMessages } = useChatActions();
+
+  const branch = branches[props.parentId || ROOT_BRANCH_PARENT_ID] ?? [];
+
+  const idx = branch.findIndex(
+    (branchMessage) => branchMessage.id === props.messageId
+  );
+
+  const currentMessageIndex = idx > -1 ? idx : 0;
+
+  const branchSize = branch.length > 0 ? branch.length : 1;
+
+  const handleBranchChange = async (newBranchId: string) => {
+    if (newBranchId === branchId) return;
+
+    const newBranchMessages = await fetch(
+      `/api/chats/${chatId}/messages?messageId=${newBranchId}`
+    ).then((res) => res.json());
+
+    setActiveId(newBranchMessages.leafId);
+    setMessages(newBranchMessages.messages);
+  };
+
+  return (
+    <>
+      <Button
+        size="icon-sm"
+        disabled={currentMessageIndex === 0}
+        onClick={() => {
+          if (currentMessageIndex > 0) {
+            handleBranchChange(branch[currentMessageIndex - 1].id);
+          }
+        }}
+      >
+        <CaretLeftIcon />
+      </Button>
+      <span className="text-[0.75rem] cursor-default pointer-events-none select-none">
+        {currentMessageIndex + 1} / {branchSize}
+      </span>
+      <Button
+        size="icon-sm"
+        disabled={currentMessageIndex === branchSize - 1}
+        onClick={() => {
+          if (currentMessageIndex < branchSize - 1) {
+            handleBranchChange(branch[currentMessageIndex + 1].id);
+          }
+        }}
+      >
+        <CaretRightIcon />
+      </Button>
+    </>
+  );
+}

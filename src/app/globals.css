@@ -20,7 +20,7 @@
   --foreground: oklch(0.6929 0.0263 299.01);
 
   /* Surface */
-  --surface: oklch(0.977 0.004 286.32);
+  --surface: oklch(0.965 0.004 286.32);
   --surface-100: oklch(0.947 0.004 286.32);
   --surface-200: oklch(0.917 0.004 286.32);
 
@@ -30,8 +30,8 @@
   --card-foreground: oklch(0.141 0.005 285.823);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.4984 0.085 321.3);
-  --primary-foreground: oklch(0.969 0.016 293.756);
+  --primary: oklch(0.1591 0.0026 286.03);
+  --primary-foreground: oklch(0.947 0.004 286.32);
   --secondary: oklch(0.967 0.001 286.375);
   --secondary-foreground: oklch(0.21 0.006 285.885);
   --muted: oklch(0.967 0.001 286.375);
@@ -186,30 +186,19 @@ body {
 
   --font-onest: var(--font-onest);
 
-  /* Z-index scale: named layers for consistent stacking order */
-  --z-auto: auto;
-
-  /* Base numeric scale (kept for interop) */
-  --z-0: 0;
-  --z-10: 10;
-  --z-20: 20;
-  --z-30: 30;
-  --z-40: 40;
-  --z-50: 50;
-
   /* Named layers */
-  --z-below: -1; /* decorations/background or when you need to sit behind content */
-  --z-content: 1; /* default content inside local stacking contexts */
-  --z-header: 20; /* top nav/header bars */
-  --z-rail: 30; /* app rail / floating action bars */
-  --z-sidebar: 40; /* sidebars, drawers */
-  --z-overlay: 50; /* scrims/backdrops behind dialogs/sheets */
-  --z-dialog: 60; /* modals, sheets, image viewers */
-  --z-popup: 70; /* dropdowns, popovers, hovercards */
-  --z-dropdown: 70; /* alias for popups */
-  --z-tooltip: 80; /* tooltips */
-  --z-toast: 90; /* toasts/notifications */
-  --z-max: 9999; /* escape hatch for rare cases */
+  --z-index-below: -1; /* decorations/background or when you need to sit behind content */
+  --z-index-content: 1; /* default content inside local stacking contexts */
+  --z-index-header: 20; /* top nav/header bars */
+  --z-index-rail: 30; /* app rail / floating action bars */
+  --z-index-overlay: 40; /* scrims/backdrops behind dialogs/sheets */
+  --z-index-sidebar: 50; /* sidebars, drawers */
+  --z-index-dialog: 60; /* modals, sheets, image viewers */
+  --z-index-popup: 70; /* dropdowns, popovers, hovercards */
+  --z-index-dropdown: 70; /* alias for popups */
+  --z-index-tooltip: 80; /* tooltips */
+  --z-index-toast: 90; /* toasts/notifications */
+  --z-index-max: 9999; /* escape hatch for rare cases */
 }
 
 @layer base {

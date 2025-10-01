@@ -39,23 +39,15 @@ export function AppRail() {
     return "personas";
   }, [pathname]);
 
+  const isChatWithPersona = pathname.startsWith("/chats/pch_");
+
   return (
     <>
       <div
-        className="
-                    fixed z-rail px-[12px] md:px-0 justify-between 
-                    bg-background/80 backdrop-blur-lg md:bg-background md:backdrop-blur-none
-                    rounded-[14px] md:rounded-none
-                    left-[12px] md:left-0
-                    md:top-0 
-                    md:right-auto right-[12px] 
-                    bottom-[3px] md:bottom-0 
-                    md:w-[64px] 
-                    py-4 
-                    h-[84px] md:h-full 
-                    shrink-0 flex md:flex-col 
-                    text-sidebar-foreground items-center gap-[8px]
-                  "
+        className={cn(
+          "fixed px-[12px] md:px-0 justify-between bg-background/80 backdrop-blur-lg md:bg-background md:backdrop-blur-none rounded-[14px] md:rounded-none left-[12px] md:left-0 md:top-0 md:right-auto right-[12px] bottom-[3px] md:bottom-0 md:w-[64px] py-4 h-[84px] md:h-full shrink-0 flex md:flex-col  text-sidebar-foreground items-center gap-[8px]",
+          isChatWithPersona ? "z-0" : "z-rail"
+        )}
       >
         <div className="flex md:flex-col gap-[8px] items-center md:items-start">
           <PersonaButton />
@@ -90,6 +82,13 @@ export function AppRail() {
               }}
             >
               <UsersThreeIcon />
+              {view === "personas" ? (
+                <motion.div
+                  layoutId="rail-button-active-indicator"
+                  id="rail-button-active-indicator"
+                  className="absolute bg-foreground/30 left-0 top-0 w-full h-full rounded-[12px]"
+                />
+              ) : null}
             </RailSectionButton>
 
             <RailSectionButton
@@ -110,6 +109,13 @@ export function AppRail() {
               }}
             >
               <ChatsTeardropIcon />
+              {view === "chats" ? (
+                <motion.div
+                  layoutId="rail-button-active-indicator"
+                  id="rail-button-active-indicator"
+                  className="absolute bg-foreground/30 left-0 top-0 w-full h-full rounded-[12px]"
+                />
+              ) : null}
             </RailSectionButton>
 
             <RailSectionButton
@@ -130,6 +136,13 @@ export function AppRail() {
               }}
             >
               <ImagesIcon />
+              {view === "images" ? (
+                <motion.div
+                  layoutId="rail-button-active-indicator"
+                  id="rail-button-active-indicator"
+                  className="absolute bg-foreground/30 left-0 top-0 w-full h-full rounded-[12px]"
+                />
+              ) : null}
             </RailSectionButton>
           </RailSection>
         </div>
@@ -226,13 +239,6 @@ function RailSectionButton({
       ])}
     >
       {children}
-      {isActive ? (
-        <motion.div
-          layoutId="rail-button-active-indicator"
-          id="rail-button-active-indicator"
-          className="absolute bg-foreground/30 left-0 right-0 top-0 bottom-0 rounded-[12px]"
-        />
-      ) : null}
     </button>
   );
 }

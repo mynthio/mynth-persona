@@ -13,6 +13,7 @@ import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowsClockwiseIcon,
   ArrowsVerticalIcon,
+  ChatsTeardropIcon,
   CircleNotchIcon,
   EraserIcon,
   ImageIcon,
@@ -48,6 +49,7 @@ import {
   CUSTOM_PROPERTY_NAME_MAX_LENGTH,
   personaNewCustomPropertyNameSchema,
 } from "@/schemas/shared/persona/persona-property-name.schema";
+import { CreateChatButton } from "@/components/create-chat-button";
 
 dayjs.extend(relativeTime);
 
@@ -365,6 +367,10 @@ function Footer({
                   <SparkleIcon size={16} />
                   Workbench
                 </Link>
+
+                <CreateChatButton personaId={personaId} color="primary">
+                  <ChatsTeardropIcon size={16} />
+                </CreateChatButton>
 
                 <Link
                   href={`/workbench/${personaId}?workbench=gallery`}

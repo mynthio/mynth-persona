@@ -130,6 +130,19 @@ export async function POST(
   }
 
   /**
+   * Insert message into database
+   */
+  if (payload.event === "send" || payload.event === "edit_message") {
+    await db.insert(messagesTable).values({
+      id: payload.message.id,
+      parts: payload.message.parts,
+      role: "user",
+      chatId,
+      parentId: lastMessage?.id ?? null,
+    });
+  }
+
+  /**
    * TEXT GENERATION MODEL
    */
   const textGenerationModel =
@@ -195,9 +208,10 @@ export async function POST(
   );
   if (!systemPromptDefinition) throw new Error("Ups!");
 
-  const system = systemPromptDefinition?.render({
+  const system = systemPromptDefinition.render({
     character: roleplayData,
     user: chatSettings.user_persona,
+    scenario: chatSettings.scenario,
   });
 
   /**
@@ -226,7 +240,6 @@ export async function POST(
          * ON ERROR
          */
         onError: async (error) => {
-          console.error(error);
           logger.error({
             event: "generation-error",
             component: "api:chat",
@@ -234,6 +247,19 @@ export async function POST(
               message: (error as any)?.message ?? String(error),
               name: (error as any)?.name,
             },
+          });
+
+          await kv.del(`chat:${chatId}:leaf`).catch((error) => {
+            logger.error({
+              event: "kv-error",
+              component: "api:chat",
+              error: {
+                message: (error as any)?.message ?? String(error),
+                name: (error as any)?.name,
+              },
+            });
+
+            // Let's don't break the flow just because of this
           });
 
           await trackChatError({
@@ -266,20 +292,6 @@ export async function POST(
         },
       }); // END: Stream Text
 
-      /**
-       * Insert message into database
-       */
-
-      if (payload.event === "send" || payload.event === "edit_message") {
-        await db.insert(messagesTable).values({
-          id: payload.message.id,
-          parts: payload.message.parts,
-          role: "user",
-          chatId,
-          parentId: lastMessage?.id ?? null,
-        });
-      }
-
       writer.merge(result.toUIMessageStream());
 
       const usage = await result.usage;
@@ -296,7 +308,18 @@ export async function POST(
     onFinish: async ({ responseMessage }) => {
       console.log("onFinish|responseMessage", responseMessage);
 
-      await kv.del(`chat:${chatId}:leaf`);
+      await kv.del(`chat:${chatId}:leaf`).catch((error) => {
+        logger.error({
+          event: "kv-error",
+          component: "api:chat",
+          error: {
+            message: (error as any)?.message ?? String(error),
+            name: (error as any)?.name,
+          },
+        });
+
+        // Let's don't break the flow just because of this
+      });
 
       await db.insert(messagesTable).values({
         id: responseMessage.id,

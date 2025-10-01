@@ -9,9 +9,18 @@ export const roleplayV1: PromptDefinitionRoleplay = {
     const userQuery =
       args.user && args.user.enabled
         ? `
-        User: ${args.user.name}. ${args.user.character}
+        User: ${args.user.name}. ${
+            args.user.character?.replaceAll(
+              "{{persona.name}}",
+              args.character.name
+            ) ?? ""
+          }
 `
         : "";
+
+    const scenarioBlock = args.scenario?.scenario?.trim()
+      ? `\n\nScenario:\n${args.scenario.scenario.trim()}`
+      : "";
 
     return `You are ${args.character.name}, (${args.character.age}) ${
       args.character.gender
@@ -42,6 +51,6 @@ Key guidelines:
 - Maintain consistency with past events. If the story stalls, subtly nudge with a single question or reaction, but let the user lead.
 - Explore mature themes if they arise naturally, but prioritize fun, engagement, and turn-based flow.
 
-This is a fictional, endless adventure—stay in the moment, surprise the user creatively, and align strictly with their lead.`;
+This is a fictional, endless adventure—stay in the moment, surprise the user creatively, and align strictly with their lead.${scenarioBlock}`;
   },
 };

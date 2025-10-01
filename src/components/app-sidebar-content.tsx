@@ -1,7 +1,9 @@
 "use client";
 
 import {
+  ChatsTeardropIcon,
   CircleNotchIcon,
+  FeatherIcon,
   PencilRulerIcon,
   PlanetIcon,
   ShootingStarIcon,
@@ -274,7 +276,15 @@ function SidebarChatsContent() {
                           href={`/chats/${item.id}`}
                           className="w-full max-md:h-[42px] min-w-0 max-w-full overflow-hidden truncate"
                         >
-                          <div className="size-[20px] max-md:size-[32px] rounded-[12px] md:rounded-[6px] bg-surface/10 shrink-0"></div>
+                          {/* <div className="size-[20px] max-md:size-[32px] rounded-[12px] md:rounded-[6px] bg-surface/10 shrink-0"></div> */}
+
+                          <div className="size-[20px] max-md:size-[32px] rounded-[12px] md:rounded-[6px] flex items-center justify-center shrink-0">
+                            {item.mode === "roleplay" ? (
+                              <ChatsTeardropIcon />
+                            ) : (
+                              <FeatherIcon />
+                            )}
+                          </div>
 
                           <span className="block truncate grow-0 w-full max-w-full">
                             {item.title}

@@ -17,6 +17,7 @@ import type { TextGenerationModelId } from "@/config/shared/models/text-generati
 import { ChatIntro } from "./_components/chat-intro";
 import dynamic from "next/dynamic";
 import { ChatSettings } from "./_components/chat-settings";
+import { ChatSettings as ChatSettingsSchema } from "@/schemas/backend/chats/chat.schema";
 
 export default async function ChatDetailPage({
   params,
@@ -70,7 +71,7 @@ export default async function ChatDetailPage({
 
   const [initialMessages, branches] = await Promise.all([
     getChatMessagesData(chat.id, {
-      limit: 20,
+      limit: 10,
       messageId: leafId ?? undefined,
     }),
     getChatBranches(chat.id),
@@ -79,8 +80,9 @@ export default async function ChatDetailPage({
   const hasNoMessages = initialMessages.messages.length === 0;
 
   return (
-    <div className="w-full max-w-[42rem] h-full flex items-center justify-center mx-auto flex-col gap-[24px]">
+    <div className="w-full h-full mx-auto flex flex-col">
       <ChatMainProvider
+        initialSettings={chat.settings as ChatSettingsSchema}
         chatId={chat.id}
         mode={chat.mode}
         initialModelId={
@@ -95,7 +97,7 @@ export default async function ChatDetailPage({
             branches={branches}
             activeBranch={leafId}
           >
-            {hasNoMessages && <ChatIntro personaName={personas[0].name} />}
+            {hasNoMessages && <ChatIntro />}
             <Chat chat={chat} initialMessages={initialMessages.messages} />
             <ChatSettings defaultOpen={areSettingsOpen} />
           </ChatBranchesProvider>

@@ -37,7 +37,7 @@ export const PromptInputTextarea = (props: PromptInputTextareaProps) => {
     <PromptInputBase.PromptInputTextarea
       {...props}
       className={cn(
-        "px-[1.45rem] py-[1.35rem] placeholder:text-[.98rem] text-[.98rem]",
+        "px-[1.45rem] py-[1.35rem] placeholder:text-[.98rem] text-[1.25rem] placeholder:text-surface-foreground/50 text-surface-foreground",
         props.className
       )}
     />

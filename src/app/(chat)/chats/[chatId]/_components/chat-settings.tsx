@@ -3,7 +3,7 @@
 import { Dialog } from "@base-ui-components/react/dialog";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import { Field, Form } from "@/components/mynth-ui/base/form";
-import { TextareaAutosize } from "@/components/ui/textarea";
+import { TextareaAutosize } from "@/components/mynth-ui/base/textarea";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import {
@@ -13,11 +13,26 @@ import {
   XIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Input } from "@/components/mynth-ui/base/input";
 import { Button } from "@/components/mynth-ui/base/button";
-import { AlertDialog } from "@base-ui-components/react/alert-dialog";
+import { useChatPersonas } from "../_contexts/chat-personas.context";
+import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
+import { updateChatAction } from "@/actions/update-chat.action";
+import { useChatMain } from "../_contexts/chat-main.context";
+import { CreateChatButton } from "@/components/create-chat-button";
+import { DeleteChat } from "./delete-chat";
+import { NSFWGuidelines } from "@/schemas/backend/chats/chat.schema";
+import {
+  Select,
+  SelectValue,
+  SelectTrigger,
+  SelectPositioner,
+  SelectContent,
+  SelectItem,
+} from "@/components/mynth-ui/base/select";
+import { ScrollArea } from "@/components/mynth-ui/base/scroll-area";
 
 type ChatSettingsProps = {
   defaultOpen: boolean;
@@ -45,29 +60,34 @@ function ChatSettingsDesktop(props: ChatSettingsDesktopProps) {
       defaultOpen={props.defaultOpen}
       open={areSettingsOpen}
       onOpenChange={closeSettings}
+      modal={false}
     >
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 z-overlay bg-background/20 backdrop-blur-[1px] transition-all duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 data-[starting-style]:backdrop-blur-none dark:opacity-70" />
         <Dialog.Popup
-          className="fixed z-dialog top-1/2 left-1/2 -mt-8 w-[800px] max-w-[calc(100vw-3rem)]  h-[460px] max-h-[calc(100vh-3rem)]
+          className="fixed z-dialog left-1/2 -mt-8 w-[800px] max-w-[calc(100vw-3rem)] h-[460px] max-h-[calc(100vh-3rem)]
             -translate-x-1/2 -translate-y-1/2 
             outline-[3px] outline-background/5
-            scale-[calc(1-0.05*var(--nested-dialogs))] data-[nested-dialog-open]:after:absolute data-[nested-dialog-open]:after:inset-0 data-[nested-dialog-open]:after:rounded-[inherit] data-[nested-dialog-open]:after:bg-black/5 
-            rounded-[32px] bg-surface p-[12px] px-[24px] text-surface-foreground transition-all duration-150 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0
+            top-[calc(50%+1.25rem*var(--nested-dialogs))] scale-[calc(1-0.03*var(--nested-dialogs))] data-[nested-dialog-open]:after:absolute data-[nested-dialog-open]:after:inset-0 data-[nested-dialog-open]:after:rounded-[inherit] data-[nested-dialog-open]:after:bg-background/10 data-[nested-dialog-open]:after:backdrop-blur-[1px] 
+            rounded-[32px] bg-surface p-[12px] px-[24px] text-surface-foreground transition-all duration-250 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0
+            flex flex-col 
             "
         >
-          <div className="flex justify-between px-[12px] mb-[12px] mt-[6px]">
+          <div className="flex shrink-0 justify-between px-[12px] mb-[12px] mt-[6px]">
             <Dialog.Title className="font-onest text-[1.2rem] font-[600] py-[12px]">
-              Chat
+              Settings
             </Dialog.Title>
             <Dialog.Close className="size-[36px] flex items-center justify-center transition-colors duration-150 hover:bg-surface-100 rounded-[12px]">
               <XIcon />
             </Dialog.Close>
           </div>
 
-          <div className="flex gap-[36px]">
+          <div className="flex gap-[36px] h-full overflow-hidden">
             <ChatSettingsMenu />
-            <ChatSettingsContent />
+            <ScrollArea className="h-full w-full">
+              <ChatSettingsContent />
+              <div className="h-[24px]"></div>
+            </ScrollArea>
           </div>
         </Dialog.Popup>
       </Dialog.Portal>
@@ -88,7 +108,7 @@ function ChatSettingsMobile(props: ChatSettingsMobileProps) {
       open={areSettingsOpen}
       onClose={closeSettings}
     >
-      <DrawerContent>
+      <DrawerContent className="z-dialog">
         <DrawerTitle className="sr-only">Chat Settings</DrawerTitle>
 
         {current === "_" ? (
@@ -108,8 +128,6 @@ function ChatSettingsContent() {
 
   const contentComponent = useMemo(() => {
     switch (current) {
-      case "settings":
-        return <ChatSettingsHome />;
       case "user":
         return <ChatSettingsUser />;
       case "scenario":
@@ -148,7 +166,7 @@ function ChatSettingsMenu() {
         isActive={current === "settings"}
       >
         <GearSixIcon />
-        Settings
+        Chat
       </MenuButton>
       <MenuButton
         onClick={() => navigateSettings("user")}
@@ -193,8 +211,112 @@ function MenuButton(props: {
 }
 
 function ChatSettingsHome() {
+  const { personas } = useChatPersonas();
+  const persona = personas[0];
+  const { chatId, settings, setSettings, mode } = useChatMain();
+
+  const [savingNsFw, setSavingNsFw] = useState(false);
+
+  // Dynamic items for NSFW guidelines
+  const NSFW_DEFAULT_VALUE = "nsfw_default";
+  const NSFW_ITEMS = useMemo(
+    () => [
+      { label: "Disabled", value: NSFW_DEFAULT_VALUE },
+      { label: "SFW (PG‑13)", value: "nsfw_prohibited" },
+      { label: "Allow Suggestive", value: "nsfw_allowed_suggestive" },
+      { label: "Allow Explicit", value: "nsfw_explicit_natural" },
+      { label: "Force Explicit", value: "nsfw_explicit_driven" },
+    ],
+    []
+  );
+
+  const handleNsFwChange = async (value: NSFWGuidelines | null) => {
+    setSavingNsFw(true);
+    try {
+      await updateChatAction(chatId, {
+        title: null,
+        settings: { nsfw_guidelines: value },
+      });
+      setSettings({ ...(settings ?? {}), nsfw_guidelines: value });
+    } finally {
+      setSavingNsFw(false);
+    }
+  };
+
   return (
-    <div>
+    <div className="flex flex-col gap-[32px]">
+      <div className="flex items-center justify-between gap-[32px]">
+        <div className="flex flex-col gap-[2px]">
+          <p className="text-[0.9rem] text-surface-foreground">Chat Mode</p>
+          <p className="text-[0.75rem] text-surface-foreground/80">
+            You can set mode only at the beginning of the chat.
+          </p>
+        </div>
+        <Button size="sm" className="shrink-0" disabled>
+          {mode === "roleplay" ? "Roleplay" : "Story"}
+        </Button>
+      </div>
+
+      <div className="flex items-center justify-between gap-[32px]">
+        <div className="flex flex-col gap-[2px]">
+          <p className="text-[0.9rem] text-surface-foreground">
+            NSFW Guidelines
+          </p>
+          <p className="text-[0.75rem] text-surface-foreground/80">
+            Use it to guide model on NSFW content.
+            <br />
+            Keep in mind that some models have builtin censorship and this
+            setting may not work corectly.
+          </p>
+        </div>
+        <Select
+          items={NSFW_ITEMS}
+          value={settings.nsfw_guidelines ?? NSFW_DEFAULT_VALUE}
+          onValueChange={(val) =>
+            handleNsFwChange(
+              val === NSFW_DEFAULT_VALUE ? null : (val as NSFWGuidelines)
+            )
+          }
+        >
+          <SelectTrigger
+            size="sm"
+            aria-disabled={savingNsFw}
+            className="shrink-0"
+            render={<Button />}
+            nativeButton
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectPositioner>
+            <SelectContent>
+              {NSFW_ITEMS.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </SelectPositioner>
+        </Select>
+      </div>
+
+      <div className="flex items-center justify-between gap-[32px]">
+        <div className="flex flex-col gap-[2px]">
+          <p className="text-[0.9rem] text-surface-foreground">New Chat</p>
+          <p className="text-[0.75rem] text-surface-foreground/80">
+            Start new chat with {persona.name}?
+          </p>
+        </div>
+
+        <CreateChatButton personaId={persona.id}>Create</CreateChatButton>
+      </div>
+
+      <div className="flex items-center gap-[12px] my-[12px]">
+        <p className="font-mono uppercase text-[0.75rem] shrink-0 text-surface-foreground/50">
+          Danger Zone
+        </p>
+        <hr className="w-full h-[1px] bg-surface-foreground/50" />
+      </div>
+
       <div className="flex items-center justify-between gap-[32px]">
         <div className="flex flex-col gap-[2px]">
           <p className="text-[0.9rem] text-surface-foreground">
@@ -206,46 +328,184 @@ function ChatSettingsHome() {
             You will confirm it in next step.
           </p>
         </div>
-
-        <AlertDialog.Root>
-          <AlertDialog.Trigger
-            render={
-              <Button className="shrink-0 outline-[1px] outline-red-200 text-red-600">
-                Delete
-              </Button>
-            }
-          />
-          <AlertDialog.Portal>
-            <AlertDialog.Backdrop className="fixed inset-0 bg-background/20 z-overlay transition-all duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 dark:opacity-70" />
-            <AlertDialog.Popup className="fixed top-1/2 left-1/2 -mt-8 w-96 max-w-[calc(100vw-3rem)] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-gray-50 p-6 text-gray-900 outline outline-1 outline-gray-200 transition-all duration-150 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:outline-gray-300">
-              <AlertDialog.Title className="-mt-1.5 mb-1 text-lg font-medium">
-                Delete chat?
-              </AlertDialog.Title>
-              <AlertDialog.Description className="mb-6 text-base text-gray-600">
-                You can’t undo this action.
-              </AlertDialog.Description>
-              <div className="flex justify-end gap-4">
-                <AlertDialog.Close className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-gray-900 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
-                  Cancel
-                </AlertDialog.Close>
-                <AlertDialog.Close className="flex h-10 items-center justify-center rounded-md border border-gray-200 bg-gray-50 px-3.5 text-base font-medium text-red-800 select-none hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 active:bg-gray-100">
-                  Delete
-                </AlertDialog.Close>
-              </div>
-            </AlertDialog.Popup>
-          </AlertDialog.Portal>
-        </AlertDialog.Root>
+        <DeleteChat />
       </div>
     </div>
   );
 }
 
 function ChatSettingsUser() {
-  return <div>User</div>;
+  const { chatId, settings, setSettings, mode } = useChatMain();
+  const { personas } = useChatPersonas();
+  const persona = personas[0];
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const isStoryMode = mode === "story";
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (isUpdating || isStoryMode) return;
+    setIsUpdating(true);
+
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+    const character = formData.get("character") as string;
+
+    await updateChatAction(chatId, {
+      title: null,
+      settings: {
+        user_persona: {
+          enabled: true,
+          name,
+          character,
+        },
+      },
+    })
+      .then(() => {
+        setSettings({
+          ...settings,
+          user_persona: {
+            enabled: true,
+            name,
+            character,
+          },
+        });
+      })
+      .finally(() => {
+        setIsUpdating(false);
+      });
+  };
+
+  return (
+    <Form
+      onSubmit={handleSubmit}
+      className="space-y-[24px]"
+      aria-disabled={isUpdating || isStoryMode}
+    >
+      {isStoryMode && (
+        <div className="rounded-[12px] bg-surface-100 p-[12px] text-[0.85rem] text-surface-foreground">
+          Story mode doesn’t support My persona. Use your prompt to guide the
+          model’s behavior.
+        </div>
+      )}
+      <Field.Root>
+        <Field.Label>Name</Field.Label>
+        <Input
+          name="name"
+          defaultValue={settings.user_persona?.name ?? ""}
+          placeholder="John"
+          autoComplete="off"
+          data-form-type="other"
+          disabled={isStoryMode}
+        />
+        <Field.Description>Your character's name.</Field.Description>
+      </Field.Root>
+
+      <Field.Root>
+        <Field.Label>Character Description</Field.Label>
+        <TextareaAutosize
+          name="character"
+          minRows={3}
+          placeholder="Describe your character..."
+          defaultValue={settings.user_persona?.character ?? ""}
+          autoComplete="off"
+          data-form-type="other"
+          disabled={isStoryMode}
+        />
+        <Field.Description>
+          A description of your character. Personality, relations and
+          informations {persona.name} should know about you.
+        </Field.Description>
+      </Field.Root>
+
+      <ButtonGroup className="justify-end">
+        <Button
+          color="primary"
+          type="submit"
+          disabled={isUpdating || isStoryMode}
+        >
+          Save
+        </Button>
+      </ButtonGroup>
+    </Form>
+  );
 }
 
 function ChatSettingsScenario() {
-  return <div>Scenario</div>;
+  const { chatId, settings, setSettings, mode } = useChatMain();
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const isStoryMode = mode === "story";
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (isUpdating || isStoryMode) return;
+    setIsUpdating(true);
+
+    const formData = new FormData(e.currentTarget);
+    const scenario = (formData.get("scenario") as string) ?? "";
+
+    await updateChatAction(chatId, {
+      title: null,
+      settings: {
+        scenario: {
+          scenario,
+        },
+      },
+    })
+      .then(() => {
+        setSettings({
+          ...settings,
+          scenario: {
+            scenario,
+          },
+        });
+      })
+      .finally(() => {
+        setIsUpdating(false);
+      });
+  };
+
+  return (
+    <Form
+      onSubmit={handleSubmit}
+      className="space-y-[24px]"
+      aria-disabled={isUpdating || isStoryMode}
+    >
+      {isStoryMode && (
+        <div className="rounded-[12px] bg-surface-100 p-[12px] text-[0.85rem] text-surface-foreground">
+          Story mode doesn’t support Scenario. Use your prompt to guide the
+          model’s behavior and context.
+        </div>
+      )}
+      <Field.Root>
+        <Field.Label>Scenario</Field.Label>
+        <TextareaAutosize
+          name="scenario"
+          minRows={3}
+          placeholder="Custom scenario for chat"
+          defaultValue={settings.scenario?.scenario ?? ""}
+          autoComplete="off"
+          data-form-type="other"
+          disabled={isStoryMode}
+        />
+        <Field.Description>
+          Scenario will be included inside chat instructions. It will always be
+          used to set the context of the session.
+        </Field.Description>
+      </Field.Root>
+
+      <ButtonGroup className="justify-end">
+        <Button
+          color="primary"
+          type="submit"
+          disabled={isUpdating || isStoryMode}
+        >
+          Save
+        </Button>
+      </ButtonGroup>
+    </Form>
+  );
 }
 
 function ChatSettingsForm() {

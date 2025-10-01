@@ -23,7 +23,10 @@ export const updateChatAction = async (
 
   // Only compute settings update when payload.settings is provided and has keys
   let setExpression: any | undefined;
-  if (payload.settings && Object.keys(payload.settings).length > 0) {
+  if (payload.settings === null) {
+    // Explicitly clear settings
+    setExpression = null;
+  } else if (payload.settings && Object.keys(payload.settings).length > 0) {
     let expr = sql`${chats.settings}`; // Start with existing value
 
     for (const [key, value] of Object.entries(payload.settings)) {
@@ -48,15 +51,24 @@ export const updateChatAction = async (
   }
 
   // Build the update payload, skipping settings when not provided
-  const setPayload: Record<string, any> = {
-    title: payload.title ?? undefined,
-  };
+  const fieldsToUpdate: Record<string, any> = {};
+  if (payload.title !== undefined) {
+    fieldsToUpdate.title = payload.title;
+  }
+  if (payload.mode !== undefined) {
+    fieldsToUpdate.mode = payload.mode;
+  }
   if (setExpression !== undefined) {
-    setPayload.settings = setExpression;
+    fieldsToUpdate.settings = setExpression;
+  }
+
+  // No-op when nothing is provided to update
+  if (Object.keys(fieldsToUpdate).length === 0) {
+    return;
   }
 
   await db
     .update(chats)
-    .set(setPayload)
+    .set(fieldsToUpdate)
     .where(and(eq(chats.id, chatId), eq(chats.userId, userId)));
 };

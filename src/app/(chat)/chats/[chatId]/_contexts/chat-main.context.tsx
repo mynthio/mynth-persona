@@ -8,14 +8,20 @@ import {
   useCallback,
 } from "react";
 import type { ReactNode } from "react";
-import type { ChatMode } from "@/schemas/backend/chats/chat.schema";
+import type {
+  ChatMode,
+  ChatSettings,
+} from "@/schemas/backend/chats/chat.schema";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
 
 export interface ChatContextValue {
   chatId: string;
   mode: ChatMode;
+  setMode: (mode: ChatMode) => void;
+  settings: ChatSettings;
   modelId?: TextGenerationModelId;
   editMessageId: string | null;
+  setSettings: (settings: ChatSettings) => void;
   setEditMessageId: (id: string | null) => void;
   setModelId: (id?: TextGenerationModelId) => void;
 }
@@ -24,15 +30,23 @@ const ChatMainContext = createContext<ChatContextValue | undefined>(undefined);
 
 export function ChatMainProvider({
   chatId,
-  mode,
+  mode: initialMode,
   initialModelId,
+  initialSettings,
   children,
 }: {
   chatId: string;
   mode: ChatMode;
   initialModelId?: TextGenerationModelId;
+  initialSettings: ChatSettings;
   children: ReactNode;
 }) {
+  const [modeState, setModeState] = useState<ChatMode>(initialMode);
+
+  const setMode = useCallback((mode: ChatMode) => {
+    setModeState(mode);
+  }, []);
+
   const [modelId, setModelIdState] = useState<
     TextGenerationModelId | undefined
   >(initialModelId);
@@ -41,18 +55,37 @@ export function ChatMainProvider({
     setModelIdState(id);
   }, []);
 
+  const [settings, setSettingsState] = useState<ChatSettings>(initialSettings);
+
+  const setSettings = useCallback((settings: ChatSettings) => {
+    setSettingsState(settings);
+  }, []);
+
   const [editMessageId, setEditMessageIdState] = useState<string | null>(null);
 
   const value = useMemo<ChatContextValue>(
     () => ({
       chatId,
-      mode,
+      mode: modeState,
+      setMode,
+      settings,
       modelId,
       setModelId,
       editMessageId,
       setEditMessageId: setEditMessageIdState,
+      setSettings,
     }),
-    [chatId, mode, modelId, setModelId, editMessageId, setEditMessageIdState]
+    [
+      chatId,
+      modeState,
+      setMode,
+      settings,
+      modelId,
+      setModelId,
+      editMessageId,
+      setEditMessageIdState,
+      setSettings,
+    ]
   );
 
   return (

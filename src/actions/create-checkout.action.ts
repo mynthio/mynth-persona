@@ -9,6 +9,8 @@ import { createInvoice } from "@/lib/nowpayments";
 import { resolveSparkCheckout } from "@/config/shared/sparks";
 import { db } from "@/db/drizzle";
 import { tokenTransactions } from "@/db/schema";
+import { trackCheckoutCreated } from "@/lib/logsnag";
+import { logger } from "@/lib/logger";
 
 export const createCheckoutAction = async (formData: FormData) => {
   const user = await currentUser();
@@ -40,6 +42,15 @@ export const createCheckoutAction = async (formData: FormData) => {
     status: "pending",
   });
 
+  // Track checkout creation for analytics
+  await trackCheckoutCreated({
+    userId: user.id,
+    orderId,
+    preset: presetKeyRaw,
+    amount: checkout.amount,
+    priceUSD: checkout.priceUSD,
+  });
+
   const successUrl = `${process.env.NEXT_PUBLIC_URL}/sparks?status=success`;
   const cancelUrl = `${process.env.NEXT_PUBLIC_URL}/sparks?status=cancel`;
   const ipnUrl = `${process.env.NEXT_PUBLIC_URL}/api/webhook/ipn`;
@@ -53,6 +64,17 @@ export const createCheckoutAction = async (formData: FormData) => {
     success_url: successUrl,
     cancel_url: cancelUrl,
     ipn_callback_url: ipnUrl,
+  });
+
+  logger.info({
+    event: "checkout-created",
+    component: "checkout:nowpayments",
+    order: {
+      id: orderId,
+    },
+    nowpayments: {
+      invoice_id: invoice.id,
+    },
   });
 
   redirect(invoice.invoice_url);

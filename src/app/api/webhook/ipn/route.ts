@@ -3,7 +3,8 @@ import { logger } from "@/lib/logger";
 import crypto from "crypto";
 import { db } from "@/db/drizzle";
 import { tokenTransactions, userTokens } from "@/db/schema";
-import { and, eq, sql } from "drizzle-orm";
+import { trackCheckoutCompleted, trackCheckoutFailed } from "@/lib/logsnag";
+import { eq, sql } from "drizzle-orm";
 
 function sortObject(obj: any) {
   return Object.keys(obj)
@@ -22,6 +23,16 @@ export async function POST(req: NextRequest) {
     req.headers.get("x-request-id") ||
     req.headers.get("x-vercel-id") ||
     undefined;
+
+  logger.info({
+    event: "webhook-request",
+    component: "webhook:nowpayments:ipn",
+    request_id: requestId,
+    attributes: {
+      path: req.nextUrl.pathname,
+      method: req.method,
+    },
+  });
 
   try {
     const secret = process.env.NOWPAYMENTS_IPN_SECRET;
@@ -99,7 +110,7 @@ export async function POST(req: NextRequest) {
     // Valid signature: log the payload as requested
     logger.info(
       {
-        event: "nowpayments_ipn_received",
+        event: "webhook-payload",
         component: "webhook:nowpayments:ipn",
         request_id: requestId,
         attributes: {
@@ -107,6 +118,9 @@ export async function POST(req: NextRequest) {
           method: req.method,
         },
         payload,
+        nowpayments: {
+          invoice_id: payload.invoice_id,
+        },
       },
       "NOWPayments IPN payload received"
     );
@@ -141,8 +155,16 @@ export async function POST(req: NextRequest) {
           name: "InvalidStatusMapping",
           message: `Invalid payment status mapping for order ID ${orderId}`,
         },
+        nowpayments: {
+          invoice_id: payload.invoice_id,
+        },
       });
     }
+
+    let checkoutUserId: string | null = null;
+    let checkoutAmount: number | null = null;
+    let shouldTrackCompleted = false;
+    let shouldTrackFailed = false;
 
     await db.transaction(async (tx) => {
       const transactionData = await tx.query.tokenTransactions.findFirst({
@@ -163,7 +185,9 @@ export async function POST(req: NextRequest) {
               name: "NotFoundError",
               message: `Transaction with ID ${orderId} not found`,
             },
-            payload,
+            nowpayments: {
+              invoice_id: payload.invoice_id,
+            },
           },
           "NOWPayments IPN transaction not found"
         );
@@ -186,6 +210,9 @@ export async function POST(req: NextRequest) {
         internalStatus === "completed" &&
         transactionData.status === "pending"
       ) {
+        checkoutUserId = transactionData.userId;
+        checkoutAmount = transactionData.amount;
+        shouldTrackCompleted = true;
         const [{ newBalance }] = await tx
           .insert(userTokens)
           .values({
@@ -208,8 +235,29 @@ export async function POST(req: NextRequest) {
             balanceAfter: newBalance,
           })
           .where(eq(tokenTransactions.id, orderId));
+      } else if (internalStatus === "failed" || internalStatus === "expired") {
+        checkoutUserId = transactionData.userId;
+        checkoutAmount = transactionData.amount;
+        shouldTrackFailed = true;
       }
     });
+
+    // Emit tracking events post-transaction
+    if (shouldTrackCompleted && checkoutUserId && checkoutAmount !== null) {
+      await trackCheckoutCompleted({
+        userId: checkoutUserId,
+        orderId,
+        amount: checkoutAmount,
+      });
+    }
+
+    if (shouldTrackFailed && checkoutUserId) {
+      await trackCheckoutFailed({
+        userId: checkoutUserId,
+        orderId,
+        reason: String(payload.payment_status ?? "unknown"),
+      });
+    }
 
     return NextResponse.json({ message: "OK" }, { status: 200 });
   } catch (err) {

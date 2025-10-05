@@ -2,10 +2,6 @@ import { TextGenerationModelId } from "../models/text-generation-models.config";
 
 export type ChatConfigModelConfig = {
   modelId: TextGenerationModelId;
-
-  displayName: string;
-
-  cost: number;
 };
 
 export type ChatConfigModels = ChatConfigModelConfig[];
@@ -14,49 +10,33 @@ export type ChatConfig = {
   models: ChatConfigModels;
 };
 
-export const DEFAULT_CHAT_MODEL = "x-ai/grok-4-fast";
+export const DEFAULT_CHAT_MODEL: TextGenerationModelId = "x-ai/grok-4-fast";
 
 export const chatConfig: ChatConfig = {
   models: [
     {
       modelId: "x-ai/grok-4-fast",
-      displayName: "Grok 4 Fast",
-      cost: 0,
-    },
-    {
-      modelId: "moonshotai/kimi-k2",
-      displayName: "Kimi K2",
-      cost: 0,
-    },
-    {
-      modelId: "openai/gpt-oss-20b",
-      displayName: "OpenAI GPT-OSS 20B",
-      cost: 0,
     },
     {
       modelId: "cognitivecomputations/dolphin-mistral-24b-venice-edition",
-      displayName: "Dolphin Mistral 24B Venice Edition (Venice)",
-      cost: 0,
+    },
+    {
+      modelId: "thedrummer/cydonia-24b-v4.1",
+    },
+    {
+      modelId: "nousresearch/hermes-3-llama-3.1-70b",
+    },
+    {
+      modelId: "nousresearch/hermes-3-llama-3.1-405b",
+    },
+    {
+      modelId: "nousresearch/hermes-4-70b",
     },
     {
       modelId: "meta-llama/llama-3.3-70b-instruct",
-      displayName: "Llama 3.3 70B Instruct (Venice)",
-      cost: 0,
     },
     {
-      modelId: "mistralai/mistral-nemo",
-      displayName: "Mistral Nemo",
-      cost: 1,
-    },
-    {
-      modelId: "deepseek/deepseek-chat-v3.1",
-      displayName: "Deepseek V3.1",
-      cost: 1,
-    },
-    {
-      modelId: "x-ai/grok-3-mini",
-      displayName: "Grok 3 Mini",
-      cost: 1,
+      modelId: "z-ai/glm-4.5-air",
     },
   ],
 };

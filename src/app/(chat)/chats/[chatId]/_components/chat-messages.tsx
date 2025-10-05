@@ -11,6 +11,7 @@ import {
 import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 import {
   useChatActions,
+  useChatError,
   useChatMessageCount,
   useChatMessages,
   useChatStatus,
@@ -48,6 +49,7 @@ import {
   ReasoningContent,
   ReasoningTrigger,
 } from "@/components/mynth-ui/ai/reasoning";
+import { Link } from "@/components/ui/link";
 
 type ChatMessagesProps = {
   initialMessages: PersonaUIMessage[];
@@ -58,7 +60,8 @@ export default function ChatMessages(props: ChatMessagesProps) {
    * States & Data
    */
   const messages = useChatMessages<PersonaUIMessage>();
-  const { setMessages } = useChatActions();
+  const chatError = useChatError();
+  const { setMessages, regenerate } = useChatActions();
 
   const { chatId } = useChatMain();
 
@@ -168,14 +171,48 @@ export default function ChatMessages(props: ChatMessagesProps) {
       {displayMessages[0]?.metadata?.parentId ? (
         <div ref={sentinelRef} style={{ height: "1px" }} />
       ) : null}
-      {displayMessages.map((message) => (
-        <ChatMessage key={message.id} message={message} />
+      {displayMessages.map((message, messageIndex) => (
+        <ChatMessage key={message.id} message={message} index={messageIndex} />
       ))}
+
+      {chatError && (
+        <div className="px-[12px] py-[24px]">
+          <p className="font-onest text-[1.1rem] text-surface-foreground/70">
+            {chatError.message === "INSUFFICIENT_TOKENS" ? (
+              <>
+                <b>Insufficient sparks.</b> Try other model or buy more sparks{" "}
+                <Link href="/sparks" className="underline">
+                  here
+                </Link>
+                .
+              </>
+            ) : (
+              <>There was an error while generating the response.</>
+            )}
+          </p>
+
+          <ButtonGroup className="mt-[12px]">
+            <Button
+              variant="outline"
+              onClick={() =>
+                regenerate({
+                  body: {
+                    event: "regenerate",
+                  },
+                })
+              }
+            >
+              Retry
+            </Button>
+          </ButtonGroup>
+        </div>
+      )}
     </div>
   );
 }
 
 type ChatMessageProps = {
+  index: number;
   message: PersonaUIMessage;
 };
 
@@ -333,7 +370,12 @@ function ChatMessagePart(props: ChatMessagePartProps) {
   switch (props.part.type) {
     case "text":
       return (
-        <Response className="prose [&_em]:font-onest [&_em]:text-purple-800 [&_span.md-doublequoted]:font-[500] [&_span.md-doublequoted]:text-surface-foreground/95 [&_span.md-doublequoted]:font-onest">
+        <Response
+          className="prose text-surface-foreground
+              [&_em]:font-onest [&_em]:text-purple-900 [&_em]:bg-purple-100/50 [&_em]:rounded-[8px]
+              [&_span.md-doublequoted]:font-[500] [&_span.md-doublequoted]:text-black [&_span.md-doublequoted]:font-onest
+            "
+        >
           {props.part.text}
         </Response>
       );

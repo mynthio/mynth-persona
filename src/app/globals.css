@@ -190,9 +190,9 @@ body {
   --z-index-below: -1; /* decorations/background or when you need to sit behind content */
   --z-index-content: 1; /* default content inside local stacking contexts */
   --z-index-header: 20; /* top nav/header bars */
-  --z-index-rail: 30; /* app rail / floating action bars */
-  --z-index-overlay: 40; /* scrims/backdrops behind dialogs/sheets */
-  --z-index-sidebar: 50; /* sidebars, drawers */
+  --z-index-sidebar: 30; /* sidebars, drawers */
+  --z-index-rail: 40; /* app rail / floating action bars */
+  --z-index-overlay: 50; /* scrims/backdrops behind dialogs/sheets */
   --z-index-dialog: 60; /* modals, sheets, image viewers */
   --z-index-popup: 70; /* dropdowns, popovers, hovercards */
   --z-index-dropdown: 70; /* alias for popups */

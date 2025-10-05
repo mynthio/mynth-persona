@@ -5,10 +5,14 @@ import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import { Field, Form } from "@/components/mynth-ui/base/form";
 import { TextareaAutosize } from "@/components/mynth-ui/base/textarea";
 import { useSidebar } from "@/components/ui/sidebar";
-import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+
 import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
   FeatherIcon,
+  FireIcon,
   GearSixIcon,
+  RobotIcon,
   UserSquareIcon,
   XIcon,
 } from "@phosphor-icons/react/dist/ssr";
@@ -33,6 +37,15 @@ import {
   SelectItem,
 } from "@/components/mynth-ui/base/select";
 import { ScrollArea } from "@/components/mynth-ui/base/scroll-area";
+import { useDebounce } from "@uidotdev/usehooks";
+import { chatConfig } from "@/config/shared/chat/chat-models.config";
+import {
+  TextGenerationModelConfig,
+  TextGenerationModelId,
+  textGenerationModels,
+} from "@/config/shared/models/text-generation-models.config";
+import { useToast } from "@/components/ui/toast";
+import { filter, map, pipe, toArray } from "@fxts/core";
 
 type ChatSettingsProps = {
   defaultOpen: boolean;
@@ -65,10 +78,10 @@ function ChatSettingsDesktop(props: ChatSettingsDesktopProps) {
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 z-overlay bg-background/20 backdrop-blur-[1px] transition-all duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 data-[starting-style]:backdrop-blur-none dark:opacity-70" />
         <Dialog.Popup
-          className="fixed z-dialog left-1/2 -mt-8 w-[800px] max-w-[calc(100vw-3rem)] h-[460px] max-h-[calc(100vh-3rem)]
+          className="fixed z-dialog left-1/2 -mt-8 w-[800px] max-w-[calc(100vw-3rem)] h-[520px] max-h-[calc(100vh-3rem)]
             -translate-x-1/2 -translate-y-1/2 
             outline-[3px] outline-background/5
-            top-[calc(50%+1.25rem*var(--nested-dialogs))] scale-[calc(1-0.03*var(--nested-dialogs))] data-[nested-dialog-open]:after:absolute data-[nested-dialog-open]:after:inset-0 data-[nested-dialog-open]:after:rounded-[inherit] data-[nested-dialog-open]:after:bg-background/10 data-[nested-dialog-open]:after:backdrop-blur-[1px] 
+            top-[calc(50%+1.25rem*var(--nested-dialogs))] scale-[calc(1-0.03*var(--nested-dialogs))] data-[nested-dialog-open]:grayscale-100 data-[nested-dialog-open]:after:absolute data-[nested-dialog-open]:after:inset-0 data-[nested-dialog-open]:after:rounded-[inherit] data-[nested-dialog-open]:after:bg-background/10 data-[nested-dialog-open]:after:backdrop-blur-[1px] 
             rounded-[32px] bg-surface p-[12px] px-[24px] text-surface-foreground transition-all duration-250 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0
             flex flex-col 
             "
@@ -82,7 +95,7 @@ function ChatSettingsDesktop(props: ChatSettingsDesktopProps) {
             </Dialog.Close>
           </div>
 
-          <div className="flex gap-[36px] h-full overflow-hidden">
+          <div className="flex gap-[18px] h-full overflow-hidden">
             <ChatSettingsMenu />
             <ScrollArea className="h-full w-full">
               <ChatSettingsContent />
@@ -100,26 +113,53 @@ type ChatSettingsMobileProps = {
 };
 
 function ChatSettingsMobile(props: ChatSettingsMobileProps) {
-  const { areSettingsOpen, closeSettings, current } = useSettingsNavigation();
+  const { areSettingsOpen, closeSettings, current, navigateSettings } =
+    useSettingsNavigation();
 
   return (
-    <Drawer
+    <Dialog.Root
       defaultOpen={props.defaultOpen}
       open={areSettingsOpen}
-      onClose={closeSettings}
+      onOpenChange={closeSettings}
+      modal={false}
     >
-      <DrawerContent className="z-dialog">
-        <DrawerTitle className="sr-only">Chat Settings</DrawerTitle>
+      <Dialog.Portal>
+        <Dialog.Backdrop className="fixed inset-0 z-overlay bg-background/20 backdrop-blur-[1px] transition-all duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 data-[starting-style]:backdrop-blur-none dark:opacity-70" />
+        <Dialog.Popup
+          className="fixed z-dialog left-0 right-0 bottom-0 w-full max-w-[100vw] h-auto min-h-auto max-h-[70vh]
+            rounded-t-[24px] bg-surface text-surface-foreground transition-all duration-250
+            scale-[calc(1-0.03*var(--nested-dialogs))] data-[nested-dialog-open]:after:absolute data-[nested-dialog-open]:after:inset-0 data-[nested-dialog-open]:after:rounded-[inherit] data-[nested-dialog-open]:after:bg-background/10 data-[nested-dialog-open]:after:backdrop-blur-[1px] 
+            data-[ending-style]:translate-y-[8%] data-[ending-style]:opacity-0 data-[starting-style]:translate-y-[8%] data-[starting-style]:opacity-0"
+        >
+          <Dialog.Title className="sr-only">Chat Settings</Dialog.Title>
 
-        {current === "_" ? (
-          <ChatSettingsMenu />
-        ) : (
-          <div className="mt-[24px] min-h-[240px] px-[24px]">
-            <ChatSettingsContent />
-          </div>
-        )}
-      </DrawerContent>
-    </Drawer>
+          {current === "_" ? (
+            <div className="mt-[4px] min-h-[240px] px-[8px]">
+              <ChatSettingsMenu />
+            </div>
+          ) : (
+            <div className="relative w-full h-full">
+              <div className="absolute top-[16px] left-[12px] z-10">
+                <Button
+                  onClick={() => navigateSettings("_")}
+                  className="bg-surface-100/50 backdrop-blur-[8px]"
+                >
+                  <ArrowLeftIcon />
+                  Settings Menu
+                </Button>
+              </div>
+              <ScrollArea className="h-full min-h-0 shrink-0">
+                <div className="h-[80px]" />
+                <div className="px-[24px]">
+                  <ChatSettingsContent />
+                </div>
+                <div className="h-[200px]" />
+              </ScrollArea>
+            </div>
+          )}
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
 
@@ -128,6 +168,8 @@ function ChatSettingsContent() {
 
   const contentComponent = useMemo(() => {
     switch (current) {
+      case "model":
+        return <ChatSettingsModel />;
       case "user":
         return <ChatSettingsUser />;
       case "scenario":
@@ -138,7 +180,7 @@ function ChatSettingsContent() {
   }, [current]);
 
   return (
-    <div className="relative flex-1 w-full max-w-[460px]">
+    <div className="relative flex-1 w-full p-[6px] pr-[12px]">
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={current}
@@ -167,6 +209,13 @@ function ChatSettingsMenu() {
       >
         <GearSixIcon />
         Chat
+      </MenuButton>
+      <MenuButton
+        onClick={() => navigateSettings("model")}
+        isActive={current === "model"}
+      >
+        <RobotIcon />
+        Model
       </MenuButton>
       <MenuButton
         onClick={() => navigateSettings("user")}
@@ -231,10 +280,10 @@ function ChatSettingsHome() {
   );
 
   const handleNsFwChange = async (value: NSFWGuidelines | null) => {
+    if (savingNsFw) return;
     setSavingNsFw(true);
     try {
       await updateChatAction(chatId, {
-        title: null,
         settings: { nsfw_guidelines: value },
       });
       setSettings({ ...(settings ?? {}), nsfw_guidelines: value });
@@ -270,6 +319,7 @@ function ChatSettingsHome() {
           </p>
         </div>
         <Select
+          disabled={savingNsFw}
           items={NSFW_ITEMS}
           value={settings.nsfw_guidelines ?? NSFW_DEFAULT_VALUE}
           onValueChange={(val) =>
@@ -352,7 +402,6 @@ function ChatSettingsUser() {
     const character = formData.get("character") as string;
 
     await updateChatAction(chatId, {
-      title: null,
       settings: {
         user_persona: {
           enabled: true,
@@ -446,7 +495,6 @@ function ChatSettingsScenario() {
     const scenario = (formData.get("scenario") as string) ?? "";
 
     await updateChatAction(chatId, {
-      title: null,
       settings: {
         scenario: {
           scenario,
@@ -508,25 +556,141 @@ function ChatSettingsScenario() {
   );
 }
 
-function ChatSettingsForm() {
+function ChatSettingsModel() {
+  const { chatId, modelId, setModelId } = useChatMain();
+  const { add } = useToast();
+  const [query, setQuery] = useState<string>("");
+  const debouncedQuery = useDebounce(query, 300);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const models = useMemo(
+    () =>
+      pipe(
+        chatConfig.models,
+        map(({ modelId }) => textGenerationModels[modelId]),
+        filter(
+          (model) =>
+            model.displayName
+              .toLowerCase()
+              .includes(debouncedQuery.toLowerCase()) ||
+            model.modelId
+              .toLowerCase()
+              .includes(debouncedQuery.toLowerCase()) ||
+            model.perks
+              .join(" ")
+              .toLowerCase()
+              .includes(debouncedQuery.toLowerCase())
+        ),
+        toArray
+      ),
+    [chatConfig.models, debouncedQuery]
+  );
+
+  const handleModelChange = async (selectedModelId: TextGenerationModelId) => {
+    if (isLoading || modelId === selectedModelId) return;
+    setIsLoading(true);
+
+    const oldModelId = modelId;
+    setModelId(selectedModelId);
+
+    await updateChatAction(chatId, {
+      settings: {
+        model: selectedModelId,
+      },
+    })
+      .catch(() => {
+        setModelId(oldModelId);
+        add({
+          title: "Failed switch to model",
+          description: "Try again or contact support",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   return (
-    <Form>
-      <Field.Root>
-        <Field.Label>Scenario</Field.Label>
-
-        <TextareaAutosize
-          name="scenario"
-          minRows={3}
-          placeholder="Custom scenario for chat"
-          className="bg-white border-[2px] border-zinc-100 rounded-[16px]"
+    <div className="flex flex-col gap-[8px] min-h-[600px]">
+      <div>
+        <Input
+          name="query"
+          placeholder="Search models..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full bg-white rounded-[18px] border-0"
         />
+      </div>
 
-        <Field.Description>
-          Scenario will be included inside chat instructions. It will be always
-          included to the context. You can change/modify or remove scenario at
-          any time.
-        </Field.Description>
-      </Field.Root>
-    </Form>
+      <div className="space-y-[12px]">
+        {models.map((model) => (
+          <ModelCard
+            isSelected={model.modelId === modelId}
+            onSelect={() =>
+              handleModelChange(model.modelId as TextGenerationModelId)
+            }
+            key={model.modelId}
+            model={textGenerationModels[model.modelId]}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ModelCard(props: {
+  isSelected: boolean;
+  onSelect: () => void;
+  model: TextGenerationModelConfig;
+}) {
+  const { isSelected, onSelect, model } = props;
+
+  return (
+    <div
+      className={cn(
+        "bg-white rounded-[24px] px-[16px] py-[12px] cursor-pointer",
+        {
+          "border-[3px] border-surface-200": isSelected,
+        }
+      )}
+      onClick={onSelect}
+    >
+      <div>
+        <div className="flex items-center justify-between">
+          <div>
+            <h5 className="font-onest text-[1.1rem] truncate">
+              {model.displayName}
+            </h5>
+            <p className="text-surface-foreground/60 text-[.8rem] leading-tight italic mt-[-3px]">
+              {model.modelId}
+            </p>
+          </div>
+
+          <div
+            className="
+            shrink-0 flex items-center justify-center gap-[4px] text-[.9rem]
+            bg-rose-100/80 text-rose-600 px-[12px] py-[8px] rounded-[12px]
+            font-mono leading-0 cursor-default pointer-events-none border-[.5px] border-rose-300
+          "
+          >
+            {model.cost.roleplay}
+            <FireIcon size={12} weight="bold" />
+          </div>
+        </div>
+      </div>
+      <p className="text-surface-foreground/60 text-[.85rem] leading-tight mt-[12px]">
+        {model.description}
+      </p>
+      <div className="flex flex-wrap gap-[2px] w-full mt-[6px]">
+        {model.perks.map((perk) => (
+          <span
+            key={perk}
+            className="bg-surface rounded-[12px] px-[9px] py-[2px] text-[.8rem] text-surface-foreground/80"
+          >
+            {perk}
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }

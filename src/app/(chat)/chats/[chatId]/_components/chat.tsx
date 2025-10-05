@@ -1,7 +1,12 @@
 "use client";
 
 import { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
-import { useChat, useChatActions, useChatMessages } from "@ai-sdk-tools/store";
+import {
+  useChat,
+  useChatActions,
+  useChatMessages,
+  useChatStatus,
+} from "@ai-sdk-tools/store";
 import { DefaultChatTransport } from "ai";
 import { FormEvent, useState } from "react";
 import {
@@ -14,7 +19,9 @@ import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
 import { Button } from "@/components/mynth-ui/base/button";
 import {
+  ArrowsClockwiseIcon,
   BrainIcon,
+  CircleNotchIcon,
   PaperPlaneTiltIcon,
   SlidersHorizontalIcon,
 } from "@phosphor-icons/react/dist/ssr";
@@ -37,6 +44,7 @@ import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import { updateChatAction } from "@/actions/update-chat.action";
 import { useToast } from "@/components/ui/toast";
 import { chatConfig } from "@/config/shared/chat/chat-models.config";
+import { useTokensBalanceMutation } from "@/app/_queries/use-tokens-balance.query";
 
 type ChatProps = {
   chat: { id: string; mode: ChatMode };
@@ -45,6 +53,7 @@ type ChatProps = {
 
 export default function Chat(props: ChatProps) {
   const { addMessageToBranch, setActiveId } = useChatBranchesContext();
+  const mutateBalance = useTokensBalanceMutation();
 
   useChat({
     id: props.chat.id,
@@ -72,6 +81,19 @@ export default function Chat(props: ChatProps) {
         id: message.id,
         createdAt: new Date(),
       });
+
+      const cost = message.metadata?.cost ?? 0;
+      if (cost) {
+        mutateBalance((state) =>
+          state
+            ? {
+                ...state,
+                balance: state.balance - cost,
+                totalBalance: state.balance - cost,
+              }
+            : undefined
+        );
+      }
     },
 
     generateId: () => `msg_${nanoid(32)}`,
@@ -88,7 +110,8 @@ export default function Chat(props: ChatProps) {
 }
 
 function ChatPrompt() {
-  const { sendMessage } = useChatActions();
+  const { sendMessage, regenerate } = useChatActions();
+  const status = useChatStatus();
   const messages = useChatMessages();
 
   const { openSettings } = useSettingsNavigation();
@@ -97,6 +120,17 @@ function ChatPrompt() {
     message: PromptInputMessage,
     event: FormEvent<HTMLFormElement>
   ) => {
+    if (status !== "ready") {
+      if (status === "error") {
+        regenerate({
+          body: {
+            event: "regenerate",
+          },
+        });
+      } else {
+        return;
+      }
+    }
     const text = message.text?.trim();
     if (!text || text === "") return;
 
@@ -124,18 +158,39 @@ function ChatPrompt() {
       className="sticky mb-[12px] shrink-0 bottom-[12px] w-full max-w-[40rem] mx-auto"
     >
       <PromptInputBody>
-        <PromptInputTextarea placeholder="Write a message..." />
+        <PromptInputTextarea
+          disabled={status !== "ready"}
+          placeholder="Write a message..."
+          aria-label="Message Input"
+        />
       </PromptInputBody>
       <ButtonGroup className="py-[12px] md:py-[20px] px-[20px] w-full">
         <ChatModelSelector />
         <ButtonGroup.Separator />
 
-        <Button size="icon" onClick={() => openSettings()}>
+        <Button
+          size="icon"
+          onClick={() => openSettings()}
+          aria-label="Open settings"
+        >
           <SlidersHorizontalIcon />
         </Button>
 
-        <Button type="submit" size="icon" color="primary" className="ml-auto">
-          <PaperPlaneTiltIcon />
+        <Button
+          type="submit"
+          size="icon"
+          color="primary"
+          aria-label="Send message"
+          className="ml-auto"
+          disabled={status === "streaming" || status === "submitted"}
+        >
+          {status === "error" ? (
+            <ArrowsClockwiseIcon />
+          ) : status !== "ready" ? (
+            <CircleNotchIcon className="animate-spin" />
+          ) : (
+            <PaperPlaneTiltIcon />
+          )}
         </Button>
       </ButtonGroup>
     </PromptInput>
@@ -143,67 +198,43 @@ function ChatPrompt() {
 }
 
 function ChatModelSelector() {
-  const { add } = useToast();
+  const { navigateSettings } = useSettingsNavigation();
   const { chatId, modelId, setModelId } = useChatMain();
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleModelChange = async (modelId: TextGenerationModelId) => {
-    if (isLoading) return;
-    setIsLoading(true);
+  // const handleModelChange = async (modelId: TextGenerationModelId) => {
+  //   if (isLoading) return;
+  //   setIsLoading(true);
 
-    await updateChatAction(chatId, {
-      title: null,
-
-      settings: {
-        model: modelId,
-      },
-    })
-      .then(() => {
-        setModelId(modelId);
-      })
-      .catch(() => {
-        add({
-          title: "Failed switch to model",
-          description: "Try again or contact support",
-        });
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
+  //   await updateChatAction(chatId, {
+  //     settings: {
+  //       model: modelId,
+  //     },
+  //   })
+  //     .then(() => {
+  //       setModelId(modelId);
+  //     })
+  //     .catch(() => {
+  //       add({
+  //         title: "Failed switch to model",
+  //         description: "Try again or contact support",
+  //       });
+  //     })
+  //     .finally(() => {
+  //       setIsLoading(false);
+  //     });
+  // };
 
   return (
-    <Select
-      disabled={isLoading}
-      modal={false}
-      onValueChange={(val) => handleModelChange(val as TextGenerationModelId)}
-      items={chatConfig.models.map((model) => ({
-        key: model.modelId,
-        label: model.displayName,
-        value: model.modelId,
-      }))}
+    <Button
+      size="sm"
+      className="leading-none max-w-[180px] truncate"
+      aria-label="Select AI model for role-play"
+      onClick={() => navigateSettings("model")}
     >
-      <SelectTrigger
-        nativeButton
-        render={
-          <Button size="sm" className="leading-none max-w-[180px] truncate" />
-        }
-      >
-        {/* <BrainIcon className="shrink-0" /> */}
-        <span className="truncate">
-          {textGenerationModels[modelId!]?.displayName}
-        </span>
-      </SelectTrigger>
-
-      <SelectPositioner>
-        <SelectContent>
-          {chatConfig.models.map((model) => (
-            <SelectItem key={model.modelId} value={model.modelId}>
-              {model.displayName}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </SelectPositioner>
-    </Select>
+      {/* <BrainIcon className="shrink-0" /> */}
+      <span className="truncate">
+        {textGenerationModels[modelId!]?.displayName}
+      </span>
+    </Button>
   );
 }

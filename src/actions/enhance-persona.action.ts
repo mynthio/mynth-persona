@@ -5,7 +5,7 @@ import { z } from "zod";
 import { logger, logAiSdkUsage } from "@/lib/logger";
 import { auth } from "@clerk/nextjs/server";
 import { createPersonaVersion } from "@/services/persona/create-persona-version";
-import { spendTokens } from "@/services/token/token-manager.service";
+
 import { db } from "@/db/drizzle";
 import { personas, userTokens } from "@/db/schema";
 import { and, eq, ne, sql } from "drizzle-orm";
@@ -15,8 +15,9 @@ import { snakeCase } from "case-anything";
 import { streamObject } from "ai";
 import ms from "ms";
 import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
-import { DAILY_FREE_TOKENS } from "@/lib/constants";
+// Removed daily token logic; operating purely on DB balance
 import { getDefaultPromptDefinitionForMode } from "@/lib/prompts/registry";
+import { burnSparks } from "@/services/sparks/sparks.service";
 
 // Utility function to format extension keys to snake_case (lowercase)
 const formatExtensionKeys = (
@@ -163,7 +164,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
 
   // Check and deduct tokens for persona enhancement
   const tokenCost = 1; // Cost for persona enhancement
-  const tokenResult = await spendTokens(userId, tokenCost);
+  const tokenResult = await burnSparks({ userId, amount: tokenCost });
 
   if (!tokenResult.success) {
     return {
@@ -175,9 +176,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
 
   userLogger.debug(
     {
-      tokensUsed: tokenResult.tokensUsed,
-      remainingBalance: tokenResult.remainingBalance,
-      remainingDailyTokens: tokenResult.remainingDailyTokens,
+      remainingBalance: tokenResult.sparksAfter,
     },
     "Tokens deducted for persona enhancement"
   );
@@ -392,16 +391,9 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
     success: true,
     object: stream.value,
     personaId,
-    tokensUsed: tokenResult.tokensUsed,
-    remainingBalance: tokenResult.remainingBalance,
-    remainingDailyTokens: tokenResult.remainingDailyTokens,
+    remainingBalance: tokenResult.sparksAfter,
     balance: {
-      totalBalance:
-        tokenResult.remainingBalance + tokenResult.remainingDailyTokens,
-      purchasedBalance: tokenResult.remainingBalance,
-      dailyFreeTokensRemaining: tokenResult.remainingDailyTokens,
-      dailyTokensUsed: DAILY_FREE_TOKENS - tokenResult.remainingDailyTokens,
-      balance: tokenResult.remainingBalance + tokenResult.remainingDailyTokens,
+      balance: tokenResult.sparksAfter,
     },
   } as const;
 }

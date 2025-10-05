@@ -73,19 +73,13 @@ export default function Imagine() {
   const onGenerate = async () => {
     if (isLoading) return;
     const cost = calculateCost();
-    const requiresPurchased = options.quality === "high";
-    const purchased = balance?.purchasedBalance ?? 0;
-    const freeRemaining = balance?.dailyFreeTokensRemaining ?? 0;
-    const hasEnough = requiresPurchased
-      ? purchased >= cost
-      : freeRemaining >= cost || purchased >= cost;
+    const available = balance?.balance ?? 0;
+    const hasEnough = available >= cost;
 
     if (!hasEnough) {
       toast.add({
         title: "Not enough tokens",
-        description: requiresPurchased
-          ? `Requires ${cost} purchased tokens. You have ${purchased}.`
-          : `Requires ${cost} tokens. Free left: ${freeRemaining}, Purchased: ${purchased}.`,
+        description: `Requires ${cost} sparks. You have ${available}.`,
       });
       return;
     }
@@ -105,8 +99,10 @@ export default function Imagine() {
         userNote: options.quality !== "low" ? options.userNote : "",
       });
 
-      if (newBalance) {
-        mutateBalance(() => newBalance);
+      if (newBalance?.balance !== undefined) {
+        mutateBalance(() => ({
+          balance: newBalance.balance!,
+        }));
       }
 
       // Use action method to avoid stale state issues
@@ -306,12 +302,8 @@ export default function Imagine() {
               onClick={onGenerate}
               disabled={(() => {
                 const cost = calculateCost();
-                const requiresPurchased = options.quality === "high";
-                const purchased = balance?.purchasedBalance ?? 0;
-                const freeRemaining = balance?.dailyFreeTokensRemaining ?? 0;
-                const hasEnough = requiresPurchased
-                  ? purchased >= cost
-                  : freeRemaining >= cost || purchased >= cost;
+                const available = balance?.balance ?? 0;
+                const hasEnough = available >= cost;
                 return isLoading || !hasEnough;
               })()}
               size="sm"
@@ -323,22 +315,14 @@ export default function Imagine() {
         </div>
         {(() => {
           const cost = calculateCost();
-          const requiresPurchased = options.quality === "high";
-          const purchased = balance?.purchasedBalance ?? 0;
-          const freeRemaining = balance?.dailyFreeTokensRemaining ?? 0;
-          const hasEnough = requiresPurchased
-            ? purchased >= cost
-            : freeRemaining >= cost || purchased >= cost;
+          const available = balance?.balance ?? 0;
+          const hasEnough = available >= cost;
           if (balance && !hasEnough) {
             return (
               <div className="mt-2 text-[11px] text-orange-600 flex items-center gap-2">
-                <span>
-                  {requiresPurchased
-                    ? `Not enough purchased tokens (${purchased}/${cost}).`
-                    : `Not enough tokens. Free: ${freeRemaining}/${cost}, Purchased: ${purchased}/${cost}.`}
-                </span>
-                <Link href="/tokens" className="underline" prefetch={false}>
-                  Buy tokens
+                <span>{`Not enough Sparks (${available}/${cost}).`}</span>
+                <Link href="/sparks" className="underline" prefetch={false}>
+                  Buy Sparks
                 </Link>
               </div>
             );
@@ -412,7 +396,7 @@ function QualityCard({
         <div className="text-[12px] font-medium">{item.label}</div>
         <div className="text-[11px] text-zinc-500">{item.desc}</div>
         <div className="text-[11px] font-medium text-primary">
-          {item.tokens} tokens
+          {item.tokens} sparks
         </div>
         {item.purchasedOnly && (
           <div className="text-[10px] text-orange-600">Purchased only</div>

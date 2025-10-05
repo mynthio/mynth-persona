@@ -25,11 +25,17 @@ export const useTokensBalanceMutation = (options?: MutatorOptions) => {
   const { isSignedIn } = useAuth();
 
   return (
-    mutator: (data: PublicUserBalance | undefined) => PublicUserBalance,
+    mutator: (
+      data: PublicUserBalance | undefined
+    ) => PublicUserBalance | undefined,
     options?: MutatorOptions
   ) =>
-    mutate<PublicUserBalance>(isSignedIn ? "/api/me/balance" : null, mutator, {
-      revalidate: false,
-      ...options,
-    });
+    mutate<PublicUserBalance | undefined>(
+      isSignedIn ? "/api/me/balance" : null,
+      mutator,
+      {
+        revalidate: false,
+        ...options,
+      }
+    );
 };

@@ -73,11 +73,21 @@ export const tagCategoryEnum = pgEnum("tag_category", [
 ]);
 
 // Users table - references Clerk auth
-export const users = pgTable("users", {
-  id: varchar("id", { length: 255 }).primaryKey(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const users = pgTable(
+  "users",
+  {
+    id: varchar("id", { length: 255 }).primaryKey(),
+    // Optional username, must be unique when present
+    username: varchar("username", { length: 255 }),
+    // Clerk image URL
+    imageUrl: text("image_url"),
+    // Display name, defaults to username in webhook
+    displayName: varchar("display_name", { length: 255 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [unique("users_username_unique").on(t.username)]
+);
 
 // Personas table - basic metadata only
 export const personas = pgTable(
@@ -279,6 +289,13 @@ export const userTokens = pgTable("user_tokens", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const transactionStatusEnum = pgEnum("transaction_status", [
+  "pending",
+  "completed",
+  "failed",
+  "expired",
+]);
+
 // Token transactions - complete audit trail (NO CASCADE - preserve for accounting)
 export const tokenTransactions = pgTable("token_transactions", {
   id: text("id").primaryKey(),
@@ -286,11 +303,11 @@ export const tokenTransactions = pgTable("token_transactions", {
     .notNull()
     .references(() => users.id), // NO CASCADE - preserve audit trail
   type: transactionTypeEnum("type").notNull(),
+  status: transactionStatusEnum("status").notNull(),
   amount: integer("amount").notNull(), // Positive for add, negative for spend
   balanceAfter: integer("balance_after").notNull(), // Balance after this transaction
-  orderId: varchar("order_id", { length: 255 }), // Stripe/payment provider ID
-  checkoutId: varchar("checkout_id", { length: 255 }), // Polar checkout ID
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 // Relations for better querying

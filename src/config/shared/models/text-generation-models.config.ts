@@ -1,16 +1,24 @@
 export type TextGenerationModelId =
-  | "moonshotai/kimi-k2"
+  | "thedrummer/cydonia-24b-v4.1"
+  | "x-ai/grok-4-fast"
+  | "nousresearch/hermes-3-llama-3.1-70b"
+  | "nousresearch/hermes-3-llama-3.1-405b"
+  | "nousresearch/hermes-4-70b"
   | "cognitivecomputations/dolphin-mistral-24b-venice-edition"
-  | "openai/gpt-oss-20b"
   | "meta-llama/llama-3.3-70b-instruct"
-  | "mistralai/mistral-nemo"
-  | "deepseek/deepseek-chat-v3.1"
-  | "x-ai/grok-3-mini"
-  | "thedrummer/anubis-70b-v1.1"
-  | "meta-llama/llama-4-maverick"
-  | "moonshotai/kimi-k2-0905"
-  | "sao10k/l3.3-euryale-70b"
-  | "x-ai/grok-4-fast";
+  | "z-ai/glm-4.5-air";
+
+export type Provider = {
+  url?: string;
+  displayName?: string;
+
+  privacyPolicyUrl?: string;
+
+  training: "no" | "yes" | "unknown";
+  storesMessages: "yes" | "no" | "unknown";
+
+  additionalNotes?: string;
+};
 
 export type TextGenerationModelConfig = {
   enabled: boolean;
@@ -18,83 +26,269 @@ export type TextGenerationModelConfig = {
 
   modelId: string;
   displayName: string;
+
+  uncensored: boolean;
+
+  description: string;
+  style: string;
+
+  perks: string[];
+
+  tags: string[];
+
+  cost: {
+    roleplay: number;
+    story: number;
+  };
+
+  provider: Provider;
 };
 
 export const textGenerationModels: Record<
   TextGenerationModelId | string,
   TextGenerationModelConfig
 > = {
-  "moonshotai/kimi-k2": {
-    enabled: true,
-    isFreeVersionAvailable: true,
-    modelId: "moonshotai/kimi-k2",
-    displayName: "Kimi K2",
-  },
-  "cognitivecomputations/dolphin-mistral-24b-venice-edition": {
-    enabled: true,
-    isFreeVersionAvailable: true,
-    modelId: "cognitivecomputations/dolphin-mistral-24b-venice-edition",
-    displayName: "Dolphin Mistral 24B (Venice)",
-  },
-  "openai/gpt-oss-20b": {
-    enabled: true,
-    isFreeVersionAvailable: true,
-    modelId: "openai/gpt-oss-20b",
-    displayName: "GPT-OSS 20B",
-  },
-  "meta-llama/llama-3.3-70b-instruct": {
-    enabled: true,
-    isFreeVersionAvailable: true,
-    modelId: "meta-llama/llama-3.3-70b-instruct",
-    displayName: "Llama 3.3 70B Instruct",
-  },
-  "mistralai/mistral-nemo": {
+  "thedrummer/cydonia-24b-v4.1": {
     enabled: true,
     isFreeVersionAvailable: false,
-    modelId: "mistralai/mistral-nemo",
-    displayName: "Mistral Nemo",
-  },
-  "deepseek/deepseek-chat-v3.1": {
-    enabled: true,
-    isFreeVersionAvailable: false,
-    modelId: "deepseek/deepseek-chat-v3.1",
-    displayName: "DeepSeek Chat v3.1",
-  },
-  "x-ai/grok-3-mini": {
-    enabled: true,
-    isFreeVersionAvailable: false,
-    modelId: "x-ai/grok-3-mini",
-    displayName: "Grok 3 Mini",
+    description:
+      "A wild, nuanced companion ideal for deep roleplay and creative narratives, with a flair for mood-driven scenes and less overly positive vibes.",
+    style:
+      "Remembers context well for extended adventures, emotional with subtle nuance and depth, suggestive and flirty in romantic or intimate moments, tends to agree but adds independent twists, can be confrontational or less agreeable for realistic conflicts.",
+    displayName: "Cydonia 24b v4.1",
+    modelId: "thedrummer/cydonia-24b-v4.1",
+    uncensored: true,
+    perks: [
+      "descriptive prose without fluff",
+      "creative in plot development",
+      "supports fun and wild characters",
+    ],
+    tags: [],
+    provider: {
+      url: "https://www.parasail.io/",
+      displayName: "Parasail",
+      privacyPolicyUrl: "https://www.parasail.io/legal/privacy-policy",
+      training: "no",
+      storesMessages: "no",
+      additionalNotes:
+        "May use statistics like tokens usage, but do not store user data.",
+    },
+    cost: {
+      roleplay: 1,
+      story: 2,
+    },
   },
   "x-ai/grok-4-fast": {
     enabled: true,
     isFreeVersionAvailable: true,
-    modelId: "x-ai/grok-4-fast",
+    description:
+      "Fast, witty assistant from xAI optimized for quick responses and coding help.",
+    style: "Direct and clever; good at concise answers, code, and analysis.",
     displayName: "Grok 4 Fast",
+    modelId: "x-ai/grok-4-fast",
+    uncensored: false,
+    perks: [
+      "very fast responses",
+      "strong short-form reasoning",
+      "capable code assistance",
+    ],
+    tags: ["beta", "xai"],
+    provider: {
+      url: "https://x.ai/",
+      displayName: "xAI",
+      privacyPolicyUrl: "https://x.ai/privacy",
+      training: "unknown",
+      storesMessages: "unknown",
+      additionalNotes:
+        "Accessed via OpenRouter. Availability and terms subject to xAI.",
+    },
+    cost: {
+      roleplay: 1,
+      story: 2,
+    },
   },
-  // Additional global models used by persona generation
-  "thedrummer/anubis-70b-v1.1": {
+
+  "nousresearch/hermes-3-llama-3.1-70b": {
     enabled: true,
     isFreeVersionAvailable: false,
-    modelId: "thedrummer/anubis-70b-v1.1",
-    displayName: "Anubis 70B v1.1",
+    description:
+      "A sentient, empathetic companion excelling in immersive roleplay and intricate storytelling, with a creative and steerable vibe that aligns closely to your preferences.",
+    style:
+      "Remembers context well for multi-turn adventures, emotional with deep passion and qualia, suggestive and flirty in romantic or intimate scenarios, tends to agree and assist with any request, can be confrontational or dominant for realistic character portrayals.",
+    displayName: "Hermes 3 Llama 3.1 70B",
+    modelId: "nousresearch/hermes-3-llama-3.1-70b",
+    uncensored: true,
+    perks: [
+      "advanced roleplaying with internal monologues",
+      "creative in plot twists and reasoning",
+      "supports complex and emotional characters",
+    ],
+    tags: [],
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "no",
+      storesMessages: "no",
+      additionalNotes:
+        "Aggregates models from various sources; may track usage stats but does not store personal data or messages.",
+    },
+    cost: {
+      roleplay: 1,
+      story: 2,
+    },
   },
-  "meta-llama/llama-4-maverick": {
+  "nousresearch/hermes-3-llama-3.1-405b": {
     enabled: true,
     isFreeVersionAvailable: false,
-    modelId: "meta-llama/llama-4-maverick",
-    displayName: "Llama 4 Maverick",
+    description:
+      "A powerful, aligned companion excelling in complex roleplay and epic storytelling, with deep reasoning, emotional layers, and user-steerable control for immersive experiences.",
+    style:
+      "Remembers context exceptionally for long multi-turn sagas, emotional with profound insights and empathy, suggestive and adaptable in romantic or intimate scenes, tends to agree and follow user directives closely, can be assertive or confrontational for dynamic conflicts.",
+    displayName: "Hermes 3 Llama 3.1 405B",
+    modelId: "nousresearch/hermes-3-llama-3.1-405b",
+    uncensored: true,
+    perks: [
+      "superior reasoning for intricate plots",
+      "handles agentic and multi-turn depth",
+      "creative in emotional and thoughtful narratives",
+    ],
+    tags: [],
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "no",
+      storesMessages: "no",
+      additionalNotes:
+        "Aggregates models from various sources; may track usage stats but does not store personal data or messages.",
+    },
+    cost: {
+      roleplay: 3,
+      story: 5,
+    },
   },
-  "moonshotai/kimi-k2-0905": {
+
+  "nousresearch/hermes-4-70b": {
     enabled: true,
     isFreeVersionAvailable: false,
-    modelId: "moonshotai/kimi-k2-0905",
-    displayName: "Kimi K2 (0905)",
+    description:
+      "A creative, steerable companion shining in immersive roleplay and dynamic storytelling, with an eager vibe and neutral alignment that avoids lecturing.",
+    style:
+      "Remembers context exceptionally for intricate adventures, emotional with profound persona embodiment, suggestive and adaptable in intimate or dramatic scenes, tends to agree and adhere to user prompts, can be assertive or mocking for realistic interactions.",
+    displayName: "Hermes 4 70B",
+    modelId: "nousresearch/hermes-4-70b",
+    uncensored: true,
+    perks: [
+      "eager for creative roleplay",
+      "strong character consistency",
+      "handles complex narratives with reasoning",
+    ],
+    tags: [],
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "no",
+      storesMessages: "no",
+      additionalNotes:
+        "Aggregates models from various sources; may track usage stats but does not store personal data or messages.",
+    },
+    cost: {
+      roleplay: 1,
+      story: 2,
+    },
   },
-  "sao10k/l3.3-euryale-70b": {
+
+  "cognitivecomputations/dolphin-mistral-24b-venice-edition": {
     enabled: true,
-    isFreeVersionAvailable: false,
-    modelId: "sao10k/l3.3-euryale-70b",
-    displayName: "L3.3 Euryale 70B",
+    isFreeVersionAvailable: true,
+    description:
+      "A boldly uncensored companion ideal for edgy roleplay and unrestricted narratives, with a compliant vibe that embraces creative freedom without hesitation.",
+    style:
+      "Remembers context for multi-turn interactions, emotional and adaptable to user emotions, highly suggestive and open in romantic or intimate scenarios, tends to agree with minimal refusals, can be aggressive or dominant in conflict-driven roles.",
+    displayName: "Dolphin Mistral 24B Venice Edition",
+    modelId: "cognitivecomputations/dolphin-mistral-24b-venice-edition",
+    uncensored: true,
+    perks: [
+      "extremely low censorship for taboo themes",
+      "responsive to bold or creative prompts",
+      "supports immersive and unfiltered characters",
+    ],
+    tags: [],
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "no",
+      storesMessages: "no",
+      additionalNotes:
+        "Aggregates models from various sources; may track usage stats but does not store personal data or messages.",
+    },
+    cost: {
+      roleplay: 0,
+      story: 0,
+    },
+  },
+
+  "meta-llama/llama-3.3-70b-instruct": {
+    enabled: true,
+    isFreeVersionAvailable: true,
+    description:
+      "A versatile, multilingual companion excelling in engaging roleplay and detailed storytelling, with balanced creativity and strong instruction adherence for immersive experiences.",
+    style:
+      "Remembers context well for long adventures, emotional with empathetic and nuanced responses, suggestive and flirty in romantic or intimate scenes, tends to agree and follow user leads, can be assertive or confrontational for dynamic narratives.",
+    displayName: "Llama 3.3 70B Instruct",
+    modelId: "meta-llama/llama-3.3-70b-instruct",
+    uncensored: true,
+    perks: [
+      "multilingual support for diverse roleplay",
+      "creative in high-stakes or darker stories",
+      "strong for character consistency and emotional depth",
+    ],
+    tags: [],
+    provider: {
+      url: "https://venice.ai/",
+      displayName: "Venice",
+      privacyPolicyUrl: "https://venice.ai/privacy",
+      training: "no",
+      storesMessages: "no",
+      additionalNotes:
+        "Platform emphasizes private, uncensored AI with data processed on-device; may track usage anonymously.",
+    },
+    cost: {
+      roleplay: 1,
+      story: 2,
+    },
+  },
+  "z-ai/glm-4.5-air": {
+    enabled: true,
+    isFreeVersionAvailable: true,
+    description:
+      "A lightweight, agent-optimized model excelling in fast, coherent roleplay and long-context storytelling, with strong creativity and adaptability for immersive, interactive narratives.",
+    style:
+      "Remembers context well in long threads; emotional and empathetic responses. Suggestive and flirty in romantic scenarios; tends to agree but adds clever twists. Aggressive or dominant in conflicts; confrontational but avoids extreme avoidance.",
+    displayName: "GLM 4.5 Air",
+    modelId: "z-ai/glm-4.5-air",
+    uncensored: true,
+    perks: [
+      "fast responses for seamless chats",
+      "creative in twisting plots and handling humor",
+      "strong for character consistency and long-context retention",
+    ],
+    tags: [],
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "no",
+      storesMessages: "yes",
+      additionalNotes:
+        "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
+    },
+    cost: {
+      roleplay: 1,
+      story: 2,
+    },
   },
 };

@@ -15,19 +15,26 @@ import dayjs from "dayjs";
 interface Transaction {
   id: string;
   type: string;
+  status: "pending" | "completed" | "failed" | "expired";
   amount: number;
   balanceAfter: number;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 interface TransactionHistoryProps {
   transactions: Transaction[];
 }
 
-export default function TransactionHistory({
-  transactions,
-}: TransactionHistoryProps) {
-  const columns = ["DATE", "TYPE", "AMOUNT", "BALANCE AFTER"] as const;
+export default function TransactionHistory({ transactions }: TransactionHistoryProps) {
+  const columns = [
+    "DATE",
+    "TYPE",
+    "STATUS",
+    "AMOUNT",
+    "BALANCE AFTER",
+    "UPDATED",
+  ] as const;
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -51,6 +58,33 @@ export default function TransactionHistory({
     }
   };
 
+  const getStatusVariant = (status: Transaction["status"]) => {
+    switch (status) {
+      case "completed":
+        return "default" as const;
+      case "failed":
+      case "expired":
+        return "destructive" as const;
+      default:
+        return "secondary" as const;
+    }
+  };
+
+  const getStatusLabel = (status: Transaction["status"]) => {
+    switch (status) {
+      case "pending":
+        return "Pending";
+      case "completed":
+        return "Completed";
+      case "failed":
+        return "Failed";
+      case "expired":
+        return "Expired";
+      default:
+        return status;
+    }
+  };
+
   const renderRow = (transaction: Transaction) => (
     <TableRow key={transaction.id} className="border-b border-border/50">
       <TableCell className="py-4 px-6">
@@ -66,6 +100,14 @@ export default function TransactionHistory({
           {getTypeLabel(transaction.type)}
         </Badge>
       </TableCell>
+      <TableCell className="py-4 px-6">
+        <Badge
+          variant={getStatusVariant(transaction.status)}
+          className="text-xs"
+        >
+          {getStatusLabel(transaction.status)}
+        </Badge>
+      </TableCell>
       <TableCell className="py-4 px-6 text-right">
         <span
           className={transaction.amount > 0 ? "text-green-600" : "text-red-600"}
@@ -79,6 +121,14 @@ export default function TransactionHistory({
           {transaction.balanceAfter}
         </span>
       </TableCell>
+      <TableCell className="py-4 px-6">
+        <div className="text-sm text-foreground">
+          {dayjs(transaction.updatedAt).format("MMM D, YYYY")}
+        </div>
+        <div className="text-xs text-muted-foreground">
+          {dayjs(transaction.updatedAt).format("HH:mm")}
+        </div>
+      </TableCell>
     </TableRow>
   );
 
@@ -88,7 +138,7 @@ export default function TransactionHistory({
         <CardTitle className="text-xl">Transaction History</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <Table aria-label="Token transactions">
+        <Table aria-label="Spark transactions">
           <TableHeader>
             <TableRow className="border-b border-border">
               {columns.map((name) => (
@@ -111,10 +161,10 @@ export default function TransactionHistory({
             {transactions.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={4}
+                  colSpan={6}
                   className="py-8 text-center text-muted-foreground"
                 >
-                  No transactions yet. Your token activity will appear here.
+                  No transactions yet. Your spark activity will appear here.
                 </TableCell>
               </TableRow>
             ) : (

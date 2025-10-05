@@ -4,34 +4,22 @@ import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-r
 import { logger, logAiSdkUsage } from "@/lib/logger";
 import {
   streamText,
-  UIMessage,
   convertToModelMessages,
   smoothStream,
   createUIMessageStreamResponse,
   createUIMessageStream,
-  ModelMessage,
-  TextPart,
 } from "ai";
 import { nanoid } from "nanoid";
 import { db } from "@/db/drizzle";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { chats, messages as messagesTable } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
-import { tasks } from "@trigger.dev/sdk";
-import { generateSceneImageDemoTask } from "@/trigger/generate-scene-image-demo.task";
 import { getDefaultPromptDefinitionForMode } from "@/lib/prompts/registry";
 import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
-import {
-  spendTokens,
-  refundTokens,
-} from "@/services/token/token-manager.service";
-import {
-  chatConfig,
-  DEFAULT_CHAT_MODEL,
-} from "@/config/shared/chat/chat-models.config";
-import logsnag, { trackChatError } from "@/lib/logsnag";
-import { messageIdSchema } from "@/schemas/backend/messages/message.schema";
+import { refundTokens } from "@/services/token/token-manager.service";
+import { DEFAULT_CHAT_MODEL } from "@/config/shared/chat/chat-models.config";
+import { trackChatError } from "@/lib/logsnag";
 import { notFound } from "next/navigation";
 import { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 import {
@@ -39,9 +27,9 @@ import {
   PersonaVersionRoleplayData,
 } from "@/schemas";
 import { getChatMessagesData } from "@/data/messages/get-chat-messages.data";
-import { pipe } from "@fxts/core";
 
 import { kv } from "@vercel/kv";
+import { burnSparks } from "@/services/sparks/sparks.service";
 
 export const maxDuration = 45;
 
@@ -149,11 +137,10 @@ export async function POST(
     textGenerationModels[chatSettings.model ?? DEFAULT_CHAT_MODEL];
   if (!textGenerationModel) throw new Error("Model not supported");
 
-  const textGenerationModelCost = pipe(
-    chatConfig.models,
-    (models) => models.find((m) => m.modelId === textGenerationModel.modelId),
-    (model) => model?.cost
-  );
+  const textGenerationModelCost =
+    chat.mode === "roleplay"
+      ? textGenerationModel.cost.roleplay
+      : textGenerationModel.cost.story;
   if (textGenerationModelCost === undefined) {
     throw new Error(
       "Something Went Wrong. Model is not supported. Try with another model."
@@ -165,18 +152,15 @@ export async function POST(
    */
   let tokenResult: any = null;
   if (textGenerationModelCost > 0) {
-    const result = await spendTokens(userId, textGenerationModelCost);
+    const result = await burnSparks({
+      userId,
+      amount: textGenerationModelCost,
+    });
+
     if (!result.success) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: "INSUFFICIENT_TOKENS",
-          message: result.error || "Insufficient tokens",
-          remainingBalance: result.remainingBalance,
-          remainingDailyTokens: result.remainingDailyTokens,
-        }),
-        { status: 402, headers: { "Content-Type": "application/json" } }
-      );
+      return new Response("INSUFFICIENT_TOKENS", {
+        status: 402,
+      });
     }
     tokenResult = result;
   }
@@ -212,7 +196,10 @@ export async function POST(
     character: roleplayData,
     user: chatSettings.user_persona,
     scenario: chatSettings.scenario,
+    nsfw: chatSettings.nsfw_guidelines,
   });
+
+  logger.debug({ system }, "System Prompt");
 
   /**
    * MESSAGES
@@ -273,11 +260,7 @@ export async function POST(
             tokenResult &&
             tokenResult.success
           ) {
-            await refundTokens(
-              userId,
-              tokenResult.tokensFromFree,
-              tokenResult.tokensFromPurchased
-            );
+            await refundTokens(userId, tokenResult.tokensUsed);
           }
         },
 
@@ -306,8 +289,6 @@ export async function POST(
       });
     },
     onFinish: async ({ responseMessage }) => {
-      console.log("onFinish|responseMessage", responseMessage);
-
       await kv.del(`chat:${chatId}:leaf`).catch((error) => {
         logger.error({
           event: "kv-error",

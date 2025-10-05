@@ -11,7 +11,7 @@ import { visit } from "unist-util-visit";
  */
 export const rehypeDoubleQuotes: Plugin<[], Root> = () => {
   return (tree) => {
-    visit(tree, "text", (node: Text, index: number | null, parent: any) => {
+    visit(tree, "text", (node, index, parent) => {
       if (parent == null || index == null) return;
 
       // Skip inside code/pre/script/style/anchor elements

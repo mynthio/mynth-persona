@@ -51,7 +51,7 @@ function SelectPositioner({
         data-slot="select-positioner"
         sideOffset={8}
         {...props}
-        className={cn("outline-none select-none z-10", props.className)}
+        className={cn("outline-none select-none z-popup", props.className)}
       />
     </SelectPrimitive.Portal>
   );

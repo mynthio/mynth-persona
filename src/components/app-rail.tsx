@@ -4,7 +4,7 @@ import {
   ChatsTeardropIcon,
   CircleNotchIcon,
   DiscordLogoIcon,
-  GithubLogoIcon,
+  FlameIcon,
   ImagesIcon,
   PlanetIcon,
   SidebarIcon,
@@ -25,7 +25,7 @@ import { Tooltip, TooltipPopup, TooltipTrigger } from "./ui/tooltip";
 import { motion } from "motion/react";
 import { Link } from "./ui/link";
 import { usePathname, useRouter } from "next/navigation";
-import { DISCORD_INVITE_URL, GITHUB_REPO_URL } from "@/lib/constants";
+import { DISCORD_INVITE_URL } from "@/lib/constants";
 
 export function AppRail() {
   const { setView, open, setOpen, setOpenMobile } = useSidebar();
@@ -46,7 +46,7 @@ export function AppRail() {
       <div
         className={cn(
           "fixed px-[12px] md:px-0 justify-between bg-background/80 backdrop-blur-lg md:bg-background md:backdrop-blur-none rounded-[14px] md:rounded-none left-[12px] md:left-0 md:top-0 md:right-auto right-[12px] bottom-[3px] md:bottom-0 md:w-[64px] py-4 h-[84px] md:h-full shrink-0 flex md:flex-col  text-sidebar-foreground items-center gap-[8px]",
-          isChatWithPersona ? "z-0" : "z-rail"
+          isChatWithPersona ? "z-0 md:z-rail" : "z-rail"
         )}
       >
         <div className="flex md:flex-col gap-[8px] items-center md:items-start">
@@ -246,6 +246,7 @@ function RailSectionButton({
 function RailsFooter() {
   const { openUserProfile, signOut, openSignIn } = useClerk();
   const { user, isLoaded, isSignedIn } = useUser();
+  const { push } = useRouter();
 
   return (
     <div className="flex md:flex-col items-center justify-center gap-[8px]">
@@ -258,14 +259,14 @@ function RailsFooter() {
         >
           <DiscordLogoIcon />
         </a>
-        <a
+        {/* <a
           href={GITHUB_REPO_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center size-[40px] md:size-[34px] rounded-[12px] hover:bg-foreground/10"
         >
           <GithubLogoIcon />
-        </a>
+        </a> */}
       </div>
 
       {isLoaded && isSignedIn && <RailsTookens />}
@@ -320,6 +321,16 @@ function RailsFooter() {
                       className={cn(
                         "h-[42px] flex items-center justify-start px-[12px] gap-[12px] hover:bg-foreground/10 rounded-[12px] cursor-pointer transition-colors duration-225"
                       )}
+                      onClick={() => push("/sparks")}
+                    >
+                      <FlameIcon />
+                      Sparks
+                    </Menu.Item>
+
+                    <Menu.Item
+                      className={cn(
+                        "h-[42px] flex items-center justify-start px-[12px] gap-[12px] hover:bg-foreground/10 rounded-[12px] cursor-pointer transition-colors duration-225"
+                      )}
                       onClick={() => openUserProfile()}
                     >
                       <UserGearIcon />
@@ -354,13 +365,14 @@ function RailsTookens() {
     if (!data) return 0;
 
     return (
-      <Link href="/tokens">{data.balance > 999 ? "999+" : data.balance}</Link>
+      <Link href="/sparks">{data.balance > 999 ? "999+" : data.balance}</Link>
     );
   }, [data, isLoading]);
 
   return (
     <Tooltip>
-      <TooltipTrigger className="bg-gradient-to-tr from-[#5527DD] via-purple-700 to-violet-900 text-white/90 px-[6px] md:px-0 w-full rounded-lg h-[32px] flex items-center justify-center font-bold text-[11px]">
+      <TooltipTrigger className="text-rose-500 px-[6px] md:px-0 w-full rounded-lg h-[24px] gap-[2px] flex items-center justify-center text-[12px]">
+        <FlameIcon size={10} />
         {content}
       </TooltipTrigger>
 

@@ -4,6 +4,7 @@ import { createChatAction } from "@/actions/create-chat.action";
 import { Button } from "./mynth-ui/base/button";
 import { useToast } from "./ui/toast";
 import { useSWRConfig } from "swr";
+import { useState } from "react";
 
 type CreateChatButtonProps = React.ComponentProps<typeof Button> & {
   personaId: string;
@@ -13,13 +14,17 @@ export function CreateChatButton({
   personaId,
   ...props
 }: CreateChatButtonProps) {
+  const [isLoading, setIsLoading] = useState(false);
   const { mutate } = useSWRConfig();
   const { promise } = useToast();
 
   return (
     <Button
       {...props}
+      disabled={isLoading}
       onClick={async () => {
+        if (isLoading) return;
+        setIsLoading(true);
         promise(
           createChatAction(personaId)
             .catch((error) => {
@@ -30,6 +35,9 @@ export function CreateChatButton({
             })
             .then(() => {
               mutate("/api/chats");
+            })
+            .finally(() => {
+              setIsLoading(false);
             }),
           {
             loading:

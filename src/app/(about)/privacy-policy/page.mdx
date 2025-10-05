@@ -1,0 +1,408 @@
+# Privacy Policy
+
+**Last updated: 2025-10-05**
+
+## Quick Summary
+
+- We collect only what's necessary to run Persona and improve it.
+- We never sell your data and we don't share data with advertisers.
+- We don't log your private chats or personas in production. We only log usage metrics and errors.
+- **Important**: Images you generate are served via public CDN links. Anyone with the link can view them—these links are hard to guess but not encrypted or access-controlled.
+
+**Tip**: If you want an image to stay private, do not share its link. You can delete images and personas anytime.
+
+---
+
+## Who We Are
+
+This Privacy Policy applies to the Persona website and services, including prsna.app (collectively, the "Services").
+
+**Contact us**: hi@prsna.app  
+**See also**: Our [Terms of Use](/terms-of-use)  
+**DPA available**: A Data Processing Agreement is available upon request for business users.
+
+---
+
+## Our Philosophy
+
+We believe in user freedom and creativity. Our goal is to give you powerful AI tools while protecting your privacy.
+
+- **We never sell your data.** We don't share data with advertisers or data brokers.
+- **We don't need or want to see your private content.** We design systems to collect only what's necessary.
+- **When you ask for support**, we help without judgment and only look at what you explicitly authorize us to review.
+- **Your freedom to create matters**—within our [Terms of Use](/terms-of-use) and applicable law.
+
+Let's be honest: we don't care what you generate. We care that it's your data and it stays yours.
+
+---
+
+## What We Collect
+
+### Account Data (via Clerk)
+
+- Your Clerk user ID (stored in our database)
+- Clerk manages your email, name, and authentication data
+- We may receive your email via webhooks to help identify sessions in analytics
+- See [Clerk's Privacy Policy](https://clerk.com/legal/privacy)
+
+### App Content You Create
+
+- Persona data (JSON profiles, prompts, messages, version history)
+- Image generation prompts and resulting images
+- Events history related to your content
+
+### Usage and Technical Data
+
+- IP address (for rate limiting and abuse prevention only)
+- Page views, navigation events, and client-side exceptions
+- Server and application logs (operational data, not content)
+- Feature usage events
+
+### Payment Data
+
+- Spark purchase amounts
+- Order/checkout IDs, transaction status, product IDs
+- External user ID (Clerk ID) to credit your account
+- Payment details are processed by our payment providers; we do not store card numbers or crypto wallet details
+
+---
+
+## How We Use Your Data
+
+We process your data to:
+
+- **Provide the Services**: Persona creation, chat, image generation, spark management
+- **Authenticate and authorize**: Manage your account and access
+- **Process payments**: Handle purchases, subscriptions, and spark credits
+- **Security and abuse prevention**: Rate limiting, fraud detection, content moderation (public content only)
+- **Analytics and improvement**: Understand how features are used, fix bugs, improve performance
+- **Support**: Help you troubleshoot issues (only with your explicit permission)
+- **Service communications**: Send essential service updates (not marketing unless you opt in)
+
+---
+
+## What We DON'T Do
+
+❌ We don't log your private chat messages or persona content in production  
+❌ We don't read your chats unless you explicitly ask us to for support  
+❌ We don't sell your data or share it with advertisers  
+❌ We don't use your content for our own AI training
+
+---
+
+## Support Access (With Your Permission Only)
+
+If you request help with a specific issue (e.g., failed image generation, spark refund):
+
+- **You control access**: We only review what you explicitly identify (specific chat, image, or persona)
+- **Explicit permission required**: Via email from your registered account address
+- **Purpose-limited**: We use data solely to resolve your request, then stop accessing it
+- **No retention**: We keep minimal support case records (ticket ID, outcome) but don't retain copies of your content
+
+**Alternative**: If you prefer, share screenshots or direct links instead of granting access to your account data.
+
+---
+
+## Chat Data and Privacy
+
+### Storage
+
+Your conversations and messages are stored in our hosted database (Neon) so you can access your chat history across sessions.
+
+### Access Policy
+
+**We do not read your chats.** The only exception is when you explicitly report an issue and authorize us to review specific items to resolve your request.
+
+### No Content Logging
+
+We **never** log chat content or messages, even for debugging. We only log:
+
+- Usage metadata (spark consumption, model ID, approximate costs)
+- Errors without message content
+
+### How Chats Are Routed
+
+- Text generation requests go through **OpenRouter** or directly to model providers
+- We **do not** attach your account ID or email to provider requests
+- Any personal data in prompts is only what you choose to include
+- We prioritize privacy-focused providers where available
+
+### Free Models Disclaimer
+
+Free models may allow providers to use prompts/outputs for training or evaluation per provider defaults. Free models may also be rate-limited or unstable.
+
+### Your Responsibility
+
+**Do not include sensitive personal information** (SSN, financial details, health records, etc.) in chats. You control what you share.
+
+### Future Privacy Features
+
+We're working on:
+
+- End-to-end encrypted chats
+- Local-only chat modes for maximum privacy
+
+---
+
+## AI Model Providers
+
+### Text Generation (via OpenRouter)
+
+- We send prompts, system instructions, and model parameters
+- We do **not** attach your user ID or email
+- Content includes any personal information you put in prompts
+- See [OpenRouter's Privacy Policy](https://openrouter.ai/privacy)
+- Model providers may process content for safety/abuse detection; some may use it for training per their defaults
+- We opt out of training where providers offer that option
+
+### Image Generation (via Runware)
+
+- We send prompts, model selection, and generation parameters
+- We do not include your user ID in requests
+- See Runware's privacy policy for their data handling
+
+---
+
+## Storage and Hosting
+
+| Service             | Purpose                  | What's Stored                                                                   |
+| ------------------- | ------------------------ | ------------------------------------------------------------------------------- |
+| **Neon** (Database) | Data storage             | User IDs, personas, chat history, images metadata, spark balances, transactions |
+| **Bunny.net** (CDN) | Image storage & delivery | Generated images accessible via public URLs                                     |
+| **Vercel**          | App hosting              | Application runtime, edge/middleware                                            |
+| **Trigger.dev**     | Background jobs          | Task orchestration metadata, run IDs                                            |
+
+### Important: Image URL Security
+
+Generated images are served via **public CDN URLs** (Bunny.net). These URLs are:
+
+- ✅ Hard to guess (long random strings)
+- ❌ Not encrypted or access-controlled
+- ❌ Accessible to anyone with the URL
+
+**If you share an image link, anyone with that link can view it.** Delete images you want removed.
+
+---
+
+## Analytics and Logging
+
+### PostHog (Client Analytics)
+
+- Page views, navigation, client-side exceptions
+- Uses cookies and local storage
+- See [PostHog's Privacy Policy](https://posthog.com/privacy)
+
+### LogSnag (Product Events)
+
+- Feature usage events
+- User identification by Clerk ID and email (where available)
+
+### Better Stack / Logtail (Server Logs)
+
+- Structured server logs for debugging and monitoring
+- May include user IDs and operational context
+- **Does not include chat content**
+
+**Retention**: Server logs typically 30–90 days; analytics per provider defaults
+
+---
+
+## Payments
+
+- Processed by our payment processors and cryptocurrency providers
+- We store: order IDs, product IDs, spark amounts, transaction status, your Clerk ID
+- **We do not store**: Credit card numbers, bank details, or crypto wallet private keys
+- Payment providers process sensitive payment data per their compliance standards (PCI-DSS for cards)
+
+---
+
+## Cookies and Local Storage
+
+| Type                       | Purpose                                       | Can You Opt Out?                                    |
+| -------------------------- | --------------------------------------------- | --------------------------------------------------- |
+| **Authentication** (Clerk) | Keep you signed in (strictly necessary)       | ❌ Required for service                             |
+| **Functional**             | Remember UI preferences (e.g., sidebar state) | ✅ Yes (via browser settings)                       |
+| **Analytics** (PostHog)    | Usage analytics and error tracking            | ✅ Yes (via cookie consent banner where applicable) |
+
+**Retention**: Session cookies for auth; up to 1 year for preferences; analytics per provider defaults
+
+You can manage cookies via your browser settings (clear cookies, block third-party cookies, etc.).
+
+---
+
+## Legal Basis for Processing (GDPR)
+
+We process your data based on:
+
+- **Contract**: To provide the Services you request
+- **Legitimate interests**: Security, fraud prevention, service improvement, analytics
+- **Consent**: Analytics cookies (where required), marketing (opt-in), and case-by-case support access when you explicitly authorize it
+- **Legal obligation**: Compliance with applicable laws (e.g., tax records, illegal content reporting)
+
+---
+
+## Data Sharing and Recipients
+
+We share data only with service providers necessary to operate Persona:
+
+| Recipient                             | Purpose                     | Location             |
+| ------------------------------------- | --------------------------- | -------------------- |
+| Clerk                                 | Identity and authentication | US                   |
+| OpenRouter & model providers          | AI text generation          | Varies by model      |
+| Runware                               | AI image generation         | Varies               |
+| Bunny.net                             | Image storage and CDN       | Global CDN           |
+| Payment processors & crypto providers | Payment processing          | Varies               |
+| PostHog                               | Analytics                   | US/EU (configurable) |
+| LogSnag                               | Product events              | US                   |
+| Better Stack / Logtail                | Server logging              | EU/US                |
+| Vercel                                | Hosting                     | Global               |
+| Neon                                  | Database                    | US/EU                |
+| Trigger.dev                           | Background jobs             | US                   |
+
+**We never share data with**: Advertisers, data brokers, social media companies (unless you explicitly connect an integration in the future)
+
+---
+
+## International Data Transfers
+
+Your data may be transferred to and processed in the **United States** and other countries where our service providers operate.
+
+For transfers from the EU/UK/Switzerland:
+
+- We rely on **Standard Contractual Clauses (SCCs)** and provider-specific safeguards
+- Service providers implement appropriate technical and organizational measures
+
+**Request more info**: Contact hi@prsna.app for details on transfer mechanisms
+
+---
+
+## Data Retention
+
+| Data Type                    | Retention Period                                    |
+| ---------------------------- | --------------------------------------------------- |
+| **Account and persona data** | Until you delete your account                       |
+| **Chat history**             | Until you delete chats or your account              |
+| **Generated images**         | Until you delete them or your account               |
+| **Spark transactions**       | Up to 7 years (accounting and tax compliance)       |
+| **Server logs**              | 30–90 days (longer for security incidents)          |
+| **Analytics data**           | Per provider defaults (typically 90 days to 1 year) |
+
+### Account Deletion
+
+When you delete your account:
+
+1. Your personas, chats, and images are marked for deletion
+2. Backup systems retain data for up to 30 days for recovery purposes
+3. After 30 days, all content is permanently deleted
+4. Transaction records are retained for legal/accounting requirements (anonymized where possible)
+
+**Note**: Images on CDN may take additional time to fully propagate deletion across edge servers.
+
+---
+
+## Your Rights
+
+Depending on your location (especially EU, UK, California, and other jurisdictions with data protection laws), you may have the following rights:
+
+### Access and Portability
+
+- **Access**: Request a copy of your personal data
+- **Portability**: Receive your data in a machine-readable format
+
+### Correction and Deletion
+
+- **Correction**: Update inaccurate or incomplete data
+- **Deletion**: Request deletion of your data ("right to be forgotten")
+
+### Control and Objection
+
+- **Object**: Object to processing based on legitimate interests
+- **Restrict**: Limit how we process your data
+- **Withdraw consent**: Opt out of analytics or marketing where consent-based
+
+### How to Exercise Your Rights
+
+- **In-app**: Delete personas, images, and chats directly
+- **Account deletion**: Use Clerk account settings or email us
+- **Data requests**: Email hi@prsna.app with your request
+
+**Response time**: We'll respond within 30 days (may extend to 60 days for complex requests)
+
+---
+
+## California Privacy Rights (CCPA/CPRA)
+
+If you're a California resident:
+
+**Right to Know**: What personal information we collect, use, disclose, and sell (we don't sell)  
+**Right to Delete**: Request deletion of your personal information  
+**Right to Opt-Out**: We don't sell personal information, so no opt-out needed  
+**Right to Non-Discrimination**: We won't discriminate against you for exercising your rights
+
+**How to exercise**: Email hi@prsna.app or use in-app deletion tools
+
+---
+
+## Security Measures
+
+We implement reasonable security safeguards:
+
+- ✅ Encryption in transit (HTTPS/TLS)
+- ✅ Encryption at rest for databases (provider-managed)
+- ✅ Least-privilege access controls (staff access limited to necessary functions)
+- ✅ Rate limiting and abuse detection
+- ✅ Regular security monitoring and logging
+- ✅ Secure authentication via Clerk (MFA available)
+
+**However**: No system is 100% secure. We cannot guarantee absolute security.
+
+### Data Breach Notification
+
+If we experience a data breach that affects your personal data, we will:
+
+- Notify affected users without undue delay
+- Notify relevant authorities as required by law
+- Provide information about the breach and steps you can take
+
+---
+
+## Children's Privacy
+
+**Persona is for adults only.** We do not knowingly collect data from anyone under 18 years old (or under the age of majority in their jurisdiction if higher).
+
+The Services may contain content that is harmful or inappropriate for minors.
+
+**If you believe a minor has provided us data**: Contact hi@prsna.app immediately. We will delete the data and terminate the account.
+
+---
+
+## Automated Decision-Making
+
+AI outputs (persona content, images, chat responses) are generated based on your prompts, but these are not used to make decisions with legal or similarly significant effects on you (e.g., credit decisions, employment, housing).
+
+Content moderation systems may use automated checks for prohibited content in public areas of the Services.
+
+---
+
+## Changes to This Policy
+
+We may update this Privacy Policy from time to time. When we make material changes:
+
+- We'll update the "Last updated" date at the top
+- We'll notify you via email or in-app notice for significant changes
+- Continued use after changes constitutes acceptance
+
+**Review periodically** to stay informed about how we protect your data.
+
+---
+
+## Contact Us
+
+**Email**: hi@prsna.app  
+**Subject line**: Include "Privacy" or "Data Request" to help us route your inquiry
+
+**Response time**: We aim to respond within 3 business days for general inquiries, 30 days for formal data rights requests.
+
+---
+
+**Effective Date: 2025-10-05**

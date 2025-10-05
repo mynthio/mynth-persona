@@ -4,11 +4,14 @@ import { userTokens, tokenTransactions } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 
 import { StarsBackground } from "@/components/animate-ui/components/backgrounds/stars";
-import { FlameIcon } from "@phosphor-icons/react/dist/ssr";
+import { FlameIcon, CheckCircleIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { SparksPresets } from "./_components/sparks-presets";
+import { DISCORD_INVITE_URL } from "@/lib/constants";
 
-export default async function SparksPage() {
+export default async function SparksPage({
+  searchParams,
+}: PageProps<"/sparks">) {
   const { userId, redirectToSignIn } = await auth();
 
   if (!userId) {
@@ -38,10 +41,53 @@ export default async function SparksPage() {
     (transaction) => transaction.type === "purchase"
   );
 
+  const sp = await searchParams;
+  const statusParam = Array.isArray(sp?.status) ? sp?.status[0] : sp?.status;
+  const showSuccessBanner = statusParam === "success";
+
   return (
     <>
       <div className="w-full h-full relative overflow-hidden flex items-center justify-center">
         <div className="z-10 flex flex-col items-center justify-center px-[12px]">
+          {showSuccessBanner && (
+            <div className="w-full max-w-[640px] mb-4">
+              <div className="rounded-md border border-green-200 bg-green-50 p-3 text-green-900">
+                <div className="flex items-start gap-2">
+                  <CheckCircleIcon
+                    size={18}
+                    weight="duotone"
+                    className="mt-0.5"
+                  />
+                  <div className="space-y-1 text-[12px] leading-relaxed">
+                    <p className="text-[13px] font-medium">
+                      Transaction successful — your Sparks are being processed
+                    </p>
+                    <p>
+                      Your payment was received. Funds are processing and may
+                      take a few minutes to confirm on-chain. Your balance will
+                      update automatically once confirmed.
+                    </p>
+                    <p>
+                      Need help? Email{" "}
+                      <a href="mailto:hi@prsna.app" className="underline">
+                        hi@prsna.app
+                      </a>{" "}
+                      or join our {""}
+                      <a
+                        href={DISCORD_INVITE_URL}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline"
+                      >
+                        Discord
+                      </a>
+                      .
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           <div>
             <FlameIcon
               weight="duotone"

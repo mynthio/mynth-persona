@@ -1,5 +1,9 @@
 import { PersonaVersionRoleplayData } from "@/schemas";
-import { ChatSettingsUserPersona } from "@/schemas/backend/chats/chat.schema";
+import {
+  ChatSettingsUserPersona,
+  ChatSettingsScenario,
+  NSFWGuidelines,
+} from "@/schemas/backend/chats/chat.schema";
 import { PersonaData } from "@/types/persona.type";
 import { ShotType } from "@/types/image-generation/shot-type.type";
 import { ImageStyle } from "@/types/image-generation/image-style.type";
@@ -48,10 +52,13 @@ export type PromptId =
 export interface RoleplayRenderArgs {
   character: PersonaVersionRoleplayData;
   user?: ChatSettingsUserPersona | null;
+  scenario?: ChatSettingsScenario | null;
+  nsfw?: NSFWGuidelines | null;
 }
 
 export interface StoryRenderArgs {
   character: PersonaVersionRoleplayData;
+  nsfw?: NSFWGuidelines | null;
 }
 
 export type PromptDefinitionRenderFunction<T> = (args: T) => string;

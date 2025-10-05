@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 import { useMediaQuery } from "@/hooks/use-media-query.hook";
-import { ToolboxIcon, SparkleIcon, ChatsCircleIcon } from "@phosphor-icons/react/dist/ssr";
+import { ToolboxIcon, SparkleIcon } from "@phosphor-icons/react/dist/ssr";
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 
@@ -19,16 +19,9 @@ const GallerySidebar = dynamic(
     ssr: false,
   }
 );
-const ChatSidebar = dynamic(
-  () => import("./sidebar-content/chat/chat-sidebar"),
-  {
-    ssr: false,
-  }
-);
 
 const workbenchModeToSidebarComponent: Record<string, React.ComponentType> = {
   persona: PersonaSidebar,
-  chat: ChatSidebar,
   gallery: GallerySidebar,
 };
 
@@ -42,18 +35,8 @@ export default function WorkbenchSidebar() {
   const closeMobilePanel = useCallback(() => setIsMobilePanelOpen(false), []);
 
   // Determine mobile button icon and label based on workbench mode
-  const MobileIcon =
-    workbenchMode === "chat"
-      ? ChatsCircleIcon
-      : workbenchMode === "gallery"
-      ? SparkleIcon
-      : ToolboxIcon; // default persona
-  const mobileLabel =
-    workbenchMode === "chat"
-      ? "settings / chats"
-      : workbenchMode === "gallery"
-      ? "create"
-      : "workbench";
+  const MobileIcon = workbenchMode === "gallery" ? SparkleIcon : ToolboxIcon; // default persona
+  const mobileLabel = workbenchMode === "gallery" ? "create" : "workbench";
 
   return (
     <>

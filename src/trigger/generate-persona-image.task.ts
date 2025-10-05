@@ -35,8 +35,7 @@ const GeneratePersonaImageTaskPayloadSchema = z.object({
   shotType: z.string(),
   nsfw: z.boolean().default(false),
   userNote: z.string().default(""),
-  tokensFromFree: z.number().min(0),
-  tokensFromPurchased: z.number().min(0),
+  // No token breakdown fields; refunds are based on total cost
 });
 
 type GeneratePersonaImageTaskPayload = z.infer<
@@ -232,12 +231,8 @@ export const generatePersonaImageTask = task({
     }
 
     if (payload.cost > 0) {
-      // Return tokens to user due to failure using proper token breakdown
-      await refundTokens(
-        payload.userId,
-        payload.tokensFromFree,
-        payload.tokensFromPurchased
-      );
+      // Return total cost to user's balance on failure
+      await refundTokens(payload.userId, payload.cost);
     }
   },
   onSuccess: async ({ payload }) => {

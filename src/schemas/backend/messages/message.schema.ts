@@ -12,8 +12,8 @@ export const messageMetadataSchema = z.object({
 });
 
 // Message ID schema (shared across backend message schemas)
-export const messageIdSchema = z.string().startsWith("msg_").length(26);
-export type MessageId = z.infer<typeof messageIdSchema>;
+export const messageIdSchema = z.string().startsWith("msg_").length(36);
+export type MessageId = `msg_${string}`;
 
 export const messageSchema = createSelectSchema(messages, {
   id: () => messageIdSchema,

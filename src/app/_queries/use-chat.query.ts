@@ -1,11 +1,12 @@
-import useSWR, { SWRConfiguration, useSWRConfig, type MutatorOptions } from "swr";
+import useSWR, {
+  SWRConfiguration,
+  useSWRConfig,
+  type MutatorOptions,
+} from "swr";
 import { PublicChatDetail } from "@/schemas/shared";
 import { fetcher } from "@/lib/fetcher";
 
-export const useChatQuery = (
-  id?: string | null,
-  config?: SWRConfiguration
-) => {
+export const useChatQuery = (id?: string | null, config?: SWRConfiguration) => {
   return useSWR<PublicChatDetail>(id ? `/api/chats/${id}` : null, fetcher, {
     revalidateIfStale: false,
     revalidateOnFocus: false,

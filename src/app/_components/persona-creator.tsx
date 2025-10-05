@@ -103,10 +103,10 @@ export default function PersonaCreator({
   return (
     <div className="h-full flex flex-col items-center justify-center relative overflow-hidden rounded-[18px] min-h-[66vh]">
       <div className="flex flex-col justify-center items-center z-10">
-        <h1 className="font-onest text-[4.8rem] leading-[4.6rem] font-[150] text-center text-balance">
+        <h1 className="font-onest text-[2.8rem] leading-loose md:text-[4.8rem] font-[150] text-center text-balance">
           Hi. I’m Persona
         </h1>
-        <h3 className="font-onest leading-[1.64rem] font-[100] text-[1.48rem] mt-[8px] text-[#64646A]/80 text-center text-balance">
+        <h3 className="font-onest text-[1.28rem] leading-[1.64rem] font-[100] text-[#64646A]/80 mt-[-24px] text-center text-balance">
           Let’s build your perfect AI companion
         </h3>
       </div>
@@ -126,7 +126,7 @@ export default function PersonaCreator({
                   animatedPlaceholder ? "" : ""
                 }${cursorChar}`
           }
-          className="bg-surface-100/50 
+          className="bg-white
           rounded-[22px] py-[14px] px-[16px] md:py-[16px] md:px-[22px] 
           border-none ring ring-surface-200
           font-mono 

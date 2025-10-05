@@ -2,27 +2,58 @@
 
 import "server-only";
 
-import { Polar } from "@polar-sh/sdk";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { nanoid } from "nanoid";
+import { createInvoice } from "@/lib/nowpayments";
+import { resolveSparkCheckout } from "@/config/shared/sparks";
+import { db } from "@/db/drizzle";
+import { tokenTransactions } from "@/db/schema";
 
-export const createCheckoutAction = async () => {
+export const createCheckoutAction = async (formData: FormData) => {
   const user = await currentUser();
   if (!user) {
     throw new Error("Unauthorised");
   }
 
-  const api = new Polar({
-    accessToken: process.env.POLAR_ACCESS_TOKEN!,
-    server: process.env.VERCEL_ENV === "production" ? "production" : "sandbox",
+  const orderId = `ttx_${nanoid()}`;
+
+  // Only allow preset packs; reject custom amounts
+  const presetKeyRaw = formData.get("preset");
+  if (typeof presetKeyRaw !== "string" || presetKeyRaw.length === 0) {
+    return redirect("/sparks?status=invalid");
+  }
+
+  let checkout;
+  try {
+    checkout = resolveSparkCheckout(presetKeyRaw);
+  } catch (err) {
+    return redirect("/sparks?status=invalid");
+  }
+
+  await db.insert(tokenTransactions).values({
+    id: orderId,
+    userId: user.id,
+    amount: checkout.amount,
+    balanceAfter: 0,
+    type: "purchase",
+    status: "pending",
   });
 
-  const checkout = await api.checkouts.create({
-    products: [process.env.POLAR_PRODUCT_ID_100_TOKENS!],
-    externalCustomerId: user.id,
-    successUrl: `${process.env.NEXT_PUBLIC_URL}/tokens`,
+  const successUrl = `${process.env.NEXT_PUBLIC_URL}/sparks?status=success`;
+  const cancelUrl = `${process.env.NEXT_PUBLIC_URL}/sparks?status=cancel`;
+  const ipnUrl = `${process.env.NEXT_PUBLIC_URL}/api/webhook/ipn`;
+
+  // Create a NOWPayments sandbox invoice to preserve redirect behavior
+  const invoice = await createInvoice({
+    price_amount: checkout.priceUSD,
+    price_currency: "usd",
+    order_id: orderId,
+    order_description: checkout.description,
+    success_url: successUrl,
+    cancel_url: cancelUrl,
+    ipn_callback_url: ipnUrl,
   });
 
-  // Redirect to checkout.url
-  redirect(checkout.url);
+  redirect(invoice.invoice_url);
 };

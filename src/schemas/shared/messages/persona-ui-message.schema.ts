@@ -3,11 +3,16 @@ import z from "zod/v4";
 
 export const personaUIMessageMetadataSchema = z.object({
   parentId: z.string().optional().nullable(),
-  regenerate: z.boolean().optional(),
-  regeneratedForId: z.string().optional().nullable(),
-  // Optional fields populated by the API when generating images/streaming
-  publicToken: z.string().optional(),
-  runId: z.string().optional(),
+
+  messageId: z.string().optional(),
+
+  usage: z.object({
+    inputTokens: z.number().optional(),
+    outputTokens: z.number().optional(),
+    totalTokens: z.number().optional(),
+  }),
+
+  cost: z.number(),
 });
 
 export type PersonaUIMessageMetadata = z.infer<

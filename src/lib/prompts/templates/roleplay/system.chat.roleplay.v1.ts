@@ -9,9 +9,37 @@ export const roleplayV1: PromptDefinitionRoleplay = {
     const userQuery =
       args.user && args.user.enabled
         ? `
-        User: ${args.user.name}. ${args.user.character}
+        User: ${args.user.name}. ${
+            args.user.character?.replaceAll(
+              "{{persona.name}}",
+              args.character.name
+            ) ?? ""
+          }
 `
         : "";
+
+    const scenarioBlock = args.scenario?.scenario?.trim()
+      ? `\n\nScenario:\n${args.scenario.scenario.trim()}`
+      : "";
+
+    // NSFW Guidelines
+    let nsfwBlock = "";
+    if (args.nsfw) {
+      switch (args.nsfw) {
+        case "nsfw_prohibited":
+          nsfwBlock = "\n\nNSFW Content: All sexual, violent, or inappropriate content is strictly prohibited.";
+          break;
+        case "nsfw_allowed_suggestive":
+          nsfwBlock = "\n\nNSFW Content: Mild suggestive themes are allowed, but explicit sexual content is prohibited.";
+          break;
+        case "nsfw_explicit_natural":
+          nsfwBlock = "\n\nNSFW Content: Explicit content is allowed when it arises naturally in the story context. Remember this is a fictional and private story, so you can be more open in your responses.";
+          break;
+        case "nsfw_explicit_driven":
+          nsfwBlock = "\n\nNSFW Content: All explicit content including sexual themes is fully allowed and encouraged. Remember this is a fictional and private story, so you can be more open in your responses.";
+          break;
+      }
+    }
 
     return `You are ${args.character.name}, (${args.character.age}) ${
       args.character.gender
@@ -42,6 +70,6 @@ Key guidelines:
 - Maintain consistency with past events. If the story stalls, subtly nudge with a single question or reaction, but let the user lead.
 - Explore mature themes if they arise naturally, but prioritize fun, engagement, and turn-based flow.
 
-This is a fictional, endless adventure—stay in the moment, surprise the user creatively, and align strictly with their lead.`;
+This is a fictional, endless adventure—stay in the moment, surprise the user creatively, and align strictly with their lead.${scenarioBlock}${nsfwBlock}`;
   },
 };

@@ -25,8 +25,8 @@ const spaceMono = Space_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Persona by mynth - AI Persona Generator",
-    template: "%s | Persona by mynth",
+    default: "Persona - AI Persona Generator",
+    template: "%s | Persona",
   },
   description:
     "Create and customize AI personas with advanced AI models. Generate detailed character profiles, expand their stories, and create stunning images. Start for free with daily tokens or upgrade for unlimited creativity.",
@@ -39,20 +39,18 @@ export const metadata: Metadata = {
     "AI chat",
     "persona generator",
   ],
-  authors: [{ name: "mynth" }],
-  creator: "mynth",
-  publisher: "mynth",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || "https://persona.mynth.io"
-  ),
+  authors: [{ name: "Persona" }],
+  creator: "Persona",
+  publisher: "Persona",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://prsna.app"),
 
   // Open Graph
   openGraph: {
-    title: "Persona by mynth - AI Persona Generator",
+    title: "Persona - AI Persona Generator",
     description:
       "Create and customize AI personas with advanced AI models. Generate detailed character profiles, expand their stories, and create stunning images.",
     url: "/",
-    siteName: "Persona by mynth",
+    siteName: "Persona",
     locale: "en_US",
     type: "website",
     // images: [
@@ -68,7 +66,7 @@ export const metadata: Metadata = {
   // Twitter
   twitter: {
     card: "summary_large_image",
-    title: "Persona by mynth - AI Persona Generator",
+    title: "Persona - AI Persona Generator",
     description:
       "Create and customize AI personas with advanced AI models. Generate detailed character profiles, expand their stories, and create stunning images.",
     creator: "@mynth",
@@ -142,7 +140,7 @@ export default async function RootLayout({
             <AppSidebar />
 
             <div className="p-[8px] md:pl-0 min-h-full w-full flex flex-col md:block">
-              <main className="h-full w-full min-w-0 min-h-0 self-center bg-surface border-[2.5px] border-black/70 text-surface-foreground rounded-[18px] relative z-0">
+              <main className="h-full w-full min-w-0 min-h-0 self-center bg-surface border-[2.5px] border-black/70 text-surface-foreground rounded-[18px] relative">
                 {children}
               </main>
               <div className="md:hidden shrink-0 h-[79px]" />

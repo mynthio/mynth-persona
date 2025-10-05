@@ -1,17 +1,13 @@
 import { db } from "@/db/drizzle";
 import { sql } from "drizzle-orm";
-import {
-  messageListItemSchema,
-  type MessageThreadResponse,
-} from "@/schemas/backend/messages/message.schema";
 import { getLatestLeafForChat } from "./get-latest-leaf-for-chat.data";
 import { getLatestLeafForMessage } from "./get-latest-leaf-for-message.data";
 import { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
-import { ParseIssueTitleAnnotationId } from "effect/SchemaAST";
 
 export type GetChatMessagesOptions = {
   messageId?: string | null;
   limit?: number; // how many messages to fetch in the thread (root -> leaf)
+  strict?: boolean; // if true and messageId is provided, fetch history strictly up to this message (do not resolve latest leaf)
 };
 
 type GetChatMessagesResponseData = {
@@ -21,11 +17,13 @@ type GetChatMessagesResponseData = {
 
 export async function getChatMessagesData(
   chatId: string,
-  { messageId, limit }: GetChatMessagesOptions = {}
+  { messageId, limit, strict }: GetChatMessagesOptions = {}
 ): Promise<GetChatMessagesResponseData> {
   // Determine the leafId to use for the thread
   const leafId = messageId
-    ? await getLatestLeafForMessage(chatId, messageId)
+    ? strict
+      ? messageId
+      : await getLatestLeafForMessage(chatId, messageId)
     : await getLatestLeafForChat(chatId);
 
   if (!leafId) {
@@ -37,7 +35,7 @@ export async function getChatMessagesData(
       ? Math.floor(limit)
       : 200;
 
-  // Recursive query: walk parents from leaf to root, then order root -> leaf
+  // Recursive query: walk parents from leaf to root, then select the N newest (closest to leaf) and return them oldest -> newest within that window
   const result = await db.execute(
     sql<{
       id: string;
@@ -60,13 +58,17 @@ export async function getChatMessagesData(
         join thread on thread.parent_id = pm.id
       )
       select id, parent_id, chat_id, role, parts, created_at, updated_at, depth
-      from thread
-      order by depth desc
-      limit ${effectiveLimit};
+      from (
+        select id, parent_id, chat_id, role, parts, created_at, updated_at, depth
+        from thread
+        order by depth asc
+        limit ${effectiveLimit}
+      ) limited
+      order by depth desc;
     `
   );
 
-  const items = result.rows.map(
+  const items: PersonaUIMessage[] = result.rows.map(
     (r) =>
       ({
         id: r.id as string,
@@ -76,6 +78,8 @@ export async function getChatMessagesData(
 
         metadata: {
           parentId: r.parent_id as string | null,
+          cost: 0,
+          usage: {},
         },
       } satisfies PersonaUIMessage)
   );

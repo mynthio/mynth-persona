@@ -219,8 +219,10 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
 
     const response = await enhancePersonaAction(personaId, prompt);
 
-    if (response.balance) {
-      mutateBalance(() => response.balance);
+    if (response.balance?.balance !== undefined) {
+      mutateBalance(() => ({
+        balance: response.balance!.balance!,
+      }));
     }
 
     personaGenerationStore.stream(response.object!, {

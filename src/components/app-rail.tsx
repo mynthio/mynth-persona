@@ -4,7 +4,7 @@ import {
   ChatsTeardropIcon,
   CircleNotchIcon,
   DiscordLogoIcon,
-  GithubLogoIcon,
+  FlameIcon,
   ImagesIcon,
   PlanetIcon,
   SidebarIcon,
@@ -25,7 +25,7 @@ import { Tooltip, TooltipPopup, TooltipTrigger } from "./ui/tooltip";
 import { motion } from "motion/react";
 import { Link } from "./ui/link";
 import { usePathname, useRouter } from "next/navigation";
-import { DISCORD_INVITE_URL, GITHUB_REPO_URL } from "@/lib/constants";
+import { DISCORD_INVITE_URL } from "@/lib/constants";
 
 export function AppRail() {
   const { setView, open, setOpen, setOpenMobile } = useSidebar();
@@ -39,24 +39,15 @@ export function AppRail() {
     return "personas";
   }, [pathname]);
 
+  const isChatWithPersona = pathname.startsWith("/chats/pch_");
+
   return (
     <>
-      {/* <div className="md:hidden w-[64px] shrink-0" /> */}
       <div
-        className="
-                    fixed z-[999999999] px-[12px] md:px-0 justify-between 
-                    bg-background/80 backdrop-blur-lg md:bg-background md:backdrop-blur-none
-                    rounded-[14px] md:rounded-none
-                    left-[12px] md:left-0
-                    md:top-0 
-                    md:right-auto right-[12px] 
-                    bottom-[3px] md:bottom-0 
-                    md:w-[64px] 
-                    py-4 
-                    h-[84px] md:h-full 
-                    shrink-0 flex md:flex-col 
-                    text-sidebar-foreground items-center gap-[8px]
-                  "
+        className={cn(
+          "fixed px-[12px] md:px-0 justify-between bg-background/80 backdrop-blur-lg md:bg-background md:backdrop-blur-none rounded-[14px] md:rounded-none left-[12px] md:left-0 md:top-0 md:right-auto right-[12px] bottom-[3px] md:bottom-0 md:w-[64px] py-4 h-[84px] md:h-full shrink-0 flex md:flex-col  text-sidebar-foreground items-center gap-[8px]",
+          isChatWithPersona ? "z-0 md:z-rail" : "z-rail"
+        )}
       >
         <div className="flex md:flex-col gap-[8px] items-center md:items-start">
           <PersonaButton />
@@ -91,6 +82,13 @@ export function AppRail() {
               }}
             >
               <UsersThreeIcon />
+              {view === "personas" ? (
+                <motion.div
+                  layoutId="rail-button-active-indicator"
+                  id="rail-button-active-indicator"
+                  className="absolute bg-foreground/30 left-0 top-0 w-full h-full rounded-[12px]"
+                />
+              ) : null}
             </RailSectionButton>
 
             <RailSectionButton
@@ -111,6 +109,13 @@ export function AppRail() {
               }}
             >
               <ChatsTeardropIcon />
+              {view === "chats" ? (
+                <motion.div
+                  layoutId="rail-button-active-indicator"
+                  id="rail-button-active-indicator"
+                  className="absolute bg-foreground/30 left-0 top-0 w-full h-full rounded-[12px]"
+                />
+              ) : null}
             </RailSectionButton>
 
             <RailSectionButton
@@ -131,6 +136,13 @@ export function AppRail() {
               }}
             >
               <ImagesIcon />
+              {view === "images" ? (
+                <motion.div
+                  layoutId="rail-button-active-indicator"
+                  id="rail-button-active-indicator"
+                  className="absolute bg-foreground/30 left-0 top-0 w-full h-full rounded-[12px]"
+                />
+              ) : null}
             </RailSectionButton>
           </RailSection>
         </div>
@@ -227,13 +239,6 @@ function RailSectionButton({
       ])}
     >
       {children}
-      {isActive ? (
-        <motion.div
-          layoutId="rail-button-active-indicator"
-          id="rail-button-active-indicator"
-          className="absolute bg-foreground/30 left-0 right-0 top-0 bottom-0 rounded-[12px]"
-        />
-      ) : null}
     </button>
   );
 }
@@ -241,6 +246,7 @@ function RailSectionButton({
 function RailsFooter() {
   const { openUserProfile, signOut, openSignIn } = useClerk();
   const { user, isLoaded, isSignedIn } = useUser();
+  const { push } = useRouter();
 
   return (
     <div className="flex md:flex-col items-center justify-center gap-[8px]">
@@ -253,14 +259,14 @@ function RailsFooter() {
         >
           <DiscordLogoIcon />
         </a>
-        <a
+        {/* <a
           href={GITHUB_REPO_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center size-[40px] md:size-[34px] rounded-[12px] hover:bg-foreground/10"
         >
           <GithubLogoIcon />
-        </a>
+        </a> */}
       </div>
 
       {isLoaded && isSignedIn && <RailsTookens />}
@@ -300,7 +306,7 @@ function RailsFooter() {
                   align="end"
                   side="right"
                   sideOffset={8}
-                  className="outline-0 z-[99999999999999]"
+                  className="outline-0 z-popup"
                 >
                   <Menu.Popup
                     className={cn(
@@ -311,6 +317,16 @@ function RailsFooter() {
                       "data-[ending-style]:scale-90 data-[ending-style]:opacity-0"
                     )}
                   >
+                    <Menu.Item
+                      className={cn(
+                        "h-[42px] flex items-center justify-start px-[12px] gap-[12px] hover:bg-foreground/10 rounded-[12px] cursor-pointer transition-colors duration-225"
+                      )}
+                      onClick={() => push("/sparks")}
+                    >
+                      <FlameIcon />
+                      Sparks
+                    </Menu.Item>
+
                     <Menu.Item
                       className={cn(
                         "h-[42px] flex items-center justify-start px-[12px] gap-[12px] hover:bg-foreground/10 rounded-[12px] cursor-pointer transition-colors duration-225"
@@ -349,13 +365,14 @@ function RailsTookens() {
     if (!data) return 0;
 
     return (
-      <Link href="/tokens">{data.balance > 999 ? "999+" : data.balance}</Link>
+      <Link href="/sparks">{data.balance > 999 ? "999+" : data.balance}</Link>
     );
   }, [data, isLoading]);
 
   return (
     <Tooltip>
-      <TooltipTrigger className="bg-gradient-to-tr from-[#5527DD] via-purple-700 to-violet-900 text-white/90 px-[6px] md:px-0 w-full rounded-lg h-[32px] flex items-center justify-center font-bold text-[11px]">
+      <TooltipTrigger className="text-rose-500 px-[6px] md:px-0 w-full rounded-lg h-[24px] gap-[2px] flex items-center justify-center text-[12px]">
+        <FlameIcon size={10} />
         {content}
       </TooltipTrigger>
 

@@ -77,7 +77,7 @@ export async function craftImagePromptForPersona(
 
   const openRouter = getOpenRouter();
   const model = openRouter("x-ai/grok-4-fast:free", {
-    models: ["moonshotai/kimi-k2-0905"] satisfies TextGenerationModelId[],
+    models: ["moonshotai/kimi-k2-0905"],
   });
 
   const result = await generateObject({

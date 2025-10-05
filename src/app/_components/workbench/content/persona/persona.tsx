@@ -8,6 +8,7 @@ import { spaceCase } from "case-anything";
 import { Button } from "@/components/ui/button";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 import { useParams } from "next/navigation";
+import { CreateChatButton } from "@/components/create-chat-button";
 
 export default function PersonaContent() {
   return <Persona />;
@@ -66,6 +67,11 @@ function Persona() {
             <span className="capitalize">{data.gender}</span>
           </div>
           <p className="mt-1 text-sm text-zinc-600">{data.summary}</p>
+          <div className="mt-3">
+            <CreateChatButton personaId={personaId} size="sm" variant="outline">
+              Create Chat
+            </CreateChatButton>
+          </div>
         </div>
       </div>
 

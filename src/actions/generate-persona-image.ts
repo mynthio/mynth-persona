@@ -6,16 +6,12 @@ import { tasks } from "@trigger.dev/sdk";
 import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
 import { and, eq, ne } from "drizzle-orm";
-import {
-  spendTokens,
-  spendPurchasedTokensOnly,
-} from "@/services/token/token-manager.service";
 import { generatePersonaImageTask } from "@/trigger/generate-persona-image.task";
 import { ImageStyle } from "@/types/image-generation/image-style.type";
 import { ShotType } from "@/types/image-generation/shot-type.type";
 import { ImageGenerationQuality } from "@/types/image-generation/image-generation-quality.type";
 import { PersonaWithVersion } from "@/types/persona.type";
-import { DAILY_FREE_TOKENS } from "@/lib/constants";
+import { burnSparks } from "@/services/sparks/sparks.service";
 
 // Quality-based cost configuration
 const QUALITY_COSTS: Record<ImageGenerationQuality, number> = {
@@ -64,22 +60,10 @@ export const generatePersonaImage = async (
   // Calculate cost based on quality
   const cost = QUALITY_COSTS[settings.quality];
 
-  // Spend tokens based on quality requirements
-  let canUserExecuteAction;
-
-  if (settings.quality === "high") {
-    // High quality requires purchased tokens only
-    canUserExecuteAction = await spendPurchasedTokensOnly(
-      userId,
-      cost,
-      `${settings.quality} quality${
-        settings.nsfw ? " NSFW" : ""
-      } image generation for persona ${personaId}`
-    );
-  } else {
-    // Low and medium quality can use any tokens (including NSFW)
-    canUserExecuteAction = await spendTokens(userId, cost);
-  }
+  const canUserExecuteAction = await burnSparks({
+    userId,
+    amount: cost,
+  });
 
   if (canUserExecuteAction.success === false) {
     throw new Error(canUserExecuteAction.error || "Not enough tokens");
@@ -100,8 +84,6 @@ export const generatePersonaImage = async (
       shotType: settings.shotType,
       nsfw: settings.nsfw || false,
       userNote: settings.userNote || "",
-      tokensFromFree: canUserExecuteAction.tokensFromFree,
-      tokensFromPurchased: canUserExecuteAction.tokensFromPurchased,
     }
   );
 
@@ -109,19 +91,7 @@ export const generatePersonaImage = async (
     taskId: taskHandle.id,
     publicAccessToken: taskHandle.publicAccessToken,
     cost,
-    remainingBalance: canUserExecuteAction.remainingBalance,
-    remainingDailyTokens: canUserExecuteAction.remainingDailyTokens,
-    balance: {
-      totalBalance:
-        canUserExecuteAction.remainingBalance +
-        canUserExecuteAction.remainingDailyTokens,
-      purchasedBalance: canUserExecuteAction.remainingBalance,
-      dailyFreeTokensRemaining: canUserExecuteAction.remainingDailyTokens,
-      dailyTokensUsed:
-        DAILY_FREE_TOKENS - canUserExecuteAction.remainingDailyTokens,
-      balance:
-        canUserExecuteAction.remainingBalance +
-        canUserExecuteAction.remainingDailyTokens,
-    },
+    remainingBalance: canUserExecuteAction.sparksAfter,
+    balance: { balance: canUserExecuteAction.sparksAfter },
   };
 };

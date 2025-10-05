@@ -10,9 +10,6 @@ import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 const GalleryContent = dynamic(() => import("./content/gallery/gallery"), {
   ssr: false,
 });
-const ChatContent = dynamic(() => import("./content/chat/chat"), {
-  ssr: false,
-});
 const PersonaVersionModal = dynamic(
   () => import("./content/persona/persona-version-modal"),
   { ssr: false }
@@ -26,7 +23,6 @@ export default function WorkbenchContent() {
       <TopBar />
 
       {workbenchMode === "gallery" && <GalleryContent />}
-      {workbenchMode === "chat" && <ChatContent />}
       {workbenchMode === "persona" && <PersonaContent />}
       <PersonaVersionModal />
     </div>
@@ -54,7 +50,6 @@ function TopBar() {
       >
         <TabsList>
           <TabsTrigger value="persona">Persona</TabsTrigger>
-          <TabsTrigger value="chat">Chat</TabsTrigger>
           <TabsTrigger value="gallery">Gallery</TabsTrigger>
         </TabsList>
       </Tabs>

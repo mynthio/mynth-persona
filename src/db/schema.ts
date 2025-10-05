@@ -303,7 +303,7 @@ export const tokenTransactions = pgTable("token_transactions", {
     .notNull()
     .references(() => users.id), // NO CASCADE - preserve audit trail
   type: transactionTypeEnum("type").notNull(),
-  status: transactionStatusEnum("status").notNull(),
+  status: transactionStatusEnum("status").notNull().default("pending"),
   amount: integer("amount").notNull(), // Positive for add, negative for spend
   balanceAfter: integer("balance_after").notNull(), // Balance after this transaction
   createdAt: timestamp("created_at").defaultNow().notNull(),

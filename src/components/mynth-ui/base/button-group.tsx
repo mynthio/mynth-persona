@@ -5,7 +5,7 @@ import { LineVerticalIcon } from "@phosphor-icons/react/dist/ssr";
 const buttonGroupVariants = cva("flex flex-wrap items-center", {
   variants: {
     spacing: {
-      default: "gap-[12px]",
+      default: "gap-[9px]",
       compact: "gap-[3px]",
     },
   },

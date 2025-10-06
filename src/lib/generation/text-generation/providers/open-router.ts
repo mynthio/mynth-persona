@@ -10,7 +10,7 @@ export const getOpenRouter = (): OpenRouterProvider => {
     openRouter = createOpenRouter({
       apiKey: process.env.OPEN_ROUTER_API_KEY!,
       headers: {
-        "HTTP-Referer": "https://persona.mynth.io",
+        "HTTP-Referer": "https://prsna.app",
         "X-Title": "Persona",
       },
     });

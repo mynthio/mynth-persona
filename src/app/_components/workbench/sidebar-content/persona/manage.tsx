@@ -26,9 +26,10 @@ export default function WorkbenchSidebarManage() {
   const router = useRouter();
   const personaId = params.personaId;
   const { data, isLoading } = usePersonaPublishStatusQuery(personaId);
-  // removed consent state
   const [submitting, setSubmitting] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showPublishDialog, setShowPublishDialog] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const toast = useToast();
   const { mutate } = useSWRConfig();
   const { data: persona } = usePersonaQuery(personaId);
@@ -42,8 +43,17 @@ export default function WorkbenchSidebarManage() {
     return ts ? new Date(ts).toLocaleString() : undefined;
   }, [data?.lastPublishAttempt?.attemptedAt]);
 
-  async function onPublish() {
+  function onPublishClick() {
+    setShowPublishDialog(true);
+    setTermsAccepted(false);
+  }
+
+  async function onPublishConfirm() {
     if (!personaId) return;
+    if (!termsAccepted) {
+      toast.add({ title: "Please accept the terms of use to continue" });
+      return;
+    }
     try {
       setSubmitting(true);
       await publishPersonaAction(personaId);
@@ -53,6 +63,7 @@ export default function WorkbenchSidebarManage() {
       });
       // Refresh status now
       await mutate(`/api/personas/${personaId}/publish-status`);
+      setShowPublishDialog(false);
     } catch (e: any) {
       const message = e?.message || "Failed to start publishing";
       toast.add({ title: message });
@@ -90,7 +101,7 @@ export default function WorkbenchSidebarManage() {
         mutate(`/api/personas/${personaId}`),
       ]);
       // Navigate to workbench without persona ID
-      router.push('/workbench');
+      router.push("/workbench");
       setShowDeleteDialog(false);
     } catch (e: any) {
       const message = e?.message || "Failed to delete persona";
@@ -130,13 +141,21 @@ export default function WorkbenchSidebarManage() {
           </div>
 
           <div className="text-[12px] leading-relaxed text-zinc-700">
-            Publishing makes your persona discoverable on the public feed. You
-            can unlist or update later.
+            Publishing makes your persona discoverable on the public feed and
+            allows them to generate content on the platform.
           </div>
           <div className="mt-2 text-[12px] leading-relaxed text-zinc-700">
             After you publish, your persona will be reviewed automatically and
             should be published within a few minutes.
           </div>
+          {isPublished && (
+            <div className="mt-2 text-[12px] leading-relaxed text-amber-700 bg-amber-50 rounded p-2 border border-amber-200">
+              <strong>Note:</strong> By publishing, you granted us a perpetual
+              license to use this persona. It cannot be unpublished or deleted
+              through normal means. For exceptional removal requests, contact
+              hi@prsna.app or Discord.
+            </div>
+          )}
 
           <div className="mt-3 grid gap-2">
             <div className="text-[12px] text-zinc-700">
@@ -180,7 +199,7 @@ export default function WorkbenchSidebarManage() {
               <Button
                 size="sm"
                 className="h-8 px-3 text-[12px]"
-                onClick={onPublish}
+                onClick={onPublishClick}
                 disabled={Boolean(disabledReason) || submitting || isLoading}
                 title={disabledReason}
               >
@@ -198,8 +217,8 @@ export default function WorkbenchSidebarManage() {
                   variant="outline"
                   className="h-8 px-3 text-[12px]"
                   onClick={onUnpublish}
-                  disabled={submitting || isLoading}
-                  title="Unpublish persona"
+                  disabled={true}
+                  title="You granted a perpetual license when publishing. Contact hi@prsna.app for exceptional removal requests."
                 >
                   <ProhibitIcon />
                   Unpublish
@@ -211,8 +230,12 @@ export default function WorkbenchSidebarManage() {
                 variant="destructive"
                 className="h-8 px-3 text-[12px]"
                 onClick={() => setShowDeleteDialog(true)}
-                disabled={submitting || isLoading}
-                title="Delete persona"
+                disabled={isPublished || submitting || isLoading}
+                title={
+                  isPublished
+                    ? "You granted a perpetual license when publishing. Contact hi@prsna.app for exceptional removal requests."
+                    : "Delete persona"
+                }
               >
                 <TrashIcon />
                 Delete
@@ -222,12 +245,88 @@ export default function WorkbenchSidebarManage() {
         </div>
       </div>
 
+      <Dialog open={showPublishDialog} onOpenChange={setShowPublishDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Publish Persona</DialogTitle>
+            <DialogDescription>
+              Publishing your persona makes it permanent and public.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="text-sm text-zinc-700 space-y-3">
+              <p>
+                Once you publish your persona, it becomes publicly discoverable
+                and can generate content on the platform.
+              </p>
+              <div className="bg-amber-50 border border-amber-200 rounded p-3 text-sm">
+                <p className="font-semibold text-amber-900 mb-1">
+                  ⚠️ This action is permanent
+                </p>
+                <p className="text-amber-800">
+                  You will not be able to unpublish or delete your persona once
+                  it's published. Please read our{" "}
+                  <a
+                    href="/terms-of-service#publishing-personas"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline font-medium hover:text-amber-900"
+                  >
+                    Publishing Personas policy
+                  </a>{" "}
+                  before continuing.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3 p-3 rounded border border-zinc-200 bg-white">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
+              />
+              <label
+                htmlFor="terms"
+                className="text-sm text-zinc-700 leading-tight cursor-pointer flex-1"
+              >
+                I have read and agree to the{" "}
+                <a
+                  href="/terms-of-service"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-zinc-900"
+                >
+                  Terms of Service
+                </a>
+              </label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowPublishDialog(false)}
+              disabled={submitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={onPublishConfirm}
+              disabled={!termsAccepted || submitting}
+            >
+              {submitting ? "Publishing..." : "Publish"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Persona</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this persona? This action cannot be undone.
+              Are you sure you want to delete this persona? This action cannot
+              be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

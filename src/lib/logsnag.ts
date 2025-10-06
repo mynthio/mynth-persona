@@ -9,6 +9,12 @@ const logsnag = new LogSnag({
   project: process.env.LOG_SNAG_PROJECT!,
 });
 
+function hashSensitive(value: string): string {
+  const hash = crypto.createHash("sha256");
+  hash.update(value);
+  return hash.digest("hex");
+}
+
 export const trackGeneratePersonaCompleted = async ({
   isAnonymous,
   userId,
@@ -59,11 +65,32 @@ export const trackChatError = async ({
     .catch((err) => {});
 };
 
-function hashSensitive(userId: string): string {
-  const hash = crypto.createHash("sha256");
-  hash.update(userId);
-  return hash.digest("hex");
-}
+export const trackChatCreated = async ({
+  userId,
+  chatId,
+  modelId,
+}: {
+  userId: string;
+  chatId: string;
+  modelId: string;
+}) => {
+  const hashedUserId = hashSensitive(userId);
+  const hashedChatId = hashSensitive(chatId);
+
+  await logsnag
+    .track({
+      channel: "chats",
+      event: "chat-created",
+      user_id: hashedUserId,
+      icon: "💬",
+      tags: {
+        chat: hashedChatId,
+        model: modelId,
+        user: hashedUserId,
+      },
+    })
+    .catch((err) => {});
+};
 
 export const trackCheckoutCreated = async ({
   userId,

@@ -43,6 +43,13 @@ export async function updatePersonaVisibilityAction(
       throw new Error("Persona is deleted");
     }
 
+    // Prevent unpublishing public personas
+    if (persona.visibility === "public") {
+      throw new Error(
+        "Cannot unpublish a public persona. By publishing, you granted us a perpetual license to use the persona for content generation. If you have an exceptional reason for removal (such as legal concerns or policy violations), please contact us at hi@prsna.app or Discord."
+      );
+    }
+
     await db
       .update(personas)
       .set({
@@ -59,6 +66,13 @@ export async function updatePersonaVisibilityAction(
     if (persona.visibility === "deleted") {
       // Idempotent: already deleted
       return { success: true, visibility: "deleted" as const };
+    }
+
+    // Prevent deleting public personas
+    if (persona.visibility === "public") {
+      throw new Error(
+        "Cannot delete a public persona. By publishing, you granted us a perpetual license to use the persona for content generation. If you have an exceptional reason for removal (such as legal concerns or policy violations), please contact us at hi@prsna.app or Discord."
+      );
     }
 
     await db

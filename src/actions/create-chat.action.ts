@@ -13,6 +13,7 @@ import { DEFAULT_CHAT_MODEL } from "@/config/shared/chat/chat-models.config";
 import { nanoid } from "nanoid";
 import { chatPersonas, chats } from "@/db/schema";
 import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
+import { trackChatCreated } from "@/lib/logsnag";
 
 export const createChatAction = async (personaId: string) => {
   const { userId } = await auth.protect();
@@ -116,6 +117,8 @@ export const createChatAction = async (personaId: string) => {
 
     return { chatId };
   });
+
+  await trackChatCreated({ userId, chatId, modelId });
 
   redirect(`/chats/${chatId}`);
 };

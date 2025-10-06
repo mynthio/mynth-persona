@@ -8,7 +8,7 @@ import {
   useChatStatus,
 } from "@ai-sdk-tools/store";
 import { DefaultChatTransport } from "ai";
-import { FormEvent, useState } from "react";
+import { FormEvent } from "react";
 import {
   PromptInput,
   PromptInputBody,
@@ -20,7 +20,6 @@ import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
 import { Button } from "@/components/mynth-ui/base/button";
 import {
   ArrowsClockwiseIcon,
-  BrainIcon,
   CircleNotchIcon,
   PaperPlaneTiltIcon,
   SlidersHorizontalIcon,
@@ -28,22 +27,9 @@ import {
 import { ChatMode } from "@/schemas/backend/chats/chat.schema";
 import { nanoid } from "nanoid";
 import ChatMessages from "./chat-messages";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectPositioner,
-  SelectTrigger,
-} from "@/components/mynth-ui/base/select";
-import {
-  TextGenerationModelId,
-  textGenerationModels,
-} from "@/config/shared/models/text-generation-models.config";
+import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
-import { updateChatAction } from "@/actions/update-chat.action";
-import { useToast } from "@/components/ui/toast";
-import { chatConfig } from "@/config/shared/chat/chat-models.config";
 import { useTokensBalanceMutation } from "@/app/_queries/use-tokens-balance.query";
 
 type ChatProps = {

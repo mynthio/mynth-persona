@@ -41,5 +41,8 @@ export const chatConfig: ChatConfig = {
     {
       modelId: "deepseek/deepseek-chat-v3.1",
     },
+    {
+      modelId: "aion-labs/aion-rp-llama-3.1-8b",
+    },
   ],
 };

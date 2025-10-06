@@ -116,32 +116,36 @@ export default async function PersonaPublicPage({
   const data = persona.publicVersion!.data as PersonaData;
   const displayName = getDisplayName(persona.publicName, data);
   return (
-    <div className="relative overflow-clip rounded-[15px] h-full">
+    <div className="relative overflow-clip rounded-[15px] h-full p-[12px]">
       {/* Banner */}
       <PersonaBanner
         profileImageId={persona.profileImageId}
         fallbackGradient={DEFAULT_GRADIENT_BACKGROUND}
       />
 
-      <div className="h-[120px]" />
+      <div className="h-[140px] md:h-[120px]" />
 
-      <div className="w-full flex gap-[12px] max-w-[960px] mx-auto relative">
-        <div className="w-[260px] shrink-0">
-          <div className="size-[260px] p-[4px] flex items-center justify-center bg-surface/30 backdrop-blur-[4px] rounded-[64px]">
+      <div className="w-full flex gap-[6px] md:gap-[12px] max-w-[960px] mx-auto relative">
+        <div className="w-[120px] md:w-[260px] shrink-0">
+          <div
+            className="
+          rounded-[24px] md:rounded-[64px]
+          w-full aspect-square p-[4px] flex items-center justify-center bg-surface/30 backdrop-blur-[4px]"
+          >
             <img
               src={getPersonaImageUrl(persona.profileImageId)}
               alt={displayName}
               draggable={false}
-              className="w-full h-full object-cover object-top rounded-[60px] select-none"
+              className="w-full h-full object-cover object-top rounded-[20px] md:rounded-[60px] select-none"
             />
           </div>
         </div>
 
-        <div className="mt-[110px] w-full">
-          <h1 className="text-[2.4rem] font-onest font-[600] text-surface-foreground leading-tight">
+        <div className="mt-[40px] md:mt-[110px] w-full">
+          <h1 className="text-[1.3rem] md:text-[2.4rem] font-onest font-[600] text-surface-foreground leading-tight">
             {displayName}
           </h1>
-          <p className="text-[0.9rem] text-surface-foreground/80 max-w-[360px]">
+          <p className="text-[0.75rem] md:text-[0.9rem] text-surface-foreground/80 md:max-w-[360px]">
             {persona.headline}
           </p>
           <div className="mt-[12px]">

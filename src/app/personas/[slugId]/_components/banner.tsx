@@ -33,7 +33,7 @@ export async function PersonaBannerGradient({
 
   return (
     <div
-      className="absolute w-full h-[220px] top-0 left-0 right-0"
+      className="absolute w-full h-[180px] md:h-[220px] top-0 left-0 right-0"
       style={{ backgroundImage: gradient }}
     />
   );

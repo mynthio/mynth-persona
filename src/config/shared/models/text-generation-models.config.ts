@@ -7,7 +7,8 @@ export type TextGenerationModelId =
   | "cognitivecomputations/dolphin-mistral-24b-venice-edition"
   | "meta-llama/llama-3.3-70b-instruct"
   | "z-ai/glm-4.5-air"
-  | "deepseek/deepseek-chat-v3.1";
+  | "deepseek/deepseek-chat-v3.1"
+  | "aion-labs/aion-rp-llama-3.1-8b";
 
 export type Provider = {
   url?: string;
@@ -320,6 +321,36 @@ export const textGenerationModels: Record<
     cost: {
       roleplay: 0,
       story: 0,
+    },
+  },
+  "aion-labs/aion-rp-llama-3.1-8b": {
+    enabled: true,
+    isFreeVersionAvailable: true,
+    description:
+      "A fully uncensored, high-performing model optimized for immersive roleplay and creative storytelling, achieving top rankings in character evaluation benchmarks for engaging, multi-turn narratives.",
+    style:
+      "Maintains exceptional context in long threads with 131K tokens; provides emotional, nuanced, and adaptive responses. Suggestive and compliant in romantic or intimate scenes; tends to follow user direction with inventive twists. Assertive and confrontational in conflicts for dynamic interactions.",
+    displayName: "Aion RP Llama 3.1 8B",
+    modelId: "aion-labs/aion-rp-llama-3.1-8b",
+    uncensored: true,
+    perks: [
+      "superior long-context handling for coherent, extended stories",
+      "excels in creative writing and character consistency",
+      "handles uncensored NSFW, dark, or violent themes without restrictions",
+    ],
+    tags: [],
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "no",
+      storesMessages: "yes",
+      additionalNotes:
+        "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
+    },
+    cost: {
+      roleplay: 0,
+      story: 1,
     },
   },
 };

@@ -6,7 +6,8 @@ export type TextGenerationModelId =
   | "nousresearch/hermes-4-70b"
   | "cognitivecomputations/dolphin-mistral-24b-venice-edition"
   | "meta-llama/llama-3.3-70b-instruct"
-  | "z-ai/glm-4.5-air";
+  | "z-ai/glm-4.5-air"
+  | "deepseek/deepseek-chat-v3.1";
 
 export type Provider = {
   url?: string;
@@ -289,6 +290,36 @@ export const textGenerationModels: Record<
     cost: {
       roleplay: 1,
       story: 2,
+    },
+  },
+  "deepseek/deepseek-chat-v3.1": {
+    enabled: true,
+    isFreeVersionAvailable: true,
+    description:
+      "A powerful hybrid reasoning model excelling in immersive roleplay and extended storytelling, with exceptional long-context handling and creative depth for engaging, coherent narratives.",
+    style:
+      "Maintains context exceptionally in long sessions; delivers emotional, reactive, and nuanced responses. Suggestive and adaptive in romantic or intimate scenes; follows user direction while injecting creative twists. Assertive and confrontational in tense or conflict-driven scenarios, enhancing dynamic interactions.",
+    displayName: "DeepSeek Chat v3.1",
+    modelId: "deepseek/deepseek-chat-v3.1",
+    uncensored: true,
+    perks: [
+      "superior long-context retention up to 128K tokens for multi-chapter stories",
+      "creative in developing plots, challenges, and character depth",
+      "handles NSFW and edgy content with minimal filtering for unrestricted roleplay",
+    ],
+    tags: [],
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "no",
+      storesMessages: "yes",
+      additionalNotes:
+        "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
+    },
+    cost: {
+      roleplay: 0,
+      story: 0,
     },
   },
 };

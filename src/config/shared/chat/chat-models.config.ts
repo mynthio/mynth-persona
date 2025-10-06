@@ -38,5 +38,8 @@ export const chatConfig: ChatConfig = {
     {
       modelId: "z-ai/glm-4.5-air",
     },
+    {
+      modelId: "deepseek/deepseek-chat-v3.1",
+    },
   ],
 };

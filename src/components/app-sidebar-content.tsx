@@ -28,7 +28,6 @@ import { usePathname } from "next/navigation";
 import { SignInButton, useAuth } from "@clerk/nextjs";
 import { useDebounce } from "@uidotdev/usehooks";
 import { useUserChatsQuery } from "@/app/_queries/use-user-chats.query";
-import { useChatId } from "@/hooks/use-chat-id.hook";
 
 export function SidebarContentRouter() {
   const pathname = usePathname();

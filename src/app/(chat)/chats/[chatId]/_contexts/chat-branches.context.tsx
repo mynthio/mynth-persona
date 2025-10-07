@@ -8,7 +8,6 @@ import {
   type ReactNode,
   useState,
 } from "react";
-import { useLocalStorage } from "@uidotdev/usehooks";
 import { BranchesByParent } from "@/services/chat/get-chat-branches";
 import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
 

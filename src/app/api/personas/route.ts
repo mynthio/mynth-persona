@@ -55,9 +55,11 @@ export async function GET(request: Request) {
       )
     : undefined;
 
-  const conditions = [baseCondition, searchCondition, paginationCondition].filter(
-    (c): c is NonNullable<typeof c> => c != null
-  );
+  const conditions = [
+    baseCondition,
+    searchCondition,
+    paginationCondition,
+  ].filter((c): c is NonNullable<typeof c> => c != null);
   const whereCondition = and(...conditions);
 
   const data = await db

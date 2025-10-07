@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import { getSparksPresetsList, type SparkPreset } from "@/config/shared/sparks";
-import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard.hook";
 import { Button } from "@/components/mynth-ui/base/button";
 import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
 import { createCheckoutAction } from "@/actions/create-checkout.action";

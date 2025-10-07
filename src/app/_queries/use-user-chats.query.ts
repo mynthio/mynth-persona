@@ -1,4 +1,4 @@
-import useSWR, { SWRConfiguration } from "swr";
+import useSWR, { MutatorOptions, SWRConfiguration, useSWRConfig } from "swr";
 import { fetcher } from "@/lib/fetcher";
 import type { PublicChat } from "@/schemas/shared";
 
@@ -38,4 +38,19 @@ export const useUserChatsQuery = (
       ...config,
     }
   );
+};
+
+export const useUserChatsMutation = () => {
+  const { mutate } = useSWRConfig();
+
+  return (
+    mutator: (
+      data: UserChatsResponse | undefined
+    ) => UserChatsResponse | undefined,
+    options?: MutatorOptions
+  ) =>
+    mutate<UserChatsResponse>(`/api/chats`, mutator, {
+      revalidate: false,
+      ...options,
+    });
 };

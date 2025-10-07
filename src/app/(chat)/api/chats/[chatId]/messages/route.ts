@@ -1,7 +1,7 @@
 import "server-only";
 
 import { db } from "@/db/drizzle";
-import { chats, messages } from "@/db/schema";
+import { chats } from "@/db/schema";
 import { logger } from "@/lib/logger";
 import { auth } from "@clerk/nextjs/server";
 import { and, eq } from "drizzle-orm";

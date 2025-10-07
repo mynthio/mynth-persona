@@ -3,10 +3,7 @@ import { db } from "@/db/drizzle";
 import { auth } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 import Chat from "./_components/chat";
-import {
-  ChatPersonasContext,
-  ChatPersonasProvider,
-} from "./_contexts/chat-personas.context";
+import { ChatPersonasProvider } from "./_contexts/chat-personas.context";
 import { PersonaData } from "@/schemas";
 import { ChatBranchesProvider } from "./_contexts/chat-branches.context";
 import { getChatBranches } from "@/services/chat/get-chat-branches";
@@ -15,7 +12,6 @@ import { logger } from "@/lib/logger";
 import { ChatMainProvider } from "./_contexts/chat-main.context";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
 import { ChatIntro } from "./_components/chat-intro";
-import dynamic from "next/dynamic";
 import { ChatSettings } from "./_components/chat-settings";
 import { ChatSettings as ChatSettingsSchema } from "@/schemas/backend/chats/chat.schema";
 

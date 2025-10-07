@@ -1,8 +1,4 @@
-import { logger } from "@/lib/logger";
-import {
-  ImageGenerationBase,
-  ImageGenerationResult,
-} from "../image-generation-base";
+import { ImageGenerationResult } from "../image-generation-base";
 import { RunwareImageGenerationBase } from "./runware-base";
 
 export const RUNWARE_BISMUTH_ILLUSTRIOUS_MIX_V4_0_ID =

@@ -21,7 +21,10 @@ export async function GET(
   if (versionId === "current") {
     // Get the current version of the persona
     const persona = await db.query.personas.findFirst({
-      where: and(eq(personas.id, personaId), ne(personas.visibility, "deleted")),
+      where: and(
+        eq(personas.id, personaId),
+        ne(personas.visibility, "deleted")
+      ),
       columns: {
         userId: true,
         currentVersionId: true,

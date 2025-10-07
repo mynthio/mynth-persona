@@ -1,18 +1,12 @@
 "use client";
 
 import React, { useCallback } from "react";
-import { Virtuoso } from "react-virtuoso";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  useWindowVirtualizer,
-  defaultRangeExtractor,
-} from "@tanstack/react-virtual";
 import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 import {
   useChatActions,
   useChatError,
-  useChatMessageCount,
   useChatMessages,
   useChatStatus,
 } from "@ai-sdk-tools/store";
@@ -40,15 +34,6 @@ import { useUser } from "@clerk/nextjs";
 import { useChatPersonas } from "../_contexts/chat-personas.context";
 import { cn, getImageUrl } from "@/lib/utils";
 import { ApiChatMessagesResponse } from "@/app/(chat)/api/chats/[chatId]/messages/route";
-import {
-  Conversation,
-  ConversationContent,
-} from "@/components/mynth-ui/ai/conversation";
-import {
-  Reasoning,
-  ReasoningContent,
-  ReasoningTrigger,
-} from "@/components/mynth-ui/ai/reasoning";
 import { Link } from "@/components/ui/link";
 
 type ChatMessagesProps = {

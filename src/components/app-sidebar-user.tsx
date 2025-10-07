@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react";
+import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -27,7 +20,6 @@ import {
 } from "@/components/ui/sidebar";
 import { SignInButton, useAuth, useClerk, useUser } from "@clerk/nextjs";
 import { Button } from "./ui/button";
-import { SignInIcon } from "@phosphor-icons/react/dist/ssr";
 
 export function AppSidebarUser() {
   const auth = useAuth();

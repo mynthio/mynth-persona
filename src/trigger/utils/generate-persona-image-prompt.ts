@@ -10,7 +10,6 @@ import {
   getDefaultPromptDefinitionForMode,
   getDefaultUserPromptDefinitionForMode,
 } from "@/lib/prompts/registry";
-import { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
 
 type CraftImagePromptForPersonaPayload = {
   personaData: PersonaData;

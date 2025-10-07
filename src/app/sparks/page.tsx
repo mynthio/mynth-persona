@@ -7,7 +7,6 @@ import { StarsBackground } from "@/components/animate-ui/components/backgrounds/
 import {
   FlameIcon,
   CheckCircleIcon,
-  DiscordLogo,
   InfoIcon,
   DiscordLogoIcon,
 } from "@phosphor-icons/react/dist/ssr";

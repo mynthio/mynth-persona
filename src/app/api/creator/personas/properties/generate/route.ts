@@ -9,7 +9,6 @@ import { createPersonaVersion } from "@/services/persona/create-persona-version"
 import { auth } from "@clerk/nextjs/server";
 import { streamObject } from "ai";
 import { spaceCase } from "case-anything";
-import { unauthorized } from "next/navigation";
 import { z } from "zod/v4";
 import { getPromptDefinitionById } from "@/lib/prompts/registry";
 import { PromptDefinitionPersonaPropertyAction } from "@/lib/prompts/types";

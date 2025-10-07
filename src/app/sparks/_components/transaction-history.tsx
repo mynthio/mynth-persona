@@ -26,7 +26,9 @@ interface TransactionHistoryProps {
   transactions: Transaction[];
 }
 
-export default function TransactionHistory({ transactions }: TransactionHistoryProps) {
+export default function TransactionHistory({
+  transactions,
+}: TransactionHistoryProps) {
   const columns = [
     "DATE",
     "TYPE",

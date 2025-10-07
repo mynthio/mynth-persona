@@ -1,5 +1,3 @@
-import { ZodSchema } from "zod";
-
 export type ImageGenerationResult = {
   image: Buffer;
   revisedPrompt?: string;

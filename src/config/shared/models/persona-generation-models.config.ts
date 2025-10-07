@@ -1,4 +1,3 @@
-// Allowed model IDs for persona generation (includes special 'auto')
 export const personaGenerationModelIds = [
   "auto",
   "thedrummer/anubis-70b-v1.1",

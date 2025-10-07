@@ -1,5 +1,5 @@
 import { DISCORD_INVITE_URL } from "@/lib/constants";
-import { ChatsTeardropIcon, ImageIcon } from "@phosphor-icons/react/dist/ssr";
+import { ImageIcon } from "@phosphor-icons/react/dist/ssr";
 
 export default function ImagesPage() {
   return (

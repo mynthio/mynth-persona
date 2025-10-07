@@ -27,7 +27,6 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSWRConfig } from "swr";
 import { useTokensBalanceMutation } from "@/app/_queries/use-tokens-balance.query";
 import { useToast } from "@/components/ui/toast";
-import { usePersonaMutation } from "@/app/_queries/use-persona.query";
 
 type CreatorProps = {
   prompt: string;

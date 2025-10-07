@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 import {
   CaretUpIcon,
   CheckIcon,
-  QuestionMarkIcon,
   ShuffleIcon,
   SlidersHorizontalIcon,
   SparkleIcon,

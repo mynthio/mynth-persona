@@ -14,6 +14,7 @@ import { nanoid } from "nanoid";
 import { chatPersonas, chats } from "@/db/schema";
 import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
 import { trackChatCreated } from "@/lib/logsnag";
+import { after } from "next/server";
 
 export const createChatAction = async (personaId: string) => {
   const { userId } = await auth.protect();
@@ -118,7 +119,13 @@ export const createChatAction = async (personaId: string) => {
     return { chatId };
   });
 
-  await trackChatCreated({ userId, chatId, modelId });
+  after(async () => {
+    await trackChatCreated({ userId, chatId, modelId });
+  });
 
-  redirect(`/chats/${chatId}`);
+  return {
+    id: chatId,
+    title: `${version.data.name} Chat`,
+    mode: "roleplay",
+  };
 };

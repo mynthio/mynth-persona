@@ -21,7 +21,11 @@ export const getImageUrl = (
  * @param idExtractor Optional function to extract an ID from the item for duplicate checking
  * @returns The updated collection
  */
-export const addItemToCollection = <T, K extends string | number | symbol, U = unknown>(
+export const addItemToCollection = <
+  T,
+  K extends string | number | symbol,
+  U = unknown
+>(
   prev: Record<K, T[]> | undefined,
   key: K,
   item: T,
@@ -53,7 +57,7 @@ export const addItemToCollection = <T, K extends string | number | symbol, U = u
   }
 
   return { ...prev, [key]: [...existing, item] };
-}
+};
 
 export type WeightedId = { id: string; priority: number };
 

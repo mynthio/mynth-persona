@@ -18,7 +18,11 @@ export async function GET(
 
   // Validate persona ownership
   const persona = await db.query.personas.findFirst({
-    where: and(eq(personas.id, personaId), eq(personas.userId, userId), ne(personas.visibility, "deleted")),
+    where: and(
+      eq(personas.id, personaId),
+      eq(personas.userId, userId),
+      ne(personas.visibility, "deleted")
+    ),
     columns: { id: true },
   });
 

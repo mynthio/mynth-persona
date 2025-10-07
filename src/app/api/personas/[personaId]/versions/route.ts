@@ -36,10 +36,12 @@ export async function GET(
     orderBy: [asc(personaVersions.createdAt)],
   });
 
-  const publicVersions = versions.map((v) => transformToPublicPersonaVersion({
-    ...v,
-    persona: { userId: persona.userId },
-  } as any));
+  const publicVersions = versions.map((v) =>
+    transformToPublicPersonaVersion({
+      ...v,
+      persona: { userId: persona.userId },
+    } as any)
+  );
 
   return Response.json(publicVersions);
 }

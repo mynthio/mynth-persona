@@ -1,6 +1,6 @@
 import { db } from "@/db/drizzle";
 import { imageGenerations, images } from "@/db/schema";
-import { schemaTask, task } from "@trigger.dev/sdk";
+import { schemaTask } from "@trigger.dev/sdk";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 

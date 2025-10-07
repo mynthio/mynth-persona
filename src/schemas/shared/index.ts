@@ -3,7 +3,6 @@ export * from "./persona.schema";
 export * from "./persona-image.schema";
 export * from "./user-balance.schema";
 export * from "./chat.schema";
-export * from "./messages/message-branches.schema";
 export * from "./messages/public-message-preview.schema";
 export * from "./persona-public.schema";
 export * from "./chats/message-event-payload.schema";

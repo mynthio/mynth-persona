@@ -18,21 +18,3 @@ export type MessageId = `msg_${string}`;
 export const messageSchema = createSelectSchema(messages, {
   id: () => messageIdSchema,
 });
-
-// Narrow message shape used in chat thread responses
-export const messageListItemSchema = messageSchema.pick({
-  id: true,
-  parentId: true,
-  chatId: true,
-  role: true,
-  parts: true,
-  createdAt: true,
-  updatedAt: true,
-});
-export type MessageListItem = z.infer<typeof messageListItemSchema>;
-
-export const messageThreadResponseSchema = z.object({
-  leafId: messageIdSchema.nullable(),
-  messages: z.array(messageListItemSchema),
-});
-export type MessageThreadResponse = z.infer<typeof messageThreadResponseSchema>;

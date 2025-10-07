@@ -26,65 +26,6 @@ const PublishPersonaPayloadSchema = z.object({
     .describe("Force update of published version"),
 });
 
-// Known predefined tags (kept in sync with scripts/seed-tags.ts)
-const KNOWN_TAGS = new Set<string>([
-  // appearance
-  "blue-eyes",
-  "green-eyes",
-  "brown-eyes",
-  "hazel-eyes",
-  "long-hair",
-  "short-hair",
-  "blonde-hair",
-  "brunette",
-  "redhead",
-  "pale-skin",
-  "tan-skin",
-  "dark-skin",
-  // physical
-  "slim",
-  "fit",
-  "curvy",
-  "petite",
-  "tall",
-  "athletic",
-  // age
-  "young",
-  "mature",
-  "teen",
-  "adult",
-  "middle-aged",
-  // personality
-  "sweet",
-  "confident",
-  "shy",
-  "outgoing",
-  "mysterious",
-  "playful",
-  "serious",
-  "caring",
-  "independent",
-  "annoying",
-  // style
-  "sexy",
-  "cute",
-  "elegant",
-  "casual",
-  "gothic",
-  "dark",
-  "romantic",
-  "adventurous",
-  "intellectual",
-  // other
-  "fantasy",
-  "modern",
-  "historical",
-  "sci-fi",
-  "professional",
-  "student",
-  "artist",
-]);
-
 export const publishPersonaTask = schemaTask({
   id: "publish-persona",
   maxDuration: 300,

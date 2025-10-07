@@ -4,7 +4,13 @@ import { userTokens, tokenTransactions } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 
 import { StarsBackground } from "@/components/animate-ui/components/backgrounds/stars";
-import { FlameIcon, CheckCircleIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+  FlameIcon,
+  CheckCircleIcon,
+  DiscordLogo,
+  InfoIcon,
+  DiscordLogoIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { SparksPresets } from "./_components/sparks-presets";
 import { DISCORD_INVITE_URL } from "@/lib/constants";
@@ -47,7 +53,7 @@ export default async function SparksPage({
 
   return (
     <>
-      <div className="w-full h-full relative overflow-hidden flex items-center justify-center">
+      <div className="w-full h-full relative overflow-hidden flex items-center justify-center py-[48px]">
         <div className="z-10 flex flex-col items-center justify-center px-[12px]">
           {showSuccessBanner && (
             <div className="w-full max-w-[640px] mb-4">
@@ -113,6 +119,58 @@ export default async function SparksPage({
               </Link>
               .
             </p>
+          </div>
+          {/* Discord promo: 100 free Sparks */}
+          <div className="w-full max-w-[640px] mt-[48px]">
+            <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-blue-900">
+              <div className="flex items-start gap-2">
+                <DiscordLogoIcon
+                  size={18}
+                  weight="duotone"
+                  className="mt-0.5 shrink-0"
+                />
+                <div className="space-y-1 text-[12px] leading-relaxed">
+                  <p className="text-[13px] font-medium">Get 100 Sparks free</p>
+                  <p>
+                    Join our {""}
+                    <a
+                      href={DISCORD_INVITE_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline"
+                    >
+                      Discord
+                    </a>{" "}
+                    and DM <span className="font-medium">@50bytesofjohn</span>{" "}
+                    with the email you use here. We’ll credit
+                    <span className="font-medium"> 100 Sparks</span> to your
+                    account.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Early community rewards note */}
+          <div className="w-full max-w-[640px] mt-3">
+            <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-amber-900">
+              <div className="flex items-start gap-2">
+                <InfoIcon
+                  size={18}
+                  weight="duotone"
+                  className="mt-0.5 shrink-0"
+                />
+                <div className="space-y-1 text-[12px] leading-relaxed">
+                  <p className="text-[13px] font-medium">
+                    Help early, earn Sparks
+                  </p>
+                  <p>
+                    It’s early days — helpful activity like feedback, bug
+                    reports, or community help may be rewarded with free Sparks.
+                    Share ideas or issues in Discord and we’ll follow up.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

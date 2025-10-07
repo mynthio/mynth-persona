@@ -197,7 +197,7 @@ export const textGenerationModels: Record<
         "Aggregates models from various sources; may track usage stats but does not store personal data or messages.",
     },
     cost: {
-      roleplay: 1,
+      roleplay: 0,
       story: 2,
     },
   },

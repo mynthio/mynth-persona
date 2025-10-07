@@ -8,7 +8,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 
 import {
   ArrowLeftIcon,
-  ArrowRightIcon,
+  CheckIcon,
   FeatherIcon,
   FireIcon,
   GearSixIcon,
@@ -46,6 +46,7 @@ import {
 } from "@/config/shared/models/text-generation-models.config";
 import { useToast } from "@/components/ui/toast";
 import { filter, map, pipe, toArray } from "@fxts/core";
+import { Label } from "@/components/mynth-ui/base/label";
 
 type ChatSettingsProps = {
   defaultOpen: boolean;
@@ -557,34 +558,53 @@ function ChatSettingsScenario() {
 }
 
 function ChatSettingsModel() {
-  const { chatId, modelId, setModelId } = useChatMain();
+  const { chatId, modelId, setModelId, mode } = useChatMain();
   const { add } = useToast();
   const [query, setQuery] = useState<string>("");
   const debouncedQuery = useDebounce(query, 300);
   const [isLoading, setIsLoading] = useState(false);
+  const [showFreeOnly, setShowFreeOnly] = useState(false);
+  const [showVeniceOnly, setShowVeniceOnly] = useState(false);
 
-  const models = useMemo(
-    () =>
-      pipe(
-        chatConfig.models,
-        map(({ modelId }) => textGenerationModels[modelId]),
-        filter(
-          (model) =>
-            model.displayName
-              .toLowerCase()
-              .includes(debouncedQuery.toLowerCase()) ||
-            model.modelId
-              .toLowerCase()
-              .includes(debouncedQuery.toLowerCase()) ||
-            model.perks
-              .join(" ")
-              .toLowerCase()
-              .includes(debouncedQuery.toLowerCase())
-        ),
-        toArray
+  const models = useMemo(() => {
+    const normalizedQuery = debouncedQuery.trim().toLowerCase();
+
+    return pipe(
+      chatConfig.models,
+      map(({ modelId }) => textGenerationModels[modelId]),
+      filter((model): model is TextGenerationModelConfig =>
+        Boolean(model && model.enabled)
       ),
-    [chatConfig.models, debouncedQuery]
-  );
+      filter((model) => {
+        const matchesQuery =
+          normalizedQuery.length === 0 ||
+          model.displayName.toLowerCase().includes(normalizedQuery) ||
+          model.modelId.toLowerCase().includes(normalizedQuery) ||
+          model.perks.join(" ").toLowerCase().includes(normalizedQuery);
+
+        if (!matchesQuery) {
+          return false;
+        }
+
+        if (showFreeOnly && model.cost[mode] !== 0) {
+          return false;
+        }
+
+        if (
+          showVeniceOnly &&
+          !(
+            model.provider.displayName?.toLowerCase().includes("venice") ||
+            model.provider.url?.toLowerCase().includes("venice")
+          )
+        ) {
+          return false;
+        }
+
+        return true;
+      }),
+      toArray
+    );
+  }, [debouncedQuery, mode, showFreeOnly, showVeniceOnly]);
 
   const handleModelChange = async (selectedModelId: TextGenerationModelId) => {
     if (isLoading || modelId === selectedModelId) return;
@@ -612,7 +632,7 @@ function ChatSettingsModel() {
 
   return (
     <div className="flex flex-col gap-[8px] min-h-[600px]">
-      <div>
+      <div className="flex flex-col gap-[8px]">
         <Input
           name="query"
           placeholder="Search models..."
@@ -620,8 +640,28 @@ function ChatSettingsModel() {
           onChange={(e) => setQuery(e.target.value)}
           className="w-full bg-white rounded-[18px] border-0"
         />
-      </div>
 
+        <ButtonGroup>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            aria-pressed={showFreeOnly}
+            onClick={() => setShowFreeOnly((prev) => !prev)}
+          >
+            {showFreeOnly ? <CheckIcon /> : null}Free models
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            aria-pressed={showVeniceOnly}
+            onClick={() => setShowVeniceOnly((prev) => !prev)}
+          >
+            {showVeniceOnly ? <CheckIcon /> : null}Venice models
+          </Button>
+        </ButtonGroup>
+      </div>
       <div className="space-y-[12px]">
         {models.map((model) => (
           <ModelCard
@@ -666,16 +706,15 @@ function ModelCard(props: {
             </p>
           </div>
 
-          <div
-            className="
-            shrink-0 flex items-center justify-center gap-[4px] text-[.9rem]
-            bg-rose-100/80 text-rose-600 px-[12px] py-[8px] rounded-[12px]
-            font-mono leading-0 cursor-default pointer-events-none border-[.5px] border-rose-300
-          "
-          >
-            {model.cost.roleplay}
-            <FireIcon size={12} weight="bold" />
-          </div>
+          <Label color={model.cost.roleplay === 0 ? "green" : "red"} size="sm">
+            {model.cost.roleplay === 0 ? (
+              "free"
+            ) : (
+              <>
+                {model.cost.roleplay} <FireIcon weight="bold" />
+              </>
+            )}
+          </Label>
         </div>
       </div>
       <p className="text-surface-foreground/60 text-[.85rem] leading-tight mt-[12px]">

@@ -24,6 +24,14 @@ export const PersonaCreatorAuthenticatedRateLimit = new Ratelimit({
   onError: () => ({ success: true, limit: 0, remaining: 0, reset: 0 }),
 });
 
+export const FreeModelChatRateLimit = new Ratelimit({
+  rootKey: ROOT_KEY,
+  namespace: "chat.free",
+  limit: 120,
+  duration: "2h",
+  onError: () => ({ success: false, limit: 0, remaining: 0, reset: 0 }),
+});
+
 export const rateLimitGuard = async (
   rateLimitter: Ratelimit,
   identifier: string

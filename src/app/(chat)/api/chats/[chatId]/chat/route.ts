@@ -30,6 +30,7 @@ import { getChatMessagesData } from "@/data/messages/get-chat-messages.data";
 
 import { kv } from "@vercel/kv";
 import { burnSparks } from "@/services/sparks/sparks.service";
+import { FreeModelChatRateLimit, rateLimitGuard } from "@/lib/rate-limit";
 
 export const maxDuration = 45;
 
@@ -87,9 +88,43 @@ export async function POST(
   }
 
   const chatSettings = (chat.settings ?? {}) as ChatSettings;
-
   const roleplayData = chatPersona.personaVersion
     .roleplayData as PersonaVersionRoleplayData;
+
+  /**
+   * TEXT GENERATION MODEL
+   */
+  const textGenerationModel =
+    textGenerationModels[chatSettings.model ?? DEFAULT_CHAT_MODEL];
+  if (!textGenerationModel) throw new Error("Model not supported");
+
+  const textGenerationModelCost =
+    chat.mode === "roleplay"
+      ? textGenerationModel.cost.roleplay
+      : textGenerationModel.cost.story;
+  if (textGenerationModelCost === undefined) {
+    throw new Error(
+      "Something Went Wrong. Model is not supported. Try with another model."
+    );
+  }
+
+  /**
+   * FREE MODELS RATE LIMIT
+   */
+  if (
+    chat.mode === "roleplay"
+      ? textGenerationModel.cost.roleplay === 0
+      : textGenerationModel.cost.story === 0
+  ) {
+    const rateLimitResult = await rateLimitGuard(
+      FreeModelChatRateLimit,
+      userId
+    );
+
+    if (!rateLimitResult.success) {
+      return rateLimitResult.rateLimittedResponse;
+    }
+  }
 
   /**
    * MESSAGE HISTORY
@@ -128,23 +163,6 @@ export async function POST(
       chatId,
       parentId: lastMessage?.id ?? null,
     });
-  }
-
-  /**
-   * TEXT GENERATION MODEL
-   */
-  const textGenerationModel =
-    textGenerationModels[chatSettings.model ?? DEFAULT_CHAT_MODEL];
-  if (!textGenerationModel) throw new Error("Model not supported");
-
-  const textGenerationModelCost =
-    chat.mode === "roleplay"
-      ? textGenerationModel.cost.roleplay
-      : textGenerationModel.cost.story;
-  if (textGenerationModelCost === undefined) {
-    throw new Error(
-      "Something Went Wrong. Model is not supported. Try with another model."
-    );
   }
 
   /**

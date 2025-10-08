@@ -6,6 +6,7 @@ import { useToast } from "./ui/toast";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserChatsMutation } from "@/app/_queries/use-user-chats.query";
+import posthog from "posthog-js";
 
 type CreateChatButtonProps = React.ComponentProps<typeof Button> & {
   personaId: string;
@@ -27,6 +28,11 @@ export function CreateChatButton({
       onClick={async () => {
         if (isLoading) return;
         setIsLoading(true);
+        try {
+          posthog.capture("create_chat_clicked", {
+            path: typeof window !== "undefined" ? window.location.pathname : undefined,
+          });
+        } catch {}
         promise(
           createChatAction(personaId)
             .catch((error) => {

@@ -16,6 +16,7 @@ import { Field } from "@base-ui-components/react/field";
 import { Form } from "@base-ui-components/react/form";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/mynth-ui/base/button";
+import posthog from "posthog-js";
 
 export default function PersonaCreator({
   onGenerate,
@@ -95,6 +96,13 @@ export default function PersonaCreator({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
+      try {
+        posthog.capture("persona_generation_requested", {
+          mode: "prompt",
+          model,
+          prompt_length: prompt.trim().length,
+        });
+      } catch {}
       onGenerate(prompt, { model });
     }
   };
@@ -189,7 +197,18 @@ export default function PersonaCreator({
                     <TooltipTrigger
                       render={
                         <button
-                          onClick={() => onGenerate("Random", { model })}
+                          onClick={() => {
+                            try {
+                              posthog.capture("random_persona_clicked", {
+                                model,
+                              });
+                              posthog.capture("persona_generation_requested", {
+                                mode: "random",
+                                model,
+                              });
+                            } catch {}
+                            onGenerate("Random", { model });
+                          }}
                           type="button"
                           className="
                     font-onest font-bold cursor-pointer
@@ -213,7 +232,16 @@ export default function PersonaCreator({
             </AnimatePresence>
 
             <button
-              onClick={() => onGenerate(prompt, { model })}
+              onClick={() => {
+                try {
+                  posthog.capture("persona_generation_requested", {
+                    mode: "prompt",
+                    model,
+                    prompt_length: prompt.trim().length,
+                  });
+                } catch {}
+                onGenerate(prompt, { model });
+              }}
               disabled={prompt.trim() === ""}
               type="button"
               className="

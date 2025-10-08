@@ -34,6 +34,53 @@ import { FreeModelChatRateLimit, rateLimitGuard } from "@/lib/rate-limit";
 
 export const maxDuration = 45;
 
+const normalizeError = (error: unknown): Record<string, unknown> => {
+  if (error instanceof Error) {
+    const normalized: Record<string, unknown> = {
+      name: error.name,
+      message: error.message,
+    };
+
+    if (error.stack) {
+      normalized.stack = error.stack;
+    }
+
+    if ("cause" in error && error.cause !== undefined) {
+      normalized.cause =
+        error.cause instanceof Error
+          ? normalizeError(error.cause)
+          : error.cause;
+    }
+
+    for (const key of Object.getOwnPropertyNames(error)) {
+      if (key === "name" || key === "message" || key === "stack") {
+        continue;
+      }
+
+      const value = (error as unknown as Record<string, unknown>)[key];
+      if (value !== undefined) {
+        normalized[key] = value;
+      }
+    }
+
+    return normalized;
+  }
+
+  if (typeof error === "string") {
+    return { message: error };
+  }
+
+  if (typeof error === "object" && error !== null) {
+    try {
+      return JSON.parse(JSON.stringify(error));
+    } catch {
+      return { message: String(error) };
+    }
+  }
+
+  return { message: String(error) };
+};
+
 export async function POST(
   req: Request,
   ctx: RouteContext<"/api/chats/[chatId]/chat">
@@ -245,24 +292,24 @@ export async function POST(
          * ON ERROR
          */
         onError: async (error) => {
-          logger.error({
-            event: "generation-error",
-            component: "api:chat",
-            error: {
-              message: (error as any)?.message ?? String(error),
-              name: (error as any)?.name,
+          logger.error(
+            {
+              event: "generation-error",
+              component: "api:chat",
+              error: normalizeError(error),
             },
-          });
+            "Text generation failed"
+          );
 
           await kv.del(`chat:${chatId}:leaf`).catch((error) => {
-            logger.error({
-              event: "kv-error",
-              component: "api:chat",
-              error: {
-                message: (error as any)?.message ?? String(error),
-                name: (error as any)?.name,
+            logger.error(
+              {
+                event: "kv-error",
+                component: "api:chat",
+                error: normalizeError(error),
               },
-            });
+              "Failed to clear chat leaf in KV store"
+            );
 
             // Let's don't break the flow just because of this
           });
@@ -308,14 +355,14 @@ export async function POST(
     },
     onFinish: async ({ responseMessage }) => {
       await kv.del(`chat:${chatId}:leaf`).catch((error) => {
-        logger.error({
-          event: "kv-error",
-          component: "api:chat",
-          error: {
-            message: (error as any)?.message ?? String(error),
-            name: (error as any)?.name,
+        logger.error(
+          {
+            event: "kv-error",
+            component: "api:chat",
+            error: normalizeError(error),
           },
-        });
+          "Failed to clear chat leaf in KV store"
+        );
 
         // Let's don't break the flow just because of this
       });

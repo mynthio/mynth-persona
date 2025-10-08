@@ -8,7 +8,10 @@ export type TextGenerationModelId =
   | "meta-llama/llama-3.3-70b-instruct"
   | "z-ai/glm-4.5-air"
   | "deepseek/deepseek-chat-v3.1"
-  | "aion-labs/aion-rp-llama-3.1-8b";
+  | "aion-labs/aion-rp-llama-3.1-8b"
+  | "openai/gpt-oss-20b"
+  | "meituan/longcat-flash-chat"
+  | "nvidia/nemotron-nano-9b-v2";
 
 export type Provider = {
   url?: string;
@@ -351,6 +354,96 @@ export const textGenerationModels: Record<
     cost: {
       roleplay: 0,
       story: 1,
+    },
+  },
+  "openai/gpt-oss-20b": {
+    enabled: true,
+    isFreeVersionAvailable: true,
+    description:
+      "An open-weight MoE model from OpenAI, strong at tool use and controllable reasoning. Great for lively, steerable roleplay with fast, low-latency exchanges and consistent persona adherence.",
+    style:
+      "Maintains character reliably over long chats; adaptive tone with clear, concise replies. Handles agent-style function calls smoothly; can be playful, flirty, or serious depending on cues; assertive when asked for dramatic conflict.",
+    displayName: "OpenAI GPT‑OSS 20B",
+    modelId: "openai/gpt-oss-20b",
+    uncensored: true,
+    perks: [
+      "configurable reasoning effort for speed vs. depth",
+      "native function calling and structured outputs",
+      "runs efficiently with long context windows",
+    ],
+    tags: ["open", "moe", "agentic"],
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "no",
+      storesMessages: "yes",
+      additionalNotes:
+        "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
+    },
+    cost: {
+      roleplay: 0,
+      story: 0,
+    },
+  },
+  "meituan/longcat-flash-chat": {
+    enabled: true,
+    isFreeVersionAvailable: true,
+    description:
+      "Large-scale MoE optimized for conversational and agentic tasks with 128K context. Excels at long, multi-turn roleplay threads and tool-aware interactions.",
+    style:
+      "Remembers long adventures; stays in character with coherent pacing. Confident, playful dialogue with capacity for complex multi-step scenes; can switch to assertive or dramatic tones on request.",
+    displayName: "LongCat Flash Chat",
+    modelId: "meituan/longcat-flash-chat",
+    uncensored: true,
+    perks: [
+      "128K context for extended stories",
+      "high-throughput MoE for snappy chats",
+      "strong tool-use for agentic roleplay",
+    ],
+    tags: ["moe", "long-context", "agentic"],
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "no",
+      storesMessages: "yes",
+      additionalNotes:
+        "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
+    },
+    cost: {
+      roleplay: 0,
+      story: 0,
+    },
+  },
+  "nvidia/nemotron-nano-9b-v2": {
+    enabled: true,
+    isFreeVersionAvailable: true,
+    description:
+      "NVIDIA’s 9B model tailored for both reasoning and non-reasoning tasks. Good for roleplay that benefits from optional step-by-step thinking without sacrificing responsiveness.",
+    style:
+      "Balances concise replies with controllable reasoning. Keeps character consistent; can expose or hide internal reasoning per system prompt; shifts between gentle and assertive tones for dramatic scenes.",
+    displayName: "Nemotron Nano 9B V2",
+    modelId: "nvidia/nemotron-nano-9b-v2",
+    uncensored: true,
+    perks: [
+      "toggle reasoning traces via system prompt",
+      "128K context for long threads",
+      "fast and lightweight for frequent interactions",
+    ],
+    tags: ["reasoning", "lightweight", "long-context"],
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "no",
+      storesMessages: "yes",
+      additionalNotes:
+        "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
+    },
+    cost: {
+      roleplay: 0,
+      story: 0,
     },
   },
 };

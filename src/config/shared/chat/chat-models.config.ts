@@ -44,5 +44,14 @@ export const chatConfig: ChatConfig = {
     {
       modelId: "aion-labs/aion-rp-llama-3.1-8b",
     },
+    {
+      modelId: "openai/gpt-oss-20b",
+    },
+    {
+      modelId: "meituan/longcat-flash-chat",
+    },
+    {
+      modelId: "nvidia/nemotron-nano-9b-v2",
+    },
   ],
 };

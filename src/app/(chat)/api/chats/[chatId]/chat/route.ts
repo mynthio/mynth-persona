@@ -27,6 +27,7 @@ import {
   PersonaVersionRoleplayData,
 } from "@/schemas";
 import { getChatMessagesData } from "@/data/messages/get-chat-messages.data";
+import { getChatByIdForUserCached } from "@/data/chats/get-chat.data";
 
 import { kv } from "@vercel/kv";
 import { burnSparks } from "@/services/sparks/sparks.service";
@@ -100,24 +101,7 @@ export async function POST(
   /**
    * FETCH CHAT
    */
-  const chat = await db.query.chats.findFirst({
-    where: and(eq(chats.id, chatId), eq(chats.userId, userId)),
-    with: {
-      chatPersonas: {
-        columns: {
-          settings: true,
-        },
-        with: {
-          personaVersion: {
-            columns: {
-              roleplayData: true,
-              personaId: true,
-            },
-          },
-        },
-      },
-    },
-  });
+  const chat = await getChatByIdForUserCached(chatId, userId);
 
   if (!chat) notFound();
 

@@ -13,6 +13,10 @@ export const getImageUrl = (
   return `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/personas/${imageId}${suffix}.webp`;
 };
 
+export const getVideoUrl = (mediaId: string) => {
+  return `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/media/${mediaId}.webm`;
+};
+
 /**
  * Adds an item to a collection organized by keys, avoiding duplicates.
  * @param prev The previous collection state, or undefined if creating a new collection

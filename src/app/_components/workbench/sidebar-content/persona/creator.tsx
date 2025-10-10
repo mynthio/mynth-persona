@@ -286,7 +286,7 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
             status={
               personaGenerationStore.isGenerating ? "submitted" : undefined
             }
-            size="icon"
+            size="icon-sm"
             disabled={!prompt.trim() || personaGenerationStore.isGenerating}
             className="size-10 shadow-none transition duration-250 hover:scale-110 bg-gradient-to-tr from-zinc-100 to-zinc-100/70 hover:to-zinc-100/80 text-sm text-zinc-600"
           />

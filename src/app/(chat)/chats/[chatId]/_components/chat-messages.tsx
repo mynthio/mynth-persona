@@ -21,20 +21,32 @@ import {
   BrainIcon,
   CaretLeftIcon,
   CaretRightIcon,
+  CircleNotchIcon,
+  CopyIcon,
   PencilSimpleIcon,
+  SpinnerIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
 import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
 import { Response } from "@/components/mynth-ui/ai/response";
-import { TextareaAutosize } from "@/components/ui/textarea";
+import { TextareaAutosize } from "@/components/mynth-ui/base/textarea";
 import { nanoid } from "nanoid";
 import { useUser } from "@clerk/nextjs";
 import { useChatPersonas } from "../_contexts/chat-personas.context";
 import { cn, getImageUrl } from "@/lib/utils";
 import { ApiChatMessagesResponse } from "@/app/(chat)/api/chats/[chatId]/messages/route";
 import { Link } from "@/components/ui/link";
+import { Label } from "@/components/mynth-ui/base/label";
+import {
+  Menu,
+  MenuItem,
+  MenuPopup,
+  MenuPositioner,
+  MenuTrigger,
+} from "@/components/mynth-ui/base/menu";
+import { useCopyToClipboard } from "@uidotdev/usehooks";
 
 type ChatMessagesProps = {
   initialMessages: PersonaUIMessage[];
@@ -241,13 +253,80 @@ function ChatMessage(props: ChatMessageProps) {
             ))
           )}
         </MessageContent>
-        {avatarUrl && (
-          <MessageAvatar src={avatarUrl} fallback={user?.username ?? "??"} />
-        )}
+
+        <Menu modal={false}>
+          <MenuTrigger>
+            <MessageAvatar src={avatarUrl ?? undefined} fallback={" "} />
+          </MenuTrigger>
+
+          <MenuPositioner
+            side={"top"}
+            align={props.message.role === "assistant" ? "start" : "end"}
+          >
+            <MenuPopup>
+              {props.message.role === "user" ? (
+                <UserMessageMenuContent message={props.message} />
+              ) : (
+                <AssistantMessageMenuContent message={props.message} />
+              )}
+            </MenuPopup>
+          </MenuPositioner>
+        </Menu>
       </div>
 
       <ChatMessageActions message={props.message} />
     </Message>
+  );
+}
+
+type ChatMessageMenuContentProps = {
+  message: PersonaUIMessage;
+};
+
+function UserMessageMenuContent(props: ChatMessageMenuContentProps) {
+  const [copiedText, copyToClipboard] = useCopyToClipboard();
+  const { setEditMessageId } = useChatMain();
+
+  const handleCopy = useCallback(() => {
+    copyToClipboard(
+      props.message.parts
+        ?.map((p) => (p.type === "text" ? p.text : ""))
+        .join("")
+    );
+  }, [copyToClipboard, props.message.parts]);
+
+  return (
+    <>
+      <MenuItem onClick={handleCopy} icon={<CopyIcon />}>
+        Copy message
+      </MenuItem>
+      <MenuItem
+        onClick={() => setEditMessageId(props.message.id)}
+        icon={<PencilSimpleIcon />}
+      >
+        Edit message
+      </MenuItem>
+    </>
+  );
+}
+
+function AssistantMessageMenuContent(props: ChatMessageMenuContentProps) {
+  const [copiedText, copyToClipboard] = useCopyToClipboard();
+
+  const handleCopy = useCallback(() => {
+    copyToClipboard(
+      props.message.parts
+        ?.map((p) => (p.type === "text" ? p.text : ""))
+        .join("")
+    );
+  }, [copyToClipboard, props.message.parts]);
+
+  return (
+    <>
+      <MenuItem onClick={handleCopy} icon={<CopyIcon />}>
+        Copy message
+      </MenuItem>
+    </>
   );
 }
 
@@ -391,6 +470,21 @@ function ReasoningIndicator(props: { messageId: string }) {
   );
 }
 
+/**
+ * Custom hook to efficiently determine if a message is the last one during streaming
+ */
+function useIsLastMessageStreaming(messageId: string) {
+  const messages = useChatMessages<PersonaUIMessage>();
+  const status = useChatStatus();
+
+  return React.useMemo(() => {
+    const isLastMessage =
+      messages.length > 0 && messages[messages.length - 1]?.id === messageId;
+    const isStreaming = status === "streaming";
+    return isLastMessage && isStreaming;
+  }, [messages, messageId, status]);
+}
+
 type ChatMessageActions = {
   message: PersonaUIMessage;
 };
@@ -399,6 +493,9 @@ function ChatMessageActions(props: ChatMessageActions) {
   const { message } = props;
 
   const { editMessageId } = useChatMain();
+
+  // Boolean constant for UI changes - determines when to show loading indicator instead of branches
+  const shouldShowLoadingIndicator = useIsLastMessageStreaming(message.id);
 
   if (editMessageId === message.id) return null;
 
@@ -413,10 +510,17 @@ function ChatMessageActions(props: ChatMessageActions) {
           <ButtonGroup.Separator />
         </>
       )}
-      <ChatMessageBranches
-        messageId={message.id}
-        parentId={message.metadata?.parentId}
-      />
+      {shouldShowLoadingIndicator ? (
+        // You can replace this with your custom loading UI component
+        <Label variant="ghost">
+          <CircleNotchIcon className="animate-spin" />
+        </Label>
+      ) : (
+        <ChatMessageBranches
+          messageId={message.id}
+          parentId={message.metadata?.parentId}
+        />
+      )}
 
       {message.role === "user" && (
         <>

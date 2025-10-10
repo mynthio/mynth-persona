@@ -58,6 +58,7 @@ export async function GET(request: NextRequest) {
         publicName: personas.publicName,
         headline: personas.headline,
         profileImageId: personas.profileImageId,
+        profileSpotlightMediaId: personas.profileSpotlightMediaId,
         nsfwRating: personas.nsfwRating,
         gender: personas.gender,
         ageBucket: personas.ageBucket,

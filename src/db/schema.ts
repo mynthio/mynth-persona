@@ -44,6 +44,21 @@ export const nsfwRatingEnum = pgEnum("nsfw_rating", [
   "explicit",
 ]);
 
+// Media-specific enums
+export const mediaVisibilityEnum = pgEnum("media_visibility", [
+  "private",
+  "public",
+  "deleted",
+]);
+
+export const mediaTypeEnum = pgEnum("media_type", ["image", "video"]);
+
+export const mediaGenerationStatusEnum = pgEnum("media_generation_status", [
+  "pending",
+  "success",
+  "fail",
+]);
+
 export const personaGenderEnum = pgEnum("persona_gender", [
   "female",
   "male",
@@ -100,6 +115,17 @@ export const personas = pgTable(
     title: text("title"),
     currentVersionId: text("current_version_id"),
     profileImageId: text("profile_image_id"),
+    // New media-based profile fields (nullable to avoid impacting existing data)
+    profileImageIdMedia: text("profile_image_media_id").references(
+      () => media.id,
+      {
+        onDelete: "set null",
+      }
+    ),
+    profileSpotlightMediaId: text("profile_spotlight_media_id").references(
+      () => media.id,
+      { onDelete: "set null" }
+    ),
 
     visibility: personaVisibilityEnum("visibility")
       .notNull()
@@ -240,6 +266,71 @@ export const images = pgTable("images", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Media generations - generic generation jobs for media (image/video)
+export const mediaGenerations = pgTable(
+  "media_generations",
+  {
+    id: text("id").primaryKey(),
+    metadata: jsonb("metadata"),
+    settings: jsonb("settings"),
+    cost: integer("cost").notNull().default(0),
+    status: mediaGenerationStatusEnum("status").notNull().default("pending"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    completedAt: timestamp("completed_at"),
+  },
+  (t) => [index("media_generations_status_idx").on(t.status)]
+);
+
+// Media table - unified storage for images and videos
+export const media = pgTable(
+  "media",
+  {
+    id: text("id").primaryKey(),
+    personaId: text("persona_id")
+      .notNull()
+      .references((): AnyPgColumn => personas.id, { onDelete: "cascade" }),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    generationId: text("generation_id").references(() => mediaGenerations.id, {
+      onDelete: "set null",
+    }),
+    visibility: mediaVisibilityEnum("visibility").notNull().default("private"),
+    metadata: jsonb("metadata"),
+    type: mediaTypeEnum("type").notNull(),
+    nsfw: nsfwRatingEnum("nsfw").notNull().default("sfw"),
+    // Reaction and engagement aggregates for filtering and sorting
+    likesCount: integer("likes_count").notNull().default(0),
+    commentsCount: integer("comments_count").notNull().default(0),
+    votesUp: integer("votes_up").notNull().default(0),
+    votesDown: integer("votes_down").notNull().default(0),
+    ratingAveragePercentage: smallint("rating_average_percentage")
+      .notNull()
+      .default(0), // 0-100 percentage for average rating
+    // Publishing anonymity flag
+    isCreatorAnonymous: boolean("is_creator_anonymous")
+      .notNull()
+      .default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    index("media_persona_id_idx").on(t.personaId),
+    index("media_user_id_idx").on(t.userId),
+    index("media_visibility_idx").on(t.visibility),
+    index("media_type_idx").on(t.type),
+    index("media_likes_count_idx").on(t.likesCount),
+    index("media_comments_count_idx").on(t.commentsCount),
+    index("media_votes_up_idx").on(t.votesUp),
+    index("media_votes_down_idx").on(t.votesDown),
+    index("media_rating_average_percentage_idx").on(t.ratingAveragePercentage),
+    check(
+      "media_rating_average_percentage_check",
+      sql`${t.ratingAveragePercentage} >= 0 AND ${t.ratingAveragePercentage} <= 100`
+    ),
+  ]
+);
+
 // Tags table - predefined tags for personas
 export const tags = pgTable(
   "tags",
@@ -339,6 +430,14 @@ export const personasRelations = relations(personas, ({ one, many }) => ({
     fields: [personas.profileImageId],
     references: [images.id],
   }),
+  profileImageMedia: one(media, {
+    fields: [personas.profileImageIdMedia],
+    references: [media.id],
+  }),
+  profileSpotlightMedia: one(media, {
+    fields: [personas.profileSpotlightMediaId],
+    references: [media.id],
+  }),
   personaTags: many(personaTags),
 }));
 
@@ -417,6 +516,122 @@ export const imagesRelations = relations(images, ({ one }) => ({
   message: one(messages, {
     fields: [images.messageId],
     references: [messages.id],
+  }),
+}));
+
+export const mediaGenerationsRelations = relations(
+  mediaGenerations,
+  ({ many }) => ({
+    media: many(media),
+  })
+);
+
+// Media reactions: votes (thumbs up/down), likes (saves), comments
+export const mediaVotes = pgTable(
+  "media_votes",
+  {
+    mediaId: text("media_id")
+      .notNull()
+      .references(() => media.id, { onDelete: "cascade" }),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    isUpvote: boolean("is_upvote").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.mediaId, t.userId] }),
+    index("media_votes_is_upvote_idx").on(t.isUpvote),
+  ]
+);
+
+export const mediaComments = pgTable(
+  "media_comments",
+  {
+    id: text("id").primaryKey(),
+    mediaId: text("media_id")
+      .notNull()
+      .references(() => media.id, { onDelete: "cascade" }),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    metadata: jsonb("metadata"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [
+    index("media_comments_media_id_idx").on(t.mediaId),
+    index("media_comments_user_id_idx").on(t.userId),
+  ]
+);
+
+export const mediaLikes = pgTable(
+  "media_likes",
+  {
+    mediaId: text("media_id")
+      .notNull()
+      .references(() => media.id, { onDelete: "cascade" }),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.mediaId, t.userId] }),
+    index("media_likes_user_id_idx").on(t.userId),
+  ]
+);
+
+export const mediaRelations = relations(media, ({ one, many }) => ({
+  persona: one(personas, {
+    fields: [media.personaId],
+    references: [personas.id],
+  }),
+  user: one(users, {
+    fields: [media.userId],
+    references: [users.id],
+  }),
+  generation: one(mediaGenerations, {
+    fields: [media.generationId],
+    references: [mediaGenerations.id],
+  }),
+  votes: many(mediaVotes),
+  likes: many(mediaLikes),
+  comments: many(mediaComments),
+}));
+
+export const mediaVotesRelations = relations(mediaVotes, ({ one }) => ({
+  media: one(media, {
+    fields: [mediaVotes.mediaId],
+    references: [media.id],
+  }),
+  user: one(users, {
+    fields: [mediaVotes.userId],
+    references: [users.id],
+  }),
+}));
+
+export const mediaCommentsRelations = relations(mediaComments, ({ one }) => ({
+  media: one(media, {
+    fields: [mediaComments.mediaId],
+    references: [media.id],
+  }),
+  user: one(users, {
+    fields: [mediaComments.userId],
+    references: [users.id],
+  }),
+}));
+
+export const mediaLikesRelations = relations(mediaLikes, ({ one }) => ({
+  media: one(media, {
+    fields: [mediaLikes.mediaId],
+    references: [media.id],
+  }),
+  user: one(users, {
+    fields: [mediaLikes.userId],
+    references: [users.id],
   }),
 }));
 

@@ -24,6 +24,7 @@ export const publicPersonaListItemSchema = z.object({
   publicName: z.string(),
   headline: z.string(),
   profileImageId: z.string(),
+  profileSpotlightMediaId: z.string().nullable().optional(),
   nsfwRating: nsfwRatingEnumSchema,
   gender: genderEnumSchema,
   ageBucket: ageBucketEnumSchema,

@@ -1,58 +1,58 @@
-"use client";
+"use client"
 
-import * as React from "react";
-import { ScrollArea as BUScrollArea } from "@base-ui-components/react/scroll-area";
+import * as React from "react"
+import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
 function ScrollArea({
   className,
   children,
   ...props
-}: React.ComponentProps<typeof BUScrollArea.Root>) {
+}: React.ComponentProps<typeof ScrollAreaPrimitive.Root>) {
   return (
-    <BUScrollArea.Root
+    <ScrollAreaPrimitive.Root
       data-slot="scroll-area"
-      className={cn("relative overflow-hidden", className)}
+      className={cn("relative", className)}
       {...props}
     >
-      <BUScrollArea.Viewport
+      <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
-        className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1 overflow-y-auto overscroll-contain touch-pan-y min-h-0 max-h-full"
+        className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1"
       >
         {children}
-      </BUScrollArea.Viewport>
+      </ScrollAreaPrimitive.Viewport>
       <ScrollBar />
-      <BUScrollArea.Corner />
-    </BUScrollArea.Root>
-  );
+      <ScrollAreaPrimitive.Corner />
+    </ScrollAreaPrimitive.Root>
+  )
 }
 
 function ScrollBar({
   className,
   orientation = "vertical",
   ...props
-}: React.ComponentProps<typeof BUScrollArea.Scrollbar>) {
+}: React.ComponentProps<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>) {
   return (
-    <BUScrollArea.Scrollbar
+    <ScrollAreaPrimitive.ScrollAreaScrollbar
       data-slot="scroll-area-scrollbar"
       orientation={orientation}
       className={cn(
-        "flex touch-none select-none transition-colors duration-200 ease-in-out",
+        "flex touch-none p-px transition-colors select-none",
         orientation === "vertical" &&
-          "h-full w-1.5 border-l border-l-transparent p-[1px] hover:w-2.5",
+          "h-full w-2.5 border-l border-l-transparent",
         orientation === "horizontal" &&
-          "h-1.5 flex-col border-t border-t-transparent p-[1px] hover:h-2.5",
+          "h-2.5 flex-col border-t border-t-transparent",
         className
       )}
       {...props}
     >
-      <BUScrollArea.Thumb
+      <ScrollAreaPrimitive.ScrollAreaThumb
         data-slot="scroll-area-thumb"
-        className="bg-surface/20 hover:bg-surface/30 relative flex-1 rounded-full transition-colors duration-200"
+        className="bg-border relative flex-1 rounded-full"
       />
-    </BUScrollArea.Scrollbar>
-  );
+    </ScrollAreaPrimitive.ScrollAreaScrollbar>
+  )
 }
 
-export { ScrollArea, ScrollBar };
+export { ScrollArea, ScrollBar }

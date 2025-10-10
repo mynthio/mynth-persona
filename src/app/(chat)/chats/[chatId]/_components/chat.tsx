@@ -11,9 +11,20 @@ import { DefaultChatTransport } from "ai";
 import { FormEvent } from "react";
 import {
   PromptInput,
+  PromptInputActionMenu,
+  PromptInputActionMenuContent,
+  PromptInputActionMenuTrigger,
   PromptInputBody,
   PromptInputMessage,
+  PromptInputModelSelect,
+  PromptInputModelSelectContent,
+  PromptInputModelSelectItem,
+  PromptInputModelSelectTrigger,
+  PromptInputModelSelectValue,
+  PromptInputSubmit,
   PromptInputTextarea,
+  PromptInputToolbar,
+  PromptInputTools,
 } from "@/components/mynth-ui/ai/prompt-input";
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
@@ -141,13 +152,55 @@ function ChatPrompt() {
   return (
     <PromptInput
       onSubmit={handleSubmit}
-      className="sticky mb-[12px] shrink-0 bottom-[12px] w-full max-w-[40rem] mx-auto"
+      className="sitcky max-w-[680px] bottom-[16px] mb-[12px]"
     >
       <PromptInputBody>
+        <PromptInputTextarea className="" />
+      </PromptInputBody>
+
+      <PromptInputToolbar>
+        <PromptInputTools>
+          <ButtonGroup>
+            <ChatModelSelector />
+            <ButtonGroup.Separator />
+            <Button
+              size="icon"
+              onClick={() => openSettings()}
+              aria-label="Open settings"
+            >
+              <SlidersHorizontalIcon />
+            </Button>
+          </ButtonGroup>
+        </PromptInputTools>
+
+        <Button
+          color="primary"
+          size="icon"
+          disabled={status === "ready" || status === "streaming"}
+        >
+          {status === "error" ? (
+            <ArrowsClockwiseIcon />
+          ) : status === "streaming" || status === "submitted" ? (
+            <CircleNotchIcon className="animate-spin" />
+          ) : (
+            <PaperPlaneTiltIcon />
+          )}
+        </Button>
+      </PromptInputToolbar>
+    </PromptInput>
+  );
+
+  return (
+    <PromptInput
+      onSubmit={handleSubmit}
+      className="sticky mb-[12px] shrink-0 bottom-[12px] w-full max-w-[40rem] mx-auto"
+    >
+      <PromptInputBody className="w-full max-w-full">
         <PromptInputTextarea
           disabled={status !== "ready"}
           placeholder="Write a message..."
           aria-label="Message Input"
+          className="w-full"
         />
       </PromptInputBody>
       <ButtonGroup className="py-[12px] md:py-[20px] px-[20px] w-full">

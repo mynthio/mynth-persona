@@ -1,6 +1,6 @@
 "use client";
 
-import { TextareaAutosize } from "@/components/ui/textarea";
+import { TextareaAutosize } from "@/components/mynth-ui/base/textarea";
 import { useEffect, useRef, useState } from "react";
 import {
   CaretUpIcon,
@@ -194,23 +194,22 @@ export default function PersonaCreator({
                   transition={{ duration: 0.2, ease: "easeInOut" }}
                 >
                   <Tooltip>
-                    <TooltipTrigger
-                      render={
-                        <button
-                          onClick={() => {
-                            try {
-                              posthog.capture("random_persona_clicked", {
-                                model,
-                              });
-                              posthog.capture("persona_generation_requested", {
-                                mode: "random",
-                                model,
-                              });
-                            } catch {}
-                            onGenerate("Random", { model });
-                          }}
-                          type="button"
-                          className="
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => {
+                          try {
+                            posthog.capture("random_persona_clicked", {
+                              model,
+                            });
+                            posthog.capture("persona_generation_requested", {
+                              mode: "random",
+                              model,
+                            });
+                          } catch {}
+                          onGenerate("Random", { model });
+                        }}
+                        type="button"
+                        className="
                     font-onest font-bold cursor-pointer
                     flex items-center justify-center gap-[12px] 
                     text-[1.05rem]
@@ -218,11 +217,10 @@ export default function PersonaCreator({
                     transition-all duration-250
                     hover:bg-surface-100/50 hover:scale-105 active:scale-100
                     "
-                        >
-                          <ShuffleIcon weight="bold" size={16} />
-                        </button>
-                      }
-                    />
+                      >
+                        <ShuffleIcon weight="bold" size={16} />
+                      </button>
+                    </TooltipTrigger>
                     <TooltipPopup>
                       <p>Generate a random persona</p>
                     </TooltipPopup>
@@ -286,7 +284,7 @@ const models = [
     label: <>Grok 3 Mini</>,
   },
   {
-    value: "x-ai/grok-4-fast:free",
+    value: "x-ai/grok-4-fast",
     label: <>Grok 4 Fast (BETA)</>,
   },
   {

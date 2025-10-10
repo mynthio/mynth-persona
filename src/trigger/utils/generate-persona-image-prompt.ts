@@ -75,7 +75,7 @@ export async function craftImagePromptForPersona(
   });
 
   const openRouter = getOpenRouter();
-  const model = openRouter("x-ai/grok-4-fast:free", {
+  const model = openRouter("x-ai/grok-4-fast", {
     models: ["moonshotai/kimi-k2-0905"],
   });
 

@@ -50,6 +50,13 @@
       "when": 1759679179900,
       "tag": "0006_slippery_scarlet_spider",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1760132249694,
+      "tag": "0007_aberrant_talisman",
+      "breakpoints": true
     }
   ]
 }

@@ -7,7 +7,7 @@ export type AvatarProps = {
 
 export function Avatar(props: AvatarProps) {
   return (
-    <AvatarPrimitive.Root className="inline-flex shrink-0 size-[38px] items-center justify-center overflow-hidden rounded-[16px] bg-gray-100 align-middle text-base font-medium text-black select-none">
+    <AvatarPrimitive.Root className="inline-flex shrink-0 size-[38px] items-center justify-center overflow-hidden rounded-[16px] bg-surface-200 align-middle text-base font-medium text-black select-none">
       <AvatarPrimitive.Image
         src={props.src}
         className="size-full object-cover"

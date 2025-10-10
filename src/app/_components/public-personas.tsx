@@ -1,9 +1,9 @@
 "use client";
 
 import { PublicPersonaListItem } from "@/schemas/shared/persona-public.schema";
-import { getImageUrl } from "@/lib/utils";
+import { getImageUrl, getVideoUrl } from "@/lib/utils";
 import { Masonry, useInfiniteLoader } from "masonic";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   CircleNotchIcon,
@@ -261,12 +261,70 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
   );
   const imageHeight = [520, 580, 620][variationSeed % 3];
 
+  const hasVideo = Boolean(persona.profileSpotlightMediaId);
+  const videoUrl = hasVideo ? getVideoUrl(persona.profileSpotlightMediaId as string) : undefined;
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [isVideoVisible, setVideoVisible] = useState(false);
+  const [hasPlayedOnce, setHasPlayedOnce] = useState(false);
+
+  useEffect(() => {
+    if (!hasVideo || !videoRef.current) return;
+
+    const el = videoRef.current;
+    let observer: IntersectionObserver | null = null;
+
+    const tryPlay = () => {
+      if (!el) return;
+      if (hasPlayedOnce) return;
+      el.play().catch(() => {
+        // Autoplay might be blocked; we'll rely on hover
+      });
+    };
+
+    // Prefer IntersectionObserver; fallback to immediate attempt
+    if (typeof IntersectionObserver !== "undefined") {
+      observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            tryPlay();
+            break;
+          }
+        }
+      }, { threshold: 0.25 });
+      observer.observe(el);
+    } else {
+      tryPlay();
+    }
+
+    return () => {
+      if (observer && el) observer.unobserve(el);
+      observer = null;
+    };
+  }, [hasVideo, hasPlayedOnce]);
+
+  const onVideoEnded = useCallback(() => {
+    setVideoVisible(false);
+    setHasPlayedOnce(true);
+  }, []);
+
+  const onVideoPlay = useCallback(() => {
+    setVideoVisible(true);
+  }, []);
+
+  const onHoverReplay = useCallback(() => {
+    if (!hasVideo || !videoRef.current) return;
+    // Replay on hover; make it visible again
+    videoRef.current.currentTime = 0;
+    videoRef.current.play().catch(() => {});
+  }, [hasVideo]);
+
   return (
     <Link
       href={`/personas/${persona.slug}`}
       className="rounded-[24px] overflow-hidden group relative bg-background flex flex-col justify-between hover:scale-101 transition-all duration-250 shadow-xl shadow-zinc-300/0 hover:shadow-zinc-800/10"
       style={{ height: imageHeight }}
       prefetch={false}
+      onMouseEnter={onHoverReplay}
     >
       <div className="flex items-center gap-[6px] justify-end z-10 p-[11px]">
         <div
@@ -294,7 +352,7 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
           {persona.headline}
         </div>
       </div>
-
+      {/* Base image as poster and fallback */}
       <img
         className="w-full h-full block absolute           
           top-0 left-0 right-0 bottom-0 
@@ -303,6 +361,24 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
         alt={persona.headline || persona.publicName || "Persona"}
         loading="lazy"
       />
+
+      {/* Spotlight video overlay (plays once, then hides; hover to replay) */}
+      {hasVideo && videoUrl ? (
+        <video
+          ref={videoRef}
+          className={`w-full h-full absolute top-0 left-0 right-0 bottom-0 object-cover transition-opacity duration-200 ${
+            isVideoVisible ? "opacity-100" : "opacity-0"
+          }`}
+          src={videoUrl}
+          poster={getImageUrl(persona.profileImageId)}
+          muted
+          playsInline
+          preload="metadata"
+          onPlay={onVideoPlay}
+          onEnded={onVideoEnded}
+          crossOrigin="anonymous"
+        />
+      ) : null}
     </Link>
   );
 }

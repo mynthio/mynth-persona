@@ -12,15 +12,15 @@ const labelVariants = cva(
     variants: {
       variant: {
         default: "border-[2px]",
+        ghost: "border-none bg-none",
         outline: "border-[2px]",
       },
       color: {
         default:
-          "text-surface-foreground/80 disabled:text-surface-foreground/30 hover:bg-surface-100/50 hover:text-surface-foreground",
+          "text-surface-foreground/80 disabled:text-surface-foreground/30",
         primary: "bg-primary text-primary-foreground",
-        red: "text-rose-800 bg-rose-200/50 border-rose-200 hover:bg-rose-100/20",
-        green:
-          "text-emerald-800 bg-emerald-200/50 border-emerald-200 hover:bg-emerald-100/20",
+        red: "text-rose-800 bg-rose-200/50 border-rose-200",
+        green: "text-emerald-800 bg-emerald-200/50 border-emerald-200",
       },
       size: {
         default: "text-[0.95rem] h-[40px] px-[16px] rounded-[17px] gap-[12px]",

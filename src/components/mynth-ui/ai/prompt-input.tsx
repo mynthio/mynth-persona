@@ -17,7 +17,7 @@ export const PromptInput = (props: PromptInputProps) => {
     <PromptInputBase.PromptInput
       {...props}
       className={cn(
-        "bg-white border-surface-100 rounded-[32px] divide-none",
+        "bg-white outline-[2px] outline-surface-100 rounded-[32px] divide-none border-none",
         props.className
       )}
     />

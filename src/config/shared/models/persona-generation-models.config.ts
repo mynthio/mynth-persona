@@ -1,10 +1,9 @@
 export const personaGenerationModelIds = [
   "auto",
-  "thedrummer/anubis-70b-v1.1",
   "meta-llama/llama-4-maverick",
   "moonshotai/kimi-k2-0905",
   "x-ai/grok-3-mini",
-  "x-ai/grok-4-fast:free",
+  "x-ai/grok-4-fast",
   "sao10k/l3.3-euryale-70b",
 ] as const;
 
@@ -23,10 +22,6 @@ export const personaGenerationModelWeights: PersonaGenerationModelWeight[] = [
     priority: 0,
   },
   {
-    id: "thedrummer/anubis-70b-v1.1",
-    priority: 0.5,
-  },
-  {
     id: "meta-llama/llama-4-maverick",
     priority: 0.2,
   },
@@ -39,7 +34,7 @@ export const personaGenerationModelWeights: PersonaGenerationModelWeight[] = [
     priority: 0.3,
   },
   {
-    id: "x-ai/grok-4-fast:free",
+    id: "x-ai/grok-4-fast",
     priority: 0.5,
   },
   {

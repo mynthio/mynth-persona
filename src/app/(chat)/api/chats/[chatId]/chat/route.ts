@@ -33,6 +33,7 @@ import { getChatByIdForUserCached } from "@/data/chats/get-chat.data";
 import { kv } from "@vercel/kv";
 import { burnSparks } from "@/services/sparks/sparks.service";
 import { FreeModelChatRateLimit, rateLimitGuard } from "@/lib/rate-limit";
+import ms from "ms";
 
 export const maxDuration = 45;
 
@@ -81,6 +82,39 @@ const normalizeError = (error: unknown): Record<string, unknown> => {
   }
 
   return { message: String(error) };
+};
+
+// Minimal error serializer for generation errors to avoid logging stream chunks
+const toMinimalError = (
+  error: unknown
+): { name?: string; message: string; code?: string | number } => {
+  const candidate =
+    error && typeof error === "object" && "error" in (error as any)
+      ? (error as any).error
+      : error;
+
+  if (candidate instanceof Error) {
+    return { name: candidate.name, message: candidate.message };
+  }
+
+  if (candidate && typeof candidate === "object") {
+    const obj = candidate as any;
+    const name = typeof obj.name === "string" ? obj.name : undefined;
+    const code =
+      typeof obj.code === "string" || typeof obj.code === "number"
+        ? obj.code
+        : undefined;
+    const message =
+      typeof obj.message === "string" ? obj.message : String(error);
+
+    return {
+      ...(name ? { name } : {}),
+      message,
+      ...(code !== undefined ? { code } : {}),
+    };
+  }
+
+  return { message: String(candidate ?? "unknown") };
 };
 
 export async function POST(
@@ -273,10 +307,15 @@ export async function POST(
     generateId: () => `msg_${nanoid(32)}`,
 
     execute: async ({ writer }) => {
+      // Guard to ensure single error handling per stream
+      let hasStreamErrorHandled = false;
+
       const result = streamText({
         model,
         system,
         messages,
+
+        abortSignal: AbortSignal.timeout(ms("40s")),
 
         experimental_transform: smoothStream({ chunking: "word" }),
 
@@ -284,11 +323,16 @@ export async function POST(
          * ON ERROR
          */
         onError: async (error) => {
+          // Prevent multiple error handling for a single stream
+          if (hasStreamErrorHandled) {
+            return;
+          }
+          hasStreamErrorHandled = true;
           logger.error(
             {
               event: "generation-error",
               component: "api:chat",
-              error: normalizeError(error),
+              error: toMinimalError(error),
             },
             "Text generation failed"
           );
@@ -373,14 +417,6 @@ export async function POST(
         },
       });
 
-      // Non-blocking: bump chat updated_at after assistant finishes
-      after(async () => {
-        await db
-          .update(chats)
-          .set({ updatedAt: sql`now()` })
-          .where(eq(chats.id, chatId));
-      });
-
       logger.debug(
         {
           systemPromptId: systemPromptDefinition.id,
@@ -390,6 +426,14 @@ export async function POST(
         "Metadata"
       );
     },
+  });
+
+  // Non-blocking: bump chat updated_at after assistant finishes
+  after(async () => {
+    await db
+      .update(chats)
+      .set({ updatedAt: sql`now()` })
+      .where(eq(chats.id, chatId));
   });
 
   return createUIMessageStreamResponse({

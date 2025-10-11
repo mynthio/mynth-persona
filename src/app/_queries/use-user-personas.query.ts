@@ -1,5 +1,10 @@
-import useSWR, { SWRConfiguration } from "swr";
+import useSWR, {
+  SWRConfiguration,
+  useSWRConfig,
+  type MutatorOptions,
+} from "swr";
 import { fetcher } from "@/lib/fetcher";
+import { useAuth } from "@clerk/nextjs";
 
 export type UserPersonaListItem = {
   id: string;
@@ -40,4 +45,34 @@ export const useUserPersonasQuery = (
     revalidateOnFocus: false,
     ...config,
   });
+};
+
+export const useUserPersonasMutation = (
+  params?: UseUserPersonasParams,
+  options?: MutatorOptions
+) => {
+  const { mutate } = useSWRConfig();
+  const { isSignedIn } = useAuth();
+
+  const query = new URLSearchParams();
+  if (params?.q) query.set("q", params.q);
+  if (params?.cursorCreatedAt)
+    query.set("cursorCreatedAt", params.cursorCreatedAt);
+  if (params?.cursorId) query.set("cursorId", params.cursorId);
+
+  const key = isSignedIn
+    ? `/api/personas${query.toString() ? `?${query.toString()}` : ""}`
+    : null;
+
+  return (
+    mutator: (
+      data: UserPersonasResponse | undefined
+    ) => UserPersonasResponse | undefined,
+    opts?: MutatorOptions
+  ) =>
+    mutate<UserPersonasResponse | undefined>(key, mutator, {
+      revalidate: false,
+      ...(options ?? {}),
+      ...(opts ?? {}),
+    });
 };

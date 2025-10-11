@@ -50,6 +50,7 @@ import {
   personaNewCustomPropertyNameSchema,
 } from "@/schemas/shared/persona/persona-property-name.schema";
 import { CreateChatButton } from "@/components/create-chat-button";
+import { useUserPersonasMutation } from "@/app/_queries/use-user-personas.query";
 
 dayjs.extend(relativeTime);
 
@@ -62,6 +63,7 @@ const PublicPersonas = dynamic(() => import("./public-personas"), {
 
 export default function Home() {
   const { isSignedIn } = useUser();
+  const mutateUserPersonas = useUserPersonasMutation();
   const [isCreator, setIscreator] = useQueryState(
     "creator",
     parseAsBoolean.withOptions({ history: "push" }).withDefault(false)
@@ -101,6 +103,33 @@ export default function Home() {
       setActiveStream(null);
       if (data.object?.personaId) {
         setPersonaId(data.object.personaId);
+        // Locally add the new persona to the user's personas list without revalidation
+        if (isSignedIn) {
+          mutateUserPersonas((state) => {
+            const createdAt = new Date().toISOString();
+            const newItem = {
+              id: data.object!.personaId!,
+              title: data.object?.persona?.title ?? null,
+              currentVersionId: data.object?.versionId ?? null,
+              profileImageId: null,
+              createdAt,
+            };
+
+            if (!state) {
+              return {
+                data: [newItem],
+                hasMore: true,
+                nextCreatedAt: null,
+                nextId: null,
+              };
+            }
+
+            return {
+              ...state,
+              data: [newItem, ...(state.data ?? [])],
+            };
+          });
+        }
       }
     },
   });

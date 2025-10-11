@@ -11,7 +11,7 @@ import {
 } from "ai";
 import { nanoid } from "nanoid";
 import { db } from "@/db/drizzle";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { chats, messages as messagesTable } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { getDefaultPromptDefinitionForMode } from "@/lib/prompts/registry";
@@ -21,6 +21,7 @@ import { refundTokens } from "@/services/token/token-manager.service";
 import { DEFAULT_CHAT_MODEL } from "@/config/shared/chat/chat-models.config";
 import { trackChatError } from "@/lib/logsnag";
 import { notFound } from "next/navigation";
+import { after } from "next/server";
 import { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 import {
   messageEventPayloadSchema,
@@ -196,6 +197,13 @@ export async function POST(
     });
   }
 
+  after(async () => {
+    await db
+      .update(chats)
+      .set({ updatedAt: sql`now()` })
+      .where(eq(chats.id, chatId));
+  });
+
   /**
    * COST
    */
@@ -363,6 +371,14 @@ export async function POST(
           usage: responseMessage.metadata?.usage,
           cost: responseMessage.metadata?.cost,
         },
+      });
+
+      // Non-blocking: bump chat updated_at after assistant finishes
+      after(async () => {
+        await db
+          .update(chats)
+          .set({ updatedAt: sql`now()` })
+          .where(eq(chats.id, chatId));
       });
 
       logger.debug(

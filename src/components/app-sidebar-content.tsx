@@ -19,7 +19,7 @@ import {
 
 import { useUserPersonasQuery } from "@/app/_queries/use-user-personas.query";
 import { getImageUrl } from "@/lib/utils";
-import { ScrollArea } from "./ui/scroll-area";
+import { ScrollArea } from "./mynth-ui/base/scroll-area";
 import { Search } from "./ui/search";
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";

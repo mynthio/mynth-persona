@@ -13,6 +13,7 @@ import {
   UserGearIcon,
   UserIcon,
   UsersThreeIcon,
+  InfoIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { Menu } from "@base-ui-components/react/menu";
 
@@ -22,10 +23,24 @@ import { cn } from "@/lib/utils";
 import { useClerk, useUser } from "@clerk/nextjs";
 import { useTokensBalance } from "@/app/_queries/use-tokens-balance.query";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "./ui/tooltip";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { Link } from "./ui/link";
 import { usePathname, useRouter } from "next/navigation";
-import { DISCORD_INVITE_URL } from "@/lib/constants";
+import {
+  DISCORD_INVITE_URL,
+  GITHUB_REPO_URL,
+  INSTAGRAM_PROFILE_URL,
+  X_PROFILE_URL,
+} from "@/lib/constants";
+import {
+  Menu as BaseMenu,
+  MenuTrigger as BaseMenuTrigger,
+  MenuPositioner as BaseMenuPositioner,
+  MenuPopup as BaseMenuPopup,
+  MenuItem as BaseMenuItem,
+  MenuSeparator as BaseMenuSeparator,
+  MenuArrow as BaseMenuArrow,
+} from "@/components/mynth-ui/base/menu";
 
 export function AppRail() {
   const { setView, open, setOpen, setOpenMobile } = useSidebar();
@@ -63,88 +78,90 @@ export function AppRail() {
             </RailSectionButton>
           </RailSection>
 
-          <RailSection>
-            <RailSectionButton
-              isActive={view === "personas"}
-              onPress={() => {
-                if (view !== "personas") {
-                  replace("/");
-                }
+          <AnimatePresence>
+            <RailSection>
+              <RailSectionButton
+                isActive={view === "personas"}
+                onPress={() => {
+                  if (view !== "personas") {
+                    replace("/");
+                  }
 
-                if (view === "personas" && open) {
-                  setOpen(false);
-                } else {
-                  setView("personas");
-                  setOpen(true);
-                }
+                  if (view === "personas" && open) {
+                    setOpen(false);
+                  } else {
+                    setView("personas");
+                    setOpen(true);
+                  }
 
-                if (view === "personas") setOpenMobile(true);
-              }}
-            >
-              <UsersThreeIcon />
-              {view === "personas" ? (
-                <motion.div
-                  layoutId="rail-button-active-indicator"
-                  id="rail-button-active-indicator"
-                  className="absolute bg-foreground/30 left-0 top-0 w-full h-full rounded-[12px]"
-                />
-              ) : null}
-            </RailSectionButton>
+                  if (view === "personas") setOpenMobile(true);
+                }}
+              >
+                <UsersThreeIcon />
+                {view === "personas" ? (
+                  <motion.div
+                    layoutId="rail-button-active-indicator"
+                    id="rail-button-active-indicator"
+                    className="absolute bg-foreground/30 left-0 top-0 w-full h-full rounded-[12px]"
+                  />
+                ) : null}
+              </RailSectionButton>
 
-            <RailSectionButton
-              isActive={view === "chats"}
-              onPress={() => {
-                if (view !== "chats") {
-                  replace("/chats");
-                }
+              <RailSectionButton
+                isActive={view === "chats"}
+                onPress={() => {
+                  if (view !== "chats") {
+                    replace("/chats");
+                  }
 
-                if (view === "chats" && open) {
-                  setOpen(false);
-                } else {
-                  setView("chats");
-                  setOpen(true);
-                }
+                  if (view === "chats" && open) {
+                    setOpen(false);
+                  } else {
+                    setView("chats");
+                    setOpen(true);
+                  }
 
-                if (view === "chats") setOpenMobile(true);
-              }}
-            >
-              <ChatsTeardropIcon />
-              {view === "chats" ? (
-                <motion.div
-                  layoutId="rail-button-active-indicator"
-                  id="rail-button-active-indicator"
-                  className="absolute bg-foreground/30 left-0 top-0 w-full h-full rounded-[12px]"
-                />
-              ) : null}
-            </RailSectionButton>
+                  if (view === "chats") setOpenMobile(true);
+                }}
+              >
+                <ChatsTeardropIcon />
+                {view === "chats" ? (
+                  <motion.div
+                    layoutId="rail-button-active-indicator"
+                    id="rail-button-active-indicator"
+                    className="absolute bg-foreground/30 left-0 top-0 w-full h-full rounded-[12px]"
+                  />
+                ) : null}
+              </RailSectionButton>
 
-            <RailSectionButton
-              isActive={view === "images"}
-              onPress={() => {
-                if (view !== "images") {
-                  replace("/images");
-                }
+              <RailSectionButton
+                isActive={view === "images"}
+                onPress={() => {
+                  if (view !== "images") {
+                    replace("/images");
+                  }
 
-                if (view === "images" && open) {
-                  setOpen(false);
-                } else {
-                  setView("images");
-                  setOpen(true);
-                }
+                  if (view === "images" && open) {
+                    setOpen(false);
+                  } else {
+                    setView("images");
+                    setOpen(true);
+                  }
 
-                if (view === "images") setOpenMobile(true);
-              }}
-            >
-              <ImagesIcon />
-              {view === "images" ? (
-                <motion.div
-                  layoutId="rail-button-active-indicator"
-                  id="rail-button-active-indicator"
-                  className="absolute bg-foreground/30 left-0 top-0 w-full h-full rounded-[12px]"
-                />
-              ) : null}
-            </RailSectionButton>
-          </RailSection>
+                  if (view === "images") setOpenMobile(true);
+                }}
+              >
+                <ImagesIcon />
+                {view === "images" ? (
+                  <motion.div
+                    layoutId="rail-button-active-indicator"
+                    id="rail-button-active-indicator"
+                    className="absolute bg-foreground/30 left-0 top-0 w-full h-full rounded-[12px]"
+                  />
+                ) : null}
+              </RailSectionButton>
+            </RailSection>
+          </AnimatePresence>
         </div>
         <RailsFooter />
       </div>
@@ -251,6 +268,45 @@ function RailsFooter() {
   return (
     <div className="flex md:flex-col items-center justify-center gap-[8px]">
       <div className="hidden md:flex md:flex-col items-center justify-center gap-[2px] mb-[12px]">
+        {/* Info menu */}
+        <BaseMenu>
+          <BaseMenuTrigger className="flex items-center justify-center size-[40px] md:size-[34px] rounded-[12px] hover:bg-foreground/10">
+            <InfoIcon />
+          </BaseMenuTrigger>
+          <BaseMenuPositioner align="end" side="right">
+            <BaseMenuPopup>
+              <BaseMenuItem onClick={() => push("/terms-of-service")}>
+                Terms of Use
+              </BaseMenuItem>
+              <BaseMenuItem onClick={() => push("/privacy-policy")}>
+                Privacy Policy
+              </BaseMenuItem>
+              <BaseMenuSeparator />
+              <BaseMenuItem
+                onClick={() => window.open(DISCORD_INVITE_URL, "_blank")}
+              >
+                Discord
+              </BaseMenuItem>
+              <BaseMenuItem
+                onClick={() => window.open(GITHUB_REPO_URL, "_blank")}
+              >
+                GitHub
+              </BaseMenuItem>
+              <BaseMenuItem
+                onClick={() => window.open(INSTAGRAM_PROFILE_URL, "_blank")}
+              >
+                Instagram
+              </BaseMenuItem>
+              <BaseMenuItem
+                onClick={() => window.open(X_PROFILE_URL, "_blank")}
+              >
+                X
+              </BaseMenuItem>
+              <BaseMenuArrow />
+            </BaseMenuPopup>
+          </BaseMenuPositioner>
+        </BaseMenu>
+
         <a
           href={DISCORD_INVITE_URL}
           target="_blank"

@@ -85,7 +85,7 @@ function MenuSeparator({
   return (
     <MenuPrimitive.Separator
       data-slot="menu-separator"
-      className={cn("-mx-1 my-1 h-px bg-surface-100", className)}
+      className={cn("mx-[12px] my-1.5 h-px bg-surface-200", className)}
       {...props}
     />
   );

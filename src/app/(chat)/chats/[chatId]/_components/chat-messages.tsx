@@ -50,6 +50,8 @@ import { useCopyToClipboard } from "@uidotdev/usehooks";
 
 type ChatMessagesProps = {
   initialMessages: PersonaUIMessage[];
+  containerRef: React.RefObject<HTMLDivElement>;
+  shouldScrollRef: React.MutableRefObject<boolean>;
 };
 
 export default function ChatMessages(props: ChatMessagesProps) {
@@ -58,6 +60,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
    */
   const messages = useChatMessages<PersonaUIMessage>();
   const chatError = useChatError();
+  const status = useChatStatus();
   const { setMessages, regenerate } = useChatActions();
 
   const { chatId } = useChatMain();
@@ -65,16 +68,26 @@ export default function ChatMessages(props: ChatMessagesProps) {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const internalContainerRef = useRef<HTMLDivElement>(null);
   const previousHeightRef = useRef(0);
   const previousScrollYRef = useRef(0);
 
   const [justPrepended, setJustPrepended] = useState(false);
   const [initialScrollDone, setInitialScrollDone] = useState(false);
 
+  // Use the passed ref or fallback to internal ref
+  const containerRef = props.containerRef || internalContainerRef;
+
   // Use initialMessages until the client store has loaded actual messages
   const displayMessages =
     messages.length > 0 ? messages : props.initialMessages;
+
+  // Add bottom padding when streaming to create space for assistant response
+  const isStreaming = status === "streaming" || status === "submitted";
+  // Provide baseline space for sticky prompt; expand slightly while streaming
+  const dynamicPaddingBottom = isStreaming
+    ? "clamp(160px, 24vh, 360px)"
+    : "128px";
 
   const loadMore = useCallback(async () => {
     const firstMessage = messages[0];
@@ -161,7 +174,11 @@ export default function ChatMessages(props: ChatMessagesProps) {
   if (displayMessages.length === 0) return null;
 
   return (
-    <div ref={containerRef} className="w-full h-full max-w-[42rem] mx-auto">
+    <div
+      ref={containerRef}
+      className="w-full h-full max-w-[42rem] mx-auto transition-[padding] duration-300"
+      style={{ paddingBottom: dynamicPaddingBottom }}
+    >
       {isLoadingMore && (
         <div className="text-center py-4">Loading older messages...</div>
       )}
@@ -232,7 +249,9 @@ function ChatMessage(props: ChatMessageProps) {
   return (
     <Message
       from={props.message.role}
-      className="py-[1.5rem] flex-col gap-[12px]"
+      className={`py-[1.5rem] flex-col gap-[12px] ${
+        props.message.role === "user" ? "scroll-mt-[80px]" : ""
+      }`}
     >
       <div className="w-full flex items-end justify-end group-[.is-assistant]:flex-row-reverse gap-[4px]">
         <MessageContent>

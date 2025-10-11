@@ -128,7 +128,7 @@ function ChatSettingsMobile(props: ChatSettingsMobileProps) {
         <Dialog.Backdrop className="fixed inset-0 z-overlay bg-background/20 backdrop-blur-[1px] transition-all duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 data-[starting-style]:backdrop-blur-none dark:opacity-70" />
         <Dialog.Popup
           className="fixed z-dialog left-0 right-0 bottom-0 w-full max-w-[100vw] h-auto min-h-auto max-h-[70vh]
-            rounded-t-[24px] bg-surface text-surface-foreground transition-all duration-250
+            rounded-t-[24px] bg-surface text-surface-foreground transition-all duration-250 overflow-hidden
             scale-[calc(1-0.03*var(--nested-dialogs))] data-[nested-dialog-open]:after:absolute data-[nested-dialog-open]:after:inset-0 data-[nested-dialog-open]:after:rounded-[inherit] data-[nested-dialog-open]:after:bg-background/10 data-[nested-dialog-open]:after:backdrop-blur-[1px] 
             data-[ending-style]:translate-y-[8%] data-[ending-style]:opacity-0 data-[starting-style]:translate-y-[8%] data-[starting-style]:opacity-0"
         >
@@ -139,7 +139,7 @@ function ChatSettingsMobile(props: ChatSettingsMobileProps) {
               <ChatSettingsMenu />
             </div>
           ) : (
-            <div className="relative w-full h-full">
+            <div className="relative w-full h-[70vh] min-h-0">
               <div className="absolute top-[16px] left-[12px] z-10">
                 <Button
                   onClick={() => navigateSettings("_")}
@@ -149,7 +149,7 @@ function ChatSettingsMobile(props: ChatSettingsMobileProps) {
                   Settings Menu
                 </Button>
               </div>
-              <ScrollArea className="h-full min-h-0 shrink-0">
+              <ScrollArea className="h-full w-full">
                 <div className="h-[80px]" />
                 <div className="px-[24px]">
                   <ChatSettingsContent />

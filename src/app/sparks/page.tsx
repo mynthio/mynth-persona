@@ -141,7 +141,8 @@ export default async function SparksPage({
                       Discord
                     </a>{" "}
                     and DM <span className="font-medium">@50bytesofjohn</span>{" "}
-                    with the email you use here. We’ll credit
+                    or <span className="font-medium">Persona</span>. We’ll
+                    credit
                     <span className="font-medium"> 100 Sparks</span> to your
                     account.
                   </p>

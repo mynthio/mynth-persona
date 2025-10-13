@@ -9,6 +9,7 @@ import {
   CircleNotchIcon,
   EyeClosedIcon,
   EyeIcon,
+  FadersHorizontalIcon,
   GenderFemaleIcon,
   GenderMaleIcon,
   GenderNonbinaryIcon,
@@ -18,6 +19,7 @@ import { useLocalStorage } from "@uidotdev/usehooks";
 import useSWRInfinite from "swr/infinite";
 import { fetcher } from "@/lib/fetcher";
 import { Menu } from "@base-ui-components/react/menu";
+import { Button } from "@/components/mynth-ui/base/button";
 
 export default function PublicPersonas() {
   const [includeNsfw, setIncludeNsfw] = useLocalStorage("show-nsfw", false);
@@ -90,14 +92,15 @@ export default function PublicPersonas() {
     revalidateFirstPage: false,
   });
 
+  // Reset pagination when filter changes to avoid mixing datasets
+  useEffect(() => {
+    setSize(1);
+  }, [includeNsfw, setSize]);
+
   const items = useMemo(
-    () => (data ? data.flatMap((page) => page.data) : []),
+    () => (data ? data.flatMap((page) => page?.data ?? []) : []),
     [data]
   );
-
-  const nsfwIcon = useMemo(() => {
-    return includeNsfw ? <EyeIcon /> : <EyeClosedIcon />;
-  }, [includeNsfw]);
 
   const hasMore = data ? data[data.length - 1]?.hasMore ?? false : true;
 
@@ -108,7 +111,7 @@ export default function PublicPersonas() {
       await setSize(size + 1);
     },
     {
-      isItemLoaded: (index, items) => !!items[index],
+      isItemLoaded: (index, items) => items[index] != null,
       threshold: 3,
     }
   );
@@ -123,37 +126,20 @@ export default function PublicPersonas() {
       </div>
     );
 
-  const nsfwOptions = [
-    {
-      label: "On",
-      value: "on",
-    },
-    {
-      label: "Off",
-      value: "off",
-    },
-  ];
-
   return (
     <div className="p-2 px-6">
       <div className="flex items-center justify-end gap-3 px-[24px] mb-[12px] z-50 relative">
         <Menu.Root>
-          <Menu.Trigger
-            className="uppercase cursor-pointer h-[42px] px-[16px] 
-          bg-surface border-[2px] border-surface-200/50 rounded-[11px]
-          text-[0.81rem] font-mono 
-          flex items-center justify-center gap-[9px]
-          text-surface-foreground/80
-          hover:scale-105 hover:text-surface-foreground hover:border-surface-200/80
-          transition-all
-          duration-225
-          "
-          >
-            Nsfw {nsfwIcon}
+          <Menu.Trigger render={<Button variant="outline" />}>
+            filters
+            <FadersHorizontalIcon />
           </Menu.Trigger>
           <Menu.Portal>
             <Menu.Positioner className="outline-none z-[100]" sideOffset={8}>
               <Menu.Popup className="z-50 w-[124px] p-[4px] origin-[var(--transform-origin)] rounded-[16px] bg-[canvas] text-gray-900 shadow-lg shadow-surface-foreground/30 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
+                <div className="px-[12px] py-[6px] text-xs font-medium text-surface-foreground/60 capitalize">
+                  mature content
+                </div>
                 <Menu.Item
                   onClick={() => setIncludeNsfw(false)}
                   className="flex cursor-default w-full
@@ -203,6 +189,7 @@ export default function PublicPersonas() {
       </div>
 
       <Masonry<PublicPersonaListItem>
+        key={includeNsfw ? "nsfw-on" : "nsfw-off"}
         items={items}
         columnGutter={16}
         columnWidth={320}
@@ -262,7 +249,9 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
   const imageHeight = [520, 580, 620][variationSeed % 3];
 
   const hasVideo = Boolean(persona.profileSpotlightMediaId);
-  const videoUrl = hasVideo ? getVideoUrl(persona.profileSpotlightMediaId as string) : undefined;
+  const videoUrl = hasVideo
+    ? getVideoUrl(persona.profileSpotlightMediaId as string)
+    : undefined;
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isVideoVisible, setVideoVisible] = useState(false);
   const [hasPlayedOnce, setHasPlayedOnce] = useState(false);
@@ -283,14 +272,17 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
 
     // Prefer IntersectionObserver; fallback to immediate attempt
     if (typeof IntersectionObserver !== "undefined") {
-      observer = new IntersectionObserver((entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            tryPlay();
-            break;
+      observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              tryPlay();
+              break;
+            }
           }
-        }
-      }, { threshold: 0.25 });
+        },
+        { threshold: 0.25 }
+      );
       observer.observe(el);
     } else {
       tryPlay();

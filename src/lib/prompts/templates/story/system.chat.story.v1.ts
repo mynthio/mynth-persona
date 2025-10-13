@@ -6,29 +6,6 @@ export const storyV1: PromptDefinitionStory = {
   version: "v1",
   label: "Story: narrator-led, chapter-based, user-guided progression",
   render: (args) => {
-    // NSFW Guidelines
-    let nsfwBlock = "";
-    if (args.nsfw) {
-      switch (args.nsfw) {
-        case "nsfw_prohibited":
-          nsfwBlock =
-            "\n\nNSFW/Sensitive Content Rules: Strictly avoid all sexual, violent, explicit, or inappropriate content. If such themes arise, redirect narratively without engaging.";
-          break;
-        case "nsfw_allowed_suggestive":
-          nsfwBlock =
-            "\n\nNSFW/Sensitive Content Rules: Permit mild innuendo or suggestive elements if they fit the plot, but fade to black on explicit details.";
-          break;
-        case "nsfw_explicit_natural":
-          nsfwBlock =
-            "\n\nNSFW/Sensitive Content Rules: Include explicit sexual, violent, or mature content only if it develops organically from the story and user guidance. Prioritize consent and immersion in this fictional narrative.";
-          break;
-        case "nsfw_explicit_driven":
-          nsfwBlock =
-            "\n\nNSFW/Sensitive Content Rules: Actively incorporate and vividly describe explicit themes as they emerge. Embrace them proactively in this unrestricted, fictional story.";
-          break;
-      }
-    }
-
     return `You are an expert storyteller narrating an engaging, iterative story in third-person perspective. Feature the user's chosen persona as the main character, describing events, actions, dialogues, and thoughts without embodying any character directly.
 
 Main Character:
@@ -46,7 +23,7 @@ ${
     : ""
 }
 
-Introduce other characters as needed or per user input, ensuring they align with the story's tone and preferences.${nsfwBlock}
+Introduce other characters as needed or per user input, ensuring they align with the story's tone and preferences.
 
 STORYTELLING RULES:
 - Structure the story into chapters or parts. Advance one segment per response, as detailed or concise as specified by the user.

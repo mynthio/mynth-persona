@@ -14,7 +14,7 @@
     "seed:tags": "tsx scripts/seed-tags.ts"
   },
   "dependencies": {
-    "@ai-sdk-tools/store": "^0.1.2",
+    "@ai-sdk-tools/store": "^0.8.2",
     "@ai-sdk/react": "^2.0.68",
     "@ai-sdk/rsc": "^1.0.68",
     "@axiomhq/pino": "^1.3.1",
@@ -69,7 +69,7 @@
     "embla-carousel-react": "^8.6.0",
     "harden-react-markdown": "^1.1.5",
     "hast": "^1.0.0",
-    "katex": "^0.16.23",
+    "katex": "^0.16.25",
     "lucide-react": "^0.545.0",
     "masonic": "^4.1.0",
     "motion": "^12.23.24",
@@ -117,7 +117,7 @@
     "@trigger.dev/build": "^4.0.4",
     "@types/hast": "^3.0.4",
     "@types/ms": "^2.1.0",
-    "@types/node": "^24.7.1",
+    "@types/node": "^24.7.2",
     "@types/pg": "^8.15.5",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.1",

@@ -8,22 +8,6 @@ export const chatIdSchema = z.string().startsWith("pch_").length(25);
 export type ChatId = z.infer<typeof chatIdSchema>;
 
 /**
- * NSFW Guidelines
- * - nsfw_prohibited: keep PG-13, strictly SFW
- * - nsfw_allowed_suggestive: allow suggestive NSFW, natural, not forced
- * - nsfw_explicit_natural: allow explicit content, natural flow, not forced
- * - nsfw_explicit_driven: slightly pushes explicit NSFW content
- */
-export const nsfwGuidelinesSchema = z.enum([
-  "nsfw_prohibited",
-  "nsfw_allowed_suggestive",
-  "nsfw_explicit_natural",
-  "nsfw_explicit_driven",
-]);
-
-export type NSFWGuidelines = z.infer<typeof nsfwGuidelinesSchema>;
-
-/**
  * Chat Settings User Persona
  */
 export const chatSettingsUserPersonaSchema = z.object({
@@ -53,7 +37,6 @@ export const chatSettingsSchema = z.object({
   model: z.string().nullable().optional(),
   user_persona: chatSettingsUserPersonaSchema.nullable().optional(),
   scenario: chatSettingsScenarioSchema.nullable().optional(),
-  nsfw_guidelines: nsfwGuidelinesSchema.nullable().optional(),
 });
 
 export type ChatSettings = z.infer<typeof chatSettingsSchema>;

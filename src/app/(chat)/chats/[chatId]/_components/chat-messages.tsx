@@ -24,7 +24,6 @@ import {
   CircleNotchIcon,
   CopyIcon,
   PencilSimpleIcon,
-  SpinnerIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
@@ -49,7 +48,6 @@ import {
 import { useCopyToClipboard } from "@uidotdev/usehooks";
 
 type ChatMessagesProps = {
-  initialMessages: PersonaUIMessage[];
   containerRef: React.RefObject<HTMLDivElement>;
   shouldScrollRef: React.MutableRefObject<boolean>;
 };
@@ -61,7 +59,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
   const messages = useChatMessages<PersonaUIMessage>();
   const chatError = useChatError();
   const status = useChatStatus();
-  const { setMessages, regenerate } = useChatActions();
+  const { setMessages, regenerate } = useChatActions<PersonaUIMessage>();
 
   const { chatId } = useChatMain();
 
@@ -78,9 +76,8 @@ export default function ChatMessages(props: ChatMessagesProps) {
   // Use the passed ref or fallback to internal ref
   const containerRef = props.containerRef || internalContainerRef;
 
-  // Use initialMessages until the client store has loaded actual messages
-  const displayMessages =
-    messages.length > 0 ? messages : props.initialMessages;
+  // Use messages from the store (Provider handles initial messages)
+  const displayMessages = messages;
 
   // Add bottom padding when streaming to create space for assistant response
   const isStreaming = status === "streaming" || status === "submitted";
@@ -108,7 +105,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
       console.log("Infinite response length", json.messages.length);
 
       const newMessages = json.messages.slice(0, -1);
-      setMessages((state) => [...newMessages, ...state] as any[]);
+      setMessages([...newMessages, ...messages]);
 
       setJustPrepended(true);
     } catch (error) {
@@ -357,8 +354,9 @@ type EditMessageProps = {
 
 function EditMessage(props: EditMessageProps) {
   const { setEditMessageId } = useChatMain();
-  const { regenerate, setMessages } = useChatActions();
+  const { regenerate, setMessages } = useChatActions<PersonaUIMessage>();
   const { addMessageToBranch } = useChatBranchesContext();
+  const messages = useChatMessages<PersonaUIMessage>();
 
   const initialMessage = props.parts.find((p) => p.type === "text")?.text ?? "";
 
@@ -380,8 +378,8 @@ function EditMessage(props: EditMessageProps) {
         },
       } as PersonaUIMessage;
 
-      setMessages((state) =>
-        state.map((stateMessage) =>
+      setMessages(
+        messages.map((stateMessage) =>
           stateMessage.id === props.messageId
             ? {
                 ...stateMessage,
@@ -578,7 +576,7 @@ type ChatMessageRegenerateProps = {
 function ChatMessageRegenerate(props: ChatMessageRegenerateProps) {
   const { messageId } = props;
 
-  const { regenerate } = useChatActions();
+  const { regenerate } = useChatActions<PersonaUIMessage>();
   const status = useChatStatus();
 
   return (
@@ -607,7 +605,7 @@ type ChatMessageBranchesProps = {
 function ChatMessageBranches(props: ChatMessageBranchesProps) {
   const { branches, branchId, setActiveId } = useChatBranchesContext();
   const { chatId } = useChatMain();
-  const { setMessages } = useChatActions();
+  const { setMessages } = useChatActions<PersonaUIMessage>();
 
   const branch = branches[props.parentId || ROOT_BRANCH_PARENT_ID] ?? [];
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/mynth-ui/base/button";
-import { useChatActions, useChatMessageCount } from "@ai-sdk-tools/store";
+import { useChatActions, useMessageCount } from "@ai-sdk-tools/store";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import { useChatPersonas } from "../_contexts/chat-personas.context";
 import { getImageUrl } from "@/lib/utils";
@@ -11,7 +11,7 @@ import { updateChatAction } from "@/actions/update-chat.action";
 import { useState } from "react";
 
 export function ChatIntro() {
-  const messagesCount = useChatMessageCount();
+  const messagesCount = useMessageCount();
   const { personas } = useChatPersonas();
   const { sendMessage } = useChatActions();
   const { navigateSettings } = useSettingsNavigation();

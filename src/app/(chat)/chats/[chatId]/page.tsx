@@ -14,6 +14,7 @@ import type { TextGenerationModelId } from "@/config/shared/models/text-generati
 import { ChatIntro } from "./_components/chat-intro";
 import { ChatSettings } from "./_components/chat-settings";
 import { ChatSettings as ChatSettingsSchema } from "@/schemas/backend/chats/chat.schema";
+import { Provider } from "@ai-sdk-tools/store";
 
 export default async function ChatDetailPage({
   params,
@@ -77,28 +78,30 @@ export default async function ChatDetailPage({
 
   return (
     <div className="w-full h-full mx-auto flex flex-col">
-      <ChatMainProvider
-        initialSettings={chat.settings as ChatSettingsSchema}
-        chatId={chat.id}
-        mode={chat.mode}
-        initialModelId={
-          (chat.settings as { model?: string } | null)?.model as
-            | TextGenerationModelId
-            | undefined
-        }
-      >
-        <ChatPersonasProvider personas={personas}>
-          <ChatBranchesProvider
-            chatId={chatId}
-            branches={branches}
-            activeBranch={leafId}
-          >
-            {hasNoMessages && <ChatIntro />}
-            <Chat chat={chat} initialMessages={initialMessages.messages} />
-            <ChatSettings defaultOpen={areSettingsOpen} />
-          </ChatBranchesProvider>
-        </ChatPersonasProvider>
-      </ChatMainProvider>
+      <Provider initialMessages={initialMessages.messages}>
+        <ChatMainProvider
+          initialSettings={chat.settings as ChatSettingsSchema}
+          chatId={chat.id}
+          mode={chat.mode}
+          initialModelId={
+            (chat.settings as { model?: string } | null)?.model as
+              | TextGenerationModelId
+              | undefined
+          }
+        >
+          <ChatPersonasProvider personas={personas}>
+            <ChatBranchesProvider
+              chatId={chatId}
+              branches={branches}
+              activeBranch={leafId}
+            >
+              {hasNoMessages && <ChatIntro />}
+              <Chat chat={chat} initialMessages={initialMessages.messages} />
+              <ChatSettings defaultOpen={areSettingsOpen} />
+            </ChatBranchesProvider>
+          </ChatPersonasProvider>
+        </ChatMainProvider>
+      </Provider>
     </div>
   );
 }

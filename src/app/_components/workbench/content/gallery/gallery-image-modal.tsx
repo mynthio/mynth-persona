@@ -173,7 +173,9 @@ export default function GalleryImageModal() {
                     )}
                     {typeof data.generation.settings?.nsfw === "boolean" && (
                       <>
-                        <div className="text-muted-foreground">NSFW</div>
+                        <div className="text-muted-foreground">
+                          Mature Content
+                        </div>
                         <div>
                           {data.generation.settings.nsfw ? "Yes" : "No"}
                         </div>

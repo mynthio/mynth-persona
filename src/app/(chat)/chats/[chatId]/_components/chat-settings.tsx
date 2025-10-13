@@ -27,15 +27,6 @@ import { updateChatAction } from "@/actions/update-chat.action";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { CreateChatButton } from "@/components/create-chat-button";
 import { DeleteChat } from "./delete-chat";
-import { NSFWGuidelines } from "@/schemas/backend/chats/chat.schema";
-import {
-  Select,
-  SelectValue,
-  SelectTrigger,
-  SelectPositioner,
-  SelectContent,
-  SelectItem,
-} from "@/components/mynth-ui/base/select";
 import { ScrollArea } from "@/components/mynth-ui/base/scroll-area";
 import { useDebounce } from "@uidotdev/usehooks";
 import { chatConfig } from "@/config/shared/chat/chat-models.config";
@@ -265,34 +256,6 @@ function ChatSettingsHome() {
   const persona = personas[0];
   const { chatId, settings, setSettings, mode } = useChatMain();
 
-  const [savingNsFw, setSavingNsFw] = useState(false);
-
-  // Dynamic items for NSFW guidelines
-  const NSFW_DEFAULT_VALUE = "nsfw_default";
-  const NSFW_ITEMS = useMemo(
-    () => [
-      { label: "Disabled", value: NSFW_DEFAULT_VALUE },
-      { label: "SFW (PG‑13)", value: "nsfw_prohibited" },
-      { label: "Allow Suggestive", value: "nsfw_allowed_suggestive" },
-      { label: "Allow Explicit", value: "nsfw_explicit_natural" },
-      { label: "Force Explicit", value: "nsfw_explicit_driven" },
-    ],
-    []
-  );
-
-  const handleNsFwChange = async (value: NSFWGuidelines | null) => {
-    if (savingNsFw) return;
-    setSavingNsFw(true);
-    try {
-      await updateChatAction(chatId, {
-        settings: { nsfw_guidelines: value },
-      });
-      setSettings({ ...(settings ?? {}), nsfw_guidelines: value });
-    } finally {
-      setSavingNsFw(false);
-    }
-  };
-
   return (
     <div className="flex flex-col gap-[32px]">
       <div className="flex items-center justify-between gap-[32px]">
@@ -305,49 +268,6 @@ function ChatSettingsHome() {
         <Button size="sm" className="shrink-0" disabled>
           {mode === "roleplay" ? "Roleplay" : "Story"}
         </Button>
-      </div>
-
-      <div className="flex items-center justify-between gap-[32px]">
-        <div className="flex flex-col gap-[2px]">
-          <p className="text-[0.9rem] text-surface-foreground">
-            NSFW Guidelines
-          </p>
-          <p className="text-[0.75rem] text-surface-foreground/80">
-            Use it to guide model on NSFW content.
-            <br />
-            Keep in mind that some models have builtin censorship and this
-            setting may not work corectly.
-          </p>
-        </div>
-        <Select
-          disabled={savingNsFw}
-          items={NSFW_ITEMS}
-          value={settings.nsfw_guidelines ?? NSFW_DEFAULT_VALUE}
-          onValueChange={(val) =>
-            handleNsFwChange(
-              val === NSFW_DEFAULT_VALUE ? null : (val as NSFWGuidelines)
-            )
-          }
-        >
-          <SelectTrigger
-            size="sm"
-            aria-disabled={savingNsFw}
-            className="shrink-0"
-            render={<Button />}
-            nativeButton
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectPositioner>
-            <SelectContent>
-              {NSFW_ITEMS.map((item) => (
-                <SelectItem key={item.value} value={item.value}>
-                  {item.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </SelectPositioner>
-        </Select>
       </div>
 
       <div className="flex items-center justify-between gap-[32px]">

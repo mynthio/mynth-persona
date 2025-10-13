@@ -287,7 +287,6 @@ export async function POST(
     character: roleplayData,
     user: chatSettings.user_persona,
     scenario: chatSettings.scenario,
-    nsfw: chatSettings.nsfw_guidelines,
   });
 
   logger.debug({ system }, "System Prompt");

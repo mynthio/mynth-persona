@@ -49,6 +49,8 @@ export default function Chat(props: ChatProps) {
   useChat({
     id: props.chat.id,
 
+    messages: props.initialMessages,
+
     transport: new DefaultChatTransport<PersonaUIMessage>({
       api: `/api/chats/${props.chat.id}/chat`,
 
@@ -88,14 +90,11 @@ export default function Chat(props: ChatProps) {
     },
 
     generateId: () => `msg_${nanoid(32)}`,
-
-    messages: props.initialMessages,
   });
 
   return (
     <div className="w-full flex flex-col justify-center items-center h-full mx-auto px-[12px] md:px-0 mt-auto">
       <ChatMessages
-        initialMessages={props.initialMessages}
         containerRef={messagesContainerRef}
         shouldScrollRef={shouldScrollRef}
       />

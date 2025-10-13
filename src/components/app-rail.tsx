@@ -60,7 +60,7 @@ export function AppRail() {
     <>
       <div
         className={cn(
-          "fixed px-[12px] md:px-0 justify-between bg-background/80 backdrop-blur-lg md:bg-background md:backdrop-blur-none rounded-[14px] md:rounded-none left-[12px] md:left-0 md:top-0 md:right-auto right-[12px] bottom-[3px] md:bottom-0 md:w-[64px] py-4 h-[84px] md:h-full shrink-0 flex md:flex-col  text-sidebar-foreground items-center gap-[8px]",
+          "fixed px-[12px] md:px-0 justify-between bg-background/80 backdrop-blur-lg md:bg-background md:backdrop-blur-none rounded-[14px] md:rounded-none left-[12px] md:left-0 md:top-0 md:right-auto right-[12px] bottom-[3px] md:bottom-0 md:w-[64px] py-4 h-[84px] md:h-full shrink-0 flex md:flex-col text-sidebar-foreground items-center gap-[8px]",
           isChatWithPersona ? "z-0 md:z-rail" : "z-rail"
         )}
       >
@@ -174,13 +174,7 @@ function PersonaButton() {
     <Link
       prefetch={false}
       href="/"
-      className="
-        relative inline-flex size-[52px] md:size-[42px] items-center justify-center
-        rounded-lg text-white overflow-hidden
-        bg-transparent
-        transition-all duration-200 will-change-transform
-        hover:scale-110
-      "
+      className="relative inline-flex size-[52px] md:size-[42px] items-center justify-center rounded-lg text-white overflow-hidden bg-transparent transition-all duration-200 will-change-transform hover:scale-110"
     >
       <PlanetIcon className="size-[24px] md:size-[18px] text-white/80" />
 
@@ -222,10 +216,10 @@ type RailSectionProps = {
 function RailSection({ children, className }: RailSectionProps) {
   return (
     <div
-      className={cn([
+      className={cn(
         "flex md:flex-col relative items-center justify-center h-[48px] md:h-auto md:w-[42px] bg-foreground/20 rounded-[16px] px-[4px] md:px-0 md:py-[4px] gap-[4px]",
-        className,
-      ])}
+        className
+      )}
     >
       {children}
     </div>
@@ -247,13 +241,10 @@ function RailSectionButton({
     <button
       type="button"
       onClick={onPress}
-      className={cn([
-        "relative size-[40px] md:size-[34px] rounded-[12px]",
-        "flex items-center justify-center text-foreground/80",
-        "transition-all duration-250 will-change-transform",
-        "hover:scale-110 hover:text-foreground",
-        isActive && "text-foreground",
-      ])}
+      className={cn(
+        "relative size-[40px] md:size-[34px] rounded-[12px] flex items-center justify-center text-foreground/80 transition-all duration-250 will-change-transform hover:scale-110 hover:text-foreground",
+        isActive && "text-foreground"
+      )}
     >
       {children}
     </button>
@@ -366,11 +357,7 @@ function RailsFooter() {
                 >
                   <Menu.Popup
                     className={cn(
-                      "p-[4px] bg-background/90 backdrop-blur-[4px] text-foreground/90 rounded-[16px] min-w-[222px] z-100 border-2 border-foreground/20 shadow-2xl shadow-foreground/15",
-                      "transition-all duration-250",
-                      "",
-                      "data-[starting-style]:scale-90 data-[starting-style]:opacity-0",
-                      "data-[ending-style]:scale-90 data-[ending-style]:opacity-0"
+                      "p-[4px] bg-background/90 backdrop-blur-[4px] text-foreground/90 rounded-[16px] min-w-[222px] z-100 border-2 border-foreground/20 shadow-2xl shadow-foreground/15 transition-all duration-250 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[ending-style]:scale-90 data-[ending-style]:opacity-0"
                     )}
                   >
                     <Menu.Item

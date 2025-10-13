@@ -133,15 +133,7 @@ export default function PersonaCreator({
                   animatedPlaceholder ? "" : ""
                 }${cursorChar}`
           }
-          className="bg-white
-          rounded-[22px] py-[14px] px-[16px] md:py-[16px] md:px-[22px] 
-          border-none ring ring-surface-200
-          font-mono 
-          placeholder:text-[0.98rem] text-[0.98rem] 
-          placeholder:text-[#9998A0] 
-          outline-none focus:shadow-none focus:outline-none focus:ring-surface-200
-          focus-visible:ring-none focus-visible:outline-none
-          "
+          className="bg-white rounded-[22px] py-[14px] px-[16px] md:py-[16px] md:px-[22px] border-none ring ring-surface-200 font-mono placeholder:text-[0.98rem] text-[0.98rem] placeholder:text-[#9998A0] outline-none focus:shadow-none focus:outline-none focus:ring-surface-200 focus-visible:ring-none focus-visible:outline-none"
         />
 
         <div className="flex items-center justify-between w-full mt-[24px] md:px-[12px]">
@@ -166,10 +158,7 @@ export default function PersonaCreator({
                   }}
                 >
                   <Field.Root>
-                    <Field.Label
-                      className="text-surface-foreground/80 text-[0.85rem] 
-                      font-[500] font-onest px-[4px]"
-                    >
+                    <Field.Label className="text-surface-foreground/80 text-[0.85rem] font-[500] font-onest px-[4px]">
                       Model
                     </Field.Label>
 
@@ -209,14 +198,7 @@ export default function PersonaCreator({
                           onGenerate("Random", { model });
                         }}
                         type="button"
-                        className="
-                    font-onest font-bold cursor-pointer
-                    flex items-center justify-center gap-[12px] 
-                    text-[1.05rem]
-                    size-[42px] rounded-[16px]
-                    transition-all duration-250
-                    hover:bg-surface-100/50 hover:scale-105 active:scale-100
-                    "
+                        className="font-onest font-bold cursor-pointer flex items-center justify-center gap-[12px] text-[1.05rem] size-[42px] rounded-[16px] transition-all duration-250 hover:bg-surface-100/50 hover:scale-105 active:scale-100"
                       >
                         <ShuffleIcon weight="bold" size={16} />
                       </button>
@@ -242,15 +224,7 @@ export default function PersonaCreator({
               }}
               disabled={prompt.trim() === ""}
               type="button"
-              className="
-            font-mono font-bold cursor-pointer
-            flex items-center gap-[12px] 
-            text-[1.05rem]
-            disabled:text-surface-foreground/30 disabled:cursor-not-allowed
-            h-[48px] px-[22px] rounded-[16px]
-            transition-all duration-250
-            hover:bg-surface-100/50 hover:scale-105 active:scale-100
-            "
+              className="font-mono font-bold cursor-pointer flex items-center gap-[12px] text-[1.05rem] disabled:text-surface-foreground/30 disabled:cursor-not-allowed h-[48px] px-[22px] rounded-[16px] transition-all duration-250 hover:bg-surface-100/50 hover:scale-105 active:scale-100"
             >
               Generate
               <SparkleIcon weight="bold" size={20} />
@@ -308,15 +282,7 @@ export function ModelSelector({
       name="model"
       onValueChange={onModelSelect}
     >
-      <Select.Trigger
-        className="
-      flex h-10 min-w-[230px] items-center justify-between gap-3 rounded-md 
-      bg-surface text-surface-foreground/80
-      border-[2px] border-surface-100 pr-3 pl-3.5 text-base select-none 
-      hover:bg-surface-100 focus-visible:outline-2 focus-visible:-outline-offset-1 
-      focus-visible:outline-blue-800 
-      data-[popup-open]:bg-surface-100 cursor-default"
-      >
+      <Select.Trigger className="flex h-10 min-w-[230px] items-center justify-between gap-3 rounded-md bg-surface text-surface-foreground/80 border-[2px] border-surface-100 pr-3 pl-3.5 text-base select-none hover:bg-surface-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-surface-100 cursor-default">
         <Select.Value />
         <Select.Icon className="flex">
           <CaretUpIcon />
@@ -328,27 +294,12 @@ export function ModelSelector({
           sideOffset={8}
         >
           <Select.ScrollUpArrow className="top-0 z-[1] flex h-4 w-full cursor-default items-center justify-center rounded-md bg-[canvas] text-center text-xs before:absolute before:top-[-100%] before:left-0 before:h-full before:w-full before:content-[''] data-[direction=down]:bottom-0 data-[direction=down]:before:bottom-[-100%]" />
-          <Select.Popup
-            className="group max-h-[var(--available-height)] origin-[var(--transform-origin)] 
-          overflow-y-auto bg-clip-padding rounded-md bg-surface 
-          py-1 text-surface-foreground/80 shadow-lg shadow-gray-200
-          outline-1 outline-gray-200 
-          transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[side=none]:data-[ending-style]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[side=none]:data-[starting-style]:scale-100 data-[side=none]:data-[starting-style]:opacity-100 data-[side=none]:data-[starting-style]:transition-none data-[side=none]:scroll-py-5 dark:shadow-none dark:outline-gray-300"
-          >
+          <Select.Popup className="group max-h-[var(--available-height)] origin-[var(--transform-origin)] overflow-y-auto bg-clip-padding rounded-md bg-surface py-1 text-surface-foreground/80 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[side=none]:data-[ending-style]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[side=none]:data-[starting-style]:scale-100 data-[side=none]:data-[starting-style]:opacity-100 data-[side=none]:data-[starting-style]:transition-none data-[side=none]:scroll-py-5 dark:shadow-none dark:outline-gray-300">
             {models.map(({ label, value }) => (
               <Select.Item
                 key={value}
                 value={value}
-                className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] 
-                items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 outline-none 
-                select-none group-data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] 
-                group-data-[side=none]:pr-12 group-data-[side=none]:text-base 
-                group-data-[side=none]:leading-4 group-data-[side=none]:scroll-my-1 
-                data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-surface-foreground 
-                data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 
-                data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] 
-                data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-surface-100 
-                pointer-coarse:py-2.5 pointer-coarse:text-[0.925rem]"
+                className="grid min-w-[var(--anchor-width)] cursor-default grid-cols-[0.75rem_1fr] items-center gap-2 py-2 pr-4 pl-2.5 text-sm leading-4 outline-none select-none group-data-[side=none]:min-w-[calc(var(--anchor-width)+1rem)] group-data-[side=none]:pr-12 group-data-[side=none]:text-base group-data-[side=none]:leading-4 group-data-[side=none]:scroll-my-1 data-[highlighted]:relative data-[highlighted]:z-0 data-[highlighted]:text-surface-foreground data-[highlighted]:before:absolute data-[highlighted]:before:inset-x-1 data-[highlighted]:before:inset-y-0 data-[highlighted]:before:z-[-1] data-[highlighted]:before:rounded-sm data-[highlighted]:before:bg-surface-100 pointer-coarse:py-2.5 pointer-coarse:text-[0.925rem]"
               >
                 <Select.ItemIndicator className="col-start-1">
                   <CheckIcon className="size-3" />

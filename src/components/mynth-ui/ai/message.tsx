@@ -11,16 +11,7 @@ export type MessageContentProps = React.ComponentProps<
 
 export const MessageContent = ({ children }: MessageContentProps) => {
   return (
-    <div
-      className="
-                  is-user:dark flex flex-col gap-[9px] overflow-hidden rounded-[24px] text-sm
-                  group-[.is-user]:max-w-[80%] group-[.is-user]:bg-white group-[.is-user]:text-surface-foreground
-                  group-[.is-user]:py-[12px] group-[.is-user]:px-[24px] group-[.is-user]:rounded-br-[6px]
-                  group-[.is-user]:border-[1px] group-[.is-user]:border-surface-100
-                  group-[.is-assistant]:rounded-none group-[.is-assistant]:pl-[9px]
-                  group-[.is-assistant]:text-surface-foreground
-                "
-    >
+    <div className="is-user:dark flex flex-col gap-[9px] overflow-hidden rounded-[24px] text-sm group-[.is-user]:max-w-[80%] group-[.is-user]:bg-white group-[.is-user]:text-surface-foreground group-[.is-user]:py-[12px] group-[.is-user]:px-[24px] group-[.is-user]:rounded-br-[6px] group-[.is-user]:border-[1px] group-[.is-user]:border-surface-100 group-[.is-assistant]:rounded-none group-[.is-assistant]:pl-[9px] group-[.is-assistant]:text-surface-foreground">
       {children}
     </div>
   );

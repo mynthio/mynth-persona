@@ -8,7 +8,7 @@
     "trigger:deploy": "npx trigger.dev@latest deploy",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "db:push": "drizzle-kit push",
     "sync-users": "tsx scripts/sync-clerk-users.ts",
     "seed:tags": "tsx scripts/seed-tags.ts"

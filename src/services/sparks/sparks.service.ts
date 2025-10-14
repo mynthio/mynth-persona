@@ -18,7 +18,7 @@ type BurnSparksErrorResult = {
   error: string;
 };
 
-type BurnSparksResult = BurnSparksSuccessResult | BurnSparksErrorResult;
+export type BurnSparksResult = BurnSparksSuccessResult | BurnSparksErrorResult;
 
 export const burnSparks = async ({
   userId,

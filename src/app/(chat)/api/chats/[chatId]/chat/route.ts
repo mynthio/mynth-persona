@@ -11,7 +11,7 @@ import {
 } from "ai";
 import { nanoid } from "nanoid";
 import { db } from "@/db/drizzle";
-import { and, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { chats, messages as messagesTable } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { getDefaultPromptDefinitionForMode } from "@/lib/prompts/registry";
@@ -31,7 +31,7 @@ import { getChatMessagesData } from "@/data/messages/get-chat-messages.data";
 import { getChatByIdForUserCached } from "@/data/chats/get-chat.data";
 
 import { kv } from "@vercel/kv";
-import { burnSparks } from "@/services/sparks/sparks.service";
+import { burnSparks, BurnSparksResult } from "@/services/sparks/sparks.service";
 import { FreeModelChatRateLimit, rateLimitGuard } from "@/lib/rate-limit";
 import ms from "ms";
 
@@ -89,8 +89,10 @@ const toMinimalError = (
   error: unknown
 ): { name?: string; message: string; code?: string | number } => {
   const candidate =
-    error && typeof error === "object" && "error" in (error as any)
-      ? (error as any).error
+    error &&
+    typeof error === "object" &&
+    "error" in (error as unknown as { error: unknown })
+      ? (error as unknown as { error: unknown }).error
       : error;
 
   if (candidate instanceof Error) {
@@ -98,7 +100,11 @@ const toMinimalError = (
   }
 
   if (candidate && typeof candidate === "object") {
-    const obj = candidate as any;
+    const obj = candidate as unknown as {
+      name: string;
+      code: string | number;
+      message: string;
+    };
     const name = typeof obj.name === "string" ? obj.name : undefined;
     const code =
       typeof obj.code === "string" || typeof obj.code === "number"
@@ -231,17 +237,10 @@ export async function POST(
     });
   }
 
-  after(async () => {
-    await db
-      .update(chats)
-      .set({ updatedAt: sql`now()` })
-      .where(eq(chats.id, chatId));
-  });
-
   /**
    * COST
    */
-  let tokenResult: any = null;
+  let tokenResult: BurnSparksResult | null = null;
   if (textGenerationModelCost > 0) {
     const result = await burnSparks({
       userId,
@@ -360,7 +359,7 @@ export async function POST(
             tokenResult &&
             tokenResult.success
           ) {
-            await refundTokens(userId, tokenResult.tokensUsed);
+            await refundTokens(userId, textGenerationModelCost);
           }
         },
 
@@ -427,7 +426,6 @@ export async function POST(
     },
   });
 
-  // Non-blocking: bump chat updated_at after assistant finishes
   after(async () => {
     await db
       .update(chats)

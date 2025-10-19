@@ -98,6 +98,10 @@ export const users = pgTable(
     imageUrl: text("image_url"),
     // Display name, defaults to username in webhook
     displayName: varchar("display_name", { length: 255 }),
+    // Plan mirror (Clerk is source of truth). Default to 'free'.
+    plan: text("plan").notNull().default("free"),
+    // Optional expiration for analytics/fallbacks
+    planExpiresAt: timestamp("plan_expires_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -402,10 +406,8 @@ export const tokenTransactions = pgTable("token_transactions", {
 });
 
 // Relations for better querying
-export const usersRelations = relations(users, ({ one, many }) => ({
+export const usersRelations = relations(users, ({ many }) => ({
   personas: many(personas),
-  tokens: one(userTokens),
-  tokenTransactions: many(tokenTransactions),
   chats: many(chats),
 }));
 
@@ -491,7 +493,7 @@ export const messagesRelations = relations(messages, ({ one, many }) => ({
 
 export const imageGenerationsRelations = relations(
   imageGenerations,
-  ({ one, many }) => ({
+  ({ one }) => ({
     persona: one(personas, {
       fields: [imageGenerations.personaId],
       references: [personas.id],

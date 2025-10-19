@@ -13,7 +13,6 @@ import { processImage } from "@/lib/image-processing/image-processor";
 import { uploadToBunny } from "@/lib/upload";
 import { ShotType } from "@/types/image-generation/shot-type.type";
 import { ImageStyle } from "@/types/image-generation/image-style.type";
-import { refundTokens } from "@/services/token/token-manager.service";
 import { craftImagePromptForPersona } from "./utils/generate-persona-image-prompt";
 import { logger } from "@/lib/logger";
 
@@ -27,7 +26,6 @@ const GeneratePersonaImageTaskPayloadSchema = z.object({
       })
       .nullable(),
   }),
-  cost: z.number().min(0),
   userId: z.string(),
 
   quality: z.enum(["low", "medium", "high"]),
@@ -35,7 +33,6 @@ const GeneratePersonaImageTaskPayloadSchema = z.object({
   shotType: z.string(),
   nsfw: z.boolean().default(false),
   userNote: z.string().default(""),
-  // No token breakdown fields; refunds are based on total cost
 });
 
 type GeneratePersonaImageTaskPayload = z.infer<
@@ -66,16 +63,8 @@ export const generatePersonaImageTask = task({
     /**
      * Get data from payload
      */
-    const {
-      userId,
-      persona,
-
-      quality,
-      style,
-      shotType,
-      nsfw,
-      userNote,
-    } = payload;
+    const { userId, persona, quality, style, shotType, nsfw, userNote } =
+      payload;
 
     // Get the appropriate model based on quality
     let imageGenerationModel = ImageGenerationFactory.byQuality(quality);
@@ -179,7 +168,6 @@ export const generatePersonaImageTask = task({
       await tx.insert(imageGenerations).values({
         id: imageGenerationId,
         aiModel: imageGenerationModel.modelId,
-
         prompt: imagePrompt,
         userId,
         personaId: persona.id,
@@ -194,7 +182,6 @@ export const generatePersonaImageTask = task({
         completedAt: new Date(),
         imageId: imageId,
         runId: ctx.run.id,
-        tokensCost: payload.cost,
       });
 
       /**
@@ -228,11 +215,6 @@ export const generatePersonaImageTask = task({
           errorMessage: String(error),
         })
         .where(eq(imageGenerations.id, imageGenerationId));
-    }
-
-    if (payload.cost > 0) {
-      // Return total cost to user's balance on failure
-      await refundTokens(payload.userId, payload.cost);
     }
   },
   onSuccess: async ({ payload }) => {

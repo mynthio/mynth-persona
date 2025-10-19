@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Last updated: 2025-10-05**
+**Last updated: 2025-10-16**
 
 ## Quick Summary
 
@@ -60,10 +60,10 @@ Let's be honest: we don't care what you generate. We care that it's your data an
 
 ### Payment Data
 
-- Spark purchase amounts
-- Order/checkout IDs, transaction status, product IDs
-- External user ID (Clerk ID) to credit your account
-- Payment details are processed by our payment providers; we do not store card numbers or crypto wallet details
+- Subscription plan details and billing amounts
+- Order/checkout IDs, transaction status, subscription IDs
+- External user ID (Clerk ID) linked to your subscription
+- Payment details are processed by Stripe via Clerk Billing; we do not store card numbers or bank details
 
 ---
 
@@ -71,9 +71,9 @@ Let's be honest: we don't care what you generate. We care that it's your data an
 
 We process your data to:
 
-- **Provide the Services**: Persona creation, chat, image generation, spark management
+- **Provide the Services**: Persona creation, chat, image generation, subscription management
 - **Authenticate and authorize**: Manage your account and access
-- **Process payments**: Handle purchases, subscriptions, and spark credits
+- **Process payments**: Handle subscriptions and billing
 - **Security and abuse prevention**: Rate limiting, fraud detection, content moderation (public content only)
 - **Analytics and improvement**: Understand how features are used, fix bugs, improve performance
 - **Support**: Help you troubleshoot issues (only with your explicit permission)
@@ -92,7 +92,7 @@ We process your data to:
 
 ## Support Access (With Your Permission Only)
 
-If you request help with a specific issue (e.g., failed image generation, spark refund):
+If you request help with a specific issue (e.g., failed image generation, billing inquiry):
 
 - **You control access**: We only review what you explicitly identify (specific chat, image, or persona)
 - **Explicit permission required**: Via email from your registered account address
@@ -117,7 +117,7 @@ Your conversations and messages are stored in our hosted database (Neon) so you 
 
 We **never** log chat content or messages, even for debugging. We only log:
 
-- Usage metadata (spark consumption, model ID, approximate costs)
+- Usage metadata (request counts, model ID, approximate costs)
 - Errors without message content
 
 ### How Chats Are Routed
@@ -165,12 +165,12 @@ We're working on:
 
 ## Storage and Hosting
 
-| Service             | Purpose                  | What's Stored                                                                   |
-| ------------------- | ------------------------ | ------------------------------------------------------------------------------- |
-| **Neon** (Database) | Data storage             | User IDs, personas, chat history, images metadata, spark balances, transactions |
-| **Bunny.net** (CDN) | Image storage & delivery | Generated images accessible via public URLs                                     |
-| **Vercel**          | App hosting              | Application runtime, edge/middleware                                            |
-| **Trigger.dev**     | Background jobs          | Task orchestration metadata, run IDs                                            |
+| Service             | Purpose                  | What's Stored                                                                    |
+| ------------------- | ------------------------ | -------------------------------------------------------------------------------- |
+| **Neon** (Database) | Data storage             | User IDs, personas, chat history, images metadata, subscription data, usage logs |
+| **Bunny.net** (CDN) | Image storage & delivery | Generated images accessible via public URLs                                      |
+| **Vercel**          | App hosting              | Application runtime, edge/middleware                                             |
+| **Trigger.dev**     | Background jobs          | Task orchestration metadata, run IDs                                             |
 
 ### Important: Image URL Security
 
@@ -209,10 +209,11 @@ Generated images are served via **public CDN URLs** (Bunny.net). These URLs are:
 
 ## Payments
 
-- Processed by our payment processors and cryptocurrency providers
-- We store: order IDs, product IDs, spark amounts, transaction status, your Clerk ID
-- **We do not store**: Credit card numbers, bank details, or crypto wallet private keys
-- Payment providers process sensitive payment data per their compliance standards (PCI-DSS for cards)
+- Subscription billing is processed by **Stripe** via **Clerk Billing**
+- We store: subscription IDs, plan details, billing amounts, transaction status, your Clerk ID
+- **We do not store**: Credit card numbers, bank details, or other sensitive payment information
+- Stripe processes sensitive payment data per PCI-DSS compliance standards
+- See [Stripe's Privacy Policy](https://stripe.com/privacy) and [Clerk's Privacy Policy](https://clerk.com/legal/privacy)
 
 ---
 
@@ -245,19 +246,19 @@ We process your data based on:
 
 We share data only with service providers necessary to operate Persona:
 
-| Recipient                             | Purpose                     | Location             |
-| ------------------------------------- | --------------------------- | -------------------- |
-| Clerk                                 | Identity and authentication | US                   |
-| OpenRouter & model providers          | AI text generation          | Varies by model      |
-| Runware                               | AI image generation         | Varies               |
-| Bunny.net                             | Image storage and CDN       | Global CDN           |
-| Payment processors & crypto providers | Payment processing          | Varies               |
-| PostHog                               | Analytics                   | US/EU (configurable) |
-| LogSnag                               | Product events              | US                   |
-| Better Stack / Logtail                | Server logging              | EU/US                |
-| Vercel                                | Hosting                     | Global               |
-| Neon                                  | Database                    | US/EU                |
-| Trigger.dev                           | Background jobs             | US                   |
+| Recipient                    | Purpose                     | Location             |
+| ---------------------------- | --------------------------- | -------------------- |
+| Clerk                        | Identity and authentication | US                   |
+| Stripe                       | Payment processing          | US                   |
+| OpenRouter & model providers | AI text generation          | Varies by model      |
+| Runware                      | AI image generation         | Varies               |
+| Bunny.net                    | Image storage and CDN       | Global CDN           |
+| PostHog                      | Analytics                   | US/EU (configurable) |
+| LogSnag                      | Product events              | US                   |
+| Better Stack / Logtail       | Server logging              | EU/US                |
+| Vercel                       | Hosting                     | Global               |
+| Neon                         | Database                    | US/EU                |
+| Trigger.dev                  | Background jobs             | US                   |
 
 **We never share data with**: Advertisers, data brokers, social media companies (unless you explicitly connect an integration in the future)
 
@@ -278,14 +279,14 @@ For transfers from the EU/UK/Switzerland:
 
 ## Data Retention
 
-| Data Type                    | Retention Period                                    |
-| ---------------------------- | --------------------------------------------------- |
-| **Account and persona data** | Until you delete your account                       |
-| **Chat history**             | Until you delete chats or your account              |
-| **Generated images**         | Until you delete them or your account               |
-| **Spark transactions**       | Up to 7 years (accounting and tax compliance)       |
-| **Server logs**              | 30–90 days (longer for security incidents)          |
-| **Analytics data**           | Per provider defaults (typically 90 days to 1 year) |
+| Data Type                         | Retention Period                                    |
+| --------------------------------- | --------------------------------------------------- |
+| **Account and persona data**      | Until you delete your account                       |
+| **Chat history**                  | Until you delete chats or your account              |
+| **Generated images**              | Until you delete them or your account               |
+| **Subscription and billing data** | Up to 7 years (accounting and tax compliance)       |
+| **Server logs**                   | 30–90 days (longer for security incidents)          |
+| **Analytics data**                | Per provider defaults (typically 90 days to 1 year) |
 
 ### Account Deletion
 
@@ -294,7 +295,7 @@ When you delete your account:
 1. Your personas, chats, and images are marked for deletion
 2. Backup systems retain data for up to 30 days for recovery purposes
 3. After 30 days, all content is permanently deleted
-4. Transaction records are retained for legal/accounting requirements (anonymized where possible)
+4. Billing and subscription records are retained for legal/accounting requirements (anonymized where possible)
 
 **Note**: Images on CDN may take additional time to fully propagate deletion across edge servers.
 
@@ -405,4 +406,4 @@ We may update this Privacy Policy from time to time. When we make material chang
 
 ---
 
-**Effective Date: 2025-10-05**
+**Effective Date: 2025-10-16**

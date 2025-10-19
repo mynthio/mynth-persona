@@ -11,7 +11,8 @@ export type TextGenerationModelId =
   | "aion-labs/aion-rp-llama-3.1-8b"
   | "openai/gpt-oss-20b"
   | "meituan/longcat-flash-chat"
-  | "nvidia/nemotron-nano-9b-v2";
+  | "nvidia/nemotron-nano-9b-v2"
+  | "x-ai/grok-3";
 
 export type Provider = {
   url?: string;
@@ -41,10 +42,7 @@ export type TextGenerationModelConfig = {
 
   tags: string[];
 
-  cost: {
-    roleplay: number;
-    story: number;
-  };
+  isPremium: boolean;
 
   provider: Provider;
 };
@@ -78,10 +76,7 @@ export const textGenerationModels: Record<
       additionalNotes:
         "May use statistics like tokens usage, but do not store user data.",
     },
-    cost: {
-      roleplay: 1,
-      story: 2,
-    },
+    isPremium: false,
   },
   "x-ai/grok-4-fast": {
     enabled: true,
@@ -107,10 +102,7 @@ export const textGenerationModels: Record<
       additionalNotes:
         "Accessed via OpenRouter. Availability and terms subject to xAI.",
     },
-    cost: {
-      roleplay: 1,
-      story: 2,
-    },
+    isPremium: true,
   },
 
   "nousresearch/hermes-3-llama-3.1-70b": {
@@ -138,10 +130,7 @@ export const textGenerationModels: Record<
       additionalNotes:
         "Aggregates models from various sources; may track usage stats but does not store personal data or messages.",
     },
-    cost: {
-      roleplay: 1,
-      story: 2,
-    },
+    isPremium: false,
   },
   "nousresearch/hermes-3-llama-3.1-405b": {
     enabled: true,
@@ -168,10 +157,7 @@ export const textGenerationModels: Record<
       additionalNotes:
         "Aggregates models from various sources; may track usage stats but does not store personal data or messages.",
     },
-    cost: {
-      roleplay: 3,
-      story: 5,
-    },
+    isPremium: true,
   },
 
   "nousresearch/hermes-4-70b": {
@@ -199,10 +185,7 @@ export const textGenerationModels: Record<
       additionalNotes:
         "Aggregates models from various sources; may track usage stats but does not store personal data or messages.",
     },
-    cost: {
-      roleplay: 0,
-      story: 2,
-    },
+    isPremium: false,
   },
 
   "cognitivecomputations/dolphin-mistral-24b-venice-edition": {
@@ -230,10 +213,7 @@ export const textGenerationModels: Record<
       additionalNotes:
         "Aggregates models from various sources; may track usage stats but does not store personal data or messages.",
     },
-    cost: {
-      roleplay: 0,
-      story: 0,
-    },
+    isPremium: false,
   },
 
   "meta-llama/llama-3.3-70b-instruct": {
@@ -261,10 +241,7 @@ export const textGenerationModels: Record<
       additionalNotes:
         "Platform emphasizes private, uncensored AI with data processed on-device; may track usage anonymously.",
     },
-    cost: {
-      roleplay: 1,
-      story: 2,
-    },
+    isPremium: false,
   },
   "z-ai/glm-4.5-air": {
     enabled: true,
@@ -291,10 +268,7 @@ export const textGenerationModels: Record<
       additionalNotes:
         "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
     },
-    cost: {
-      roleplay: 1,
-      story: 2,
-    },
+    isPremium: false,
   },
   "deepseek/deepseek-chat-v3.1": {
     enabled: true,
@@ -321,10 +295,7 @@ export const textGenerationModels: Record<
       additionalNotes:
         "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
     },
-    cost: {
-      roleplay: 0,
-      story: 0,
-    },
+    isPremium: false,
   },
   "aion-labs/aion-rp-llama-3.1-8b": {
     enabled: true,
@@ -351,10 +322,7 @@ export const textGenerationModels: Record<
       additionalNotes:
         "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
     },
-    cost: {
-      roleplay: 0,
-      story: 1,
-    },
+    isPremium: false,
   },
   "openai/gpt-oss-20b": {
     enabled: true,
@@ -381,10 +349,7 @@ export const textGenerationModels: Record<
       additionalNotes:
         "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
     },
-    cost: {
-      roleplay: 0,
-      story: 0,
-    },
+    isPremium: false,
   },
   "meituan/longcat-flash-chat": {
     enabled: true,
@@ -411,10 +376,7 @@ export const textGenerationModels: Record<
       additionalNotes:
         "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
     },
-    cost: {
-      roleplay: 0,
-      story: 0,
-    },
+    isPremium: false,
   },
   "nvidia/nemotron-nano-9b-v2": {
     enabled: true,
@@ -441,9 +403,48 @@ export const textGenerationModels: Record<
       additionalNotes:
         "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
     },
-    cost: {
-      roleplay: 0,
-      story: 0,
+    isPremium: false,
+  },
+  "x-ai/grok-3": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+
+    modelId: "x-ai/grok-3",
+    displayName: "Grok-3",
+
+    uncensored: false,
+
+    description:
+      "xAI's flagship model trained on massive compute (100K-200K H100 GPUs). Excels at technical reasoning and logic with real-time X platform integration. Shows strong performance in structured problem-solving but demonstrates creative limitations. Better suited for technical accuracy and world-building consistency than pure creative storytelling.",
+
+    style:
+      "Witty, irreverent, and direct with an 'engineer over artist' approach. Conversational and less filtered than competitors, but can feel dry in creative contexts. Strong logical flow with occasional tone drift into generic responses.",
+
+    perks: [],
+
+    tags: [
+      "reasoning",
+      "technical",
+      "long-context",
+      "real-time-data",
+      "conversational",
+      "logic-focused",
+      "sci-fi-friendly",
+    ],
+
+    isPremium: true,
+
+    provider: {
+      url: "https://x.ai",
+      displayName: "xAI",
+
+      privacyPolicyUrl: "https://x.ai/legal/privacy-policy",
+
+      training: "unknown",
+      storesMessages: "yes",
+
+      additionalNotes:
+        "Requires X Premium+ subscription ($40/month). Heavily integrated with X ecosystem. Recent controversies regarding content moderation consistency. Model described by some researchers as 'benchmaxxed' (optimized for test performance over real-world creativity).",
     },
   },
 };

@@ -1,11 +1,10 @@
 "use client";
 
 import { generatePersonaImage } from "@/actions/generate-persona-image";
-import { Badge } from "@/components/ui/badge";
+// import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -14,15 +13,8 @@ import { ImageStyle } from "@/types/image-generation/image-style.type";
 import { ShotType } from "@/types/image-generation/shot-type.type";
 import { ImageGenerationQuality } from "@/types/image-generation/image-generation-quality.type";
 import { useState } from "react";
-import { InfoIcon } from "@phosphor-icons/react/dist/ssr";
-import { DISCORD_INVITE_URL } from "@/lib/constants";
 
-import {
-  useTokensBalance,
-  useTokensBalanceMutation,
-} from "@/app/_queries/use-tokens-balance.query";
-
-import Link from "next/link";
+// Plan-based access and rate limiting handled server-side
 import { useToast } from "@/components/ui/toast";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 
@@ -33,7 +25,6 @@ type GenerationOptions = {
   style?: ImageStyle | "auto";
   shotType: ShotType;
   size: Size;
-  nsfw: boolean;
   userNote: string;
 };
 
@@ -44,8 +35,7 @@ export default function Imagine() {
   const [isLoading, setIsLoading] = useState(false);
   const [, setWorkbenchMode] = useWorkbenchMode();
 
-  const { data: balance } = useTokensBalance();
-  const mutateBalance = useTokensBalanceMutation();
+  // Plan-based access and rate limiting handled server-side
   const toast = useToast();
 
   const [options, setOptions] = useState<GenerationOptions>({
@@ -53,57 +43,27 @@ export default function Imagine() {
     style: "auto",
     shotType: "full-body",
     size: "portrait",
-    nsfw: false,
     userNote: "",
   });
 
   if (!personaId) return null;
 
-  const calculateCost = () => {
-    switch (options.quality) {
-      case "high":
-        return 5;
-      case "medium":
-        return 3;
-      default:
-        return 1;
-    }
-  };
-
   const onGenerate = async () => {
     if (isLoading) return;
-    const cost = calculateCost();
-    const available = balance?.balance ?? 0;
-    const hasEnough = available >= cost;
-
-    if (!hasEnough) {
-      toast.add({
-        title: "Not enough tokens",
-        description: `Requires ${cost} sparks. You have ${available}.`,
-      });
-      return;
-    }
+    // Plan-based access and rate limiting handled server-side
     setIsLoading(true);
 
     try {
-      const {
-        taskId: runId,
-        publicAccessToken,
-        balance: newBalance,
-      } = await generatePersonaImage(personaId, {
-        quality: options.quality,
-        style: ((options.quality === "low" ? "auto" : options.style) ||
-          "auto") as ImageStyle,
-        shotType: options.quality === "low" ? "full-body" : options.shotType,
-        nsfw: options.quality !== "low" ? options.nsfw : false,
-        userNote: options.quality !== "low" ? options.userNote : "",
-      });
-
-      if (newBalance?.balance !== undefined) {
-        mutateBalance(() => ({
-          balance: newBalance.balance!,
-        }));
-      }
+      const { taskId: runId, publicAccessToken } = await generatePersonaImage(
+        personaId,
+        {
+          quality: options.quality,
+          style: ((options.quality === "low" ? "auto" : options.style) ||
+            "auto") as ImageStyle,
+          shotType: options.quality === "low" ? "full-body" : options.shotType,
+          userNote: options.quality !== "low" ? options.userNote : "",
+        }
+      );
 
       // Use action method to avoid stale state issues
       personaGenerationStore.addImageGenerationRun(runId, {
@@ -115,7 +75,7 @@ export default function Imagine() {
 
       // Ensure main content is the Gallery so the in-progress tile is visible
       setWorkbenchMode("gallery");
-    } catch (error) {
+    } catch {
       toast.add({ title: "Failed to generate image" });
     } finally {
       setIsLoading(false);
@@ -141,7 +101,6 @@ export default function Imagine() {
                         style: quality === "low" ? undefined : options.style,
                         shotType:
                           quality === "low" ? "full-body" : options.shotType,
-                        nsfw: quality === "low" ? false : options.nsfw,
                         userNote: quality === "low" ? "" : options.userNote,
                       })
                     }
@@ -197,47 +156,6 @@ export default function Imagine() {
           </Section>
 
           {options.quality !== "low" && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label
-                    htmlFor="nsfw-switch"
-                    className="text-[13px] font-medium"
-                  >
-                    Adult content
-                  </Label>
-                  <p className="text-[11px] text-zinc-500">Mature content</p>
-                </div>
-                <Switch
-                  id="nsfw-switch"
-                  checked={options.nsfw}
-                  onCheckedChange={(checked) =>
-                    setOptions({ ...options, nsfw: checked })
-                  }
-                />
-              </div>
-
-              {options.nsfw && (
-                <div className="flex items-start gap-2 text-[11px] text-zinc-500">
-                  <InfoIcon size={14} className="mt-0.5 flex-shrink-0" />
-                  <p>
-                    Experimental. Share feedback on our {""}
-                    <a
-                      href={DISCORD_INVITE_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline"
-                    >
-                      Discord
-                    </a>
-                    .
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {options.quality !== "low" && (
             <div className="space-y-2">
               <Label htmlFor="user-note" className="text-[13px] font-medium">
                 Additional notes
@@ -265,19 +183,7 @@ export default function Imagine() {
 
       <div className="shrink-0 border-t border-zinc-200/50 pt-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <Badge variant="secondary" className="text-[12px] font-medium">
-              {calculateCost()} tokens
-            </Badge>
-            {options.quality === "high" && (
-              <Badge
-                variant="outline"
-                className="text-[11px] text-orange-600 border-orange-200"
-              >
-                Purchased only
-              </Badge>
-            )}
-          </div>
+          <div className="flex items-center gap-1.5" />
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -291,7 +197,6 @@ export default function Imagine() {
                   style: "auto",
                   shotType: "full-body",
                   size: "portrait",
-                  nsfw: false,
                   userNote: "",
                 });
               }}
@@ -300,12 +205,7 @@ export default function Imagine() {
             </Button>
             <Button
               onClick={onGenerate}
-              disabled={(() => {
-                const cost = calculateCost();
-                const available = balance?.balance ?? 0;
-                const hasEnough = available >= cost;
-                return isLoading || !hasEnough;
-              })()}
+              disabled={isLoading}
               size="sm"
               className="h-8 px-3 text-[12px]"
             >
@@ -313,22 +213,7 @@ export default function Imagine() {
             </Button>
           </div>
         </div>
-        {(() => {
-          const cost = calculateCost();
-          const available = balance?.balance ?? 0;
-          const hasEnough = available >= cost;
-          if (balance && !hasEnough) {
-            return (
-              <div className="mt-2 text-[11px] text-orange-600 flex items-center gap-2">
-                <span>{`Not enough Sparks (${available}/${cost}).`}</span>
-                <Link href="/sparks" className="underline" prefetch={false}>
-                  Buy Sparks
-                </Link>
-              </div>
-            );
-          }
-          return null;
-        })()}
+        {/* Plan-based access and rate limiting enforced server-side */}
       </div>
     </div>
   );
@@ -360,11 +245,11 @@ function QualityCard({
 }) {
   const details: Record<
     ImageGenerationQuality,
-    { label: string; desc: string; tokens: string; purchasedOnly?: boolean }
+    { label: string; desc: string }
   > = {
-    low: { label: "Low", desc: "Fast", tokens: "1" },
-    medium: { label: "Medium", desc: "Balanced", tokens: "3" },
-    high: { label: "High", desc: "Best", tokens: "5", purchasedOnly: true },
+    low: { label: "Low", desc: "Fast" },
+    medium: { label: "Medium", desc: "Balanced" },
+    high: { label: "High", desc: "Best" },
   };
 
   const qualityImages: Record<ImageGenerationQuality, string> = {
@@ -395,12 +280,6 @@ function QualityCard({
       <div className="text-center space-y-0.5">
         <div className="text-[12px] font-medium">{item.label}</div>
         <div className="text-[11px] text-zinc-500">{item.desc}</div>
-        <div className="text-[11px] font-medium text-primary">
-          {item.tokens} sparks
-        </div>
-        {item.purchasedOnly && (
-          <div className="text-[10px] text-orange-600">Purchased only</div>
-        )}
       </div>
     </div>
   );

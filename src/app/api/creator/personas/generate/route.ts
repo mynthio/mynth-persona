@@ -34,7 +34,7 @@ export const maxDuration = 90;
  * Picks a main model and exactly two fallbacks (or fewer if not enough models)
  * using a weighted random ordering where higher priority increases chance of earlier positions.
  */
-type ModelConfig = { id: string; priority: number };
+// type ModelConfig = { id: string; priority: number };
 
 const jsonRequestSchema = z.object({
   prompt: z.string().min(1).max(2048),

@@ -11,8 +11,6 @@ export const personaUIMessageMetadataSchema = z.object({
     outputTokens: z.number().optional(),
     totalTokens: z.number().optional(),
   }),
-
-  cost: z.number(),
 });
 
 export type PersonaUIMessageMetadata = z.infer<

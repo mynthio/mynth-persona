@@ -12,10 +12,9 @@ export async function POST(req: NextRequest) {
   try {
     const evt: WebhookEvent = await verifyWebhook(req);
 
-    const { id, username, image_url } = evt.data as any;
-    const eventType = evt.type;
+    if (evt.type === "user.created") {
+      const { id, username, image_url } = evt.data;
 
-    if (eventType === "user.created") {
       await db.transaction(async (tx) => {
         // Upsert user with username/image url and default displayName
         await tx
@@ -80,7 +79,9 @@ export async function POST(req: NextRequest) {
         .catch((err) => {});
     }
 
-    if (eventType === "user.updated") {
+    if (evt.type === "user.updated") {
+      const { id, username, image_url } = evt.data;
+
       await db
         .update(users)
         .set({

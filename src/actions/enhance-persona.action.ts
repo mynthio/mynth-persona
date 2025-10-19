@@ -17,7 +17,6 @@ import ms from "ms";
 import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
 // Removed daily token logic; operating purely on DB balance
 import { getDefaultPromptDefinitionForMode } from "@/lib/prompts/registry";
-import { burnSparks } from "@/services/sparks/sparks.service";
 
 // Utility function to format extension keys to snake_case (lowercase)
 const formatExtensionKeys = (
@@ -162,25 +161,6 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
     } as const;
   }
 
-  // Check and deduct tokens for persona enhancement
-  const tokenCost = 1; // Cost for persona enhancement
-  const tokenResult = await burnSparks({ userId, amount: tokenCost });
-
-  if (!tokenResult.success) {
-    return {
-      success: false,
-      error: "INSUFFICIENT_TOKENS",
-      message: tokenResult.error || "Insufficient tokens",
-    } as const;
-  }
-
-  userLogger.debug(
-    {
-      remainingBalance: tokenResult.sparksAfter,
-    },
-    "Tokens deducted for persona enhancement"
-  );
-
   const stream = createStreamableValue();
 
   // Create system prompt with current persona data
@@ -266,7 +246,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
         // Merge current data with new data
         const mergedData: PersonaData = {
           name: object.object.name ?? currentData.name,
-          age: (object.object.age as any) ?? currentData.age,
+          age: (object.object.age as string) ?? currentData.age,
           gender: object.object.gender ?? currentData.gender,
           appearance: object.object.appearance ?? currentData.appearance,
           personality: object.object.personality ?? currentData.personality,
@@ -319,13 +299,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
           .catch((err) => {});
       },
       onError: async (error) => {
-        console.error(error);
         userLogger.error({ error }, "Error enhancing persona");
-
-        // Refund tokens on error
-        await db.update(userTokens).set({
-          balance: sql`balance + ${tokenCost}`,
-        });
 
         await logsnag
           .track({
@@ -339,10 +313,6 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
           })
           .catch((err) => {});
 
-        // Notify client and terminate the stream to prevent hanging UI
-        stream.update({
-          error: "Enhancement failed. Please try again.",
-        } as any);
         stream.done();
       },
     });
@@ -391,9 +361,5 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
     success: true,
     object: stream.value,
     personaId,
-    remainingBalance: tokenResult.sparksAfter,
-    balance: {
-      balance: tokenResult.sparksAfter,
-    },
   } as const;
 }

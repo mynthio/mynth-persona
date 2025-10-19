@@ -170,6 +170,14 @@ export default function ChatMessages(props: ChatMessagesProps) {
 
   if (displayMessages.length === 0) return null;
 
+  const getErrorObject = (error: string) => {
+    try {
+      return JSON.parse(error);
+    } catch {
+      return { message: error };
+    }
+  };
+
   return (
     <div
       ref={containerRef}
@@ -191,14 +199,34 @@ export default function ChatMessages(props: ChatMessagesProps) {
           <p className="font-onest text-[1.1rem] text-surface-foreground/70">
             {chatError.message === "INSUFFICIENT_TOKENS" ? (
               <>
-                <b>Insufficient sparks.</b> Try other model or buy more sparks{" "}
-                <Link href="/sparks" className="underline">
+                <b>Action not available on current plan.</b> Try a different
+                model or upgrade your plan{" "}
+                <Link href="/plans" className="underline">
+                  here
+                </Link>
+                .
+              </>
+            ) : getErrorObject(chatError.message).error ===
+              "premium_model_not_available" ? (
+              <>
+                Premium models are not avilable on your plan. Upgrade your plan{" "}
+                <Link href="/plans" className="underline">
+                  here
+                </Link>
+                . Or switch to a non-premium model.
+              </>
+            ) : getErrorObject(chatError.message).error ===
+              "rate_limit_exceeded" ? (
+              <>
+                You have reached the rate limit. Try again later. Or upgrade
+                your plan{" "}
+                <Link href="/plans" className="underline">
                   here
                 </Link>
                 .
               </>
             ) : (
-              <>There was an error while generating the response.</>
+              <>There was an error while generating the response. </>
             )}
           </p>
 
@@ -360,58 +388,55 @@ function EditMessage(props: EditMessageProps) {
 
   const initialMessage = props.parts.find((p) => p.type === "text")?.text ?? "";
 
-  const handleSubmit = React.useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-      const formData = new FormData(event.currentTarget);
-      const message = formData.get("message");
+    const formData = new FormData(event.currentTarget);
+    const message = formData.get("message");
 
-      if (typeof message !== "string") return;
+    if (typeof message !== "string") return;
 
-      const editedMessage = {
-        id: `msg_${nanoid(32)}`,
-        role: "user",
-        parts: [{ type: "text", text: message }],
-        metadata: {
-          parentId: props.parentId,
-        },
-      } as PersonaUIMessage;
+    const editedMessage = {
+      id: `msg_${nanoid(32)}`,
+      role: "user",
+      parts: [{ type: "text", text: message }],
+      metadata: {
+        parentId: props.parentId,
+      },
+    } as PersonaUIMessage;
 
-      setMessages(
-        messages.map((stateMessage) =>
-          stateMessage.id === props.messageId
-            ? {
-                ...stateMessage,
-                ...editedMessage,
-              }
-            : stateMessage
-        )
-      );
+    setMessages(
+      messages.map((stateMessage) =>
+        stateMessage.id === props.messageId
+          ? {
+              ...stateMessage,
+              ...editedMessage,
+            }
+          : stateMessage
+      )
+    );
 
-      regenerate({
-        messageId: editedMessage.id,
-        body: {
-          event: "edit_message",
+    regenerate({
+      messageId: editedMessage.id,
+      body: {
+        event: "edit_message",
 
-          editedMessage,
-        },
-      });
+        editedMessage,
+      },
+    });
 
-      addMessageToBranch(props.parentId, {
-        id: props.messageId,
-        createdAt: new Date(Date.now() - 1000),
-      });
+    addMessageToBranch(props.parentId, {
+      id: props.messageId,
+      createdAt: new Date(Date.now() - 1000),
+    });
 
-      addMessageToBranch(props.parentId, {
-        id: editedMessage.id,
-        createdAt: new Date(),
-      });
+    addMessageToBranch(props.parentId, {
+      id: editedMessage.id,
+      createdAt: new Date(),
+    });
 
-      setEditMessageId(null);
-    },
-    [regenerate, props.messageId]
-  );
+    setEditMessageId(null);
+  };
 
   return (
     <div className="flex flex-col gap-[12px]">

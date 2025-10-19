@@ -57,6 +57,13 @@
       "when": 1760132249694,
       "tag": "0007_aberrant_talisman",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1760873210390,
+      "tag": "0008_productive_tiger_shark",
+      "breakpoints": true
     }
   ]
 }

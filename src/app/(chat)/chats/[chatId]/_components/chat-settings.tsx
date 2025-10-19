@@ -294,7 +294,7 @@ function ChatSettingsHome() {
             Delete Chat? This action cannot be undone.
           </p>
           <p className="text-[0.75rem] text-surface-foreground/80">
-            This action can't be undone. All messages will be removed.
+            This action can&apos;t be undone. All messages will be removed.
             <br />
             You will confirm it in next step.
           </p>
@@ -368,7 +368,7 @@ function ChatSettingsUser() {
           data-form-type="other"
           disabled={isStoryMode}
         />
-        <Field.Description>Your character's name.</Field.Description>
+        <Field.Description>Your character&apos;s name.</Field.Description>
       </Field.Root>
 
       <Field.Root>
@@ -506,7 +506,7 @@ function ChatSettingsModel() {
           return false;
         }
 
-        if (showFreeOnly && model.cost[mode] !== 0) {
+        if (showFreeOnly && model.isPremium) {
           return false;
         }
 
@@ -626,15 +626,11 @@ function ModelCard(props: {
             </p>
           </div>
 
-          <Label color={model.cost.roleplay === 0 ? "green" : "red"} size="sm">
-            {model.cost.roleplay === 0 ? (
-              "free"
-            ) : (
-              <>
-                {model.cost.roleplay} <FireIcon weight="bold" />
-              </>
-            )}
-          </Label>
+          {model.isPremium ? (
+            <Label color={model.isPremium ? "red" : "green"} size="sm">
+              Premium <FireIcon weight="bold" />
+            </Label>
+          ) : null}
         </div>
       </div>
       <p className="text-surface-foreground/60 text-[.85rem] leading-tight mt-[12px]">

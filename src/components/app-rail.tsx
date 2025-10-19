@@ -1,5 +1,6 @@
 "use client";
 
+import { useSubscription } from "@clerk/nextjs/experimental";
 import {
   ChatsTeardropIcon,
   CircleNotchIcon,
@@ -20,8 +21,7 @@ import { Menu } from "@base-ui-components/react/menu";
 import { useSidebar } from "./ui/sidebar";
 import { ComponentProps, useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { useClerk, useUser } from "@clerk/nextjs";
-import { useTokensBalance } from "@/app/_queries/use-tokens-balance.query";
+import { useAuth, useClerk, useUser } from "@clerk/nextjs";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "./ui/tooltip";
 import { AnimatePresence, motion } from "motion/react";
 import { Link } from "./ui/link";
@@ -41,6 +41,7 @@ import {
   MenuSeparator as BaseMenuSeparator,
   MenuArrow as BaseMenuArrow,
 } from "@/components/mynth-ui/base/menu";
+import { PlanId } from "@/config/shared/plans";
 
 export function AppRail() {
   const { setView, open, setOpen, setOpenMobile } = useSidebar();
@@ -316,7 +317,7 @@ function RailsFooter() {
         </a> */}
       </div>
 
-      {isLoaded && isSignedIn && <RailsTookens />}
+      {isLoaded && isSignedIn && <RailsPlan />}
 
       <RailSection>
         <div className="size-[38px] md:size-[34px] rounded-[12px] flex items-center justify-center">
@@ -364,10 +365,24 @@ function RailsFooter() {
                       className={cn(
                         "h-[42px] flex items-center justify-start px-[12px] gap-[12px] hover:bg-foreground/10 rounded-[12px] cursor-pointer transition-colors duration-225"
                       )}
-                      onClick={() => push("/sparks")}
+                      onClick={() => push("/plans")}
                     >
                       <FlameIcon />
-                      Sparks
+                      Plans
+                    </Menu.Item>
+
+                    <Menu.Item
+                      className={cn(
+                        "h-[42px] flex items-center justify-start px-[12px] gap-[12px] hover:bg-foreground/10 rounded-[12px] cursor-pointer transition-colors duration-225"
+                      )}
+                      onClick={() =>
+                        openUserProfile({
+                          __experimental_startPath: "/billing",
+                        })
+                      }
+                    >
+                      <UserGearIcon />
+                      Billing
                     </Menu.Item>
 
                     <Menu.Item
@@ -400,26 +415,39 @@ function RailsFooter() {
   );
 }
 
-function RailsTookens() {
-  const { data, isLoading } = useTokensBalance();
+function RailsPlan() {
+  const { sessionClaims } = useAuth();
 
-  const content = useMemo(() => {
-    if (!data && isLoading) return <CircleNotchIcon className="animate-spin" />;
-    if (!data) return 0;
+  const planName = (
+    typeof sessionClaims?.pla === "string"
+      ? sessionClaims.pla.split(":")[1]
+      : "free"
+  ) as PlanId;
 
-    return (
-      <Link href="/sparks">{data.balance > 999 ? "999+" : data.balance}</Link>
-    );
-  }, [data, isLoading]);
+  const colorClassForPlan: Record<PlanId, string> = {
+    free: "text-emerald-500",
+    spark: "text-yellow-500",
+    flame: "text-rose-500",
+    blaze: "text-red-500",
+  } as const;
 
   return (
     <Tooltip>
-      <TooltipTrigger className="text-rose-500 px-[6px] md:px-0 w-full rounded-lg h-[24px] gap-[2px] flex items-center justify-center text-[12px]">
-        <FlameIcon size={10} />
-        {content}
+      <TooltipTrigger
+        className={cn(
+          "px-[6px] md:px-0 w-full rounded-lg h-[24px] gap-[6px] flex items-center justify-center text-[12px]",
+          colorClassForPlan[planName]
+        )}
+      >
+        <Link
+          href="/plans"
+          className="size-[36px] flex items-center justify-center"
+        >
+          <FlameIcon />
+        </Link>
       </TooltipTrigger>
 
-      <TooltipPopup>{data?.balance}</TooltipPopup>
+      <TooltipPopup>Manage your plan</TooltipPopup>
     </Tooltip>
   );
 }

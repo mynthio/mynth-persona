@@ -128,7 +128,6 @@ export const generateSceneImageDemoTask = schemaTask({
       await tx.insert(imageGenerations).values({
         id: imageGenerationId,
         aiModel: imageGenerationModel.modelId,
-
         prompt: promptResult.text,
         userId,
         personaId: personaId,
@@ -137,7 +136,6 @@ export const generateSceneImageDemoTask = schemaTask({
         completedAt: new Date(),
         imageId: imageId,
         runId: ctx.run.id,
-        tokensCost: 0,
       });
     });
 

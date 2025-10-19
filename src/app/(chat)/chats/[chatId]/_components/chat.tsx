@@ -32,7 +32,6 @@ import ChatMessages from "./chat-messages";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
-import { useTokensBalanceMutation } from "@/app/_queries/use-tokens-balance.query";
 
 type ChatProps = {
   chat: { id: string; mode: ChatMode };
@@ -41,10 +40,12 @@ type ChatProps = {
 
 export default function Chat(props: ChatProps) {
   const { addMessageToBranch, setActiveId } = useChatBranchesContext();
-  const mutateBalance = useTokensBalanceMutation();
   // Use non-null assertion for ref type to satisfy downstream component prop types
   const messagesContainerRef = useRef<HTMLDivElement>(null!);
   const shouldScrollRef = useRef(false);
+  const setShouldScroll = (value: boolean) => {
+    shouldScrollRef.current = value;
+  };
 
   useChat({
     id: props.chat.id,
@@ -74,19 +75,6 @@ export default function Chat(props: ChatProps) {
         id: message.id,
         createdAt: new Date(),
       });
-
-      const cost = message.metadata?.cost ?? 0;
-      if (cost) {
-        mutateBalance((state) =>
-          state
-            ? {
-                ...state,
-                balance: state.balance - cost,
-                totalBalance: state.balance - cost,
-              }
-            : undefined
-        );
-      }
     },
 
     generateId: () => `msg_${nanoid(32)}`,
@@ -101,6 +89,7 @@ export default function Chat(props: ChatProps) {
       <ChatPrompt
         messagesContainerRef={messagesContainerRef}
         shouldScrollRef={shouldScrollRef}
+        setShouldScroll={setShouldScroll}
       />
     </div>
   );
@@ -109,6 +98,7 @@ export default function Chat(props: ChatProps) {
 type ChatPromptProps = {
   messagesContainerRef: React.RefObject<HTMLDivElement>;
   shouldScrollRef: React.MutableRefObject<boolean>;
+  setShouldScroll: (value: boolean) => void;
 };
 
 function ChatPrompt(props: ChatPromptProps) {
@@ -121,7 +111,7 @@ function ChatPrompt(props: ChatPromptProps) {
   // Scroll to position last user message at top of viewport when new message is sent
   useEffect(() => {
     if (props.shouldScrollRef.current && props.messagesContainerRef.current) {
-      props.shouldScrollRef.current = false;
+      props.setShouldScroll(false);
 
       // Wait for the next animation frame to ensure DOM is updated
       const rafId = requestAnimationFrame(() => {
@@ -150,7 +140,7 @@ function ChatPrompt(props: ChatPromptProps) {
 
       return () => cancelAnimationFrame(rafId);
     }
-  }, [messages.length, props.messagesContainerRef, props.shouldScrollRef]);
+  }, [messages.length, props.messagesContainerRef, props.setShouldScroll]);
 
   const handleSubmit = async (
     message: PromptInputMessage,
@@ -171,7 +161,7 @@ function ChatPrompt(props: ChatPromptProps) {
     if (!text || text === "") return;
 
     // Set flag to trigger scroll after message is added
-    props.shouldScrollRef.current = true;
+    props.setShouldScroll(true);
 
     sendMessage(
       {

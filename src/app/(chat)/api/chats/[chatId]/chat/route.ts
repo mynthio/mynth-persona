@@ -17,7 +17,6 @@ import { auth } from "@clerk/nextjs/server";
 import { getDefaultPromptDefinitionForMode } from "@/lib/prompts/registry";
 import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
-import { refundTokens } from "@/services/token/token-manager.service";
 import { DEFAULT_CHAT_MODEL } from "@/config/shared/chat/chat-models.config";
 import { trackChatError } from "@/lib/logsnag";
 import { notFound } from "next/navigation";
@@ -31,9 +30,10 @@ import { getChatMessagesData } from "@/data/messages/get-chat-messages.data";
 import { getChatByIdForUserCached } from "@/data/chats/get-chat.data";
 
 import { kv } from "@vercel/kv";
-import { burnSparks, BurnSparksResult } from "@/services/sparks/sparks.service";
-import { FreeModelChatRateLimit, rateLimitGuard } from "@/lib/rate-limit";
 import ms from "ms";
+import { getUserPlan } from "@/services/auth/user-plan.service";
+import { CHAT_RATE_LIMITS, rateLimitGuard } from "@/lib/rate-limit";
+import { PlanId } from "@/config/shared/plans";
 
 export const maxDuration = 45;
 
@@ -143,7 +143,6 @@ export async function POST(
    * FETCH CHAT
    */
   const chat = await getChatByIdForUserCached(chatId, userId);
-
   if (!chat) notFound();
 
   /**
@@ -170,32 +169,31 @@ export async function POST(
     textGenerationModels[chatSettings.model ?? DEFAULT_CHAT_MODEL];
   if (!textGenerationModel) throw new Error("Model not supported");
 
-  const textGenerationModelCost =
-    chat.mode === "roleplay"
-      ? textGenerationModel.cost.roleplay
-      : textGenerationModel.cost.story;
-  if (textGenerationModelCost === undefined) {
-    throw new Error(
-      "Something Went Wrong. Model is not supported. Try with another model."
+  const isPremiumModel = textGenerationModel.isPremium;
+
+  const planId = await getUserPlan();
+
+  if (isPremiumModel && planId === "free") {
+    return new Response(
+      JSON.stringify({
+        error: "premium_model_not_available" as const,
+      }),
+      {
+        status: 403,
+      }
     );
   }
 
-  /**
-   * FREE MODELS RATE LIMIT
-   */
-  if (
-    chat.mode === "roleplay"
-      ? textGenerationModel.cost.roleplay === 0
-      : textGenerationModel.cost.story === 0
-  ) {
-    const rateLimitResult = await rateLimitGuard(
-      FreeModelChatRateLimit,
-      userId
-    );
+  const rateLimitter =
+    CHAT_RATE_LIMITS[planId as PlanId][isPremiumModel ? "premium" : "standard"];
 
-    if (!rateLimitResult.success) {
-      return rateLimitResult.rateLimittedResponse;
-    }
+  if (!rateLimitter) {
+    throw new Error("Something went wrong.");
+  }
+
+  const rateLimitResult = await rateLimitGuard(rateLimitter, userId);
+  if (!rateLimitResult.success) {
+    return rateLimitResult.rateLimittedResponse;
   }
 
   /**
@@ -235,24 +233,6 @@ export async function POST(
       chatId,
       parentId: lastMessage?.id ?? null,
     });
-  }
-
-  /**
-   * COST
-   */
-  let tokenResult: BurnSparksResult | null = null;
-  if (textGenerationModelCost > 0) {
-    const result = await burnSparks({
-      userId,
-      amount: textGenerationModelCost,
-    });
-
-    if (!result.success) {
-      return new Response("INSUFFICIENT_TOKENS", {
-        status: 402,
-      });
-    }
-    tokenResult = result;
   }
 
   /**
@@ -352,15 +332,6 @@ export async function POST(
             userId,
             modelId: textGenerationModel.modelId,
           });
-
-          // Refund tokens if the generation itself failed
-          if (
-            textGenerationModelCost > 0 &&
-            tokenResult &&
-            tokenResult.success
-          ) {
-            await refundTokens(userId, textGenerationModelCost);
-          }
         },
 
         /**
@@ -383,7 +354,6 @@ export async function POST(
         messageMetadata: {
           parentId: payload.message.id,
           usage,
-          cost: textGenerationModelCost,
         },
       });
     },
@@ -411,7 +381,6 @@ export async function POST(
           systemPrompt: systemPromptDefinition.id,
           model: textGenerationModel.modelId,
           usage: responseMessage.metadata?.usage,
-          cost: responseMessage.metadata?.cost,
         },
       });
 

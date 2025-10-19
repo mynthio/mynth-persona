@@ -53,5 +53,8 @@ export const chatConfig: ChatConfig = {
     {
       modelId: "nvidia/nemotron-nano-9b-v2",
     },
+    {
+      modelId: "x-ai/grok-3",
+    },
   ],
 };

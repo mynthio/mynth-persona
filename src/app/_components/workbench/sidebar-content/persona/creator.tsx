@@ -25,7 +25,6 @@ import { useEffect, useRef } from "react";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSWRConfig } from "swr";
-import { useTokensBalanceMutation } from "@/app/_queries/use-tokens-balance.query";
 import { useToast } from "@/components/ui/toast";
 
 type CreatorProps = {
@@ -195,7 +194,6 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
   const personaGenerationStore = usePersonaGenerationStore();
   const mutateCurrentVersion = usePersonaVersionMutation(personaId);
   const [, setWorkbenchMode] = useWorkbenchMode();
-  const mutateBalance = useTokensBalanceMutation();
   const toast = useToast();
   const { mutate: swrMutate } = useSWRConfig();
   const { data: currentVersion } = usePersonaVersionQuery(
@@ -217,12 +215,6 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
     setWorkbenchMode("persona");
 
     const response = await enhancePersonaAction(personaId, prompt);
-
-    if (response.balance?.balance !== undefined) {
-      mutateBalance(() => ({
-        balance: response.balance!.balance!,
-      }));
-    }
 
     personaGenerationStore.stream(response.object!, {
       onData: (data) => {

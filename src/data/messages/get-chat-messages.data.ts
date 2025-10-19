@@ -45,7 +45,7 @@ export async function getChatMessagesData(
       parts: unknown;
       created_at: Date;
       updated_at: Date;
-      metadata: any;
+      metadata: PersonaUIMessage["metadata"];
       depth: number;
     }>`
       with recursive thread as (
@@ -74,11 +74,10 @@ export async function getChatMessagesData(
         id: r.id as string,
 
         role: r.role as PersonaUIMessage["role"],
-        parts: r.parts as any,
+        parts: r.parts as PersonaUIMessage["parts"],
 
         metadata: {
           parentId: r.parent_id as string | null,
-          cost: 0,
           usage: {},
         },
       } satisfies PersonaUIMessage)

@@ -2,7 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import "server-only";
-import { tasks } from "@trigger.dev/sdk";
+import { runs, tasks } from "@trigger.dev/sdk";
 import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
 import { and, eq, ne } from "drizzle-orm";
@@ -11,7 +11,14 @@ import { ImageStyle } from "@/types/image-generation/image-style.type";
 import { ShotType } from "@/types/image-generation/shot-type.type";
 import { ImageGenerationQuality } from "@/types/image-generation/image-generation-quality.type";
 import { PersonaWithVersion } from "@/types/persona.type";
-import { burnSparks } from "@/services/sparks/sparks.service";
+import { logger } from "@/lib/logger";
+import { getUserPlan } from "@/services/auth/user-plan.service";
+import { PlanId } from "@/config/shared/plans";
+import {
+  CONCURRENT_IMAGE_JOBS_PER_PLAN,
+  IMAGE_GENERATIONS_RATE_LIMITS,
+  rateLimitGuard,
+} from "@/lib/rate-limit";
 
 // Quality-based cost configuration
 const QUALITY_COSTS: Record<ImageGenerationQuality, number> = {
@@ -38,6 +45,41 @@ export const generatePersonaImage = async (
     throw new Error("Unauthorized");
   }
 
+  const runningJobs = await runs.list({
+    status: ["EXECUTING", "WAITING", "PENDING_VERSION", "DELAYED", "QUEUED"],
+    taskIdentifier: "generate-persona-image",
+    tag: [`user:${userId}`],
+  });
+
+  logger.debug(
+    {
+      runningJobs,
+    },
+    "Running jobs 👟"
+  );
+
+  const planId = await getUserPlan();
+
+  if (planId !== "blaze" && settings.quality === "high") {
+    throw new Error(
+      "High quality is not available for this plan. It's available only for Blaze plan."
+    );
+  }
+
+  const rateLimitter = IMAGE_GENERATIONS_RATE_LIMITS[planId as PlanId];
+
+  const rateLimitResult = await rateLimitGuard(rateLimitter, userId);
+  if (!rateLimitResult.success) {
+    throw new Error("Rate limit exceeded");
+  }
+
+  const concurrentImageJobsPerPlan =
+    CONCURRENT_IMAGE_JOBS_PER_PLAN[planId as PlanId];
+
+  if (runningJobs.data.length >= concurrentImageJobsPerPlan) {
+    throw new Error("You have a job running already");
+  }
+
   const persona = await db.query.personas.findFirst({
     where: and(
       eq(personas.id, personaId),
@@ -60,15 +102,6 @@ export const generatePersonaImage = async (
   // Calculate cost based on quality
   const cost = QUALITY_COSTS[settings.quality];
 
-  const canUserExecuteAction = await burnSparks({
-    userId,
-    amount: cost,
-  });
-
-  if (canUserExecuteAction.success === false) {
-    throw new Error(canUserExecuteAction.error || "Not enough tokens");
-  }
-
   const taskHandle = await tasks.trigger<typeof generatePersonaImageTask>(
     "generate-persona-image",
     {
@@ -77,13 +110,15 @@ export const generatePersonaImage = async (
         version: persona.currentVersion as PersonaWithVersion["version"],
       },
       userId,
-      cost,
 
       quality: settings.quality,
       style: settings.style,
       shotType: settings.shotType,
       nsfw: settings.nsfw || false,
       userNote: settings.userNote || "",
+    },
+    {
+      tags: [`user:${userId}`],
     }
   );
 
@@ -91,7 +126,5 @@ export const generatePersonaImage = async (
     taskId: taskHandle.id,
     publicAccessToken: taskHandle.publicAccessToken,
     cost,
-    remainingBalance: canUserExecuteAction.sparksAfter,
-    balance: { balance: canUserExecuteAction.sparksAfter },
   };
 };

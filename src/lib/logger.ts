@@ -4,7 +4,6 @@ import pino, { Logger } from "pino";
 // Prevent tree-shaking
 import "@axiomhq/pino";
 
-import "@logtail/pino";
 import { LanguageModelResponseMetadata, LanguageModelUsage } from "ai";
 
 const isProduction =

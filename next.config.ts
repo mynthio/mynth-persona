@@ -4,7 +4,7 @@ import createMDX from "@next/mdx";
 const nextConfig: NextConfig = {
   // Enable MDX and Markdown pages
   pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
-  serverExternalPackages: ["pino", "@axiomhq/pino", "@logtail/pino"],
+  serverExternalPackages: ["pino", "@axiomhq/pino"],
 
   eslint: {
     ignoreDuringBuilds: true,

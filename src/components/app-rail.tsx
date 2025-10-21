@@ -50,6 +50,7 @@ export function AppRail() {
 
   const view = useMemo(() => {
     if (pathname.startsWith("/chats")) return "chats";
+    if (pathname.startsWith("/scenarios")) return "chats";
     if (pathname.startsWith("/images")) return "images";
 
     return "personas";

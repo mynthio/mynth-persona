@@ -5,28 +5,27 @@ import { ScrollArea as BUScrollArea } from "@base-ui-components/react/scroll-are
 
 import { cn } from "@/lib/utils";
 
-function ScrollArea({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof BUScrollArea.Root>) {
-  return (
-    <BUScrollArea.Root
-      data-slot="scroll-area"
-      className={cn("relative overflow-hidden", className)}
-      {...props}
-    >
-      <BUScrollArea.Viewport
-        data-slot="scroll-area-viewport"
-        className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1 overflow-y-auto overscroll-contain touch-pan-y min-h-0 max-h-full"
+const ScrollArea = React.forwardRef<HTMLDivElement, React.ComponentProps<typeof BUScrollArea.Root>>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <BUScrollArea.Root
+        data-slot="scroll-area"
+        className={cn("relative overflow-hidden", className)}
+        {...props}
       >
-        {children}
-      </BUScrollArea.Viewport>
-      <ScrollBar />
-      <BUScrollArea.Corner />
-    </BUScrollArea.Root>
-  );
-}
+        <BUScrollArea.Viewport
+          ref={ref}
+          data-slot="scroll-area-viewport"
+          className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1 overflow-y-auto overscroll-contain touch-pan-y min-h-0 max-h-full"
+        >
+          {children}
+        </BUScrollArea.Viewport>
+        <ScrollBar />
+        <BUScrollArea.Corner />
+      </BUScrollArea.Root>
+    );
+  }
+);
 
 function ScrollBar({
   className,
@@ -54,5 +53,7 @@ function ScrollBar({
     </BUScrollArea.Scrollbar>
   );
 }
+
+ScrollArea.displayName = "ScrollArea";
 
 export { ScrollArea, ScrollBar };

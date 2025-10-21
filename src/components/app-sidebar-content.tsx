@@ -34,6 +34,7 @@ export function SidebarContentRouter() {
 
   const view = useMemo(() => {
     if (pathname.startsWith("/chats")) return "chats";
+    if (pathname.startsWith("/scenarios")) return "chats";
     if (pathname.startsWith("/images")) return "images";
 
     return "personas";
@@ -223,6 +224,18 @@ function SidebarChatsContent() {
                 >
                   <PlanetIcon />
                   <span>New chat</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link
+                  href={"/scenarios"}
+                  className="h-[38px] text-[16px] rounded-[16px]"
+                >
+                  <ShootingStarIcon />
+                  <span>Scenarios</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

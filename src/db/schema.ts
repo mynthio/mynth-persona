@@ -15,6 +15,8 @@ import {
   primaryKey,
   smallint,
   check,
+  uuid,
+  numeric,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 
@@ -85,6 +87,25 @@ export const tagCategoryEnum = pgEnum("tag_category", [
   "age",
   "style",
   "other",
+]);
+
+export const scenarioStatusEnum = pgEnum("scenario_status", [
+  "official",
+  "community",
+  "verified",
+]);
+
+export const roleTypeEnum = pgEnum("role_type_enum", [
+  "default",
+  "suggested",
+  "featured",
+]);
+
+export const scenarioContentRatingEnum = pgEnum("scenario_content_rating", [
+  "everyone",
+  "teen",
+  "mature",
+  "adult",
 ]);
 
 // Users table - references Clerk auth
@@ -405,10 +426,124 @@ export const tokenTransactions = pgTable("token_transactions", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Scenarios table - reusable scenario templates for chats
+export const scenarios = pgTable(
+  "scenarios",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: varchar("title", { length: 255 }).notNull(),
+    description: text("description"),
+    content: jsonb("content").notNull(), // {"scenario_text": "...", "user_persona_text": "...", "starting_messages": [...], "style_guidelines": "...", "system_prompt_override": "...", "suggested_user_name": "..."}
+    isAnonymous: boolean("is_anonymous").notNull().default(false),
+    backgroundImageUrl: varchar("background_image_url", { length: 255 }),
+    visibility: personaVisibilityEnum("visibility")
+      .notNull()
+      .default("private"),
+    status: scenarioStatusEnum("status").notNull().default("community"),
+    contentRating: scenarioContentRatingEnum("content_rating")
+      .notNull()
+      .default("everyone"),
+    suggestedAiModels: jsonb("suggested_ai_models"),
+    ratingsAvg: numeric("ratings_avg", { precision: 3, scale: 2 })
+      .notNull()
+      .default("0.00"),
+    ratingsCount: integer("ratings_count").notNull().default(0),
+    usageCount: integer("usage_count").notNull().default(0),
+    reportCount: integer("report_count").notNull().default(0),
+    lastUsedAt: timestamp("last_used_at"),
+    creatorId: varchar("creator_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    verifiedBy: varchar("verified_by", { length: 255 }).references(
+      () => users.id,
+      { onDelete: "set null" }
+    ),
+    verifiedAt: timestamp("verified_at"),
+    preferredGroupMembers: integer("preferred_group_members")
+      .notNull()
+      .default(1),
+    deletedAt: timestamp("deleted_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (t) => [
+    index("scenarios_visibility_idx").on(t.visibility),
+    index("scenarios_status_idx").on(t.status),
+    index("scenarios_creator_id_idx").on(t.creatorId),
+    index("scenarios_content_rating_idx").on(t.contentRating),
+  ]
+);
+
+// Scenario-Personas junction table - links personas to scenarios with roles
+export const scenarioPersonas = pgTable(
+  "scenario_personas",
+  {
+    scenarioId: uuid("scenario_id")
+      .notNull()
+      .references(() => scenarios.id, { onDelete: "cascade" }),
+    personaId: text("persona_id")
+      .notNull()
+      .references(() => personas.id, { onDelete: "cascade" }),
+    roleType: roleTypeEnum("role_type").notNull().default("suggested"),
+    metadata: jsonb("metadata"), // Generic flexible field, e.g., {"order": 1, "required": true}
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.scenarioId, t.personaId] }),
+    index("scenario_personas_role_type_idx").on(t.roleType),
+  ]
+);
+
+// Scenario-Tags junction table - links scenarios to tags
+export const scenarioTags = pgTable(
+  "scenario_tags",
+  {
+    scenarioId: uuid("scenario_id")
+      .notNull()
+      .references(() => scenarios.id, { onDelete: "cascade" }),
+    tagId: text("tag_id")
+      .notNull()
+      .references(() => tags.id, { onDelete: "cascade" }),
+    confidence: smallint("confidence").notNull().default(100),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.scenarioId, t.tagId] }),
+    check(
+      "scenario_tags_confidence_check",
+      sql`${t.confidence} >= 0 AND ${t.confidence} <= 100`
+    ),
+  ]
+);
+
+// Ratings table - user ratings for scenarios
+export const ratings = pgTable(
+  "ratings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    scenarioId: uuid("scenario_id")
+      .notNull()
+      .references(() => scenarios.id, { onDelete: "cascade" }),
+    userId: varchar("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    rating: integer("rating").notNull(),
+    comment: text("comment"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    unique("ratings_scenario_user_unique").on(t.scenarioId, t.userId),
+    check("ratings_rating_check", sql`${t.rating} >= 1 AND ${t.rating} <= 5`),
+    index("ratings_scenario_id_idx").on(t.scenarioId),
+  ]
+);
+
 // Relations for better querying
 export const usersRelations = relations(users, ({ many }) => ({
   personas: many(personas),
   chats: many(chats),
+  createdScenarios: many(scenarios),
+  ratings: many(ratings),
 }));
 
 export const personasRelations = relations(personas, ({ one, many }) => ({
@@ -441,6 +576,7 @@ export const personasRelations = relations(personas, ({ one, many }) => ({
     references: [media.id],
   }),
   personaTags: many(personaTags),
+  scenarioPersonas: many(scenarioPersonas),
 }));
 
 export const personaVersionsRelations = relations(
@@ -639,6 +775,7 @@ export const mediaLikesRelations = relations(mediaLikes, ({ one }) => ({
 
 export const tagsRelations = relations(tags, ({ many }) => ({
   personaTags: many(personaTags),
+  scenarioTags: many(scenarioTags),
 }));
 
 export const personaTagsRelations = relations(personaTags, ({ one }) => ({
@@ -669,3 +806,53 @@ export const tokenTransactionsRelations = relations(
     }),
   })
 );
+
+export const scenariosRelations = relations(scenarios, ({ one, many }) => ({
+  creator: one(users, {
+    fields: [scenarios.creatorId],
+    references: [users.id],
+  }),
+  verifier: one(users, {
+    fields: [scenarios.verifiedBy],
+    references: [users.id],
+  }),
+  scenarioPersonas: many(scenarioPersonas),
+  scenarioTags: many(scenarioTags),
+  ratings: many(ratings),
+}));
+
+export const scenarioPersonasRelations = relations(
+  scenarioPersonas,
+  ({ one }) => ({
+    scenario: one(scenarios, {
+      fields: [scenarioPersonas.scenarioId],
+      references: [scenarios.id],
+    }),
+    persona: one(personas, {
+      fields: [scenarioPersonas.personaId],
+      references: [personas.id],
+    }),
+  })
+);
+
+export const scenarioTagsRelations = relations(scenarioTags, ({ one }) => ({
+  scenario: one(scenarios, {
+    fields: [scenarioTags.scenarioId],
+    references: [scenarios.id],
+  }),
+  tag: one(tags, {
+    fields: [scenarioTags.tagId],
+    references: [tags.id],
+  }),
+}));
+
+export const ratingsRelations = relations(ratings, ({ one }) => ({
+  scenario: one(scenarios, {
+    fields: [ratings.scenarioId],
+    references: [scenarios.id],
+  }),
+  user: one(users, {
+    fields: [ratings.userId],
+    references: [users.id],
+  }),
+}));

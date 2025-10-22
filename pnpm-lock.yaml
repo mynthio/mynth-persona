@@ -222,8 +222,8 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0
       posthog-js:
-        specifier: ^1.279.0
-        version: 1.279.0
+        specifier: 1.276.0
+        version: 1.276.0
       posthog-node:
         specifier: ^5.10.2
         version: 5.10.2
@@ -4861,8 +4861,16 @@ packages:
     resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
     engines: {node: '>=0.10.0'}
 
-  posthog-js@1.279.0:
-    resolution: {integrity: sha512-k1Efjlr3+/u0RZ681HJCuCNji4ejac/JVf9lb/dnYpdzwfqGjltrui7pqni9IMUQb+mOYtb1+IVQo12YvU5Afw==}
+  posthog-js@1.276.0:
+    resolution: {integrity: sha512-FYZE1037LrAoKKeUU0pUL7u8WwNK2BVeg5TFApwquVPUdj9h7u5Z077A313hPN19Ar+7Y+VHxqYqdHc4VNsVgw==}
+    peerDependencies:
+      '@rrweb/types': 2.0.0-alpha.17
+      rrweb-snapshot: 2.0.0-alpha.17
+    peerDependenciesMeta:
+      '@rrweb/types':
+        optional: true
+      rrweb-snapshot:
+        optional: true
 
   posthog-node@5.10.2:
     resolution: {integrity: sha512-/C8dlu3bPH4BJ5C5bFJY3jzd2ZvP12N8dqeddTCatRTXYqfWjrLV8fqC1rn8t+zNZz1bx+cC2E4hfYF0vba8jw==}
@@ -10964,7 +10972,7 @@ snapshots:
     dependencies:
       xtend: 4.0.2
 
-  posthog-js@1.279.0:
+  posthog-js@1.276.0:
     dependencies:
       '@posthog/core': 1.3.0
       core-js: 3.46.0

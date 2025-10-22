@@ -3,27 +3,39 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Field as FieldPrimitive } from "@base-ui-components/react/field";
 
-function FieldRoot({ className, ...props }: React.ComponentProps<typeof FieldPrimitive.Root>) {
+function FieldRoot({
+  className,
+  ...props
+}: React.ComponentProps<typeof FieldPrimitive.Root>) {
   return (
     <FieldPrimitive.Root
       data-slot="field-root"
-      className={cn(className)}
+      className={cn("flex flex-col items-start gap-[4px]", className)}
       {...props}
     />
   );
 }
 
-function FieldLabel({ className, ...props }: React.ComponentProps<typeof FieldPrimitive.Label>) {
+function FieldLabel({
+  className,
+  ...props
+}: React.ComponentProps<typeof FieldPrimitive.Label>) {
   return (
     <FieldPrimitive.Label
       data-slot="field-label"
-      className={cn(className)}
+      className={cn(
+        "text-[0.8rem] font-[600] font-onest text-surface-foreground/50 ml-[2px]",
+        className
+      )}
       {...props}
     />
   );
 }
 
-function FieldControl({ className, ...props }: React.ComponentProps<typeof FieldPrimitive.Control>) {
+function FieldControl({
+  className,
+  ...props
+}: React.ComponentProps<typeof FieldPrimitive.Control>) {
   return (
     <FieldPrimitive.Control
       data-slot="field-control"
@@ -33,17 +45,26 @@ function FieldControl({ className, ...props }: React.ComponentProps<typeof Field
   );
 }
 
-function FieldDescription({ className, ...props }: React.ComponentProps<typeof FieldPrimitive.Description>) {
+function FieldDescription({
+  className,
+  ...props
+}: React.ComponentProps<typeof FieldPrimitive.Description>) {
   return (
     <FieldPrimitive.Description
       data-slot="field-description"
-      className={cn(className)}
+      className={cn(
+        "text-[0.75rem] font-[400] ml-[2px] max-w-11/12 text-surface-foreground/50",
+        className
+      )}
       {...props}
     />
   );
 }
 
-function FieldError({ className, ...props }: React.ComponentProps<typeof FieldPrimitive.Error>) {
+function FieldError({
+  className,
+  ...props
+}: React.ComponentProps<typeof FieldPrimitive.Error>) {
   return (
     <FieldPrimitive.Error
       data-slot="field-error"
@@ -53,7 +74,9 @@ function FieldError({ className, ...props }: React.ComponentProps<typeof FieldPr
   );
 }
 
-function FieldValidity(props: React.ComponentProps<typeof FieldPrimitive.Validity>) {
+function FieldValidity(
+  props: React.ComponentProps<typeof FieldPrimitive.Validity>
+) {
   return <FieldPrimitive.Validity data-slot="field-validity" {...props} />;
 }
 

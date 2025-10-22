@@ -99,6 +99,7 @@ export const roleTypeEnum = pgEnum("role_type_enum", [
   "default",
   "suggested",
   "featured",
+  "primary",
 ]);
 
 export const scenarioContentRatingEnum = pgEnum("scenario_content_rating", [
@@ -106,6 +107,11 @@ export const scenarioContentRatingEnum = pgEnum("scenario_content_rating", [
   "teen",
   "mature",
   "adult",
+]);
+
+export const scenarioPersonaSourceEnum = pgEnum("scenario_persona_source", [
+  "author",
+  "community",
 ]);
 
 // Users table - references Clerk auth
@@ -485,6 +491,7 @@ export const scenarioPersonas = pgTable(
       .notNull()
       .references(() => personas.id, { onDelete: "cascade" }),
     roleType: roleTypeEnum("role_type").notNull().default("suggested"),
+    source: scenarioPersonaSourceEnum("source").notNull().default("author"),
     metadata: jsonb("metadata"), // Generic flexible field, e.g., {"order": 1, "required": true}
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },

@@ -5,27 +5,28 @@ import { ScrollArea as BUScrollArea } from "@base-ui-components/react/scroll-are
 
 import { cn } from "@/lib/utils";
 
-const ScrollArea = React.forwardRef<HTMLDivElement, React.ComponentProps<typeof BUScrollArea.Root>>(
-  ({ className, children, ...props }, ref) => {
-    return (
-      <BUScrollArea.Root
-        data-slot="scroll-area"
-        className={cn("relative overflow-hidden", className)}
-        {...props}
+const ScrollArea = React.forwardRef<
+  HTMLDivElement,
+  React.ComponentProps<typeof BUScrollArea.Root>
+>(({ className, children, ...props }, ref) => {
+  return (
+    <BUScrollArea.Root
+      data-slot="scroll-area"
+      className={cn("relative overflow-hidden", className)}
+      {...props}
+    >
+      <BUScrollArea.Viewport
+        ref={ref}
+        data-slot="scroll-area-viewport"
+        className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1 overflow-y-auto overscroll-contain touch-pan-y min-h-0 max-h-full"
       >
-        <BUScrollArea.Viewport
-          ref={ref}
-          data-slot="scroll-area-viewport"
-          className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1 overflow-y-auto overscroll-contain touch-pan-y min-h-0 max-h-full"
-        >
-          {children}
-        </BUScrollArea.Viewport>
-        <ScrollBar />
-        <BUScrollArea.Corner />
-      </BUScrollArea.Root>
-    );
-  }
-);
+        {children}
+      </BUScrollArea.Viewport>
+      <ScrollBar />
+      <BUScrollArea.Corner />
+    </BUScrollArea.Root>
+  );
+});
 
 function ScrollBar({
   className,
@@ -48,7 +49,7 @@ function ScrollBar({
     >
       <BUScrollArea.Thumb
         data-slot="scroll-area-thumb"
-        className="bg-surface-100 hover:bg-surface-200 relative flex-1 rounded-full transition-colors duration-200"
+        className="bg-primary/30 hover:bg-primary/70 relative flex-1 rounded-full transition-colors duration-200"
       />
     </BUScrollArea.Scrollbar>
   );

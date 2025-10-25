@@ -10,9 +10,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
 
-  experimental: {
-    reactCompiler: true,
-  },
+  reactCompiler: true,
 };
 
 const withMDX = createMDX({

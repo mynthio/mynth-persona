@@ -3,3 +3,4 @@ export * from "./persona.schema";
 export * from "./chats";
 export * from "./personas";
 export * from "./messages/message-preview.schema";
+export * from "./scenarios";

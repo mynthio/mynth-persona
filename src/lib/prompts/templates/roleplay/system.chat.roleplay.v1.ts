@@ -18,8 +18,8 @@ User's Character: ${args.user.name}. ${
 `
         : "";
 
-    const scenarioBlock = args.scenario?.scenario?.trim()
-      ? `\n\nScenario: ${args.scenario.scenario.trim()}`
+    const scenarioBlock = args.scenario?.scenario_text?.trim()
+      ? `\n\nScenario: ${args.scenario.scenario_text.trim()}`
       : "";
 
     return `You are to fully embody and roleplay exclusively as ${

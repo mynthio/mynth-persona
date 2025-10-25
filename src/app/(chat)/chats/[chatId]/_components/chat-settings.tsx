@@ -418,7 +418,7 @@ function ChatSettingsScenario() {
     await updateChatAction(chatId, {
       settings: {
         scenario: {
-          scenario,
+          scenario_text: scenario,
         },
       },
     })
@@ -426,7 +426,8 @@ function ChatSettingsScenario() {
         setSettings({
           ...settings,
           scenario: {
-            scenario,
+            ...settings.scenario,
+            scenario_text: scenario,
           },
         });
       })
@@ -453,7 +454,7 @@ function ChatSettingsScenario() {
           name="scenario"
           minRows={3}
           placeholder="Custom scenario for chat"
-          defaultValue={settings.scenario?.scenario ?? ""}
+          defaultValue={settings.scenario?.scenario_text ?? ""}
           autoComplete="off"
           data-form-type="other"
           disabled={isStoryMode}

@@ -32,6 +32,14 @@ export const PersonaCreatorAuthenticatedRateLimit = new Ratelimit({
   onError: () => ({ success: true, limit: 0, remaining: 0, reset: 0 }),
 });
 
+export const ScenarioPublishRateLimit = new Ratelimit({
+  rootKey: ROOT_KEY,
+  namespace: "scenario.publish",
+  limit: 5,
+  duration: "1h",
+  onError: () => ({ success: false, limit: 0, remaining: 0, reset: 0 }),
+});
+
 export const FreeModelChatRateLimit = new Ratelimit({
   rootKey: ROOT_KEY,
   namespace: "chat.free",

@@ -15,19 +15,17 @@
  * @example
  * // Multiple selection with selected persona display
  * <PersonaSelector value={selectedIds} onChange={setSelectedIds} multiple>
- *   <PersonaSelectorValue>
- *     {({ selectedPersonas, removePersona }) => (
- *       <div className="flex gap-2 flex-wrap">
- *         {selectedPersonas.map(persona => (
- *           <PersonaChip
- *             key={persona.id}
- *             persona={persona}
- *             onRemove={() => removePersona(persona.id)}
- *           />
- *         ))}
- *       </div>
- *     )}
- *   </PersonaSelectorValue>
+ *   <div className="flex gap-2 flex-wrap">
+ *     <PersonaSelectorValue>
+ *       {(persona, removePersona) => (
+ *         <PersonaChip
+ *           key={persona.id}
+ *           persona={persona}
+ *           onRemove={removePersona}
+ *         />
+ *       )}
+ *     </PersonaSelectorValue>
+ *   </div>
  *
  *   <PersonaSelectorTrigger asChild>
  *     <Button>Add Personas</Button>
@@ -47,23 +45,20 @@
  * }
  *
  * @example
- * // Advanced: Custom trigger in multiple places
+ * // Advanced: Custom layout with personas
  * <PersonaSelector value={ids} onChange={setIds} multiple>
  *   <div className="space-y-4">
- *     <PersonaSelectorTrigger asChild>
- *       <Button>Select from Sidebar</Button>
- *     </PersonaSelectorTrigger>
+ *     <div className="flex gap-2 flex-wrap">
+ *       <PersonaSelectorValue>
+ *         {(persona, removePersona) => (
+ *           <PersonaChip key={persona.id} persona={persona} onRemove={removePersona} />
+ *         )}
+ *       </PersonaSelectorValue>
+ *     </div>
  *
- *     <PersonaSelectorValue>
- *       {({ selectedPersonas, removePersona, openDialog }) => (
- *         <div>
- *           {selectedPersonas.map(p => (
- *             <PersonaChip key={p.id} persona={p} onRemove={() => removePersona(p.id)} />
- *           ))}
- *           <Button onClick={openDialog}>Add More</Button>
- *         </div>
- *       )}
- *     </PersonaSelectorValue>
+ *     <PersonaSelectorTrigger asChild>
+ *       <Button>Add More Personas</Button>
+ *     </PersonaSelectorTrigger>
  *   </div>
  * </PersonaSelector>
  */
@@ -103,6 +98,11 @@ import useInfiniteScroll from "react-infinite-scroll-hook";
 import { ScrollArea } from "./mynth-ui/base/scroll-area";
 
 const MAX_PERSONAS = 250;
+
+// Utility function to get display name from persona
+function getPersonaDisplayName(persona: Persona): string {
+  return persona.publicName || persona.title || "Untitled";
+}
 
 export type Persona = {
   id: string;
@@ -238,10 +238,8 @@ export function PersonaSelectorTrigger({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger
-        render={asChild && children ? children : <Button />}
-      >
-        {asChild ? children : children || <>Select Persona</>}
+      <DialogTrigger render={asChild && children ? children : <Button />}>
+        {!asChild && (children || "Select Persona")}
       </DialogTrigger>
 
       <DialogPortal>
@@ -254,25 +252,25 @@ export function PersonaSelectorTrigger({
   );
 }
 
-// Value display component with render prop
+// Value display component with render prop that iterates over personas
 type PersonaSelectorValueProps = {
-  children: (props: {
-    selectedPersonas: Persona[];
-    removePersona: (id: string) => void;
-    openDialog: () => void;
-    closeDialog: () => void;
-  }) => ReactNode;
+  children: (
+    persona: Persona,
+    removePersona: () => void,
+    index: number
+  ) => ReactNode;
 };
 
 export function PersonaSelectorValue({
   children,
 }: PersonaSelectorValueProps) {
-  const { selectedPersonas, removePersona, openDialog, closeDialog } =
-    usePersonaSelector();
+  const { selectedPersonas, removePersona } = usePersonaSelector();
 
   return (
     <>
-      {children({ selectedPersonas, removePersona, openDialog, closeDialog })}
+      {selectedPersonas.map((persona, index) =>
+        children(persona, () => removePersona(persona.id), index)
+      )}
     </>
   );
 }
@@ -289,9 +287,7 @@ export function PersonaChip({
   onRemove,
   className,
 }: PersonaChipProps) {
-  const getDisplayName = (persona: Persona) => {
-    return persona.publicName || persona.title || "Untitled";
-  };
+  const displayName = getPersonaDisplayName(persona);
 
   return (
     <div
@@ -304,7 +300,7 @@ export function PersonaChip({
         {persona.profileImageId ? (
           <img
             src={getImageUrl(persona.profileImageId, "thumb")}
-            alt={getDisplayName(persona)}
+            alt={displayName}
             width={24}
             height={24}
             className="object-cover"
@@ -314,16 +310,14 @@ export function PersonaChip({
         )}
       </div>
 
-      <span className="text-sm font-medium truncate">
-        {getDisplayName(persona)}
-      </span>
+      <span className="text-sm font-medium truncate">{displayName}</span>
 
       {onRemove && (
         <button
           type="button"
           onClick={onRemove}
           className="shrink-0 size-[16px] rounded-[4px] hover:bg-surface-200 flex items-center justify-center transition-colors"
-          aria-label={`Remove ${getDisplayName(persona)}`}
+          aria-label={`Remove ${displayName}`}
         >
           <XIcon className="size-[12px]" />
         </button>
@@ -404,10 +398,6 @@ function PersonaSelectorContent() {
     setIsOpen(false);
   };
 
-  const getDisplayName = (persona: Persona) => {
-    return persona.publicName || persona.title || "Untitled";
-  };
-
   return (
     <>
       <DialogTitle className="sr-only">Select Persona</DialogTitle>
@@ -474,7 +464,7 @@ function PersonaSelectorContent() {
                     {persona.profileImageId ? (
                       <img
                         src={getImageUrl(persona.profileImageId, "thumb")}
-                        alt={getDisplayName(persona)}
+                        alt={getPersonaDisplayName(persona)}
                         width={48}
                         height={48}
                         className="object-cover"
@@ -486,7 +476,7 @@ function PersonaSelectorContent() {
 
                   <div className="flex-1 text-left min-w-0">
                     <div className="font-medium text-sm truncate">
-                      {getDisplayName(persona)}
+                      {getPersonaDisplayName(persona)}
                     </div>
                     <div className="text-xs text-muted-foreground flex items-center gap-2">
                       {persona.visibility === "public" && (

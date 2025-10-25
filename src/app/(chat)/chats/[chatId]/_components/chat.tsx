@@ -14,7 +14,7 @@ import {
   PromptInputBody,
   PromptInputMessage,
   PromptInputTextarea,
-  PromptInputToolbar,
+  PromptInputFooter,
   PromptInputTools,
 } from "@/components/mynth-ui/ai/prompt-input";
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
@@ -184,19 +184,19 @@ function ChatPrompt(props: ChatPromptProps) {
   return (
     <PromptInput
       onSubmit={handleSubmit}
-      className="sticky bottom-[12px] z-20 w-full max-w-[40rem] mx-auto mb-[12px]"
+      className="sticky bottom-[12px] z-20 w-full max-w-[40rem] items-start h-auto max-h-auto mx-auto mb-[12px]"
     >
-      <PromptInputBody className="w-full max-w-full">
+      <PromptInputBody className="w-full max-w-full h-full">
         <PromptInputTextarea
           disabled={status !== "ready"}
           placeholder="Write a message..."
           aria-label="Message Input"
-          className="w-full"
+          className="w-full h-full h-auto"
         />
       </PromptInputBody>
 
-      <PromptInputToolbar>
-        <PromptInputTools>
+      <PromptInputFooter className="w-full px-[24px] h-[42px] shrink-0 mb-[9px]">
+        <PromptInputTools className="w-full">
           <ButtonGroup>
             <ChatModelSelector />
             <ButtonGroup.Separator />
@@ -215,6 +215,7 @@ function ChatPrompt(props: ChatPromptProps) {
           size="icon"
           type="submit"
           aria-label="Send message"
+          className="shrink-0"
           disabled={status === "streaming" || status === "submitted"}
         >
           {status === "error" ? (
@@ -225,7 +226,7 @@ function ChatPrompt(props: ChatPromptProps) {
             <PaperPlaneTiltIcon />
           )}
         </Button>
-      </PromptInputToolbar>
+      </PromptInputFooter>
     </PromptInput>
   );
 }

@@ -14,7 +14,7 @@ import {
   PromptInput,
   PromptInputTextarea,
   PromptInputSubmit,
-  PromptInputToolbar,
+  PromptInputFooter,
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input";
 
@@ -260,7 +260,7 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
           e.preventDefault();
           void handleClick();
         }}
-        className="w-full mx-auto sticky bottom-4 p-2 bg-gradient-to-t from-zinc-50/80 to-white/70 backdrop-blur-lg border-zinc-200 shadow-lg shadow-zinc-100/50"
+        className="w-full mx-auto sticky bottom-4 rounded-[32px] bg-gradient-to-t from-zinc-50/80 to-white/70 backdrop-blur-lg border-zinc-200 shadow-lg shadow-zinc-100/50"
       >
         <PromptInputTextarea
           value={prompt}
@@ -268,12 +268,8 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
           onChange={(e) => setPrompt(e.currentTarget.value)}
           disabled={personaGenerationStore.isGenerating}
         />
-        <PromptInputToolbar>
-          <PromptInputTools>
-            <Badge variant="secondary" className="gap-1 px-2 py-1">
-              <CoinsIcon />1
-            </Badge>
-          </PromptInputTools>
+        <PromptInputFooter>
+          <PromptInputTools></PromptInputTools>
           <PromptInputSubmit
             status={
               personaGenerationStore.isGenerating ? "submitted" : undefined
@@ -282,7 +278,7 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
             disabled={!prompt.trim() || personaGenerationStore.isGenerating}
             className="size-10 shadow-none transition duration-250 hover:scale-110 bg-gradient-to-tr from-zinc-100 to-zinc-100/70 hover:to-zinc-100/80 text-sm text-zinc-600"
           />
-        </PromptInputToolbar>
+        </PromptInputFooter>
       </PromptInput>
     </div>
   );

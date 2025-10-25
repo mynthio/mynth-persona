@@ -21,11 +21,25 @@ export type ChatSettingsUserPersona = z.infer<
 >;
 
 /**
+ * Starting message schema for chat settings (v4 compatible)
+ */
+const chatStartingMessageSchema = z.object({
+  role: z.enum(["user", "persona"]),
+  text: z.string(),
+});
+
+/**
  * Chat Settings Scenario
- * Single property object for custom chat scenario
+ * Full scenario content with reference to the source scenario
  */
 export const chatSettingsScenarioSchema = z.object({
-  scenario: z.string().min(0).max(4000),
+  scenarioId: z.string().startsWith("scn_").optional(), // Reference to source scenario
+  scenario_text: z.string(),
+  user_persona_text: z.string().optional(),
+  suggested_user_name: z.string().optional(),
+  starting_messages: z.array(chatStartingMessageSchema).optional(),
+  style_guidelines: z.string().optional(),
+  system_prompt_override: z.string().optional(),
 });
 
 export type ChatSettingsScenario = z.infer<typeof chatSettingsScenarioSchema>;

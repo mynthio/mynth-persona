@@ -20,14 +20,25 @@ import {
   PersonaSelector,
   PersonaSelectorTrigger,
   PersonaSelectorValue,
-  PersonaChip,
   Persona,
 } from "@/components/persona-selector";
+import { getImageUrl } from "@/lib/utils";
+import { StarIcon, TrashIcon, UserIcon } from "@phosphor-icons/react/dist/ssr";
+import { z } from "zod";
+import {
+  scenarioFormFieldsSchema,
+  startingMessagesSchema,
+  type StartingMessage,
+} from "@/schemas/shared";
+import { createScenarioAction } from "@/actions/scenarios/create-scenario.action";
 
-interface StartingMessage {
-  role: "user" | "persona";
-  content: string;
-}
+// Get valid model IDs for validation
+const validModelIds = Object.keys(textGenerationModels);
+
+// Validation for suggested models (not in FormData)
+const suggestedModelsSchema = z.array(
+  z.enum(validModelIds as [string, ...string[]])
+);
 
 function ScenarioContentField() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -78,7 +89,7 @@ function ScenarioContentField() {
   };
 
   return (
-    <Field.Root>
+    <Field.Root name="content">
       <Field.Label>Scenario Content</Field.Label>
       <TextareaAutosize
         id="content"
@@ -88,6 +99,7 @@ function ScenarioContentField() {
         maxRows={10}
         placeholder="You find yourself in a mysterious forest..."
       />
+      <Field.Error />
       <ButtonGroup className="mt-[12px]">
         <Button
           size="sm"
@@ -113,34 +125,85 @@ function ScenarioContentField() {
   );
 }
 
-function PersonaSelectorField() {
-  const [selectedPersonas, setSelectedPersonas] = useState<Array<Persona>>([]);
+function PersonaSelectorField({
+  selectedPersonas,
+  setSelectedPersonas,
+  primaryPersonaId,
+  setPrimaryPersonaId,
+}: {
+  selectedPersonas: Persona[];
+  setSelectedPersonas: (personas: Persona[]) => void;
+  primaryPersonaId: string | null;
+  setPrimaryPersonaId: (id: string | null) => void;
+}) {
+  const handlePersonasChange = (personas: Persona[]) => {
+    setSelectedPersonas(personas);
+    // Clear primary if the primary persona was removed
+    if (primaryPersonaId && !personas.some((p) => p.id === primaryPersonaId)) {
+      setPrimaryPersonaId(null);
+    }
+  };
+
+  const togglePrimaryPersona = (personaId: string) => {
+    setPrimaryPersonaId(primaryPersonaId === personaId ? null : personaId);
+  };
 
   return (
     <Field.Root>
+      <Field.Label>Personas</Field.Label>
       <PersonaSelector
         value={selectedPersonas}
-        onChange={setSelectedPersonas}
+        onChange={handlePersonasChange}
         multiple
       >
         <div className="space-y-[12px] w-full">
-          <PersonaSelectorValue>
-            {({ selectedPersonas, removePersona }) => (
-              <>
-                {selectedPersonas.length > 0 && (
-                  <div className="flex flex-wrap gap-[8px]">
-                    {selectedPersonas.map((persona) => (
-                      <PersonaChip
-                        key={persona.id}
-                        persona={persona}
-                        onRemove={() => removePersona(persona.id)}
-                      />
-                    ))}
+          <div className="flex flex-col gap-[2px]">
+            <PersonaSelectorValue>
+              {(persona, removePersona) => {
+                const isPrimary = persona.id === primaryPersonaId;
+                return (
+                  <div
+                    key={persona.id}
+                    className="w-full flex items-center gap-[9px] bg-white border-[2px] border-surface-100 rounded-[18px] p-[6px]"
+                  >
+                    <div className="shrink-0 size-[32px] rounded-[12px] overflow-hidden bg-surface-100 flex items-center justify-center">
+                      {persona.profileImageId ? (
+                        <img
+                          src={getImageUrl(persona.profileImageId, "thumb")}
+                          alt={
+                            persona.publicName || persona.title || persona.id
+                          }
+                          className="object-cover size-full"
+                        />
+                      ) : (
+                        <UserIcon className="text-surface-foreground/50 size-[14px]" />
+                      )}
+                    </div>
+                    <span className="text-sm font-medium truncate w-full">
+                      {persona.publicName || persona.title}
+                    </span>
+                    <ButtonGroup className="shrink-0">
+                      <Button
+                        size="sm"
+                        variant={isPrimary ? "default" : "outline"}
+                        onClick={() => togglePrimaryPersona(persona.id)}
+                      >
+                        <StarIcon weight={isPrimary ? "fill" : "regular"} />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        color="red"
+                        onClick={removePersona}
+                      >
+                        <TrashIcon />
+                      </Button>
+                    </ButtonGroup>
                   </div>
-                )}
-              </>
-            )}
-          </PersonaSelectorValue>
+                );
+              }}
+            </PersonaSelectorValue>
+          </div>
 
           <div className="flex items-center justify-center w-full">
             <PersonaSelectorTrigger asChild>
@@ -151,15 +214,22 @@ function PersonaSelectorField() {
           </div>
         </div>
       </PersonaSelector>
+      <Field.Description>
+        Scenarios can be universal, allowing users to use different personas.
+        But sometimes, you might want to make a scenario specifically for some
+        persona. In such case you can use star to mark persona, informing that
+        scenario was made for this persona.
+      </Field.Description>
     </Field.Root>
   );
 }
 
 function TitleField() {
   return (
-    <Field.Root>
+    <Field.Root name="title">
       <Field.Label>Title</Field.Label>
       <Input name="title" placeholder="Adventure of..." />
+      <Field.Error />
       <Field.Description>Title of scenario</Field.Description>
     </Field.Root>
   );
@@ -167,7 +237,7 @@ function TitleField() {
 
 function DescriptionField() {
   return (
-    <Field.Root>
+    <Field.Root name="description">
       <Field.Label>Description</Field.Label>
       <TextareaAutosize
         minRows={1}
@@ -175,6 +245,7 @@ function DescriptionField() {
         name="description"
         placeholder="A thrilling adventure where..."
       />
+      <Field.Error />
       <Field.Description>
         Description of scenario, should be catchy and describe scenario summary.
         1-3 sentences.
@@ -186,15 +257,16 @@ function DescriptionField() {
 function UserPersonaField() {
   return (
     <>
-      <Field.Root>
+      <Field.Root name="suggested_user_name">
         <Field.Label>Name</Field.Label>
         <Input
           name="suggested_user_name"
           placeholder="Character name (e.g., 'Alex', 'The Detective')"
         />
+        <Field.Error />
         <Field.Description>Default user name</Field.Description>
       </Field.Root>
-      <Field.Root>
+      <Field.Root name="user_persona_text">
         <Field.Label>Character</Field.Label>
         <TextareaAutosize
           name="user_persona_text"
@@ -202,6 +274,7 @@ function UserPersonaField() {
           maxRows={6}
           placeholder="You are a brave adventurer who has traveled far..."
         />
+        <Field.Error />
         <Field.Description>
           Define who the user is in this scenario. Use {"{{user.name}}"} for
           name, to make it dynamic. It will be replaced with user name.
@@ -211,18 +284,22 @@ function UserPersonaField() {
   );
 }
 
-function StartingMessagesField() {
-  const [startingMessages, setStartingMessages] = useState<StartingMessage[]>([
-    { role: "persona", content: "" },
-  ]);
-
+function StartingMessagesField({
+  startingMessages,
+  setStartingMessages,
+  error,
+}: {
+  startingMessages: StartingMessage[];
+  setStartingMessages: (messages: StartingMessage[]) => void;
+  error?: string;
+}) {
   const addMessage = (role: "user" | "persona") => {
-    setStartingMessages([...startingMessages, { role, content: "" }]);
+    setStartingMessages([...startingMessages, { role, text: "" }]);
   };
 
   const updateMessage = (index: number, content: string) => {
     const updated = [...startingMessages];
-    updated[index].content = content;
+    updated[index].text = content;
     setStartingMessages(updated);
   };
 
@@ -231,15 +308,17 @@ function StartingMessagesField() {
   };
 
   return (
-    <Field.Root>
+    <Field.Root name="startingMessages">
       <Field.Label>Starting Messages</Field.Label>
       <Field.Description className="mb-[12px]">
-        Initial conversation to set the tone
+        Optional. Initial conversation to set the tone. It can help model
+        uderstand the format and style of messages. It will also be a starting
+        point, helping AI/User to start.
       </Field.Description>
 
-      <div className="space-y-[12px]">
+      <div className="space-y-[12px] w-full">
         {startingMessages.map((message, index) => (
-          <div key={index} className="space-y-[8px]">
+          <div key={index} className="space-y-[4px]">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium capitalize">
                 {message.role}
@@ -248,6 +327,7 @@ function StartingMessagesField() {
                 <Button
                   size="sm"
                   variant="outline"
+                  color="red"
                   type="button"
                   onClick={() => removeMessage(index)}
                 >
@@ -258,7 +338,7 @@ function StartingMessagesField() {
             <TextareaAutosize
               minRows={2}
               maxRows={4}
-              value={message.content}
+              value={message.text}
               onChange={(e) => updateMessage(index, e.target.value)}
               placeholder={
                 message.role === "persona"
@@ -288,28 +368,43 @@ function StartingMessagesField() {
           </Button>
         </ButtonGroup>
       </div>
+
+      {error && <Field.Error>{error}</Field.Error>}
     </Field.Root>
   );
 }
 
 function StyleGuidelinesField() {
   return (
-    <Field.Root>
+    <Field.Root name="style_guidelines">
       <Field.Label>Style Guidelines</Field.Label>
       <TextareaAutosize
         name="style_guidelines"
         minRows={3}
         maxRows={6}
-        placeholder="Write in a descriptive, immersive style with vivid details..."
+        placeholder="Write actions between asterisks (e.g., *jump*), write only single action per response, use emojis, etc."
       />
+      <Field.Error />
       <Field.Description>
-        Instructions for how the AI should write and respond in this scenario
+        Optiona. More technical instructions included in context in style
+        section. It can modify the way that AI behaves and style it responds
+        with. It can also force some specific format of messages, or style. It
+        can also include example messages, or style examples. It shouldn't be
+        used for scenario content. It's strictly technical.
       </Field.Description>
     </Field.Root>
   );
 }
 
-function ModelSelectorField() {
+function ModelSelectorField({
+  suggestedModels,
+  setSuggestedModels,
+  error,
+}: {
+  suggestedModels: string[];
+  setSuggestedModels: (models: string[]) => void;
+  error?: string;
+}) {
   // Get enabled models
   const availableModels = Object.entries(textGenerationModels)
     .filter(([, config]) => config.enabled)
@@ -319,9 +414,13 @@ function ModelSelectorField() {
     }));
 
   return (
-    <Field.Root>
+    <Field.Root name="suggestedModels">
       <Field.Label>Suggested AI Models (Optional)</Field.Label>
-      <Select multiple defaultValue={[]}>
+      <Select
+        multiple
+        value={suggestedModels}
+        onValueChange={(value) => setSuggestedModels(value as string[])}
+      >
         <SelectTrigger>
           <SelectValue>
             {(value) => {
@@ -346,8 +445,11 @@ function ModelSelectorField() {
           </SelectContent>
         </SelectPositioner>
       </Select>
+      {error && <Field.Error>{error}</Field.Error>}
       <Field.Description>
-        Select recommended AI models for this scenario
+        Select recommended AI models for this scenario. It is optional, and
+        users will be able to select any model they want. It's a helpful hint on
+        what models perform well fro scenario, style, vibe etc.
       </Field.Description>
     </Field.Root>
   );
@@ -375,22 +477,179 @@ function FormSection({
 }
 
 export default function ScenarioCreatorForm() {
+  const [selectedPersonas, setSelectedPersonas] = useState<Array<Persona>>([]);
+  const [primaryPersonaId, setPrimaryPersonaId] = useState<string | null>(null);
+  const [startingMessages, setStartingMessages] = useState<StartingMessage[]>([
+    { role: "persona", text: "" },
+  ]);
+  const [suggestedModels, setSuggestedModels] = useState<string[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setErrors({}); // Clear previous errors
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData(event.currentTarget);
+
+      // Extract basic fields
+      const title = formData.get("title") as string;
+      const description = formData.get("description") as string;
+      const content = formData.get("content") as string;
+      const suggestedUserName = formData.get("suggested_user_name") as string;
+      const userPersonaText = formData.get("user_persona_text") as string;
+      const styleGuidelines = formData.get("style_guidelines") as string;
+
+      // Validate form fields
+      const formValidation = scenarioFormFieldsSchema.safeParse({
+        content,
+        title,
+        description,
+        suggested_user_name: suggestedUserName,
+        user_persona_text: userPersonaText,
+        style_guidelines: styleGuidelines,
+      });
+
+      // Filter out empty starting messages for validation
+      const nonEmptyMessages = startingMessages.filter(
+        (msg) => msg.text.trim() !== ""
+      );
+
+      // Validate starting messages (only if there are any non-empty messages)
+      const messagesValidation =
+        nonEmptyMessages.length > 0
+          ? startingMessagesSchema.safeParse(nonEmptyMessages)
+          : { success: true };
+
+      // Validate suggested models
+      const modelsValidation = suggestedModelsSchema.safeParse(suggestedModels);
+
+      // Collect all errors (convert arrays to single strings)
+      const validationErrors: Record<string, string> = {};
+
+      if (!formValidation.success) {
+        const fieldErrors = formValidation.error.flatten().fieldErrors;
+        Object.entries(fieldErrors).forEach(([field, errors]) => {
+          if (errors && errors.length > 0) {
+            validationErrors[field] = errors[0]; // Take first error message
+          }
+        });
+      }
+
+      if (!messagesValidation.success && "error" in messagesValidation) {
+        const messageErrors = messagesValidation.error.flatten();
+        if (messageErrors.formErrors.length > 0) {
+          validationErrors.startingMessages = messageErrors.formErrors[0];
+        } else if (messageErrors.fieldErrors) {
+          // Collect individual field errors from messages
+          const allMessageErrors: string[] = [];
+          Object.values(messageErrors.fieldErrors).forEach((errors) => {
+            if (errors) {
+              allMessageErrors.push(...errors);
+            }
+          });
+          if (allMessageErrors.length > 0) {
+            validationErrors.startingMessages = allMessageErrors[0];
+          }
+        }
+      }
+
+      if (!modelsValidation.success) {
+        validationErrors.suggestedModels = "Invalid model selection";
+      }
+
+      // If there are validation errors, set them and return
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        return;
+      }
+
+      // Transform personas to required format
+      const personas = selectedPersonas.map((persona) => ({
+        id: persona.id,
+        roleType:
+          persona.id === primaryPersonaId
+            ? ("primary" as const)
+            : ("secondary" as const),
+      }));
+
+      // Transform starting messages to required format
+      const messages = nonEmptyMessages.map((msg) => ({
+        role:
+          msg.role === "persona" ? ("assistant" as const) : ("user" as const),
+        text: msg.text,
+      }));
+
+      // Build the payload for the server action
+      const payload = {
+        title,
+        description,
+        content,
+        suggested_user_name: suggestedUserName,
+        user_persona_text: userPersonaText,
+        style_guidelines: styleGuidelines,
+        personas,
+        startingMessages: messages,
+        suggestedAiModels: suggestedModels,
+      };
+
+      // Call server action
+      const result = await createScenarioAction(payload);
+
+      if (result.success) {
+        console.log("Scenario created successfully:", result.scenarioId);
+        // TODO: Redirect to scenario page or show success message
+      }
+    } catch (error) {
+      // Handle server-side errors
+      if (error instanceof Error) {
+        setErrors({ submit: error.message });
+      } else {
+        setErrors({ submit: "An unexpected error occurred" });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <Form className="space-y-[48px]">
+    <Form
+      className="space-y-[48px]"
+      onSubmit={handleSubmit}
+      errors={errors}
+      onClearErrors={(clearedErrors) =>
+        setErrors(clearedErrors as Record<string, string>)
+      }
+    >
       <FormSection title="Scenario">
         <ScenarioContentField />
       </FormSection>
       <FormSection title="Personas">
-        <PersonaSelectorField />
+        <PersonaSelectorField
+          selectedPersonas={selectedPersonas}
+          setSelectedPersonas={setSelectedPersonas}
+          primaryPersonaId={primaryPersonaId}
+          setPrimaryPersonaId={setPrimaryPersonaId}
+        />
       </FormSection>
       <FormSection title="User">
         <UserPersonaField />
       </FormSection>
 
       <FormSection title="Advanced">
-        <StartingMessagesField />
+        <StartingMessagesField
+          startingMessages={startingMessages}
+          setStartingMessages={setStartingMessages}
+          error={errors.startingMessages}
+        />
         <StyleGuidelinesField />
-        <ModelSelectorField />
+        <ModelSelectorField
+          suggestedModels={suggestedModels}
+          setSuggestedModels={setSuggestedModels}
+          error={errors.suggestedModels}
+        />
       </FormSection>
 
       <FormSection title="Publishing">
@@ -398,9 +657,14 @@ export default function ScenarioCreatorForm() {
         <DescriptionField />
       </FormSection>
 
-      <div className="pt-[24px]">
-        <Button type="submit" className="w-full">
-          Create Scenario
+      <div className="pt-[24px] space-y-[12px]">
+        {errors.submit && (
+          <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-[12px] p-[12px]">
+            {errors.submit}
+          </div>
+        )}
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
+          {isSubmitting ? "Creating..." : "Create Scenario"}
         </Button>
       </div>
     </Form>

@@ -17,7 +17,7 @@ export const PromptInput = (props: PromptInputProps) => {
     <PromptInputBase.PromptInput
       {...props}
       className={cn(
-        "bg-white outline-[2px] outline-surface-100 rounded-[32px] divide-none border-none",
+        "bg-white outline-[2px] outline-surface-100 rounded-[32px] h-auto divide-none border-none",
         props.className
       )}
     />
@@ -44,10 +44,10 @@ export const PromptInputTextarea = (props: PromptInputTextareaProps) => {
   );
 };
 
-export type PromptInputToolbarProps = React.ComponentProps<
-  typeof PromptInputBase.PromptInputToolbar
+export type PromptInputFooterProps = React.ComponentProps<
+  typeof PromptInputBase.PromptInputFooter
 >;
-export const PromptInputToolbar = PromptInputBase.PromptInputToolbar;
+export const PromptInputFooter = PromptInputBase.PromptInputTools;
 
 export type PromptInputToolsProps = React.ComponentProps<
   typeof PromptInputBase.PromptInputTools

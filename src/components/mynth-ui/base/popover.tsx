@@ -23,6 +23,7 @@ function PopoverPositioner({
         data-slot="popover-positioner"
         sideOffset={9}
         {...props}
+        className={cn("z-popup", props.className)}
       />
     </PopoverPrimitive.Portal>
   );
@@ -38,7 +39,7 @@ function PopoverPopup({
     <PopoverPrimitive.Popup
       data-slot="popover-popup"
       className={cn(
-        "flex origin-[var(--transform-origin)] text-surface-foreground/60 flex-col rounded-[24px] bg-surface p-[12px] text-sm shadow-xl shadow-surface-foreground/10 border-[3px] border-surface-100 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[instant]:duration-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300",
+        "flex origin-[var(--transform-origin)] text-surface-foreground/60 flex-col rounded-[24px] bg-white p-[12px] text-sm shadow-xl shadow-surface-foreground/10 border-[3px] border-surface-100 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[instant]:duration-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300",
         className
       )}
       {...props}

@@ -15,7 +15,6 @@ import {
   primaryKey,
   smallint,
   check,
-  uuid,
   numeric,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
@@ -107,6 +106,13 @@ export const scenarioContentRatingEnum = pgEnum("scenario_content_rating", [
   "teen",
   "mature",
   "adult",
+]);
+
+export const scenarioPublishStatusEnum = pgEnum("scenario_publish_status", [
+  "pending",
+  "success",
+  "error",
+  "flagged",
 ]);
 
 export const scenarioPersonaSourceEnum = pgEnum("scenario_persona_source", [
@@ -436,10 +442,11 @@ export const tokenTransactions = pgTable("token_transactions", {
 export const scenarios = pgTable(
   "scenarios",
   {
-    id: uuid("id").primaryKey().defaultRandom(),
+    id: text("id").primaryKey(),
     title: varchar("title", { length: 255 }).notNull(),
     description: text("description"),
     content: jsonb("content").notNull(), // {"scenario_text": "...", "user_persona_text": "...", "starting_messages": [...], "style_guidelines": "...", "system_prompt_override": "...", "suggested_user_name": "..."}
+    tags: text("tags").array(), // Array of tag strings
     isAnonymous: boolean("is_anonymous").notNull().default(false),
     backgroundImageUrl: varchar("background_image_url", { length: 255 }),
     visibility: personaVisibilityEnum("visibility")
@@ -468,6 +475,8 @@ export const scenarios = pgTable(
     preferredGroupMembers: integer("preferred_group_members")
       .notNull()
       .default(1),
+    publishStatus: scenarioPublishStatusEnum("publish_status"),
+    lastPublishAttempt: jsonb("last_publish_attempt"),
     deletedAt: timestamp("deleted_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -484,7 +493,7 @@ export const scenarios = pgTable(
 export const scenarioPersonas = pgTable(
   "scenario_personas",
   {
-    scenarioId: uuid("scenario_id")
+    scenarioId: text("scenario_id")
       .notNull()
       .references(() => scenarios.id, { onDelete: "cascade" }),
     personaId: text("persona_id")
@@ -501,34 +510,13 @@ export const scenarioPersonas = pgTable(
   ]
 );
 
-// Scenario-Tags junction table - links scenarios to tags
-export const scenarioTags = pgTable(
-  "scenario_tags",
-  {
-    scenarioId: uuid("scenario_id")
-      .notNull()
-      .references(() => scenarios.id, { onDelete: "cascade" }),
-    tagId: text("tag_id")
-      .notNull()
-      .references(() => tags.id, { onDelete: "cascade" }),
-    confidence: smallint("confidence").notNull().default(100),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-  },
-  (t) => [
-    primaryKey({ columns: [t.scenarioId, t.tagId] }),
-    check(
-      "scenario_tags_confidence_check",
-      sql`${t.confidence} >= 0 AND ${t.confidence} <= 100`
-    ),
-  ]
-);
 
 // Ratings table - user ratings for scenarios
 export const ratings = pgTable(
   "ratings",
   {
-    id: uuid("id").primaryKey().defaultRandom(),
-    scenarioId: uuid("scenario_id")
+    id: text("id").primaryKey(),
+    scenarioId: text("scenario_id")
       .notNull()
       .references(() => scenarios.id, { onDelete: "cascade" }),
     userId: varchar("user_id", { length: 255 })
@@ -782,7 +770,6 @@ export const mediaLikesRelations = relations(mediaLikes, ({ one }) => ({
 
 export const tagsRelations = relations(tags, ({ many }) => ({
   personaTags: many(personaTags),
-  scenarioTags: many(scenarioTags),
 }));
 
 export const personaTagsRelations = relations(personaTags, ({ one }) => ({
@@ -824,7 +811,6 @@ export const scenariosRelations = relations(scenarios, ({ one, many }) => ({
     references: [users.id],
   }),
   scenarioPersonas: many(scenarioPersonas),
-  scenarioTags: many(scenarioTags),
   ratings: many(ratings),
 }));
 
@@ -842,16 +828,6 @@ export const scenarioPersonasRelations = relations(
   })
 );
 
-export const scenarioTagsRelations = relations(scenarioTags, ({ one }) => ({
-  scenario: one(scenarios, {
-    fields: [scenarioTags.scenarioId],
-    references: [scenarios.id],
-  }),
-  tag: one(tags, {
-    fields: [scenarioTags.tagId],
-    references: [tags.id],
-  }),
-}));
 
 export const ratingsRelations = relations(ratings, ({ one }) => ({
   scenario: one(scenarios, {

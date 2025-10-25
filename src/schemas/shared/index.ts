@@ -5,3 +5,4 @@ export * from "./chat.schema";
 export * from "./messages/public-message-preview.schema";
 export * from "./persona-public.schema";
 export * from "./chats/message-event-payload.schema";
+export * from "./scenario.schema";

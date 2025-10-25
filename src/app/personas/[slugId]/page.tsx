@@ -8,6 +8,8 @@ import type { Metadata } from "next";
 import { DEFAULT_GRADIENT_BACKGROUND } from "@/lib/image-palette";
 import { PersonaBanner } from "./_components/banner";
 import { PersonaActions } from "./_components/persona-actions";
+import { Suspense } from "react";
+import { PersonaScenarios } from "./_components/persona-scenarios";
 
 // Helper functions
 const getPersonaImageUrl = (profileImageId?: string | null) =>
@@ -156,6 +158,12 @@ export default async function PersonaPublicPage({
             />
           </div>
         </div>
+      </div>
+
+      <div className="max-w-[960px] mx-auto mt-[24px]">
+        <Suspense>
+          <PersonaScenarios personaId={persona.id} />
+        </Suspense>
       </div>
     </div>
   );

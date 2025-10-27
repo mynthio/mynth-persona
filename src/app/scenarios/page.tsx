@@ -1,15 +1,69 @@
+"use client";
+
 import { Button } from "@/components/mynth-ui/base/button";
-import { getPaginatedScenarios } from "@/services/scenarios/get-paginated-scenarios";
-import { auth } from "@clerk/nextjs/server";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr";
-import { notFound } from "next/navigation";
 import { ScenariosList } from "./_components/scenarios-list";
+import { Link } from "@/components/ui/link";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default async function ScenariosPage() {
-  const { userId } = await auth();
-  if (!userId) notFound();
+type PaginatedScenariosResponse = {
+  data: Array<{
+    id: string;
+    title: string;
+    visibility: "private" | "public" | "deleted";
+    backgroundImageUrl: string | null;
+    createdAt: Date;
+  }>;
+  nextCreatedAt: string | null;
+  nextId: string | null;
+  hasMore: boolean;
+};
 
-  const initialData = await getPaginatedScenarios({ userId });
+export default function ScenariosPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const eventFilter = searchParams.get("event");
+  const [initialData, setInitialData] = useState<PaginatedScenariosResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const queryParams = new URLSearchParams();
+        if (eventFilter) {
+          queryParams.set("event", eventFilter);
+        }
+        const response = await fetch(`/api/scenarios?${queryParams.toString()}`);
+        const data = await response.json();
+        setInitialData(data);
+      } catch (error) {
+        console.error("Failed to fetch scenarios:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, [eventFilter]);
+
+  const toggleHalloweenFilter = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (eventFilter === "halloween") {
+      params.delete("event");
+    } else {
+      params.set("event", "halloween");
+    }
+    router.push(`/scenarios?${params.toString()}`);
+  };
+
+  if (isLoading || !initialData) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full">
@@ -24,13 +78,25 @@ export default async function ScenariosPage() {
             </p>
           </div>
 
-          <Button color="primary">
+          <Link
+            href="/scenarios/creator"
+            className="flex items-center gap-[4px]"
+          >
             <PlusIcon />
             Create Scenario
+          </Link>
+        </div>
+
+        <div className="mb-[12px]">
+          <Button
+            color={eventFilter === "halloween" ? "primary" : "default"}
+            onClick={toggleHalloweenFilter}
+          >
+            {eventFilter === "halloween" ? "Show All Scenarios" : "Halloween Events Only"}
           </Button>
         </div>
 
-        <ScenariosList initialData={initialData} />
+        <ScenariosList initialData={initialData} eventFilter={eventFilter || undefined} />
       </div>
     </div>
   );

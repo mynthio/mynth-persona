@@ -637,7 +637,7 @@ function ModelCard(props: {
       <p className="text-surface-foreground/60 text-[.85rem] leading-tight mt-[12px]">
         {model.description}
       </p>
-      <div className="flex flex-wrap gap-[2px] w-full mt-[6px]">
+      {/* <div className="flex flex-wrap gap-[2px] w-full mt-[6px]">
         {model.perks.map((perk) => (
           <span
             key={perk}
@@ -646,7 +646,7 @@ function ModelCard(props: {
             {perk}
           </span>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }

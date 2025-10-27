@@ -30,13 +30,10 @@ const chatStartingMessageSchema = z.object({
 
 /**
  * Chat Settings Scenario
- * Full scenario content with reference to the source scenario
  */
 export const chatSettingsScenarioSchema = z.object({
   scenarioId: z.string().startsWith("scn_").optional(), // Reference to source scenario
   scenario_text: z.string(),
-  user_persona_text: z.string().optional(),
-  suggested_user_name: z.string().optional(),
   starting_messages: z.array(chatStartingMessageSchema).optional(),
   style_guidelines: z.string().optional(),
   system_prompt_override: z.string().optional(),

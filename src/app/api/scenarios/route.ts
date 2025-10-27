@@ -4,13 +4,10 @@ import { auth } from "@clerk/nextjs/server";
 export async function GET(request: Request) {
   const { userId } = await auth();
 
-  if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
-  }
-
   const url = new URL(request.url);
   const cursorCreatedAtParam = url.searchParams.get("cursorCreatedAt");
   const cursorIdParam = url.searchParams.get("cursorId");
+  const eventParam = url.searchParams.get("event");
 
   // Parse cursor if both params are present
   let cursor:
@@ -27,7 +24,11 @@ export async function GET(request: Request) {
     cursor = { id: cursorIdParam, createdAt: createdAtDate };
   }
 
-  const result = await getPaginatedScenarios({ userId, cursor });
+  const result = await getPaginatedScenarios({
+    userId,
+    cursor,
+    event: eventParam || undefined,
+  });
 
   return Response.json(result);
 }

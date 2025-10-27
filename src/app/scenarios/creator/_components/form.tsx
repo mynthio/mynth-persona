@@ -119,7 +119,7 @@ function ScenarioContentField() {
         </Button>
       </ButtonGroup>
       <Field.Description>
-        The main scenario text that sets the scene and context
+        The main text that sets the scene and provides context for your scenario
       </Field.Description>
     </Field.Root>
   );
@@ -215,10 +215,10 @@ function PersonaSelectorField({
         </div>
       </PersonaSelector>
       <Field.Description>
-        Scenarios can be universal, allowing users to use different personas.
-        But sometimes, you might want to make a scenario specifically for some
-        persona. In such case you can use star to mark persona, informing that
-        scenario was made for this persona.
+        Scenarios can be universal, allowing users to choose any persona they
+        like. However, if you design a scenario for a specific persona, you can
+        use the star to mark it—this lets users know which persona it was made
+        for.
       </Field.Description>
     </Field.Root>
   );
@@ -230,7 +230,7 @@ function TitleField() {
       <Field.Label>Title</Field.Label>
       <Input name="title" placeholder="Adventure of..." />
       <Field.Error />
-      <Field.Description>Title of scenario</Field.Description>
+      <Field.Description>A short, memorable title for your scenario</Field.Description>
     </Field.Root>
   );
 }
@@ -245,11 +245,10 @@ function DescriptionField() {
         name="description"
         placeholder="A thrilling adventure where..."
       />
-      <Field.Error />
       <Field.Description>
-        Description of scenario, should be catchy and describe scenario summary.
-        1-3 sentences.
+        A catchy summary of your scenario. Keep it brief—1 to 3 sentences.
       </Field.Description>
+      <Field.Error />
     </Field.Root>
   );
 }
@@ -264,7 +263,7 @@ function UserPersonaField() {
           placeholder="Character name (e.g., 'Alex', 'The Detective')"
         />
         <Field.Error />
-        <Field.Description>Default user name</Field.Description>
+        <Field.Description>The default name for the user in this scenario</Field.Description>
       </Field.Root>
       <Field.Root name="user_persona_text">
         <Field.Label>Character</Field.Label>
@@ -276,8 +275,8 @@ function UserPersonaField() {
         />
         <Field.Error />
         <Field.Description>
-          Define who the user is in this scenario. Use {"{{user.name}}"} for
-          name, to make it dynamic. It will be replaced with user name.
+          Define who the user is in this scenario. Use {"{{user.name}}"} for the
+          name to make it dynamic—it will be replaced with the user's name.
         </Field.Description>
       </Field.Root>
     </>
@@ -311,9 +310,9 @@ function StartingMessagesField({
     <Field.Root name="startingMessages">
       <Field.Label>Starting Messages</Field.Label>
       <Field.Description className="mb-[12px]">
-        Optional. Initial conversation to set the tone. It can help model
-        uderstand the format and style of messages. It will also be a starting
-        point, helping AI/User to start.
+        Optional. An initial conversation to set the tone. This helps the AI
+        understand the format and style of messages, and gives both the AI and
+        user a starting point.
       </Field.Description>
 
       <div className="space-y-[12px] w-full">
@@ -386,11 +385,10 @@ function StyleGuidelinesField() {
       />
       <Field.Error />
       <Field.Description>
-        Optiona. More technical instructions included in context in style
-        section. It can modify the way that AI behaves and style it responds
-        with. It can also force some specific format of messages, or style. It
-        can also include example messages, or style examples. It shouldn't be
-        used for scenario content. It's strictly technical.
+        Optional. Technical instructions for AI behavior and response style.
+        Use this to specify message formats, writing conventions, or provide
+        style examples. Keep it technical—this shouldn't include scenario
+        content.
       </Field.Description>
     </Field.Root>
   );
@@ -447,9 +445,9 @@ function ModelSelectorField({
       </Select>
       {error && <Field.Error>{error}</Field.Error>}
       <Field.Description>
-        Select recommended AI models for this scenario. It is optional, and
-        users will be able to select any model they want. It's a helpful hint on
-        what models perform well fro scenario, style, vibe etc.
+        Select recommended AI models for this scenario. This is optional—users
+        can still choose any model they want. It's a helpful hint about which
+        models work well for the scenario's style and vibe.
       </Field.Description>
     </Field.Root>
   );
@@ -623,6 +621,37 @@ export default function ScenarioCreatorForm() {
         setErrors(clearedErrors as Record<string, string>)
       }
     >
+      <div className="bg-blue-50 border border-blue-200 rounded-[12px] p-[16px]">
+        <h3 className="text-[0.95rem] font-semibold text-blue-900 mb-[8px]">
+          Template Variables
+        </h3>
+        <p className="text-[0.85rem] text-blue-800 mb-[8px]">
+          You can use the following template variables in any field of your scenario:
+        </p>
+        <ul className="text-[0.85rem] text-blue-800 space-y-[4px] list-disc list-inside">
+          <li>
+            <code className="bg-blue-100 px-[6px] py-[2px] rounded font-mono text-[0.80rem]">
+              {"{"}
+              {"{"}persona.1.name{"}"}
+              {"}"}
+            </code>{" "}
+            - References the persona's name
+          </li>
+          <li>
+            <code className="bg-blue-100 px-[6px] py-[2px] rounded font-mono text-[0.80rem]">
+              {"{"}
+              {"{"}user.name{"}"}
+              {"}"}
+            </code>{" "}
+            - References the user's name
+          </li>
+        </ul>
+        <p className="text-[0.80rem] text-blue-700 mt-[8px]">
+          Note: We currently support single persona chats, but group chats are planned soon.
+          That's why we use <code className="bg-blue-100 px-[6px] py-[2px] rounded font-mono">persona.1</code> format.
+        </p>
+      </div>
+
       <FormSection title="Scenario">
         <ScenarioContentField />
       </FormSection>
@@ -652,7 +681,7 @@ export default function ScenarioCreatorForm() {
         />
       </FormSection>
 
-      <FormSection title="Publishing">
+      <FormSection title="Details">
         <TitleField />
         <DescriptionField />
       </FormSection>

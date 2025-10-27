@@ -4,6 +4,7 @@ import { scenarioPersonas, scenarios } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { GlobeIcon, LockIcon } from "@phosphor-icons/react/dist/ssr";
 import { and, eq, or } from "drizzle-orm";
+import { CreateChatWithScenarioButton } from "@/components/create-chat-with-scenario-button";
 
 type PersonaScenariosProps = {
   personaId: string;
@@ -37,13 +38,23 @@ export async function PersonaScenarios(props: PersonaScenariosProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-[6px]">
       {scenariosData.map((scenario) => (
-        <ScenarioCard key={scenario.scenario.id} scenario={scenario.scenario} />
+        <ScenarioCard
+          key={scenario.scenario.id}
+          scenario={scenario.scenario}
+          personaId={props.personaId}
+        />
       ))}
     </div>
   );
 }
 
-function ScenarioCard({ scenario }: { scenario: any }) {
+function ScenarioCard({
+  scenario,
+  personaId,
+}: {
+  scenario: any;
+  personaId: string;
+}) {
   return (
     <div className="relative text-primary-foreground flex justify-between flex-col w-full overflow-hidden z-0 rounded-[12px] border-[3px] border-surface-foreground/25 h-[220px] bg-linear-to-tr from-primary to-primary/80">
       <div className="flex flex-wrap gap-[4px] px-[24px] py-[12px]">
@@ -52,13 +63,21 @@ function ScenarioCard({ scenario }: { scenario: any }) {
           {scenario.visibility === "public" ? "Public" : "Private"}
         </div>
       </div>
-      <div className="max-w-11/12 px-[24px] py-[12px]">
+      <div className="max-w-11/12 px-[24px] py-[12px] flex flex-col gap-[12px]">
         <Link
           href={`/scenarios/${scenario.id}`}
           className="font-onest text-balance text-[1.5rem] leading-tight text-primary-foreground/90 font-[300]"
         >
           {scenario.title}
         </Link>
+        <CreateChatWithScenarioButton
+          personaId={personaId}
+          scenarioId={scenario.id}
+          color="primary"
+          className="w-fit"
+        >
+          Start Chat
+        </CreateChatWithScenarioButton>
       </div>
 
       {scenario.backgroundImageUrl && (

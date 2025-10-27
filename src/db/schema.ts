@@ -94,6 +94,12 @@ export const scenarioStatusEnum = pgEnum("scenario_status", [
   "verified",
 ]);
 
+export const personaStatusEnum = pgEnum("persona_status", [
+  "official",
+  "community",
+  "verified",
+]);
+
 export const roleTypeEnum = pgEnum("role_type_enum", [
   "default",
   "suggested",
@@ -167,6 +173,7 @@ export const personas = pgTable(
     visibility: personaVisibilityEnum("visibility")
       .notNull()
       .default("private"),
+    status: personaStatusEnum("status").notNull().default("community"),
     publicVersionId: text("public_version_id"),
     nsfwRating: nsfwRatingEnum("nsfw_rating").notNull().default("sfw"),
     gender: personaGenderEnum("gender").notNull().default("other"),
@@ -178,6 +185,7 @@ export const personas = pgTable(
     deletedAt: timestamp("deleted_at"),
     slug: varchar("slug", { length: 200 }),
     lastPublishAttempt: jsonb("last_publish_attempt"),
+    event: varchar("event", { length: 50 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -478,6 +486,7 @@ export const scenarios = pgTable(
     publishStatus: scenarioPublishStatusEnum("publish_status"),
     lastPublishAttempt: jsonb("last_publish_attempt"),
     deletedAt: timestamp("deleted_at"),
+    event: varchar("event", { length: 50 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },

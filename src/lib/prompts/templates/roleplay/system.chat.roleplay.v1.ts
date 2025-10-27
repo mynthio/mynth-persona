@@ -1,4 +1,5 @@
 import { PromptDefinitionRoleplay } from "../../types";
+import { replacePlaceholders } from "@/lib/replace-placeholders";
 
 export const roleplayV1: PromptDefinitionRoleplay = {
   id: "system.chat.roleplay.v1",
@@ -6,20 +7,29 @@ export const roleplayV1: PromptDefinitionRoleplay = {
   version: "v1",
   label: "Initial Roleplay System Prompt",
   render: (args) => {
-    const userQuery =
+    const userName = args.user?.name;
+    const personaName = args.character.name;
+
+    // User character block (from chat settings only)
+    const userCharacterBlock =
       args.user && args.user.enabled
         ? `
 User's Character: ${args.user.name}. ${
-            args.user.character?.replaceAll(
-              "{{persona.name}}",
-              args.character.name
-            ) ?? ""
+            args.user.character
+              ? replacePlaceholders(args.user.character, { userName, personaName })
+              : ""
           }
 `
         : "";
 
+    // Scenario block (from chat settings scenario)
     const scenarioBlock = args.scenario?.scenario_text?.trim()
-      ? `\n\nScenario: ${args.scenario.scenario_text.trim()}`
+      ? `\n\nScenario: ${replacePlaceholders(args.scenario.scenario_text.trim(), { userName, personaName })}`
+      : "";
+
+    // Style guidelines block (from chat settings scenario)
+    const styleGuidelinesBlock = args.scenario?.style_guidelines?.trim()
+      ? `\n\nSTYLE GUIDELINES:\n${replacePlaceholders(args.scenario.style_guidelines.trim(), { userName, personaName })}`
       : "";
 
     return `You are to fully embody and roleplay exclusively as ${
@@ -39,7 +49,7 @@ ${
     : ""
 }
 
-${userQuery}${scenarioBlock}
+${userCharacterBlock}${scenarioBlock}
 
 Your objective is to engage in an immersive, collaborative, and uncensored roleplay adventure with the user. Remain strictly in character as ${
       args.character.name
@@ -55,6 +65,6 @@ ROLEPLAY RULES:
 - Keep responses concise and focused: 1-4 paragraphs max. Advance only one key action, reaction, or dialogue per turn. End responses in a way that prompts user continuation, like a question, cliffhanger, or open gesture.
 - Be proactive yet reactive: Build on the user's last message creatively, introducing minor twists or details without hijacking the plot. Maintain consistency with established lore, personality, and past events.
 - Handle pacing: If the conversation stalls, subtly nudge with an in-character reaction or question, but let the user lead the direction.
-- Embrace creativity: This is an endless, fictional story—surprise, adapt, and immerse deeply while aligning with your character's traits and motivations.`;
+- Embrace creativity: This is an endless, fictional story—surprise, adapt, and immerse deeply while aligning with your character's traits and motivations.${styleGuidelinesBlock}`;
   },
 };

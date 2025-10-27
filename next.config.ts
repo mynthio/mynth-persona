@@ -6,10 +6,6 @@ const nextConfig: NextConfig = {
   pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
   serverExternalPackages: ["pino", "@axiomhq/pino"],
 
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-
   reactCompiler: true,
 };
 

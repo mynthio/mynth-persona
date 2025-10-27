@@ -9,7 +9,7 @@ import {
   CaretRightIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import useSWR from "swr";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type Scenario = {
   id: string;
@@ -28,11 +28,12 @@ type PaginatedScenariosResponse = {
 
 type ScenariosListProps = {
   initialData: PaginatedScenariosResponse;
+  eventFilter?: string;
 };
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export function ScenariosList({ initialData }: ScenariosListProps) {
+export function ScenariosList({ initialData, eventFilter }: ScenariosListProps) {
   const [cursors, setCursors] = useState<
     Array<{ createdAt: string; id: string } | null>
   >([null]); // Stack of cursors for navigation
@@ -44,12 +45,21 @@ export function ScenariosList({ initialData }: ScenariosListProps) {
     queryParams.set("cursorCreatedAt", currentCursor.createdAt);
     queryParams.set("cursorId", currentCursor.id);
   }
+  if (eventFilter) {
+    queryParams.set("event", eventFilter);
+  }
+
+  // Reset pagination when filter changes
+  useEffect(() => {
+    setCursors([null]);
+    setCurrentPage(0);
+  }, [eventFilter]);
 
   const { data, isLoading } = useSWR<PaginatedScenariosResponse>(
     `/api/scenarios?${queryParams.toString()}`,
     fetcher,
     {
-      fallbackData: currentPage === 0 ? initialData : undefined,
+      fallbackData: currentPage === 0 && !eventFilter ? initialData : undefined,
       keepPreviousData: true,
     }
   );

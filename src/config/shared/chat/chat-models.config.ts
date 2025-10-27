@@ -56,5 +56,8 @@ export const chatConfig: ChatConfig = {
     {
       modelId: "x-ai/grok-3",
     },
+    {
+      modelId: "tngtech/deepseek-r1t2-chimera",
+    },
   ],
 };

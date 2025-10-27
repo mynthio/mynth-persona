@@ -5,7 +5,9 @@ import { getImageUrl, getVideoUrl } from "@/lib/utils";
 import { Masonry, useInfiniteLoader } from "masonic";
 import { useCallback, useMemo, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useSidebar } from "@/components/ui/sidebar";
 import {
+  BirdIcon,
   CircleNotchIcon,
   EyeClosedIcon,
   EyeIcon,
@@ -13,7 +15,10 @@ import {
   GenderFemaleIcon,
   GenderMaleIcon,
   GenderNonbinaryIcon,
+  GhostIcon,
   QuestionMarkIcon,
+  SealCheckIcon,
+  SignatureIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { useLocalStorage } from "@uidotdev/usehooks";
 import useSWRInfinite from "swr/infinite";
@@ -220,7 +225,30 @@ export default function PublicPersonas() {
 
 function Tile({ persona }: { persona: PublicPersonaListItem }) {
   // Create a deterministic small height variation per persona to better visualize masonry
-  const genderIcon = useMemo(() => {
+  const getStatusIcon = () => {
+    switch (persona.status) {
+      case "official":
+        return (
+          <div className="size-[38px] bg-amber-500/30 flex items-center justify-center backdrop-blur-md rounded-[13px] text-amber-500/80">
+            <SignatureIcon size={18} weight="fill" />
+          </div>
+        );
+      case "verified":
+        return (
+          <div className="size-[38px] bg-teal-500/30 flex items-center justify-center backdrop-blur-md rounded-[13px] text-teal-500/80">
+            <SealCheckIcon size={18} weight="fill" />
+          </div>
+        );
+      case "community":
+        return (
+          <div className="size-[38px] bg-blue-500/30 text-blue-900/80 flex items-center justify-center backdrop-blur-md rounded-[13px]">
+            <BirdIcon size={18} weight="duotone" />
+          </div>
+        );
+    }
+  };
+
+  const getGenderIcon = () => {
     switch (persona.gender) {
       case "female":
         return (
@@ -241,7 +269,7 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
           </div>
         );
     }
-  }, [persona.gender]);
+  };
   const variationSeed = Array.from(persona.id).reduce(
     (acc, ch) => acc + ch.charCodeAt(0),
     0
@@ -318,18 +346,28 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
       prefetch={false}
       onMouseEnter={onHoverReplay}
     >
-      <div className="flex items-center gap-[6px] justify-end z-10 p-[11px]">
-        <div
-          className="h-[38px] px-[9px] bg-surface-100/50 flex items-center justify-center backdrop-blur-md rounded-[13px] 
-        text-surface-foreground/80 text-[0.66rem]"
-        >
-          {persona.ageBucket === "unknown" ? (
-            <QuestionMarkIcon size={14} />
-          ) : (
-            persona.ageBucket
+      <div className="flex items-center justify-between z-10 p-[11px]">
+        <div className="flex items-center gap-[6px]">
+          {getStatusIcon()}
+          {persona.event === "halloween" && (
+            <div className="size-[38px] bg-orange-500/30 flex items-center justify-center backdrop-blur-md rounded-[13px] text-orange-500/80">
+              <GhostIcon size={18} weight="fill" />
+            </div>
           )}
         </div>
-        {genderIcon}
+        <div className="flex items-center gap-[6px]">
+          <div
+            className="h-[38px] px-[9px] bg-surface-100/50 flex items-center justify-center backdrop-blur-md rounded-[13px]
+          text-surface-foreground/80 text-[0.66rem]"
+          >
+            {persona.ageBucket === "unknown" ? (
+              <QuestionMarkIcon size={14} />
+            ) : (
+              persona.ageBucket
+            )}
+          </div>
+          {getGenderIcon()}
+        </div>
       </div>
 
       <div className="pointer-events-none z-10 bg-gradient-to-t from-background via-background to-background/0 pt-[48px] pb-[32px] px-[24px]">

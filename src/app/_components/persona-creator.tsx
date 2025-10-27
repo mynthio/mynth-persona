@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   CaretUpIcon,
   CheckIcon,
+  GhostIcon,
   ShuffleIcon,
   SlidersHorizontalIcon,
   SparkleIcon,
@@ -181,6 +182,7 @@ export default function PersonaCreator({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.98 }}
                   transition={{ duration: 0.2, ease: "easeInOut" }}
+                  className="flex items-center gap-[2px]"
                 >
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -205,6 +207,34 @@ export default function PersonaCreator({
                     </TooltipTrigger>
                     <TooltipPopup>
                       <p>Generate a random persona</p>
+                    </TooltipPopup>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => {
+                          try {
+                            posthog.capture("halloween_persona_clicked", {
+                              model,
+                            });
+                            posthog.capture("persona_generation_requested", {
+                              mode: "halloween",
+                              model,
+                            });
+                          } catch {}
+                          onGenerate("Generate a special halloween character", {
+                            model,
+                          });
+                        }}
+                        type="button"
+                        className="font-onest font-bold cursor-pointer flex items-center justify-center gap-[12px] text-[1.05rem] size-[42px] rounded-[16px] transition-all duration-250 hover:bg-surface-100/50 hover:scale-105 active:scale-100"
+                      >
+                        <GhostIcon weight="bold" size={16} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipPopup>
+                      <p>Generate a special halloween character</p>
                     </TooltipPopup>
                   </Tooltip>
                 </motion.div>

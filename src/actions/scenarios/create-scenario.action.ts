@@ -60,6 +60,8 @@ export async function createScenarioAction(payload: CreateScenarioPayload) {
     user_persona_text: validatedData.user_persona_text || "",
     starting_messages: validatedData.startingMessages || [],
     style_guidelines: validatedData.style_guidelines || "",
+    // System prompt override is not supported yet - always empty for now
+    // TODO: Add support for system_prompt_override in the future
     system_prompt_override: "",
     suggested_user_name: validatedData.suggested_user_name || "",
   };

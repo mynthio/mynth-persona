@@ -9,7 +9,7 @@ import { unstable_cache } from "next/cache";
 
 // Cached chat fetch using Next.js Data Cache with tag-based revalidation.
 // The cache key includes chatId and userId to ensure per-user isolation.
-// Invalidate via revalidateTag(`chat:${chatId}`) after any chat mutation.
+// Invalidate via updateTag(`chat:${chatId}`) in server actions after any chat mutation.
 export async function getChatByIdForUserCached(chatId: string, userId: string) {
   const runner = unstable_cache(
     async () => {

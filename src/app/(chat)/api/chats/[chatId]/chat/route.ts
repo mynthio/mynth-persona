@@ -8,6 +8,7 @@ import {
   smoothStream,
   createUIMessageStreamResponse,
   createUIMessageStream,
+  ModelMessage,
 } from "ai";
 import { nanoid } from "nanoid";
 import { db } from "@/db/drizzle";
@@ -28,6 +29,7 @@ import {
 } from "@/schemas";
 import { getChatMessagesData } from "@/data/messages/get-chat-messages.data";
 import { getChatByIdForUserCached } from "@/data/chats/get-chat.data";
+import { replacePlaceholders } from "@/lib/replace-placeholders";
 
 import { kv } from "@vercel/kv";
 import ms from "ms";
@@ -162,6 +164,10 @@ export async function POST(
   const roleplayData = chatPersona.personaVersion
     .roleplayData as PersonaVersionRoleplayData;
 
+  // Placeholder replacement context
+  const userName = chatSettings.user_persona?.name;
+  const personaName = roleplayData.name;
+
   /**
    * TEXT GENERATION MODEL
    */
@@ -210,25 +216,39 @@ export async function POST(
     : [];
   const lastMessage = messagesHistory.at(-1);
 
-  // Some checks and gaurds for message events and payloads based on history
-  // Last message should be assistant if user is sending a new message
-  if (payload.event === "send" && lastMessage?.role === "user") {
-    throw new Error("Invalid Message and Event");
+  // Validation for message events based on history
+  if (payload.event === "send") {
+    // When sending a new message, last message must not be a user message
+    if (lastMessage?.role === "user") {
+      throw new Error(
+        "Invalid Message and Event: Cannot send when last message is user"
+      );
+    }
   }
 
   if (payload.event === "regenerate") {
-    if (lastMessage?.role === "user") {
-      throw new Error("Invalid Message and Event");
+    // When regenerating, last message must not be a user message
+    // Exception: root assistant message regeneration (empty history is allowed)
+    if (messagesHistory.length > 0 && lastMessage?.role === "user") {
+      throw new Error(
+        "Invalid Message and Event: Cannot regenerate when last message is user"
+      );
     }
   }
 
   /**
-   * Insert message into database
+   * Insert user message into database with placeholder replacement
    */
   if (payload.event === "send" || payload.event === "edit_message") {
+    // Replace placeholders in user message parts before saving
+    const processedParts = payload.message.parts.map((part) => ({
+      ...part,
+      text: replacePlaceholders(part.text, { userName, personaName }),
+    }));
+
     await db.insert(messagesTable).values({
       id: payload.message.id,
-      parts: payload.message.parts,
+      parts: processedParts,
       role: "user",
       chatId,
       parentId: lastMessage?.id ?? null,
@@ -272,11 +292,21 @@ export async function POST(
 
   /**
    * MESSAGES
+   * For root assistant message regeneration, we don't include a user message
+   * (messagesHistory is empty and we're regenerating from system prompt only)
    */
-  const messages = convertToModelMessages([
-    ...messagesHistory,
-    payload.message,
-  ]);
+  const isRootAssistantRegeneration =
+    payload.event === "regenerate" && messagesHistory.length === 0;
+
+  const messages =
+    isRootAssistantRegeneration || !payload.message
+      ? ([
+          {
+            role: "system",
+            content: "Please start the story as character",
+          },
+        ] as ModelMessage[])
+      : convertToModelMessages([...messagesHistory, payload.message]);
 
   /**
    * STREAM
@@ -352,7 +382,7 @@ export async function POST(
       writer.write({
         type: "message-metadata",
         messageMetadata: {
-          parentId: payload.message.id,
+          parentId: payload.message?.id ?? null,
           usage,
         },
       });
@@ -374,7 +404,7 @@ export async function POST(
       await db.insert(messagesTable).values({
         id: responseMessage.id,
         chatId,
-        parentId: payload.message.id,
+        parentId: payload.message?.id ?? null,
         parts: responseMessage.parts,
         role: responseMessage.role,
         metadata: {

@@ -60,10 +60,12 @@ export async function GET(request: NextRequest) {
         profileImageId: personas.profileImageId,
         profileSpotlightMediaId: personas.profileSpotlightMediaId,
         nsfwRating: personas.nsfwRating,
+        status: personas.status,
         gender: personas.gender,
         ageBucket: personas.ageBucket,
         likesCount: personas.likesCount,
         publishedAt: personas.publishedAt,
+        event: personas.event,
       })
       .from(personas)
       .where(whereCondition)

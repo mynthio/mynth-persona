@@ -26,6 +26,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { notFound } from "next/navigation";
 import { PublishScenarioDialog } from "./_components/publish-scenario-dialog.client";
+import { CreateChatWithScenarioButton } from "@/components/create-chat-with-scenario-button";
 
 export default async function ScenarioPage({
   params,
@@ -100,7 +101,10 @@ export default async function ScenarioPage({
             </div>
 
             {scenario.tags?.map((tag) => (
-              <div className="flex items-center gap-[4px] text-[0.80rem] bg-primary/50 backdrop-blur-[3px] rounded-[9px] h-[28px] px-[12px] text-primary-foreground/80">
+              <div
+                key={tag}
+                className="flex items-center gap-[4px] text-[0.80rem] bg-primary/50 backdrop-blur-[3px] rounded-[9px] h-[28px] px-[12px] text-primary-foreground/80"
+              >
                 {tag}
               </div>
             ))}
@@ -114,7 +118,7 @@ export default async function ScenarioPage({
           )}
         </div>
 
-        <div className="max-w-[720px] mx-auto mt-[16px]">
+        <div className="max-w-[720px] mx-auto mt-[16px] px-[12px]">
           <div className="flex justify-between items-start">
             <div className="">
               <h1 className="font-onest text-[1.6rem] font-[600] leading-tight">
@@ -219,9 +223,14 @@ export default async function ScenarioPage({
                   </div>
 
                   <div className="shrink-0">
-                    <Button size="sm" color="primary">
+                    <CreateChatWithScenarioButton
+                      personaId={scenarioPersona.personaId}
+                      scenarioId={scenario.id}
+                      size="sm"
+                      color="primary"
+                    >
                       Launch scenario
-                    </Button>
+                    </CreateChatWithScenarioButton>
                   </div>
                 </div>
               ))}

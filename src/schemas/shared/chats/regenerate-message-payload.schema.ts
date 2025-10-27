@@ -21,7 +21,7 @@ export const regenerateMessagePayloadSchema = z.object({
         parentId: z.string().nullable(),
       })
       .optional(),
-  }),
+  }).optional(),
 });
 
 export type RegenerateMessagePayload = z.infer<

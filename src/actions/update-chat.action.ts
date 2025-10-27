@@ -7,7 +7,7 @@ import { UpdateChatPayload, updateChatPayloadSchema } from "@/schemas";
 import { chatIdSchema } from "@/schemas/backend/chats/chat.schema";
 import { auth } from "@clerk/nextjs/server";
 import { and, eq, sql } from "drizzle-orm";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 
 export const updateChatAction = async (
   chatId: string,
@@ -74,5 +74,5 @@ export const updateChatAction = async (
     .where(and(eq(chats.id, chatId), eq(chats.userId, userId)));
 
   // Invalidate cached chat data for this chatId
-  revalidateTag(`chat:${chatId}`);
+  updateTag(`chat:${chatId}`);
 };

@@ -24,6 +24,7 @@ import {
 } from "@/schemas/backend";
 import { ScenarioContent } from "@/schemas/shared/scenario.schema";
 import { and, eq, isNull, or } from "drizzle-orm";
+import { replacePlaceholders } from "@/lib/replace-placeholders";
 
 export const createChatWithScenarioAction = async (
   payload: CreateChatWithScenarioPayload
@@ -144,8 +145,6 @@ export const createChatWithScenarioAction = async (
   const chatSettingsScenario: ChatSettingsScenario = {
     scenarioId: scenario.id,
     scenario_text: scenarioContent.scenario_text,
-    user_persona_text: scenarioContent.user_persona_text,
-    suggested_user_name: scenarioContent.suggested_user_name,
     starting_messages: scenarioContent.starting_messages,
     style_guidelines: scenarioContent.style_guidelines,
     system_prompt_override: scenarioContent.system_prompt_override,
@@ -156,7 +155,7 @@ export const createChatWithScenarioAction = async (
     scenario: chatSettingsScenario,
   };
 
-  // Set user persona if defined in scenario
+  // Copy user persona from scenario to chat settings (if defined)
   if (scenarioContent.user_persona_text) {
     chatSettings.user_persona = {
       enabled: true,
@@ -169,6 +168,10 @@ export const createChatWithScenarioAction = async (
   const hasStartingMessages =
     scenarioContent.starting_messages &&
     scenarioContent.starting_messages.length > 0;
+
+  // Prepare placeholder replacement context
+  const userName = chatSettings.user_persona?.name;
+  const personaName = version.data.name;
 
   let chatId: string;
 
@@ -193,13 +196,18 @@ export const createChatWithScenarioAction = async (
         personaVersionId: version.id,
       });
 
-      // Insert starting messages
+      // Insert starting messages with placeholder replacement
       const messageValues = scenarioContent.starting_messages!.map(
         (msg, index) => ({
           id: `msg_${nanoid()}`,
           chatId,
           role: msg.role === "user" ? "user" : "assistant",
-          parts: [{ type: "text" as const, text: msg.text }],
+          parts: [
+            {
+              type: "text" as const,
+              text: replacePlaceholders(msg.text, { userName, personaName }),
+            },
+          ],
           parentId: null, // Starting messages have no parent
           metadata: null,
         })

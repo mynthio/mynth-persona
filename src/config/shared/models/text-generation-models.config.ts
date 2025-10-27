@@ -12,7 +12,8 @@ export type TextGenerationModelId =
   | "openai/gpt-oss-20b"
   | "meituan/longcat-flash-chat"
   | "nvidia/nemotron-nano-9b-v2"
-  | "x-ai/grok-3";
+  | "x-ai/grok-3"
+  | "tngtech/deepseek-r1t2-chimera";
 
 export type Provider = {
   url?: string;
@@ -446,5 +447,27 @@ export const textGenerationModels: Record<
       additionalNotes:
         "Requires X Premium+ subscription ($40/month). Heavily integrated with X ecosystem. Recent controversies regarding content moderation consistency. Model described by some researchers as 'benchmaxxed' (optimized for test performance over real-world creativity).",
     },
+  },
+  "tngtech/deepseek-r1t2-chimera": {
+    enabled: true,
+    isFreeVersionAvailable: true,
+    description:
+      "Delivers grounded, action-driven role-play with crisp dialogues and deep emotional nuance, shining in consistent character arcs for marathon sessions but occasionally skimping on bold, charismatic sparks.",
+    style: "",
+    displayName: "Deepseek R1T2 Chimera",
+    modelId: "tngtech/deepseek-r1t2-chimera",
+    uncensored: true,
+    perks: [],
+    tags: ["moe", "long-context", "agentic"],
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "yes",
+      storesMessages: "yes",
+      additionalNotes:
+        "Data provided anonymously. Provider might use prompts for training new models.",
+    },
+    isPremium: false,
   },
 };

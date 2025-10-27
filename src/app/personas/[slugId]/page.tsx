@@ -10,6 +10,7 @@ import { PersonaBanner } from "./_components/banner";
 import { PersonaActions } from "./_components/persona-actions";
 import { Suspense } from "react";
 import { PersonaScenarios } from "./_components/persona-scenarios";
+import { BirdIcon } from "@phosphor-icons/react/dist/ssr";
 
 // Helper functions
 const getPersonaImageUrl = (profileImageId?: string | null) =>
@@ -95,6 +96,7 @@ export default async function PersonaPublicPage({
       publicName: true,
       headline: true,
       profileImageId: true,
+      status: true,
       nsfwRating: true,
       gender: true,
       ageBucket: true,
@@ -124,6 +126,14 @@ export default async function PersonaPublicPage({
         profileImageId={persona.profileImageId}
         fallbackGradient={DEFAULT_GRADIENT_BACKGROUND}
       />
+
+      {/* Status Badge */}
+      <div className="absolute top-[24px] left-[24px] z-10">
+        <div className="flex items-center gap-[4px] text-[0.80rem] bg-blue-800/50 backdrop-blur-[3px] rounded-[9px] h-[28px] px-[12px] text-primary-foreground/80">
+          {persona.status === "community" && <BirdIcon />}
+          {persona.status}
+        </div>
+      </div>
 
       <div className="h-[140px] md:h-[120px]" />
 
@@ -160,7 +170,7 @@ export default async function PersonaPublicPage({
         </div>
       </div>
 
-      <div className="max-w-[960px] mx-auto mt-[24px]">
+      <div className="max-w-[960px] mx-auto   mt-[24px]">
         <Suspense>
           <PersonaScenarios personaId={persona.id} />
         </Suspense>

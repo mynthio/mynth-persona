@@ -1,6 +1,6 @@
 import { db } from "@/db/drizzle";
 import { scenarios } from "@/db/schema";
-import { and, desc, eq, lt, or } from "drizzle-orm";
+import { and, desc, eq, lt, or, not } from "drizzle-orm";
 
 export const SCENARIOS_PER_PAGE = 50;
 
@@ -10,8 +10,9 @@ export type ScenarioCursor = {
 };
 
 export type GetPaginatedScenariosParams = {
-  userId: string;
+  userId?: string | null;
   cursor?: ScenarioCursor;
+  event?: string;
 };
 
 export type PaginatedScenariosResult = {
@@ -30,9 +31,17 @@ export type PaginatedScenariosResult = {
 export const getPaginatedScenarios = async (
   params: GetPaginatedScenariosParams
 ): Promise<PaginatedScenariosResult> => {
-  const { userId, cursor } = params;
+  const { userId, cursor, event } = params;
 
-  const baseCondition = eq(scenarios.creatorId, userId);
+  const baseCondition = and(
+    not(eq(scenarios.visibility, "deleted")),
+    or(
+      eq(scenarios.visibility, "public"),
+      userId ? eq(scenarios.creatorId, userId) : undefined
+    )
+  );
+
+  const eventCondition = event ? eq(scenarios.event, event) : undefined;
 
   const paginationCondition = cursor
     ? or(
@@ -44,9 +53,11 @@ export const getPaginatedScenarios = async (
       )
     : undefined;
 
-  const conditions = [baseCondition, paginationCondition].filter(
-    (c): c is NonNullable<typeof c> => c != null
-  );
+  const conditions = [
+    baseCondition,
+    eventCondition,
+    paginationCondition,
+  ].filter((c): c is NonNullable<typeof c> => c != null);
   const whereCondition = and(...conditions);
 
   const data = await db

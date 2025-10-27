@@ -7,7 +7,7 @@ import { chats } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { and, eq } from "drizzle-orm";
 import { chatIdSchema } from "@/schemas/backend/chats/chat.schema";
-import { revalidateTag } from "next/cache";
+import { updateTag } from "next/cache";
 
 export async function deleteChatAction(chatId: string) {
   await chatIdSchema.parseAsync(chatId);
@@ -29,10 +29,12 @@ export async function deleteChatAction(chatId: string) {
   }
 
   // Delete chat (CASCADE will remove related records)
-  await db.delete(chats).where(and(eq(chats.id, chatId), eq(chats.userId, userId)));
+  await db
+    .delete(chats)
+    .where(and(eq(chats.id, chatId), eq(chats.userId, userId)));
 
   // Invalidate cached chat data for this chatId
-  revalidateTag(`chat:${chatId}`);
+  updateTag(`chat:${chatId}`);
 
   return { success: true } as const;
 }

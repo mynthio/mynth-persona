@@ -11,16 +11,7 @@ const isProduction =
   process.env.NODE_ENV === "production";
 
 export const logger: Logger = isProduction
-  ? pino(
-      { level: "info" },
-      pino.transport({
-        target: "@axiomhq/pino",
-        options: {
-          dataset: process.env.AXIOM_DATASET,
-          token: process.env.AXIOM_TOKEN,
-        },
-      })
-    )
+  ? pino({ level: "info" })
   : pino({
       level: "debug",
     });

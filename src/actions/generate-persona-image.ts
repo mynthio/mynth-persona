@@ -66,18 +66,18 @@ export const generatePersonaImage = async (
     );
   }
 
-  const rateLimitter = IMAGE_GENERATIONS_RATE_LIMITS[planId as PlanId];
-
-  const rateLimitResult = await rateLimitGuard(rateLimitter, userId);
-  if (!rateLimitResult.success) {
-    throw new Error("Rate limit exceeded");
-  }
-
   const concurrentImageJobsPerPlan =
     CONCURRENT_IMAGE_JOBS_PER_PLAN[planId as PlanId];
 
   if (runningJobs.data.length >= concurrentImageJobsPerPlan) {
     throw new Error("You have a job running already");
+  }
+
+  const rateLimitter = IMAGE_GENERATIONS_RATE_LIMITS[planId as PlanId];
+
+  const rateLimitResult = await rateLimitGuard(rateLimitter, userId);
+  if (!rateLimitResult.success) {
+    throw new Error("Rate limit exceeded");
   }
 
   const persona = await db.query.personas.findFirst({

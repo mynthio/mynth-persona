@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/mynth-ui/base/select";
 import { useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
 import {
   PersonaSelector,
@@ -230,7 +231,9 @@ function TitleField() {
       <Field.Label>Title</Field.Label>
       <Input name="title" placeholder="Adventure of..." />
       <Field.Error />
-      <Field.Description>A short, memorable title for your scenario</Field.Description>
+      <Field.Description>
+        A short, memorable title for your scenario
+      </Field.Description>
     </Field.Root>
   );
 }
@@ -263,7 +266,9 @@ function UserPersonaField() {
           placeholder="Character name (e.g., 'Alex', 'The Detective')"
         />
         <Field.Error />
-        <Field.Description>The default name for the user in this scenario</Field.Description>
+        <Field.Description>
+          The default name for the user in this scenario
+        </Field.Description>
       </Field.Root>
       <Field.Root name="user_persona_text">
         <Field.Label>Character</Field.Label>
@@ -385,10 +390,9 @@ function StyleGuidelinesField() {
       />
       <Field.Error />
       <Field.Description>
-        Optional. Technical instructions for AI behavior and response style.
-        Use this to specify message formats, writing conventions, or provide
-        style examples. Keep it technical—this shouldn't include scenario
-        content.
+        Optional. Technical instructions for AI behavior and response style. Use
+        this to specify message formats, writing conventions, or provide style
+        examples. Keep it technical—this shouldn't include scenario content.
       </Field.Description>
     </Field.Root>
   );
@@ -483,6 +487,7 @@ export default function ScenarioCreatorForm() {
   const [suggestedModels, setSuggestedModels] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -561,6 +566,7 @@ export default function ScenarioCreatorForm() {
       // If there are validation errors, set them and return
       if (Object.keys(validationErrors).length > 0) {
         setErrors(validationErrors);
+        setIsSubmitting(false);
         return;
       }
 
@@ -597,9 +603,12 @@ export default function ScenarioCreatorForm() {
       const result = await createScenarioAction(payload);
 
       if (result.success) {
-        console.log("Scenario created successfully:", result.scenarioId);
-        // TODO: Redirect to scenario page or show success message
+        router.push(`/scenarios/${result.scenarioId}`);
+        return;
       }
+
+      setErrors({ submit: "Unable to create scenario" });
+      setIsSubmitting(false);
     } catch (error) {
       // Handle server-side errors
       if (error instanceof Error) {
@@ -607,7 +616,6 @@ export default function ScenarioCreatorForm() {
       } else {
         setErrors({ submit: "An unexpected error occurred" });
       }
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -626,7 +634,8 @@ export default function ScenarioCreatorForm() {
           Template Variables
         </h3>
         <p className="text-[0.85rem] text-blue-800 mb-[8px]">
-          You can use the following template variables in any field of your scenario:
+          You can use the following template variables in any field of your
+          scenario:
         </p>
         <ul className="text-[0.85rem] text-blue-800 space-y-[4px] list-disc list-inside">
           <li>
@@ -647,8 +656,12 @@ export default function ScenarioCreatorForm() {
           </li>
         </ul>
         <p className="text-[0.80rem] text-blue-700 mt-[8px]">
-          Note: We currently support single persona chats, but group chats are planned soon.
-          That's why we use <code className="bg-blue-100 px-[6px] py-[2px] rounded font-mono">persona.1</code> format.
+          Note: We currently support single persona chats, but group chats are
+          planned soon. That's why we use{" "}
+          <code className="bg-blue-100 px-[6px] py-[2px] rounded font-mono">
+            persona.1
+          </code>{" "}
+          format.
         </p>
       </div>
 

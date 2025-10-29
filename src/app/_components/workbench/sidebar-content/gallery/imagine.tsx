@@ -75,8 +75,38 @@ export default function Imagine() {
 
       // Ensure main content is the Gallery so the in-progress tile is visible
       setWorkbenchMode("gallery");
-    } catch {
-      toast.add({ title: "Failed to generate image" });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+
+      // Provide specific error message for concurrent job limit
+      if (errorMessage === "You have a job running already") {
+        toast.add({
+          title: "Generation in progress",
+          description:
+            "You already have an image generation job running. Please wait for it to complete before starting a new one.",
+          type: "error",
+        });
+      } else if (errorMessage === "Rate limit exceeded") {
+        toast.add({
+          title: "Rate limit exceeded",
+          description:
+            "You've reached your image generation limit. Please try again later.",
+          type: "error",
+        });
+      } else if (errorMessage.includes("High quality")) {
+        toast.add({
+          title: "Plan limitation",
+          description: errorMessage,
+          type: "error",
+        });
+      } else {
+        toast.add({
+          title: "Failed to generate image",
+          description: errorMessage,
+          type: "error",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -270,7 +300,7 @@ function QualityCard({
         selected && "ring-2 ring-primary ring-offset-1"
       )}
     >
-      <div className="aspect-[4/3] bg-muted rounded-sm mb-1 overflow-hidden">
+      <div className="aspect-4/3 bg-muted rounded-sm mb-1 overflow-hidden">
         <img
           src={qualityImages[quality]}
           alt={`${item.label} example`}
@@ -366,7 +396,7 @@ function ShotTypeCard({
         selected && "ring-2 ring-primary ring-offset-1"
       )}
     >
-      <div className="aspect-[3/4] bg-muted rounded-sm mb-1 overflow-hidden">
+      <div className="aspect-3/4 bg-muted rounded-sm mb-1 overflow-hidden">
         <img
           src={images[shotType]}
           alt={`${labels[shotType]} example`}

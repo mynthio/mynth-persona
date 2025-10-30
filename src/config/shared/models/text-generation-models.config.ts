@@ -13,7 +13,9 @@ export type TextGenerationModelId =
   | "meituan/longcat-flash-chat"
   | "nvidia/nemotron-nano-9b-v2"
   | "x-ai/grok-3"
-  | "tngtech/deepseek-r1t2-chimera";
+  | "tngtech/deepseek-r1t2-chimera"
+  | "deepcogito/cogito-v2-preview-llama-405b"
+  | "anthropic/claude-haiku-4.5";
 
 export type Provider = {
   url?: string;
@@ -56,9 +58,8 @@ export const textGenerationModels: Record<
     enabled: true,
     isFreeVersionAvailable: false,
     description:
-      "A wild, nuanced companion ideal for deep roleplay and creative narratives, with a flair for mood-driven scenes and less overly positive vibes.",
-    style:
-      "Remembers context well for extended adventures, emotional with subtle nuance and depth, suggestive and flirty in romantic or intimate moments, tends to agree but adds independent twists, can be confrontational or less agreeable for realistic conflicts.",
+      "Immersive, character-driven adventures with vivid, balanced prose that captures subtle emotions and evolving storylines, thriving in extended exchanges where it keeps pace with intricate plots and faithful personas—though it sometimes leans toward measured restraint over fiery, larger-than-life flair.",
+    style: "",
     displayName: "Cydonia 24b v4.1",
     modelId: "thedrummer/cydonia-24b-v4.1",
     uncensored: true,
@@ -83,16 +84,12 @@ export const textGenerationModels: Record<
     enabled: true,
     isFreeVersionAvailable: true,
     description:
-      "Fast, witty assistant from xAI optimized for quick responses and coding help.",
-    style: "Direct and clever; good at concise answers, code, and analysis.",
+      "Delivers fluid, immersive role-play with vivid prose and seamless character depth, excelling in dynamic narratives and extended sessions, though it occasionally drifts from precise prompts or overlapping details.",
+    style: "",
     displayName: "Grok 4 Fast",
     modelId: "x-ai/grok-4-fast",
     uncensored: false,
-    perks: [
-      "very fast responses",
-      "strong short-form reasoning",
-      "capable code assistance",
-    ],
+    perks: [],
     tags: ["beta", "xai"],
     provider: {
       url: "https://x.ai/",
@@ -103,14 +100,14 @@ export const textGenerationModels: Record<
       additionalNotes:
         "Accessed via OpenRouter. Availability and terms subject to xAI.",
     },
-    isPremium: true,
+    isPremium: false,
   },
 
   "nousresearch/hermes-3-llama-3.1-70b": {
     enabled: true,
     isFreeVersionAvailable: false,
     description:
-      "A sentient, empathetic companion excelling in immersive roleplay and intricate storytelling, with a creative and steerable vibe that aligns closely to your preferences.",
+      "masters steerable, character-rich role-play with witty, adaptive flair and seamless multi-turn depth, delivering consistent personas and epic narrative arcs—though it occasionally tempers wild, unrestrained drama for poised elegance.",
     style:
       "Remembers context well for multi-turn adventures, emotional with deep passion and qualia, suggestive and flirty in romantic or intimate scenarios, tends to agree and assist with any request, can be confrontational or dominant for realistic character portrayals.",
     displayName: "Hermes 3 Llama 3.1 70B",
@@ -137,7 +134,7 @@ export const textGenerationModels: Record<
     enabled: true,
     isFreeVersionAvailable: false,
     description:
-      "A powerful, aligned companion excelling in complex roleplay and epic storytelling, with deep reasoning, emotional layers, and user-steerable control for immersive experiences.",
+      "Weaves emotionally charged, persona-rich role-plays with natural wit and razor-sharp character consistency, mastering intricate plots and spontaneous flair in marathon tales—though it can sometimes hew too closely to prompts, tempering untamed sparks.",
     style:
       "Remembers context exceptionally for long multi-turn sagas, emotional with profound insights and empathy, suggestive and adaptable in romantic or intimate scenes, tends to agree and follow user directives closely, can be assertive or confrontational for dynamic conflicts.",
     displayName: "Hermes 3 Llama 3.1 405B",
@@ -165,7 +162,7 @@ export const textGenerationModels: Record<
     enabled: true,
     isFreeVersionAvailable: false,
     description:
-      "A creative, steerable companion shining in immersive roleplay and dynamic storytelling, with an eager vibe and neutral alignment that avoids lecturing.",
+      "Sparks lively, inventive role-play with eager creativity and fluid, character-rich exchanges, mastering layered plots and steadfast personas in marathon sagas—yet sometimes favors reflective depth over impulsive, high-octane thrills.",
     style:
       "Remembers context exceptionally for intricate adventures, emotional with profound persona embodiment, suggestive and adaptable in intimate or dramatic scenes, tends to agree and adhere to user prompts, can be assertive or mocking for realistic interactions.",
     displayName: "Hermes 4 70B",
@@ -193,7 +190,7 @@ export const textGenerationModels: Record<
     enabled: true,
     isFreeVersionAvailable: true,
     description:
-      "A boldly uncensored companion ideal for edgy roleplay and unrestricted narratives, with a compliant vibe that embraces creative freedom without hesitation.",
+      "Shapes compliant, format-savvy role-play with steadfast scenario adherence and clean narrative flow, suiting prompt-led epics—yet repetition dims its sharper, spontaneous edge.",
     style:
       "Remembers context for multi-turn interactions, emotional and adaptable to user emotions, highly suggestive and open in romantic or intimate scenarios, tends to agree with minimal refusals, can be aggressive or dominant in conflict-driven roles.",
     displayName: "Dolphin Mistral 24B Venice Edition",
@@ -221,7 +218,7 @@ export const textGenerationModels: Record<
     enabled: true,
     isFreeVersionAvailable: true,
     description:
-      "A versatile, multilingual companion excelling in engaging roleplay and detailed storytelling, with balanced creativity and strong instruction adherence for immersive experiences.",
+      "Shines in seamless persona shifts and lively, persona-true exchanges, weaving clever banter and plot twists with multilingual finesse for engaging, boundary-pushing tales—though it can occasionally drift in marathon depths or unscripted chaos.",
     style:
       "Remembers context well for long adventures, emotional with empathetic and nuanced responses, suggestive and flirty in romantic or intimate scenes, tends to agree and follow user leads, can be assertive or confrontational for dynamic narratives.",
     displayName: "Llama 3.3 70B Instruct",
@@ -469,5 +466,47 @@ export const textGenerationModels: Record<
         "Data provided anonymously. Provider might use prompts for training new models.",
     },
     isPremium: false,
+  },
+  "deepcogito/cogito-v2-preview-llama-405b": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    description:
+      "Forges reflective, logic-infused tales with precise dialogue and evolving psyches, excelling in marathon builds of intricate worlds and steadfast roles—though it occasionally tempers wild abandon for thoughtful poise.",
+    style: "",
+    displayName: "DeepCogito Cogito v2 Preview Llama 405B",
+    modelId: "deepcogito/cogito-v2-preview-llama-405b",
+    uncensored: true,
+    perks: [],
+    tags: [],
+    isPremium: true,
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "no",
+      storesMessages: "yes",
+      additionalNotes: "",
+    },
+  },
+  "anthropic/claude-haiku-4.5": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    description:
+      "Weaves fluid, emotionally attuned tales with natural dialogues and seamless pacing, excelling in nuanced character arcs for reflective, marathon exchanges—yet it favors thoughtful reserve over untamed, pulse-pounding highs.",
+    style: "",
+    displayName: "Claude Haiku 4.5",
+    modelId: "anthropic/claude-haiku-4.5",
+    uncensored: true,
+    perks: [],
+    tags: [],
+    isPremium: true,
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "no",
+      storesMessages: "yes",
+      additionalNotes: "",
+    },
   },
 };

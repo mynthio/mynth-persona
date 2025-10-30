@@ -59,5 +59,11 @@ export const chatConfig: ChatConfig = {
     {
       modelId: "tngtech/deepseek-r1t2-chimera",
     },
+    {
+      modelId: "deepcogito/cogito-v2-preview-llama-405b",
+    },
+    {
+      modelId: "anthropic/claude-haiku-4.5",
+    },
   ],
 };

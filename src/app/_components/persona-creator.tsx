@@ -295,6 +295,10 @@ const models = [
     value: "sao10k/l3.3-euryale-70b",
     label: <>L3.3 Euryale 70B</>,
   },
+  {
+    value: "inclusionai/ling-1t",
+    label: <>LING 1T</>,
+  },
 ];
 
 export function ModelSelector({

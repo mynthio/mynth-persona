@@ -561,27 +561,6 @@ function ChatSettingsModel() {
           onChange={(e) => setQuery(e.target.value)}
           className="w-full bg-white rounded-[18px] border-0"
         />
-
-        <ButtonGroup>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            aria-pressed={showFreeOnly}
-            onClick={() => setShowFreeOnly((prev) => !prev)}
-          >
-            {showFreeOnly ? <CheckIcon /> : null}Free models
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            aria-pressed={showVeniceOnly}
-            onClick={() => setShowVeniceOnly((prev) => !prev)}
-          >
-            {showVeniceOnly ? <CheckIcon /> : null}Venice models
-          </Button>
-        </ButtonGroup>
       </div>
       <div className="space-y-[12px]">
         {models.map((model) => (

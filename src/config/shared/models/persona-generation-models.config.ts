@@ -5,6 +5,7 @@ export const personaGenerationModelIds = [
   "x-ai/grok-3-mini",
   "x-ai/grok-4-fast",
   "sao10k/l3.3-euryale-70b",
+  "inclusionai/ling-1t",
 ] as const;
 
 export type PersonaGenerationModelId =
@@ -40,6 +41,10 @@ export const personaGenerationModelWeights: PersonaGenerationModelWeight[] = [
   {
     id: "sao10k/l3.3-euryale-70b",
     priority: 0.3,
+  },
+  {
+    id: "inclusionai/ling-1t",
+    priority: 0.5,
   },
 ];
 

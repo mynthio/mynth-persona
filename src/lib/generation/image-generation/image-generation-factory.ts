@@ -1,96 +1,36 @@
-import { pipe, filter, map, flat, toArray, sort } from "@fxts/core";
 import { ImageGenerationBase } from "./image-generation-base";
-import {
-  imageModelsConfig,
-  ProviderHandler,
-  qualityConfig,
-  ModelQuality,
-} from "./image-generation-config";
-import { UniversalModelId } from "./constants";
+import { ImageModelId, IMAGE_MODELS } from "@/config/shared/image-models";
+import { RunwareFluxDev } from "./runware/runware-flux-dev";
+import { RunwareSeedream3 } from "./runware/runware-seedream-3";
+import { RunwareSeedream4 } from "./runware/runware-seedream-4";
+import { RunwareGeminiFlash } from "./runware/runware-gemini-flash";
+import { RunwareImagen4 } from "./runware/runware-imagen-4";
 import { logger } from "@/lib/logger";
 
-// Helper function to shuffle array using sort with random comparator
-const shuffleArray = <T>(arr: T[]): T[] => sort(() => Math.random() - 0.5, arr);
+// Simple model class mapping
+const MODEL_CLASS_MAP: Record<
+  ImageModelId,
+  new () => ImageGenerationBase
+> = {
+  "black-forest-labs/flux-dev": RunwareFluxDev,
+  "seedream/seedream-3.0": RunwareSeedream3,
+  "seedream/seedream-4.0": RunwareSeedream4,
+  "google/gemini-flash-image-2.5": RunwareGeminiFlash,
+  "google/imagen-4-preview": RunwareImagen4,
+};
 
 export class ImageGenerationFactory {
   /**
-   * Get model handler by quality level (randomly selected from available models)
+   * Get model handler by model ID
    */
-  static byQuality(quality: ModelQuality): ImageGenerationBase {
-    logger.debug({ quality }, "Getting model handler by quality");
-
-    const availableProviders = pipe(
-      qualityConfig[quality] || [],
-      filter((modelId: UniversalModelId) => {
-        const config = imageModelsConfig[modelId];
-        return config && !config.isDeprecated;
-      }),
-      map((modelId: UniversalModelId) =>
-        pipe(
-          imageModelsConfig[modelId].providersHandlers,
-          filter((provider: ProviderHandler) => provider.isEnabled)
-        )
-      ),
-      flat,
-      toArray
-    );
-
-    if (availableProviders.length === 0) {
-      throw new Error(`No available providers found for quality: ${quality}`);
-    }
-
-    // Randomly select a provider
-    const shuffledProviders = shuffleArray(availableProviders);
-    const selectedProvider = shuffledProviders[0];
-
-    logger.debug(
-      {
-        selectedProvider: selectedProvider.modelClass.name,
-        quality,
-      },
-      "Selected provider for quality"
-    );
-
-    return new selectedProvider.modelClass();
-  }
-
-  /**
-   * Get model handler by universal model ID (randomly selected from available providers)
-   */
-  static byModelId(modelId: UniversalModelId): ImageGenerationBase {
+  static byModelId(modelId: ImageModelId): ImageGenerationBase {
     logger.debug({ modelId }, "Getting model handler by model ID");
 
-    const modelConfig = imageModelsConfig[modelId];
-    if (!modelConfig) {
-      throw new Error(`No configuration found for model: ${modelId}`);
+    const modelClass = MODEL_CLASS_MAP[modelId];
+    if (!modelClass) {
+      throw new Error(`No handler found for model: ${modelId}`);
     }
 
-    if (modelConfig.isDeprecated) {
-      throw new Error(`Model ${modelId} is deprecated`);
-    }
-
-    const enabledProviders = pipe(
-      modelConfig.providersHandlers,
-      filter((provider: ProviderHandler) => provider.isEnabled),
-      toArray
-    );
-
-    if (enabledProviders.length === 0) {
-      throw new Error(`No available providers found for model: ${modelId}`);
-    }
-
-    // Randomly select a provider
-    const shuffledProviders = shuffleArray(enabledProviders);
-    const selectedProvider = shuffledProviders[0];
-
-    logger.debug(
-      {
-        selectedProvider: selectedProvider.modelClass.name,
-        modelId,
-      },
-      "Selected provider for model ID"
-    );
-
-    return new selectedProvider.modelClass();
+    return new modelClass();
   }
 }

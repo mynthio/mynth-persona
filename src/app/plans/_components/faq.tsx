@@ -39,7 +39,22 @@ const FAQ_ITEMS: FaqItem[] = [
         sessions like a champ. If you're all about those premium models and
         aren't fussed about image generation, Flame plan's your jam. Blaze is
         for the hardcore roleplayers who want all the bells and whistles,
-        including image generation for those next-level scenarios.
+        including premium image models and generous generation limits for those
+        next-level scenarios.
+      </p>
+    ),
+  },
+  {
+    question: "How do image models work?",
+    answer: (
+      <p>
+        You can choose between different image models when generating persona
+        images. Standard models (like FLUX Dev) count as 1 generation toward
+        your daily limit, while premium models (like SeeDream) create
+        higher-quality images but use 2 generations from your limit. All plans
+        have access to all models - the difference is just how many generations
+        you get per day. Premium models are marked with a sparkle icon ✨ so you
+        know they'll use more of your limit.
       </p>
     ),
   },

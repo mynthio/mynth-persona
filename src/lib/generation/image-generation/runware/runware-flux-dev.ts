@@ -16,6 +16,14 @@ export class RunwareFluxDev extends RunwareImageGenerationBase {
   // Provider-specific model ID (private)
   protected readonly RUNWARE_MODEL_ID = "runware:101@1" as const;
 
+  protected getDefaultWidth(): number {
+    return 768;
+  }
+
+  protected getDefaultHeight(): number {
+    return 1344;
+  }
+
   protected getPerRequestConfig(): { steps?: number; includeCost?: boolean } {
     return { steps: 35 };
   }

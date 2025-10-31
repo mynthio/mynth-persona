@@ -5,7 +5,7 @@ export type ImageGenerationResult = {
 
 export abstract class ImageGenerationBase {
   /**
-   * Universal model identifier (e.g., "black-forest-labs/flux-schnell")
+   * Universal model identifier (e.g., "black-forest-labs/flux-dev")
    * This identifies the actual ML model regardless of provider
    */
   protected abstract readonly MODEL_ID: string;

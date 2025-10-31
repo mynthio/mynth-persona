@@ -7,7 +7,7 @@ import { z } from "zod";
 
 import { PersonaWithVersion } from "@/types/persona.type";
 import logsnag from "@/lib/logsnag";
-import { ImageGenerationQuality } from "@/types/image-generation/image-generation-quality.type";
+import { ImageModelId, IMAGE_MODELS } from "@/config/shared/image-models";
 import { ImageGenerationFactory } from "@/lib/generation/image-generation/image-generation-factory";
 import { processImage } from "@/lib/image-processing/image-processor";
 import { uploadToBunny } from "@/lib/upload";
@@ -28,7 +28,7 @@ const GeneratePersonaImageTaskPayloadSchema = z.object({
   }),
   userId: z.string(),
 
-  quality: z.enum(["low", "medium", "high"]),
+  modelId: z.string(),
   style: z.string(),
   shotType: z.string(),
   nsfw: z.boolean().default(false),
@@ -39,7 +39,7 @@ type GeneratePersonaImageTaskPayload = z.infer<
   typeof GeneratePersonaImageTaskPayloadSchema
 > & {
   persona: PersonaWithVersion;
-  quality: ImageGenerationQuality;
+  modelId: ImageModelId;
   style: ImageStyle;
   shotType: ShotType;
 };
@@ -63,34 +63,25 @@ export const generatePersonaImageTask = task({
     /**
      * Get data from payload
      */
-    const { userId, persona, quality, style, shotType, nsfw, userNote } =
+    const { userId, persona, modelId, style, shotType, nsfw, userNote } =
       payload;
 
-    // Get the appropriate model based on quality
-    let imageGenerationModel = ImageGenerationFactory.byQuality(quality);
-
-    if (quality === "high" && nsfw) {
-      imageGenerationModel = ImageGenerationFactory.byModelId(
-        "black-forest-labs/flux-1-pro"
-      );
-    }
+    // Get the appropriate model based on modelId
+    const imageGenerationModel = ImageGenerationFactory.byModelId(modelId);
 
     let imagePrompt = metadata.get("imagePrompt") as string | undefined;
 
     if (!imagePrompt) {
-      const imageGenerationResult =
-        quality === "low"
-          ? { prompt: persona.version?.data.appearance as string | undefined }
-          : await craftImagePromptForPersona({
-              personaData: persona.version?.data,
-              modelName: imageGenerationModel.displayName,
-              options: {
-                style,
-                shotType,
-                nsfw,
-                userNote,
-              },
-            });
+      const imageGenerationResult = await craftImagePromptForPersona({
+        personaData: persona.version?.data,
+        modelName: imageGenerationModel.displayName,
+        options: {
+          style,
+          shotType,
+          nsfw,
+          userNote,
+        },
+      });
 
       if (!imageGenerationResult?.prompt) {
         throw new Error("Failed to generate image prompt");
@@ -100,25 +91,9 @@ export const generatePersonaImageTask = task({
       metadata.set("imagePrompt", imagePrompt);
     }
 
-    // Set resolution based on quality
-    let width: number, height: number;
-    if (quality === "high") {
-      width = 864;
-      height = 1152;
-    } else if (quality === "medium") {
-      width = 896;
-      height = 1152;
-    } else {
-      width = 512;
-      height = 512;
-    }
-
+    // Generate image using model's default dimensions
     const generateImageResult = await imageGenerationModel.generate(
-      imagePrompt,
-      {
-        width,
-        height,
-      }
+      imagePrompt
     );
 
     /**
@@ -172,7 +147,7 @@ export const generatePersonaImageTask = task({
         userId,
         personaId: persona.id,
         settings: {
-          quality,
+          modelId,
           style,
           shotType,
           nsfw,

@@ -44,9 +44,9 @@ export const generateSceneImageDemoTask = schemaTask({
       imageId,
     } = payload;
 
-    // Get the appropriate model based on quality
+    // Use Flux Dev for scene generation
     let imageGenerationModel = ImageGenerationFactory.byModelId(
-      "black-forest-labs/flux-schnell"
+      "black-forest-labs/flux-dev"
     );
 
     const openrouter = getOpenRouter();
@@ -68,17 +68,9 @@ export const generateSceneImageDemoTask = schemaTask({
       throw new Error("Failed to generate image prompt");
     }
 
-    // Set resolution based on quality
-
-    const width = 512;
-    const height = 512;
-
+    // Generate image using model's default dimensions
     const generateImageResult = await imageGenerationModel.generate(
-      promptResult.text,
-      {
-        width,
-        height,
-      }
+      promptResult.text
     );
 
     /**

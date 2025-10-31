@@ -164,7 +164,8 @@ export const CHAT_RATE_LIMITS = {
 
 export const rateLimitGuard = async (
   rateLimitter: Ratelimit,
-  identifier: string
+  identifier: string,
+  cost: number = 1
 ) => {
   // Use for testing
   // return {
@@ -185,7 +186,7 @@ export const rateLimitGuard = async (
 
   if (process.env.NODE_ENV !== "production") return { success: true };
 
-  const rateLimitResult = await rateLimitter.limit(identifier);
+  const rateLimitResult = await rateLimitter.limit(identifier, { cost });
 
   if (!rateLimitResult.success) {
     return {

@@ -111,7 +111,7 @@ export function Plans() {
           features={[
             "Models: Non-premium models only",
             "Messages: 20/2h (non-premium models only)",
-            "Images: 5/day, 1 parallel (low/medium quality only)",
+            "Images: 5/day, 1 parallel (all models, premium uses more)",
             "Purpose: Trial to build habit — upgrade anytime",
           ]}
         />
@@ -124,7 +124,7 @@ export function Plans() {
           features={[
             "Models: Non-premium + limited premium access",
             "Messages: 120/2h non-premium models, 20/2h premium models",
-            "Images: 10/day, 1 parallel (low/medium quality only)",
+            "Images: 10/day, 1 parallel (all models, premium uses more)",
             "Best for: Casual roleplay users",
           ]}
         />
@@ -137,7 +137,7 @@ export function Plans() {
           features={[
             "Models: Non-premium + premium access (limited rates)",
             "Messages: 180/2h non-premium models, 80/2h premium models",
-            "Images: 30/day, 2 parallel (low/medium quality only)",
+            "Images: 30/day, 2 parallel (all models, premium uses more)",
             "Best for: Regular users & creators",
           ]}
         />
@@ -150,7 +150,7 @@ export function Plans() {
           features={[
             "Models: Non-premium + premium access (high limits)",
             "Messages: 200/2h non-premium models, 120/2h premium models",
-            "Images: 30/h, 2 parallel (high quality included)",
+            "Images: 30/h, 2 parallel (all models, premium uses more)",
             "Best for: Power users",
           ]}
         />

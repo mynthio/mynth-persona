@@ -15,8 +15,15 @@ export class RunwareSeedream3 extends RunwareImageGenerationBase {
   protected readonly DISPLAY_NAME = "SeeDream 3.0";
 
   // Provider-specific model ID (private)
-  // Note: This is an estimated ID - you may need to verify the correct runware model ID
   protected readonly RUNWARE_MODEL_ID = "bytedance:3@1" as const;
+
+  protected getDefaultWidth(): number {
+    return 720;
+  }
+
+  protected getDefaultHeight(): number {
+    return 1280;
+  }
 
   async generate(
     prompt: string,
@@ -31,11 +38,5 @@ export class RunwareSeedream3 extends RunwareImageGenerationBase {
     } catch (error) {
       throw error;
     }
-  }
-  protected getDefaultWidth(): number {
-    return 1024;
-  }
-  protected getDefaultHeight(): number {
-    return 1024;
   }
 }

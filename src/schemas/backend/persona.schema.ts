@@ -1,4 +1,4 @@
-import { z } from "zod/v4";
+import { z } from "zod";
 import { createSelectSchema } from "drizzle-zod";
 import { personas, personaVersions } from "@/db/schema";
 

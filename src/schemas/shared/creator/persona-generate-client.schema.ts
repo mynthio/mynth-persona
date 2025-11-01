@@ -1,4 +1,4 @@
-import z from "zod/v4";
+import z from "zod";
 import { creatorPersonaGenerateSchema } from "./persona-generate.schema";
 
 // Client schema for persona generation response

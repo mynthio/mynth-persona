@@ -533,7 +533,7 @@ export default function ScenarioCreatorForm() {
       const validationErrors: Record<string, string> = {};
 
       if (!formValidation.success) {
-        const fieldErrors = formValidation.error.flatten().fieldErrors;
+        const fieldErrors = z.flattenError(formValidation.error).fieldErrors;
         Object.entries(fieldErrors).forEach(([field, errors]) => {
           if (errors && errors.length > 0) {
             validationErrors[field] = errors[0]; // Take first error message
@@ -542,7 +542,7 @@ export default function ScenarioCreatorForm() {
       }
 
       if (!messagesValidation.success && "error" in messagesValidation) {
-        const messageErrors = messagesValidation.error.flatten();
+        const messageErrors = z.flattenError(messagesValidation.error);
         if (messageErrors.formErrors.length > 0) {
           validationErrors.startingMessages = messageErrors.formErrors[0];
         } else if (messageErrors.fieldErrors) {

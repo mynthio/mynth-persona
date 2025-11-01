@@ -1,4 +1,4 @@
-import z from "zod/v4";
+import z from "zod";
 
 import { sendMessagePayloadSchema } from "./send-message-payload.schema";
 import { editMessagePayloadSchema } from "./edit-message-payload.schema";

@@ -15,6 +15,7 @@ import { TextareaAutosize } from "@/components/mynth-ui/base/textarea";
 import { Switch } from "@/components/mynth-ui/base/switch";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { z } from "zod";
 import { publishScenarioFormSchema } from "@/schemas/shared";
 import {
   Popover,
@@ -100,8 +101,9 @@ function PublishScenarioForm(props: PublishScenarioFormProps) {
       const validationErrors: Record<string, string> = {};
 
       if (!formValidation.success) {
-        console.log(formValidation.error.flatten());
-        const fieldErrors = formValidation.error.flatten().fieldErrors;
+        const flattened = z.flattenError(formValidation.error);
+        console.log(flattened);
+        const fieldErrors = flattened.fieldErrors;
         Object.entries(fieldErrors).forEach(([field, errors]) => {
           if (errors && errors.length > 0) {
             validationErrors[field] = errors[0]; // Take first error message

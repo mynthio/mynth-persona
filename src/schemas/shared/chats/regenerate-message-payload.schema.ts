@@ -1,5 +1,5 @@
 import { messageIdSchema } from "@/schemas/backend/messages/message.schema";
-import z from "zod/v4";
+import z from "zod";
 
 // Client schema for regenerate message payload
 export const regenerateMessagePayloadSchema = z.object({

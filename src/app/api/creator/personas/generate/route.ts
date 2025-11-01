@@ -10,7 +10,7 @@ import { auth } from "@clerk/nextjs/server";
 import { streamObject } from "ai";
 import { transformCreatorPersonaGenerateToPersonaData } from "@/schemas/transformers";
 import ms from "ms";
-import { z } from "zod/v4";
+import { z } from "zod";
 import {
   PersonaCreatorAuthenticatedRateLimit,
   PersonaCreatorUnauthenticatedRateLimit,

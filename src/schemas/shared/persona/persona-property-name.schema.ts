@@ -1,4 +1,4 @@
-import z from "zod/v4";
+import z from "zod";
 
 export const CUSTOM_PROPERTY_NAME_MAX_LENGTH = 64;
 

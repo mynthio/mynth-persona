@@ -1,7 +1,7 @@
 import { messages } from "@/db/schema";
 
 import { createSelectSchema } from "drizzle-zod";
-import z from "zod/v4";
+import z from "zod";
 import { languageModelUsageSchema } from "../ai/language-model-usage.schema";
 
 export const messageMetadataSchema = z.object({

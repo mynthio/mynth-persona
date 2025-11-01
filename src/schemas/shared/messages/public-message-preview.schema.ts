@@ -1,4 +1,4 @@
-import z from "zod/v4";
+import z from "zod";
 
 // Lightweight, UI-safe preview of a message within a branch (relaxed ID validation)
 export const publicMessagePreviewSchema = z.object({

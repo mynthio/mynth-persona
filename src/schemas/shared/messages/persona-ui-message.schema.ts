@@ -1,5 +1,5 @@
 import { UIMessage } from "ai";
-import z from "zod/v4";
+import z from "zod";
 
 export const personaUIMessageMetadataSchema = z.object({
   parentId: z.string().optional().nullable(),

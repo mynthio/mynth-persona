@@ -31,7 +31,7 @@ import { parseAsBoolean, useQueryState } from "nuqs";
 import { snakeCase, spaceCase } from "case-anything";
 import { Response } from "@/components/ai-elements/response";
 import { useGenerationContext } from "@/contexts/generation-context";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { Button } from "@/components/mynth-ui/base/button";
 import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
 import {

@@ -22,7 +22,7 @@ const GeneratePersonaImageTaskPayloadSchema = z.object({
     id: z.string(),
     version: z
       .object({
-        data: z.record(z.any()),
+        data: z.record(z.string(), z.any()),
       })
       .nullable(),
   }),

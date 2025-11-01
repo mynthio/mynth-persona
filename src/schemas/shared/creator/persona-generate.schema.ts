@@ -1,4 +1,4 @@
-import z from "zod/v4";
+import z from "zod";
 
 export const creatorPersonaGenerateSchema = z.object({
   title: z.string().describe("Short, one-line persona title."),

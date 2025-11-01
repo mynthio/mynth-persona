@@ -1,6 +1,6 @@
 import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
 import { generateObject } from "ai";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { logAiSdkUsage } from "@/lib/logger";
 
 const ROLEPLAY_SUMMARY_MODEL_ID = "google/gemini-2.5-flash-lite" as const;

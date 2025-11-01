@@ -15,6 +15,7 @@ type GenerateOptions = {
 type PerRequestConfig = {
   steps?: number;
   includeCost?: boolean;
+  providerSettings?: any; // Flexible to support various providers (openai, bfl, etc)
 };
 
 export abstract class RunwareImageGenerationBase extends ImageGenerationBase {

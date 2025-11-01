@@ -105,14 +105,15 @@ export default function Imagine() {
   };
 
   return (
-    <div className="flex flex-col h-full max-h-full overflow-hidden gap-4">
+    <div className="flex flex-col h-full max-h-full overflow-hidden">
       <ScrollArea className="h-full min-h-0 w-full min-w-0 max-w-full overflow-x-hidden">
-        <div className="min-h-0 mt-auto h-full overflow-y-auto overflow-x-hidden flex flex-col justify-start gap-5 px-1 pt-4 pb-2">
+        <div className="min-h-0 mt-auto h-full overflow-y-auto overflow-x-hidden flex flex-col justify-start gap-4 px-4 pt-0 pb-3">
           <Section title="Model">
             <TooltipProvider>
               <div className="space-y-2">
                 {Object.values(IMAGE_MODELS).map((model) => {
                   const isPremium = model.cost > 1;
+                  const selected = options.modelId === model.id;
                   return (
                     <div
                       key={model.id}
@@ -123,25 +124,27 @@ export default function Imagine() {
                         })
                       }
                       className={cn(
-                        "flex items-center justify-between px-3 py-2.5 rounded-md cursor-pointer transition-colors",
-                        "bg-card shadow-sm border border-transparent hover:border-zinc-200",
-                        options.modelId === model.id &&
-                          "ring-2 ring-primary ring-offset-1"
+                        "group relative flex items-center justify-between gap-3 rounded-lg p-3 cursor-pointer transition-all",
+                        "border border-zinc-200/60 bg-white/70 dark:bg-zinc-900/50 backdrop-blur-sm",
+                        "hover:shadow-md",
+                        selected && "ring-2 ring-primary/80 ring-offset-1"
                       )}
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="text-[13px] font-medium">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-[13px] font-medium truncate">
                           {model.displayName}
                         </span>
                         {isPremium && (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-700 px-1.5 py-0.5 text-[10px] font-medium">
+                                <Sparkles className="w-3 h-3" /> Premium
+                              </span>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p className="text-xs max-w-[200px]">
-                                Premium model - generates higher quality images
-                                but uses more of your daily limit
+                              <p className="text-xs max-w-[220px]">
+                                Higher quality output. Uses more of your daily
+                                limit.
                               </p>
                             </TooltipContent>
                           </Tooltip>
@@ -149,12 +152,21 @@ export default function Imagine() {
                       </div>
                       <div
                         className={cn(
-                          "w-3.5 h-3.5 rounded-full transition-all",
-                          options.modelId === model.id
-                            ? "bg-primary"
-                            : "bg-zinc-300"
+                          "relative flex items-center justify-center w-4 h-4 rounded-full border transition-all",
+                          selected
+                            ? "border-primary bg-primary"
+                            : "border-zinc-300 bg-white"
                         )}
-                      />
+                      >
+                        <div
+                          className={cn(
+                            "w-2 h-2 rounded-full transition-opacity",
+                            selected
+                              ? "opacity-100 bg-white"
+                              : "opacity-0 bg-transparent"
+                          )}
+                        />
+                      </div>
                     </div>
                   );
                 })}
@@ -190,13 +202,18 @@ export default function Imagine() {
             </div>
           </Section>
 
-          <div className="space-y-2">
-            <Label htmlFor="user-note" className="text-[13px] font-medium">
-              Additional notes
-            </Label>
+          <div className="rounded-xl border border-zinc-200/60 bg-white/70 dark:bg-zinc-900/50 backdrop-blur-sm p-3 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <Label htmlFor="user-note" className="text-[13px] font-semibold">
+                Additional notes
+              </Label>
+              <div className="text-[11px] text-zinc-500">
+                {options.userNote.length}/500
+              </div>
+            </div>
             <Textarea
               id="user-note"
-              placeholder="e.g. Professional headshot, focus on expression"
+              placeholder="e.g. Professional headshot, soft light, natural background"
               value={options.userNote}
               onChange={(e) =>
                 setOptions({
@@ -204,46 +221,34 @@ export default function Imagine() {
                   userNote: e.target.value.slice(0, 500),
                 })
               }
-              className="min-h-[72px] resize-none text-sm border-0 shadow-none focus-visible:ring-0 focus-visible:border-0"
+              className="min-h-[84px] resize-none text-sm border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:border-0"
               maxLength={500}
             />
-            <div className="text-[11px] text-zinc-500 text-right">
-              {options.userNote.length}/500
-            </div>
           </div>
         </div>
       </ScrollArea>
 
-      <div className="shrink-0 border-t border-zinc-200/50 pt-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5" />
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 px-3 text-[12px] border-0 shadow-none"
-              disabled={isLoading}
-              onClick={() => {
-                // Reset to defaults
-                setOptions({
-                  modelId: "black-forest-labs/flux-dev",
-                  style: "auto",
-                  shotType: "full-body",
-                  userNote: "",
-                });
-              }}
-            >
-              Reset
-            </Button>
-            <Button
-              onClick={onGenerate}
-              disabled={isLoading}
-              size="sm"
-              className="h-8 px-3 text-[12px]"
-            >
-              {isLoading ? "Generating..." : "Generate"}
-            </Button>
-          </div>
+      <div className="shrink-0  dark:bg-zinc-900/50 backdrop-blur-sm px-2 pb-2">
+        <div className="flex items-center justify-end gap-2 bg-white rounded-md p-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={isLoading}
+            onClick={() => {
+              // Reset to defaults
+              setOptions({
+                modelId: "black-forest-labs/flux-dev",
+                style: "auto",
+                shotType: "full-body",
+                userNote: "",
+              });
+            }}
+          >
+            Reset
+          </Button>
+          <Button onClick={onGenerate} disabled={isLoading} size="sm">
+            {isLoading ? "Generating..." : "Generate"}
+          </Button>
         </div>
         {/* Plan-based access and rate limiting enforced server-side */}
       </div>
@@ -259,8 +264,10 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-2">
-      <h3 className="text-[13px] font-semibold text-zinc-900">{title}</h3>
+    <div className="rounded-xl border border-zinc-200/60 bg-white/70 dark:bg-zinc-900/50 backdrop-blur-sm p-3 shadow-sm">
+      <h3 className="text-[12px] font-semibold text-zinc-900/90 mb-2 tracking-wide uppercase">
+        {title}
+      </h3>
       {children}
     </div>
   );
@@ -296,12 +303,13 @@ function StyleCard({
     <div
       onClick={onClick}
       className={cn(
-        "relative cursor-pointer rounded-md p-1.5 transition-colors",
-        "bg-card shadow-sm border border-transparent hover:border-zinc-200",
-        selected && "ring-2 ring-primary ring-offset-1"
+        "group relative cursor-pointer rounded-lg p-1.5 overflow-hidden",
+        "border border-zinc-200/60 bg-white/60 dark:bg-zinc-900/40 backdrop-blur-sm",
+        "hover:shadow-md transition-all",
+        selected && "ring-2 ring-primary/80 ring-offset-1"
       )}
     >
-      <div className="aspect-square bg-muted rounded-sm mb-1 overflow-hidden">
+      <div className="aspect-square rounded-md mb-1 overflow-hidden relative">
         {styleImages[style] ? (
           <img
             src={styleImages[style]!}
@@ -309,9 +317,18 @@ function StyleCard({
             className="w-full h-full object-cover"
           />
         ) : null}
-      </div>
-      <div className="text-center text-[12px] font-medium">
-        {styleLabels[style]}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
+        <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full border border-white/70 bg-black/30 backdrop-blur-sm grid place-items-center">
+          <div
+            className={cn(
+              "w-2 h-2 rounded-full",
+              selected ? "bg-white" : "bg-white/30"
+            )}
+          />
+        </div>
+        <div className="absolute bottom-1.5 left-1.5 text-white text-[11px] font-medium px-1.5 py-0.5 rounded-md bg-black/40 backdrop-blur-sm">
+          {styleLabels[style]}
+        </div>
       </div>
     </div>
   );
@@ -342,22 +359,31 @@ function ShotTypeCard({
     <div
       onClick={onClick}
       className={cn(
-        "relative cursor-pointer rounded-md p-2 transition-colors",
-        "bg-card shadow-sm border border-transparent hover:border-zinc-200",
-        selected && "ring-2 ring-primary ring-offset-1"
+        "group relative cursor-pointer rounded-lg p-1.5 overflow-hidden",
+        "border border-zinc-200/60 bg-white/60 dark:bg-zinc-900/40 backdrop-blur-sm",
+        "hover:shadow-md transition-all",
+        selected && "ring-2 ring-primary/80 ring-offset-1"
       )}
     >
-      <div className="aspect-3/4 bg-muted rounded-sm mb-1 overflow-hidden">
+      <div className="aspect-3/4 rounded-md overflow-hidden relative">
         <img
           src={images[shotType]}
           alt={`${labels[shotType]} example`}
           className="w-full h-full object-cover"
         />
-      </div>
-      <div className="text-center text-[12px] font-medium">
-        {labels[shotType]}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
+        <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full border border-white/70 bg-black/30 backdrop-blur-sm grid place-items-center">
+          <div
+            className={cn(
+              "w-2 h-2 rounded-full",
+              selected ? "bg-white" : "bg-white/30"
+            )}
+          />
+        </div>
+        <div className="absolute bottom-1.5 left-1.5 text-white text-[11px] font-medium px-1.5 py-0.5 rounded-md bg-black/40 backdrop-blur-sm">
+          {labels[shotType]}
+        </div>
       </div>
     </div>
   );
 }
-

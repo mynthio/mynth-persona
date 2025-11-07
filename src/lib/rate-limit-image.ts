@@ -7,12 +7,8 @@ import { logger } from "@/lib/logger";
 
 const REDIS_URL = process.env.REDIS_URL;
 
-if (!REDIS_URL) {
-  throw new Error("REDIS_URL is required");
-}
-
 // Create Redis client
-const redisClient = new Redis(REDIS_URL, {
+const redisClient = new Redis(REDIS_URL!, {
   enableOfflineQueue: false,
   maxRetriesPerRequest: 3,
 });

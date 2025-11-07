@@ -2,11 +2,18 @@ import "server-only";
 
 import { kv } from "@vercel/kv";
 import { type PlanId } from "@/config/shared/plans";
-import { CONCURRENT_IMAGE_JOBS_PER_PLAN } from "@/lib/rate-limit";
+
 import { logger } from "@/lib/logger";
 
 const KEY_PREFIX = "concurrent:image:jobs";
 const TTL_SECONDS = 600; // 10 minutes
+
+const CONCURRENT_IMAGE_JOBS_PER_PLAN: Record<PlanId, number> = {
+  free: 1,
+  spark: 1,
+  flame: 2,
+  blaze: 2,
+};
 
 /**
  * Generates the Redis key for tracking concurrent image jobs
@@ -125,4 +132,3 @@ export const decrementConcurrentImageJob = async (
     // Don't throw - decrementing is best effort
   }
 };
-

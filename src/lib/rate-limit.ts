@@ -9,13 +9,6 @@ if (!ROOT_KEY) {
   throw new Error("UNKEY_ROOT_KEY is required");
 }
 
-export const CONCURRENT_IMAGE_JOBS_PER_PLAN: Record<PlanId, number> = {
-  free: 1,
-  spark: 1,
-  flame: 2,
-  blaze: 2,
-};
-
 export const PersonaCreatorUnauthenticatedRateLimit = new Ratelimit({
   rootKey: ROOT_KEY,
   namespace: "persona.creator.unauthenticated",
@@ -36,38 +29,6 @@ export const ScenarioPublishRateLimit = new Ratelimit({
   rootKey: ROOT_KEY,
   namespace: "scenario.publish",
   limit: 5,
-  duration: "1h",
-  onError: () => ({ success: false, limit: 0, remaining: 0, reset: 0 }),
-});
-
-const FreeImageGenerationsRateLimit = new Ratelimit({
-  rootKey: ROOT_KEY,
-  namespace: "image.plan.free",
-  limit: 5,
-  duration: "1d",
-  onError: () => ({ success: false, limit: 0, remaining: 0, reset: 0 }),
-});
-
-const SparkImageGenerationsRateLimit = new Ratelimit({
-  rootKey: ROOT_KEY,
-  namespace: "image.plan.spark",
-  limit: 10,
-  duration: "1d",
-  onError: () => ({ success: false, limit: 0, remaining: 0, reset: 0 }),
-});
-
-const FlameImageGenerationsRateLimit = new Ratelimit({
-  rootKey: ROOT_KEY,
-  namespace: "image.plan.flame",
-  limit: 30,
-  duration: "1d",
-  onError: () => ({ success: false, limit: 0, remaining: 0, reset: 0 }),
-});
-
-const BlazeImageGenerationsRateLimit = new Ratelimit({
-  rootKey: ROOT_KEY,
-  namespace: "image.plan.blaze",
-  limit: 30,
   duration: "1h",
   onError: () => ({ success: false, limit: 0, remaining: 0, reset: 0 }),
 });

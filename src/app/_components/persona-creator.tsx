@@ -9,7 +9,8 @@ import {
   ShuffleIcon,
   SparkleIcon,
 } from "@phosphor-icons/react/dist/ssr";
-import { Tooltip, TooltipPopup, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
 import { Select } from "@base-ui-components/react/select";
 import { AnimatePresence, motion } from "motion/react";
 import posthog from "posthog-js";
@@ -170,9 +171,9 @@ export default function PersonaCreator({
                         <ShuffleIcon weight="bold" size={16} />
                       </button>
                     </TooltipTrigger>
-                    <TooltipPopup>
+                    <TooltipContent>
                       <p>Generate a random persona</p>
-                    </TooltipPopup>
+                    </TooltipContent>
                   </Tooltip>
 
                   <Tooltip>
@@ -198,9 +199,9 @@ export default function PersonaCreator({
                         <GhostIcon weight="bold" size={16} />
                       </button>
                     </TooltipTrigger>
-                    <TooltipPopup>
+                    <TooltipContent>
                       <p>Generate a special halloween character</p>
-                    </TooltipPopup>
+                    </TooltipContent>
                   </Tooltip>
                 </motion.div>
               )}

@@ -9,17 +9,10 @@ import {
 } from "@ai-sdk-tools/store";
 import { DefaultChatTransport } from "ai";
 import { FormEvent, useEffect, useRef, useState } from "react";
-import {
-  PromptInput,
-  PromptInputBody,
-  PromptInputMessage,
-  PromptInputTextarea,
-  PromptInputFooter,
-  PromptInputTools,
-} from "@/components/mynth-ui/ai/prompt-input";
+
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
-import { Button } from "@/components/mynth-ui/base/button";
+
 import {
   ArrowsClockwiseIcon,
   CircleNotchIcon,
@@ -36,6 +29,18 @@ import { ChatModelPickerMenu } from "./chat-model-picker-menu";
 import { updateChatAction } from "@/actions/update-chat.action";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
 import { useToast } from "@/components/ui/toast";
+import {
+  PromptInput,
+  PromptInputAttachments,
+  PromptInputBody,
+  PromptInputFooter,
+  PromptInputHeader,
+  PromptInputMessage,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputTools,
+} from "@/components/ai-elements/prompt-input";
+import { Button } from "@/components/ui/button";
 
 type ChatProps = {
   chat: { id: string; mode: ChatMode };
@@ -106,50 +111,26 @@ type ChatPromptProps = {
 };
 
 function ChatPrompt(props: ChatPromptProps) {
+  const [text, setText] = useState<string>("");
+
   const { sendMessage, regenerate } = useChatActions();
   const status = useChatStatus();
   const messages = useChatMessages();
 
   const { openSettings } = useSettingsNavigation();
 
-  // Scroll to position last user message at top of viewport when new message is sent
-  useEffect(() => {
-    if (props.shouldScrollRef.current && props.messagesContainerRef.current) {
-      props.setShouldScroll(false);
-
-      // Wait for the next animation frame to ensure DOM is updated
-      const rafId = requestAnimationFrame(() => {
-        const container = props.messagesContainerRef.current;
-        if (!container) return;
-
-        // Find the last user message by iterating from the end of direct children
-        const messageElements = Array.from(container.children);
-        let lastUserMessageElement: Element | null = null;
-        for (let i = messageElements.length - 1; i >= 0; i--) {
-          const element = messageElements[i];
-          if (element.classList.contains("is-user")) {
-            lastUserMessageElement = element;
-            break;
-          }
-        }
-
-        if (lastUserMessageElement) {
-          // Use scrollIntoView with scroll-margin-top handled via CSS on user messages
-          lastUserMessageElement.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        }
-      });
-
-      return () => cancelAnimationFrame(rafId);
-    }
-  }, [messages.length, props.messagesContainerRef, props.setShouldScroll]);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = async (
     message: PromptInputMessage,
     event: FormEvent<HTMLFormElement>
   ) => {
+    const hasText = Boolean(message.text);
+
+    if (!hasText) {
+      return;
+    }
+
     if (status !== "ready") {
       if (status === "error") {
         regenerate({
@@ -161,8 +142,6 @@ function ChatPrompt(props: ChatPromptProps) {
         return;
       }
     }
-    const text = message.text?.trim();
-    if (!text || text === "") return;
 
     // Set flag to trigger scroll after message is added
     props.setShouldScroll(true);
@@ -186,50 +165,17 @@ function ChatPrompt(props: ChatPromptProps) {
   };
 
   return (
-    <PromptInput
-      onSubmit={handleSubmit}
-      className="sticky bottom-[12px] z-20 w-full max-w-[40rem] items-start h-auto max-h-auto mx-auto mb-[12px]"
-    >
-      <PromptInputBody className="w-full max-w-full h-full">
+    <PromptInput onSubmit={handleSubmit} className="mt-4" globalDrop multiple>
+      <PromptInputHeader></PromptInputHeader>
+      <PromptInputBody>
         <PromptInputTextarea
-          disabled={status !== "ready"}
-          placeholder="Write a message..."
-          aria-label="Message Input"
-          className="w-full h-full h-auto"
+          onChange={(e) => setText(e.target.value)}
+          ref={textareaRef}
+          value={text}
         />
       </PromptInputBody>
-
-      <PromptInputFooter className="w-full px-[24px] h-[42px] shrink-0 mb-[9px]">
-        <PromptInputTools className="w-full">
-          <ButtonGroup>
-            <ChatModelSelector />
-            <ButtonGroup.Separator />
-            <Button
-              size="icon"
-              onClick={() => openSettings()}
-              aria-label="Open settings"
-            >
-              <SlidersHorizontalIcon />
-            </Button>
-          </ButtonGroup>
-        </PromptInputTools>
-
-        <Button
-          color="primary"
-          size="icon"
-          type="submit"
-          aria-label="Send message"
-          className="shrink-0"
-          disabled={status === "streaming" || status === "submitted"}
-        >
-          {status === "error" ? (
-            <ArrowsClockwiseIcon />
-          ) : status === "streaming" || status === "submitted" ? (
-            <CircleNotchIcon className="animate-spin" />
-          ) : (
-            <PaperPlaneTiltIcon />
-          )}
-        </Button>
+      <PromptInputFooter>
+        <PromptInputSubmit disabled={!text && !status} status={status} />
       </PromptInputFooter>
     </PromptInput>
   );

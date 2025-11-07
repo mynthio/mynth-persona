@@ -102,32 +102,3 @@ export type PromptInputSubmitProps = React.ComponentProps<
   typeof PromptInputBase.PromptInputSubmit
 >;
 export const PromptInputSubmit = PromptInputBase.PromptInputSubmit;
-
-export type PromptInputModelSelectProps = React.ComponentProps<
-  typeof PromptInputBase.PromptInputModelSelect
->;
-export const PromptInputModelSelect = PromptInputBase.PromptInputModelSelect;
-
-export type PromptInputModelSelectTriggerProps = React.ComponentProps<
-  typeof PromptInputBase.PromptInputModelSelectTrigger
->;
-export const PromptInputModelSelectTrigger =
-  PromptInputBase.PromptInputModelSelectTrigger;
-
-export type PromptInputModelSelectContentProps = React.ComponentProps<
-  typeof PromptInputBase.PromptInputModelSelectContent
->;
-export const PromptInputModelSelectContent =
-  PromptInputBase.PromptInputModelSelectContent;
-
-export type PromptInputModelSelectItemProps = React.ComponentProps<
-  typeof PromptInputBase.PromptInputModelSelectItem
->;
-export const PromptInputModelSelectItem =
-  PromptInputBase.PromptInputModelSelectItem;
-
-export type PromptInputModelSelectValueProps = React.ComponentProps<
-  typeof PromptInputBase.PromptInputModelSelectValue
->;
-export const PromptInputModelSelectValue =
-  PromptInputBase.PromptInputModelSelectValue;

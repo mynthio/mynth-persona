@@ -22,7 +22,7 @@ import { useSidebar } from "./ui/sidebar";
 import { ComponentProps, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth, useClerk, useUser } from "@clerk/nextjs";
-import { Tooltip, TooltipPopup, TooltipTrigger } from "./ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { AnimatePresence, motion } from "motion/react";
 import { Link } from "./ui/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -448,7 +448,7 @@ function RailsPlan() {
         </Link>
       </TooltipTrigger>
 
-      <TooltipPopup>Manage your plan</TooltipPopup>
+      <TooltipContent>Manage your plan</TooltipContent>
     </Tooltip>
   );
 }

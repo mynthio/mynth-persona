@@ -1,30 +1,15 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@custom-variant dark (&:is(.dark *));
+
 @source "../../node_modules/streamdown/dist/index.js";
 
 @plugin "@tailwindcss/typography";
 
-/* Removed HeroUI theme plugin and source */
-@custom-variant dark (&:is(.dark *));
-
 :root {
-  --radius: 0.5rem;
-
-  /* Background  */
   --background: oklch(0.9777 0.0041 301.4256);
-  --background-100: oklch(0.1591 0.0026 286.03);
-  --background-200: oklch(0.1891 0.0026 286.03);
-
   --foreground: oklch(0.3651 0.0325 287.0807);
-
-  /* Surface */
-  --surface: oklch(0.965 0.004 286.32);
-  --surface-100: oklch(0.947 0.004 286.32);
-  --surface-200: oklch(0.917 0.004 286.32);
-
-  --surface-foreground: oklch(0.3753 0.0094 286.06);
-
   --card: oklch(1.0000 0 0);
   --card-foreground: oklch(0.3651 0.0325 287.0807);
   --popover: oklch(1.0000 0 0);
@@ -38,6 +23,7 @@
   --accent: oklch(0.7889 0.0802 359.9375);
   --accent-foreground: oklch(0.3394 0.0441 1.7583);
   --destructive: oklch(0.6332 0.1578 22.6734);
+  --destructive-foreground: oklch(0.9777 0.0041 301.4256);
   --border: oklch(0.8447 0.0226 300.1421);
   --input: oklch(0.9329 0.0124 301.2783);
   --ring: oklch(0.6104 0.0767 299.7335);
@@ -54,28 +40,16 @@
   --sidebar-accent-foreground: oklch(0.3394 0.0441 1.7583);
   --sidebar-border: oklch(0.8719 0.0198 302.1690);
   --sidebar-ring: oklch(0.6104 0.0767 299.7335);
-
-  /* New font CSS variables wired from next/font in layout.tsx */
-  --font-inter: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-onest: "Onest", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-space-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace;
-  --destructive-foreground: oklch(0.9777 0.0041 301.4256);
   --font-sans: Geist, sans-serif;
   --font-serif: "Lora", Georgia, serif;
   --font-mono: "Fira Code", "Courier New", monospace;
-  --shadow-color: hsl(0 0% 0%);
-  --shadow-opacity: 0.06;
+  --radius: 0.5rem;
+  --shadow-x: 0px;
+  --shadow-y: 4px;
   --shadow-blur: 5px;
   --shadow-spread: 1px;
-  --shadow-offset-x: 1px;
-  --shadow-offset-y: 2px;
-  --letter-spacing: 0em;
-  --spacing: 0.25rem;
+  --shadow-opacity: 0.06;
+  --shadow-color: hsl(0 0% 0%);
   --shadow-2xs: 1px 2px 5px 1px hsl(0 0% 0% / 0.03);
   --shadow-xs: 1px 2px 5px 1px hsl(0 0% 0% / 0.03);
   --shadow-sm: 1px 2px 5px 1px hsl(0 0% 0% / 0.06), 1px 1px 2px 0px hsl(0 0% 0% / 0.06);
@@ -85,6 +59,10 @@
   --shadow-xl: 1px 2px 5px 1px hsl(0 0% 0% / 0.06), 1px 8px 10px 0px hsl(0 0% 0% / 0.06);
   --shadow-2xl: 1px 2px 5px 1px hsl(0 0% 0% / 0.15);
   --tracking-normal: 0em;
+  --spacing: 0.25rem;
+  --shadow-offset-x: 1px;
+  --shadow-offset-y: 2px;
+  --letter-spacing: 0em;
 }
 
 .dark {
@@ -103,6 +81,7 @@
   --accent: oklch(0.3181 0.0321 308.6149);
   --accent-foreground: oklch(0.8391 0.0692 2.6681);
   --destructive: oklch(0.6875 0.1420 21.4566);
+  --destructive-foreground: oklch(0.2166 0.0215 292.8474);
   --border: oklch(0.3063 0.0359 293.3367);
   --input: oklch(0.2847 0.0346 291.2726);
   --ring: oklch(0.7058 0.0777 302.0489);
@@ -119,19 +98,16 @@
   --sidebar-accent-foreground: oklch(0.8391 0.0692 2.6681);
   --sidebar-border: oklch(0.2847 0.0346 291.2726);
   --sidebar-ring: oklch(0.7058 0.0777 302.0489);
-  --destructive-foreground: oklch(0.2166 0.0215 292.8474);
-  --radius: 0.5rem;
   --font-sans: Geist, sans-serif;
   --font-serif: "Lora", Georgia, serif;
   --font-mono: "Fira Code", "Courier New", monospace;
-  --shadow-color: hsl(0 0% 0%);
-  --shadow-opacity: 0.06;
+  --radius: 0.5rem;
+  --shadow-x: 0px;
+  --shadow-y: 4px;
   --shadow-blur: 5px;
   --shadow-spread: 1px;
-  --shadow-offset-x: 1px;
-  --shadow-offset-y: 2px;
-  --letter-spacing: 0em;
-  --spacing: 0.25rem;
+  --shadow-opacity: 0.06;
+  --shadow-color: hsl(0 0% 0%);
   --shadow-2xs: 1px 2px 5px 1px hsl(0 0% 0% / 0.03);
   --shadow-xs: 1px 2px 5px 1px hsl(0 0% 0% / 0.03);
   --shadow-sm: 1px 2px 5px 1px hsl(0 0% 0% / 0.06), 1px 1px 2px 0px hsl(0 0% 0% / 0.06);
@@ -140,58 +116,15 @@
   --shadow-lg: 1px 2px 5px 1px hsl(0 0% 0% / 0.06), 1px 4px 6px 0px hsl(0 0% 0% / 0.06);
   --shadow-xl: 1px 2px 5px 1px hsl(0 0% 0% / 0.06), 1px 8px 10px 0px hsl(0 0% 0% / 0.06);
   --shadow-2xl: 1px 2px 5px 1px hsl(0 0% 0% / 0.15);
-}
-
-@theme {
-  --height-nav: var(--navigation-height);
-  --height-screen-minus-nav: calc(100vh - var(--navigation-height));
-}
-
-/* :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --shadow-offset-x: 1px;
+  --shadow-offset-y: 2px;
+  --letter-spacing: 0em;
+  --spacing: 0.25rem;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-} */
-
-@theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-
-  /* Background */
-  --color-background: var(--background);
-  --color-background-100: var(--background-100);
-  --color-background-200: var(--background-200);
-
-  --color-foreground: var(--foreground);
-
-  /* Surface */
-  --color-surface: var(--surface);
-  --color-surface-100: var(--surface-100);
-  --color-surface-200: var(--surface-200);
-
-  --color-surface-foreground: var(--surface-foreground);
-
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -205,6 +138,7 @@ body {
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -221,35 +155,39 @@ body {
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  /* Map Tailwind font tokens to the new variables */
+
   --font-sans: Geist, sans-serif;
   --font-mono: "Fira Code", "Courier New", monospace;
+  --font-serif: "Lora", Georgia, serif;
 
-  --font-onest: var(--font-onest);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 
-  /* Named layers */
-  --z-index-below: -1; /* decorations/background or when you need to sit behind content */
-  --z-index-content: 1; /* default content inside local stacking contexts */
-  --z-index-header: 20; /* top nav/header bars */
-  --z-index-sidebar: 30; /* sidebars, drawers */
-  --z-index-rail: 40; /* app rail / floating action bars */
-  --z-index-overlay: 50; /* scrims/backdrops behind dialogs/sheets */
-  --z-index-dialog: 60; /* modals, sheets, image viewers */
-  --z-index-popup: 70; /* dropdowns, popovers, hovercards */
-  --z-index-dropdown: 70; /* alias for popups */
-  --z-index-tooltip: 80; /* tooltips */
-  --z-index-toast: 90; /* toasts/notifications */
-  --z-index-max: 9999; /* escape hatch for rare cases */ --font-serif: "Lora", Georgia, serif; --radius: 0.5rem; --tracking-tighter: calc(var(--tracking-normal) - 0.05em); --tracking-tight: calc(var(--tracking-normal) - 0.025em); --tracking-wide: calc(var(--tracking-normal) + 0.025em); --tracking-wider: calc(var(--tracking-normal) + 0.05em); --tracking-widest: calc(var(--tracking-normal) + 0.1em); --tracking-normal: var(--tracking-normal); --shadow-2xl: var(--shadow-2xl); --shadow-xl: var(--shadow-xl); --shadow-lg: var(--shadow-lg); --shadow-md: var(--shadow-md); --shadow: var(--shadow); --shadow-sm: var(--shadow-sm); --shadow-xs: var(--shadow-xs); --shadow-2xs: var(--shadow-2xs); --spacing: var(--spacing); --letter-spacing: var(--letter-spacing); --shadow-offset-y: var(--shadow-offset-y); --shadow-offset-x: var(--shadow-offset-x); --shadow-spread: var(--shadow-spread); --shadow-blur: var(--shadow-blur); --shadow-opacity: var(--shadow-opacity); --color-shadow-color: var(--shadow-color); --color-destructive-foreground: var(--destructive-foreground);
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-    letter-spacing: var(--tracking-normal);
-  }
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+  --radius: 0.5rem;
+  --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
+  --tracking-tight: calc(var(--tracking-normal) - 0.025em);
+  --tracking-wide: calc(var(--tracking-normal) + 0.025em);
+  --tracking-wider: calc(var(--tracking-normal) + 0.05em);
+  --tracking-widest: calc(var(--tracking-normal) + 0.1em);
+  --tracking-normal: var(--tracking-normal);
+  --spacing: var(--spacing);
+  --letter-spacing: var(--letter-spacing);
+  --shadow-offset-y: var(--shadow-offset-y);
+  --shadow-offset-x: var(--shadow-offset-x);
+  --shadow-spread: var(--shadow-spread);
+  --shadow-blur: var(--shadow-blur);
+  --shadow-opacity: var(--shadow-opacity);
+  --color-shadow-color: var(--shadow-color);
 }
 
 /* Subtle animated gradient utility used by announcement banners */
@@ -263,10 +201,24 @@ body {
   }
 }
 
-p.is-editor-empty:first-child::before {
-  color: var(--gray-4);
-  content: attr(data-placeholder);
-  float: left;
-  height: 0;
-  pointer-events: none;
+::-webkit-scrollbar {
+  @apply w-2.5 h-2.5;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply rounded-full bg-border border-[1px] border-transparent border-solid bg-clip-padding;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    letter-spacing: var(--tracking-normal);
+  }
 }

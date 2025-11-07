@@ -129,22 +129,17 @@ export default async function RootLayout({
   const defaultOpen = sidebarCookieValue === "true";
 
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${onest.variable} ${spaceMono.variable} antialiased h-full text-foreground`}
+        className={`${inter.variable} ${onest.variable} ${spaceMono.variable} antialiased h-full`}
       >
         <Providers>
-          <SidebarProvider defaultOpen={defaultOpen} className="min-h-full">
-            <AppRail />
-
+          <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
 
-            <div className="p-[8px] md:pl-0 min-h-full w-full flex flex-col md:block">
-              <main className="h-full w-full min-w-0 min-h-0 self-center bg-surface border-[2.5px] border-black/70 text-surface-foreground rounded-[18px] relative">
-                {children}
-              </main>
-              <div className="md:hidden shrink-0 h-[79px]" />
-            </div>
+            <main className="h-full w-full min-w-0 min-h-0 relative">
+              {children}
+            </main>
           </SidebarProvider>
         </Providers>
       </body>

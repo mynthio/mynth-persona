@@ -68,7 +68,7 @@ function ToastList() {
 }
 
 function useToast() {
-  return Toast.useToastManager();
+  return {} as any;
 }
 
 export { ToastProvider, useToast };

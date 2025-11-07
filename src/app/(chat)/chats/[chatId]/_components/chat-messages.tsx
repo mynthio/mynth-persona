@@ -10,11 +10,7 @@ import {
   useChatMessages,
   useChatStatus,
 } from "@ai-sdk-tools/store";
-import {
-  Message,
-  MessageAvatar,
-  MessageContent,
-} from "@/components/mynth-ui/ai/message";
+import { Message, MessageContent } from "@/components/ai-elements/message";
 import { Button } from "@/components/mynth-ui/base/button";
 import {
   ArrowsCounterClockwiseIcon,
@@ -30,7 +26,7 @@ import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
 import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
-import { Response } from "@/components/mynth-ui/ai/response";
+import { Response } from "@/components/ai-elements/response";
 import { TextareaAutosize } from "@/components/mynth-ui/base/textarea";
 import { nanoid } from "nanoid";
 import { useUser } from "@clerk/nextjs";
@@ -64,6 +60,7 @@ import {
 import { MenuSeparator } from "@/components/mynth-ui/base/menu";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import { useToast } from "@/components/ui/toast";
+import { Avatar } from "@/components/ui/avatar";
 
 type ChatMessagesProps = {
   containerRef: React.RefObject<HTMLDivElement>;
@@ -364,7 +361,7 @@ function ChatMessage(props: ChatMessageProps) {
 
         <Menu modal={false}>
           <MenuTrigger>
-            <MessageAvatar src={avatarUrl ?? undefined} fallback={" "} />
+            <Avatar src={avatarUrl ?? undefined} fallback={" "} />
           </MenuTrigger>
 
           <MenuPositioner
@@ -540,12 +537,7 @@ function ChatMessagePart(props: ChatMessagePartProps) {
   switch (props.part.type) {
     case "text":
       return (
-        <Response
-          className="prose text-surface-foreground
-              [&_em]:font-onest [&_em]:text-purple-900 [&_em]:bg-purple-100/50 [&_em]:rounded-[8px]
-              [&_span.md-doublequoted]:font-[500] [&_span.md-doublequoted]:text-black [&_span.md-doublequoted]:font-onest
-            "
-        >
+        <Response className="prose dark:prose-invert prose-lg">
           {props.part.text}
         </Response>
       );

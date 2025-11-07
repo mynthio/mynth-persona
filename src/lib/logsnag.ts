@@ -92,38 +92,6 @@ export const trackChatCreated = async ({
     .catch((err) => {});
 };
 
-export const trackCheckoutCreated = async ({
-  userId,
-  orderId,
-  preset,
-  amount,
-  priceUSD,
-}: {
-  userId: string;
-  orderId: string;
-  preset: string;
-  amount: number;
-  priceUSD: number;
-}) => {
-  const hashedUserId = hashSensitive(userId);
-
-  await logsnag
-    .track({
-      channel: "checkout",
-      event: "checkout-created",
-      user_id: hashedUserId,
-      icon: "🧾",
-      tags: {
-        order_id: orderId,
-        preset,
-        amount: String(amount),
-        price_usd: String(priceUSD),
-        user: hashedUserId,
-      },
-    })
-    .catch((err) => {});
-};
-
 export const trackCheckoutCompleted = async ({
   userId,
   orderId,

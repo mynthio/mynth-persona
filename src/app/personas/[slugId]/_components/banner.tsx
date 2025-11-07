@@ -11,7 +11,7 @@ type PersonaBannerProps = {
   fallbackGradient?: string;
 };
 
-export function PersonaBannerSkeleton({
+function PersonaBannerSkeleton({
   fallbackGradient = DEFAULT_GRADIENT_BACKGROUND,
 }: {
   fallbackGradient?: string;
@@ -24,7 +24,7 @@ export function PersonaBannerSkeleton({
   );
 }
 
-export async function PersonaBannerGradient({
+async function PersonaBannerGradient({
   profileImageIdMedia,
   fallbackGradient = DEFAULT_GRADIENT_BACKGROUND,
 }: PersonaBannerProps) {

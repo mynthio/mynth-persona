@@ -1,67 +1,3 @@
-/**
- * PersonaSelector - A modular, composable persona selection component
- *
- * This component follows a composition pattern similar to Radix UI and React Select,
- * providing maximum flexibility through separate, composable components.
- *
- * @example
- * // Basic usage with just a trigger
- * <PersonaSelector value={selectedIds} onChange={setSelectedIds}>
- *   <PersonaSelectorTrigger>
- *     <Button>Select Persona</Button>
- *   </PersonaSelectorTrigger>
- * </PersonaSelector>
- *
- * @example
- * // Multiple selection with selected persona display
- * <PersonaSelector value={selectedIds} onChange={setSelectedIds} multiple>
- *   <div className="flex gap-2 flex-wrap">
- *     <PersonaSelectorValue>
- *       {(persona, removePersona) => (
- *         <PersonaChip
- *           key={persona.id}
- *           persona={persona}
- *           onRemove={removePersona}
- *         />
- *       )}
- *     </PersonaSelectorValue>
- *   </div>
- *
- *   <PersonaSelectorTrigger asChild>
- *     <Button>Add Personas</Button>
- *   </PersonaSelectorTrigger>
- * </PersonaSelector>
- *
- * @example
- * // Using the hook for programmatic access
- * function MyComponent() {
- *   const { selectedPersonas, removePersona, openDialog } = usePersonaSelector();
- *
- *   return (
- *     <button onClick={openDialog}>
- *       Open Dialog ({selectedPersonas.length} selected)
- *     </button>
- *   );
- * }
- *
- * @example
- * // Advanced: Custom layout with personas
- * <PersonaSelector value={ids} onChange={setIds} multiple>
- *   <div className="space-y-4">
- *     <div className="flex gap-2 flex-wrap">
- *       <PersonaSelectorValue>
- *         {(persona, removePersona) => (
- *           <PersonaChip key={persona.id} persona={persona} onRemove={removePersona} />
- *         )}
- *       </PersonaSelectorValue>
- *     </div>
- *
- *     <PersonaSelectorTrigger asChild>
- *       <Button>Add More Personas</Button>
- *     </PersonaSelectorTrigger>
- *   </div>
- * </PersonaSelector>
- */
 "use client";
 
 import {
@@ -261,9 +197,7 @@ type PersonaSelectorValueProps = {
   ) => ReactNode;
 };
 
-export function PersonaSelectorValue({
-  children,
-}: PersonaSelectorValueProps) {
+export function PersonaSelectorValue({ children }: PersonaSelectorValueProps) {
   const { selectedPersonas, removePersona } = usePersonaSelector();
 
   return (
@@ -381,7 +315,9 @@ function PersonaSelectorContent() {
     if (multiple) {
       const isSelected = selectedPersonas.some((p) => p.id === persona.id);
       if (isSelected) {
-        setSelectedPersonas(selectedPersonas.filter((p) => p.id !== persona.id));
+        setSelectedPersonas(
+          selectedPersonas.filter((p) => p.id !== persona.id)
+        );
       } else {
         setSelectedPersonas([...selectedPersonas, persona]);
       }
@@ -460,36 +396,39 @@ function PersonaSelectorContent() {
                       isSelected && "bg-surface-100"
                     )}
                   >
-                  <div className="shrink-0 size-[32px] rounded-[12px] overflow-hidden bg-surface-100 flex items-center justify-center">
-                    {persona.profileImageIdMedia ? (
-                      <img
-                        src={getImageUrl(persona.profileImageIdMedia, "thumb")}
-                        alt={getPersonaDisplayName(persona)}
-                        width={48}
-                        height={48}
-                        className="object-cover"
-                      />
-                    ) : (
-                      <UserIcon className="text-surface-foreground/50" />
-                    )}
-                  </div>
-
-                  <div className="flex-1 text-left min-w-0">
-                    <div className="font-medium text-sm truncate">
-                      {getPersonaDisplayName(persona)}
-                    </div>
-                    <div className="text-xs text-muted-foreground flex items-center gap-2">
-                      {persona.visibility === "public" && (
-                        <>
-                          <GlobeSimpleIcon className="text-blue-500" />
-                          <span>•</span>
-                        </>
+                    <div className="shrink-0 size-[32px] rounded-[12px] overflow-hidden bg-surface-100 flex items-center justify-center">
+                      {persona.profileImageIdMedia ? (
+                        <img
+                          src={getImageUrl(
+                            persona.profileImageIdMedia,
+                            "thumb"
+                          )}
+                          alt={getPersonaDisplayName(persona)}
+                          width={48}
+                          height={48}
+                          className="object-cover"
+                        />
+                      ) : (
+                        <UserIcon className="text-surface-foreground/50" />
                       )}
-                      <span>{AGE_BUCKET_LABELS[persona.ageBucket]}</span>
-                      <span>•</span>
-                      <span>{GENDER_LABELS[persona.gender]}</span>
                     </div>
-                  </div>
+
+                    <div className="flex-1 text-left min-w-0">
+                      <div className="font-medium text-sm truncate">
+                        {getPersonaDisplayName(persona)}
+                      </div>
+                      <div className="text-xs text-muted-foreground flex items-center gap-2">
+                        {persona.visibility === "public" && (
+                          <>
+                            <GlobeSimpleIcon className="text-blue-500" />
+                            <span>•</span>
+                          </>
+                        )}
+                        <span>{AGE_BUCKET_LABELS[persona.ageBucket]}</span>
+                        <span>•</span>
+                        <span>{GENDER_LABELS[persona.gender]}</span>
+                      </div>
+                    </div>
 
                     {isSelected && (
                       <CheckSquareIcon className="shrink-0 text-primary" />

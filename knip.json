@@ -7,9 +7,8 @@
     "src/app/**/loading.{ts,tsx}",
     "src/app/**/error.{ts,tsx}",
     "src/app/**/not-found.{ts,tsx}",
-    "src/middleware.ts",
-    "src/instrumentation.ts",
-    "next.config.mjs",
+    "src/instrumentation-client.ts",
+    "postcss.config.mjs",
     "trigger.config.ts"
   ],
   "project": ["src/**/*.{ts,tsx}"],
@@ -17,15 +16,19 @@
     "src/components/ui/**",
     "src/components/ai-elements/**",
     "src/components/mynth-ui/**",
-    "src/components/animate-ui/**"
+    "src/components/animate-ui/**",
+    "src/trigger/migrate-persona-images-to-media.task.ts"
   ],
   "ignoreDependencies": [
     "@radix-ui/*",
     "class-variance-authority",
     "clsx",
     "tailwind-merge",
-    "lucide-react"
+    "lucide-react",
+    "shiki",
+    "tailwindcss"
   ],
+  "ignoreBinaries": ["dev"],
   "rules": {
     "files": "error",
     "dependencies": "error",

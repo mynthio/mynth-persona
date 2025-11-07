@@ -175,7 +175,7 @@ type PlanProps = {
   features?: string[];
 };
 
-export function Plan(props: PlanProps) {
+function Plan(props: PlanProps) {
   const { data, isLoading } = useSubscription();
 
   const isActive = data?.subscriptionItems?.[0]?.plan?.id === props.id;

@@ -1,8 +1,8 @@
 import { RunwareImageGenerationBase } from "./runware-base";
 
-export const RUNWARE_GEMINI_FLASH_ID =
+const RUNWARE_GEMINI_FLASH_ID =
   "runware/gemini-flash-image-2.5" as const;
-export const GEMINI_FLASH_MODEL_ID = "google/gemini-flash-image-2.5" as const;
+const GEMINI_FLASH_MODEL_ID = "google/gemini-flash-image-2.5" as const;
 
 export class RunwareGeminiFlash extends RunwareImageGenerationBase {
   // Universal model identifier - same across all providers for this model

@@ -13,7 +13,7 @@ export type GenerationContextValue = {
 };
 
 // Context to share generation state across sections and footer within the Home tree
-export const GenerationContext = createContext<GenerationContextValue | null>(
+const GenerationContext = createContext<GenerationContextValue | null>(
   null
 );
 GenerationContext.displayName = "GenerationContext";

@@ -1,7 +1,7 @@
 import { RunwareImageGenerationBase } from "./runware-base";
 
-export const RUNWARE_QWEN_IMAGE_ID = "runware/qwen-image" as const;
-export const QWEN_IMAGE_MODEL_ID = "qwen/qwen-image" as const;
+const RUNWARE_QWEN_IMAGE_ID = "runware/qwen-image" as const;
+const QWEN_IMAGE_MODEL_ID = "qwen/qwen-image" as const;
 
 export class RunwareQwenImage extends RunwareImageGenerationBase {
   // Universal model identifier - same across all providers for this model

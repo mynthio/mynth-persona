@@ -1,8 +1,8 @@
 import { ImageGenerationResult } from "../image-generation-base";
 import { RunwareImageGenerationBase } from "./runware-base";
 
-export const RUNWARE_SEEDREAM_3_ID = "runware/seedream-3" as const;
-export const SEEDREAM_3_MODEL_ID = "seedream/seedream-3.0" as const;
+const RUNWARE_SEEDREAM_3_ID = "runware/seedream-3" as const;
+const SEEDREAM_3_MODEL_ID = "seedream/seedream-3.0" as const;
 
 export class RunwareSeedream3 extends RunwareImageGenerationBase {
   // Universal model identifier - same across all providers for this model

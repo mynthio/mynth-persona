@@ -83,16 +83,6 @@ export const getModelCost = (modelId: ImageModelId): number => {
   return IMAGE_MODELS[modelId]?.cost ?? 1;
 };
 
-// Helper to get model dimensions
-export const getModelDimensions = (
-  modelId: ImageModelId
-): { width: number; height: number } => {
-  const model = IMAGE_MODELS[modelId];
-  return {
-    width: model?.width ?? 768,
-    height: model?.height ?? 1344,
-  };
-};
 
 // Helper to check if model supports reference images
 export const supportsReferenceImages = (modelId: ImageModelId): boolean => {

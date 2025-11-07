@@ -111,13 +111,16 @@ export const generateChatSceneImageTask = task({
       const errorMessage = String(error);
 
       // Log original error for debugging
-      logger.error({ error: errorMessage, chatId }, "Scene image generation failed");
+      logger.error(
+        { error: errorMessage, chatId },
+        "Scene image generation failed"
+      );
 
       // Check if it's a content moderation error
       if (
         errorMessage.includes("invalidProviderResponse") &&
         (errorMessage.includes("filtered out because it violated") ||
-         errorMessage.includes("usage guidelines"))
+          errorMessage.includes("usage guidelines"))
       ) {
         throw new Error("CONTENT_MODERATED");
       }

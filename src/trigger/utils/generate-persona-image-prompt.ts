@@ -77,6 +77,9 @@ export async function craftImagePromptForPersona(
   const openRouter = getOpenRouter();
   const model = openRouter("x-ai/grok-4-fast", {
     models: ["moonshotai/kimi-k2-0905"],
+    usage: {
+      include: true,
+    },
   });
 
   const result = await generateObject({
@@ -94,7 +97,9 @@ export async function craftImagePromptForPersona(
       what: "image-prompt-generated",
     },
     data: {
+      result,
       object: result.object,
+      usage: result.usage,
       nsfw,
       userNote: userNote.slice(0, 100), // Log first 100 chars for debugging
       style,

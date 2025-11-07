@@ -47,6 +47,3 @@ export const personaGenerationModelWeights: PersonaGenerationModelWeight[] = [
     priority: 0.5,
   },
 ];
-
-export const getPersonaGenerationModelIds = (): PersonaGenerationModelId[] =>
-  personaGenerationModelWeights.map((m) => m.id);

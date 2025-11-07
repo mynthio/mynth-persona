@@ -40,7 +40,6 @@ const colorDistance = (a: RGB, b: RGB) => {
 };
 
 const toCssColor = ([r, g, b]: RGB) => `rgb(${r}, ${g}, ${b})`;
-
 export const DEFAULT_GRADIENT_COLORS = DEFAULT_GRADIENT.map(toCssColor);
 
 const quantizeChannel = (value: number) => Math.floor(value / 32); // 0-7

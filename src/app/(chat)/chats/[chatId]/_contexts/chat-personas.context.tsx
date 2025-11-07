@@ -11,7 +11,7 @@ type ChatPersona = {
   profileImageIdMedia?: string;
 };
 
-export const ChatPersonasContext = createContext<{
+const ChatPersonasContext = createContext<{
   personas: ChatPersona[];
 }>({
   personas: [],

@@ -32,7 +32,10 @@ export function CreateChatWithScenarioButton({
         setIsLoading(true);
         try {
           posthog.capture("create_chat_with_scenario_clicked", {
-            path: typeof window !== "undefined" ? window.location.pathname : undefined,
+            path:
+              typeof window !== "undefined"
+                ? window.location.pathname
+                : undefined,
             scenarioId,
             personaId,
           });

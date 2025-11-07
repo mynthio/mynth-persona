@@ -17,15 +17,3 @@ export const usePersonaQuery = (
   });
 };
 
-export const usePersonaMutation = (id: string, options?: MutatorOptions) => {
-  const { mutate } = useSWRConfig();
-
-  return (
-    mutator: (data: PublicPersona | undefined) => PublicPersona,
-    options?: MutatorOptions
-  ) =>
-    mutate<PublicPersona>(`/api/personas/${id}`, mutator, {
-      revalidate: false,
-      ...options,
-    });
-};

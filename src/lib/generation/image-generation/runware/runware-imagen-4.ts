@@ -1,7 +1,7 @@
 import { RunwareImageGenerationBase } from "./runware-base";
 
-export const RUNWARE_IMAGEN_4_ID = "runware/imagen-4-preview" as const;
-export const IMAGEN_4_MODEL_ID = "google/imagen-4-preview" as const;
+const RUNWARE_IMAGEN_4_ID = "runware/imagen-4-preview" as const;
+const IMAGEN_4_MODEL_ID = "google/imagen-4-preview" as const;
 
 export class RunwareImagen4 extends RunwareImageGenerationBase {
   // Universal model identifier - same across all providers for this model

@@ -1,7 +1,7 @@
 import { RunwareImageGenerationBase } from "./runware-base";
 
-export const RUNWARE_GPT_IMAGE_1_ID = "runware/gpt-image-1" as const;
-export const GPT_IMAGE_1_MODEL_ID = "openai/gpt-image-1" as const;
+const RUNWARE_GPT_IMAGE_1_ID = "runware/gpt-image-1" as const;
+const GPT_IMAGE_1_MODEL_ID = "openai/gpt-image-1" as const;
 
 export class RunwareGPTImage1 extends RunwareImageGenerationBase {
   // Universal model identifier - same across all providers for this model

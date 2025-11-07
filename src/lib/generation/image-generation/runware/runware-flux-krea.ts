@@ -1,7 +1,7 @@
 import { RunwareImageGenerationBase } from "./runware-base";
 
-export const RUNWARE_FLUX_KREA_ID = "runware/flux-krea-dev" as const;
-export const FLUX_KREA_MODEL_ID = "black-forest-labs/flux-krea-dev" as const;
+const RUNWARE_FLUX_KREA_ID = "runware/flux-krea-dev" as const;
+const FLUX_KREA_MODEL_ID = "black-forest-labs/flux-krea-dev" as const;
 
 export class RunwareFluxKrea extends RunwareImageGenerationBase {
   // Universal model identifier - same across all providers for this model

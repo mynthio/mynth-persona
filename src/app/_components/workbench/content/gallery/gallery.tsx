@@ -115,17 +115,17 @@ function GalleryImageInProgress({
 
   useEffect(() => {
     if (run?.status === "COMPLETED") {
-      const imageId = (run.output as any)?.imageId as string | undefined;
-      if (imageId) {
+      const mediaId = (run.output as any)?.mediaId as string | undefined;
+      if (mediaId) {
         mutateImages((prev) => {
-          const alreadyExists = prev?.some((i) => i.id === imageId);
+          const alreadyExists = prev?.some((i) => i.id === mediaId);
           if (alreadyExists) return prev;
-          return [{ id: imageId }, ...(prev ?? [])];
+          return [{ id: mediaId }, ...(prev ?? [])];
         });
       }
       personaGenerationStore.removeImageGenerationRun(runId);
     }
-  }, [run?.status]);
+  }, [run, mutateImages, personaGenerationStore, runId]);
 
   const status = run?.status;
   const isFailed =

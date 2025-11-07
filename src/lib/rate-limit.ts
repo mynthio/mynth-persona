@@ -40,14 +40,6 @@ export const ScenarioPublishRateLimit = new Ratelimit({
   onError: () => ({ success: false, limit: 0, remaining: 0, reset: 0 }),
 });
 
-export const FreeModelChatRateLimit = new Ratelimit({
-  rootKey: ROOT_KEY,
-  namespace: "chat.free",
-  limit: 120,
-  duration: "2h",
-  onError: () => ({ success: false, limit: 0, remaining: 0, reset: 0 }),
-});
-
 const FreeImageGenerationsRateLimit = new Ratelimit({
   rootKey: ROOT_KEY,
   namespace: "image.plan.free",
@@ -79,13 +71,6 @@ const BlazeImageGenerationsRateLimit = new Ratelimit({
   duration: "1h",
   onError: () => ({ success: false, limit: 0, remaining: 0, reset: 0 }),
 });
-
-export const IMAGE_GENERATIONS_RATE_LIMITS: Record<PlanId, Ratelimit> = {
-  free: FreeImageGenerationsRateLimit,
-  spark: SparkImageGenerationsRateLimit,
-  flame: FlameImageGenerationsRateLimit,
-  blaze: BlazeImageGenerationsRateLimit,
-};
 
 const FreeChatRateLimitStandardModels = new Ratelimit({
   rootKey: ROOT_KEY,

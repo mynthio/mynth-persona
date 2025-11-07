@@ -4,7 +4,6 @@
 @source "../../node_modules/streamdown/dist/index.js";
 
 @plugin "@tailwindcss/typography";
-@plugin 'tailwind-scrollbar';
 
 /* Removed HeroUI theme plugin and source */
 @custom-variant dark (&:is(.dark *));

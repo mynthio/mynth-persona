@@ -45,16 +45,16 @@ const FAQ_ITEMS: FaqItem[] = [
     ),
   },
   {
-    question: "How do image models work?",
+    question: "How do image credits work?",
     answer: (
       <p>
         You can choose between different image models when generating persona
-        images. Standard models (like FLUX Dev) count as 1 generation toward
-        your daily limit, while premium models (like SeeDream) create
-        higher-quality images but use 2 generations from your limit. All plans
-        have access to all models - the difference is just how many generations
-        you get per day. Premium models are marked with a sparkle icon ✨ so you
-        know they'll use more of your limit.
+        images. Standard models (like FLUX Dev) use 1 credit per generation,
+        while premium models (like SeeDream) create higher-quality images but
+        use 2 credits per generation. All plans have access to all models - the
+        difference is just how many credits you get per day (or per hour for
+        Blaze). Premium models are marked with a sparkle icon ✨ so you know
+        they'll use more credits.
       </p>
     ),
   },

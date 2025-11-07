@@ -109,7 +109,7 @@ export type Persona = {
   title: string | null;
   publicName: string | null;
   headline: string | null;
-  profileImageId: string | null;
+  profileImageIdMedia: string | null;
   profileSpotlightMediaId: string | null;
   gender: "female" | "male" | "other";
   ageBucket:
@@ -297,9 +297,9 @@ export function PersonaChip({
       )}
     >
       <div className="shrink-0 size-[24px] rounded-[6px] overflow-hidden bg-surface-200 flex items-center justify-center">
-        {persona.profileImageId ? (
+        {persona.profileImageIdMedia ? (
           <img
-            src={getImageUrl(persona.profileImageId, "thumb")}
+            src={getImageUrl(persona.profileImageIdMedia, "thumb")}
             alt={displayName}
             width={24}
             height={24}
@@ -461,9 +461,9 @@ function PersonaSelectorContent() {
                     )}
                   >
                   <div className="shrink-0 size-[32px] rounded-[12px] overflow-hidden bg-surface-100 flex items-center justify-center">
-                    {persona.profileImageId ? (
+                    {persona.profileImageIdMedia ? (
                       <img
-                        src={getImageUrl(persona.profileImageId, "thumb")}
+                        src={getImageUrl(persona.profileImageIdMedia, "thumb")}
                         alt={getPersonaDisplayName(persona)}
                         width={48}
                         height={48}

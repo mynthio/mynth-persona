@@ -81,7 +81,7 @@ export async function GET(request: Request) {
       publicName: personas.publicName,
       headline: personas.headline,
       currentVersionId: personas.currentVersionId,
-      profileImageId: personas.profileImageId,
+      profileImageIdMedia: personas.profileImageIdMedia,
       profileSpotlightMediaId: personas.profileSpotlightMediaId,
       gender: personas.gender,
       ageBucket: personas.ageBucket,

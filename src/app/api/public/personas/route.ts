@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
         slug: personas.slug,
         publicName: personas.publicName,
         headline: personas.headline,
-        profileImageId: personas.profileImageId,
+        profileImageIdMedia: personas.profileImageIdMedia,
         profileSpotlightMediaId: personas.profileSpotlightMediaId,
         nsfwRating: personas.nsfwRating,
         status: personas.status,

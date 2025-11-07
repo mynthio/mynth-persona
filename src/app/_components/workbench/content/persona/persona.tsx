@@ -33,11 +33,11 @@ function Persona() {
     <div className="mt-12 max-w-2xl w-full mx-auto pb-32">
       <div className="flex gap-8">
         <div className="w-24 h-32 shrink-0">
-          {persona?.profileImageId ? (
+          {persona?.profileImageIdMedia ? (
             <div className="rounded-md overflow-hidden w-full h-full">
               <img
                 className="w-full h-full object-cover"
-                src={getImageUrl(persona.profileImageId)}
+                src={getImageUrl(persona.profileImageIdMedia)}
                 alt="Persona profile"
               />
             </div>

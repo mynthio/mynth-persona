@@ -39,7 +39,7 @@ export default async function ChatDetailPage({
         with: {
           persona: {
             columns: {
-              profileImageId: true,
+              profileImageIdMedia: true,
             },
           },
           personaVersion: {
@@ -60,7 +60,7 @@ export default async function ChatDetailPage({
     id: chatPersona.personaVersion.personaId,
     versionId: chatPersona.personaVersion.id,
     name: (chatPersona.personaVersion.data as PersonaData)?.name ?? "",
-    profileImageId: chatPersona.persona.profileImageId ?? undefined,
+    profileImageIdMedia: chatPersona.persona.profileImageIdMedia ?? undefined,
   }));
 
   const leafId = await kv.get<string>(`chat:${chatId}:leaf`);

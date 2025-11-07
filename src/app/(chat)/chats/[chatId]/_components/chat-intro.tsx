@@ -23,15 +23,15 @@ export function ChatIntro() {
 
   return (
     <div className="text-center flex items-center flex-col gap-[42px] justify-center text-balance text-surface-foreground/80 py-[42px] mt-[42px] shrink-0">
-      {persona.profileImageId && (
+      {persona.profileImageIdMedia && (
         <div className="size-[148px] flex items-center justify-center  relative z-0">
           <img
-            src={getImageUrl(persona.profileImageId, "thumb")}
+            src={getImageUrl(persona.profileImageIdMedia, "thumb")}
             className="object-cover w-11/12 h-11/12 rounded-[32px]"
             alt={persona.name}
           />
           <img
-            src={getImageUrl(persona.profileImageId, "thumb")}
+            src={getImageUrl(persona.profileImageIdMedia, "thumb")}
             className="object-cover w-full h-full absolute top-0 left-0 rounded-[32px] blur-[18px] -z-1"
             alt={persona.name}
           />

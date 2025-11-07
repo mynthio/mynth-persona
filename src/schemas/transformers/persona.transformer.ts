@@ -19,7 +19,7 @@ export function transformToPublicPersona(persona: Persona): PublicPersona {
   return publicPersonaSchema.parse({
     id: persona.id,
     title: persona.title,
-    profileImageId: persona.profileImageId,
+    profileImageIdMedia: persona.profileImageIdMedia,
     createdAt: persona.createdAt,
     updatedAt: persona.updatedAt,
   });
@@ -54,7 +54,7 @@ export function transformToPublicPersonaListItem(persona: any): PublicPersonaLis
     title: persona.title ?? null,
     publicName: persona.publicName ?? null,
     headline: persona.headline ?? null,
-    profileImageId: persona.profileImageId ?? null,
+    profileImageIdMedia: persona.profileImageIdMedia ?? null,
     nsfwRating: persona.nsfwRating,
     gender: persona.gender,
     ageBucket: persona.ageBucket,

@@ -52,7 +52,7 @@ export async function GET(
                 slug: true,
                 publicName: true,
                 headline: true,
-                profileImageId: true,
+                profileImageIdMedia: true,
                 gender: true,
                 ageBucket: true,
               },

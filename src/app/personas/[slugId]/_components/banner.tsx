@@ -7,7 +7,7 @@ import {
 } from "@/lib/image-palette";
 
 type PersonaBannerProps = {
-  profileImageId: string | null;
+  profileImageIdMedia: string | null;
   fallbackGradient?: string;
 };
 
@@ -25,10 +25,10 @@ export function PersonaBannerSkeleton({
 }
 
 export async function PersonaBannerGradient({
-  profileImageId,
+  profileImageIdMedia,
   fallbackGradient = DEFAULT_GRADIENT_BACKGROUND,
 }: PersonaBannerProps) {
-  const palette = await getImagePalette(profileImageId);
+  const palette = await getImagePalette(profileImageIdMedia);
   const gradient = getGradientFromPalette(palette) ?? fallbackGradient;
 
   return (

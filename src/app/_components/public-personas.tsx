@@ -387,7 +387,7 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
         className="w-full h-full block absolute           
           top-0 left-0 right-0 bottom-0 
           object-top object-cover "
-        src={getImageUrl(persona.profileImageId)}
+        src={getImageUrl(persona.profileImageIdMedia)}
         alt={persona.headline || persona.publicName || "Persona"}
         loading="lazy"
       />
@@ -400,7 +400,7 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
             isVideoVisible ? "opacity-100" : "opacity-0"
           }`}
           src={videoUrl}
-          poster={getImageUrl(persona.profileImageId)}
+          poster={getImageUrl(persona.profileImageIdMedia)}
           muted
           playsInline
           preload="metadata"

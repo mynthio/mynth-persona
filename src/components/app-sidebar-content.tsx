@@ -179,10 +179,10 @@ function PersonasList() {
                           href={`/workbench/${item.id}`}
                           className="w-full max-md:h-[42px] min-w-0 max-w-full overflow-hidden truncate"
                         >
-                          {item.profileImageId ? (
+                          {item.profileImageIdMedia ? (
                             <img
                               className="size-[20px] max-md:size-[32px] rounded-[12px] md:rounded-[6px] shrink-0"
-                              src={getImageUrl(item.profileImageId!, "thumb")}
+                              src={getImageUrl(item.profileImageIdMedia!, "thumb")}
                               alt={item.title ?? "Persona"}
                             />
                           ) : (

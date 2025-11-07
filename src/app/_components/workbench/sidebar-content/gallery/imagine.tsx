@@ -78,14 +78,14 @@ export default function Imagine() {
         error instanceof Error ? error.message : "Unknown error";
 
       // Provide specific error message for concurrent job limit
-      if (errorMessage === "You have a job running already") {
+      if (errorMessage === "CONCURRENT_LIMIT_EXCEEDED") {
         toast.add({
-          title: "Generation in progress",
+          title: "Concurrent generation limit reached",
           description:
-            "You already have an image generation job running. Please wait for it to complete before starting a new one.",
+            "You've reached the limit of concurrent generations. Upgrade your plan for more.",
           type: "error",
         });
-      } else if (errorMessage === "Rate limit exceeded") {
+      } else if (errorMessage === "RATE_LIMIT_EXCEEDED") {
         toast.add({
           title: "Rate limit exceeded",
           description:

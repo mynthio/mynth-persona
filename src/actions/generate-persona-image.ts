@@ -2,7 +2,7 @@
 
 import { auth } from "@clerk/nextjs/server";
 import "server-only";
-import { runs, tasks } from "@trigger.dev/sdk";
+import { tasks } from "@trigger.dev/sdk";
 import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
 import { and, eq, ne } from "drizzle-orm";
@@ -14,11 +14,11 @@ import { logger } from "@/lib/logger";
 import { getUserPlan } from "@/services/auth/user-plan.service";
 import { PlanId } from "@/config/shared/plans";
 import {
-  CONCURRENT_IMAGE_JOBS_PER_PLAN,
-  IMAGE_GENERATIONS_RATE_LIMITS,
-  rateLimitGuard,
-} from "@/lib/rate-limit";
+  IMAGE_GENERATIONS_RATE_LIMITERS,
+  imageRateLimitGuard,
+} from "@/lib/rate-limit-image";
 import { ImageModelId, getModelCost } from "@/config/shared/image-models";
+import { incrementConcurrentImageJob } from "@/lib/concurrent-image-jobs";
 
 type GeneratePersonaImageSettings = {
   modelId: ImageModelId;
@@ -38,36 +38,25 @@ export const generatePersonaImage = async (
     throw new Error("Unauthorized");
   }
 
-  const runningJobs = await runs.list({
-    status: ["EXECUTING", "WAITING", "PENDING_VERSION", "DELAYED", "QUEUED"],
-    taskIdentifier: "generate-persona-image",
-    tag: [`user:${userId}`],
-  });
-
-  logger.debug(
-    {
-      runningJobs,
-    },
-    "Running jobs 👟"
-  );
-
   const planId = await getUserPlan();
 
-  const concurrentImageJobsPerPlan =
-    CONCURRENT_IMAGE_JOBS_PER_PLAN[planId as PlanId];
-
-  if (runningJobs.data.length >= concurrentImageJobsPerPlan) {
-    throw new Error("You have a job running already");
+  // Check concurrent job limit using KV store
+  const concurrentJobResult = await incrementConcurrentImageJob(
+    userId,
+    planId as PlanId
+  );
+  if (!concurrentJobResult.success) {
+    throw concurrentJobResult.error;
   }
 
   // Calculate cost based on model
   const cost = getModelCost(settings.modelId);
 
-  const rateLimitter = IMAGE_GENERATIONS_RATE_LIMITS[planId as PlanId];
+  const rateLimiter = IMAGE_GENERATIONS_RATE_LIMITERS[planId as PlanId];
 
-  const rateLimitResult = await rateLimitGuard(rateLimitter, userId, cost);
+  const rateLimitResult = await imageRateLimitGuard(rateLimiter, userId, cost);
   if (!rateLimitResult.success) {
-    throw new Error("Rate limit exceeded");
+    throw new Error("RATE_LIMIT_EXCEEDED");
   }
 
   const persona = await db.query.personas.findFirst({
@@ -103,6 +92,8 @@ export const generatePersonaImage = async (
       shotType: settings.shotType,
       nsfw: settings.nsfw || false,
       userNote: settings.userNote || "",
+      cost,
+      planId,
     },
     {
       tags: [`user:${userId}`],

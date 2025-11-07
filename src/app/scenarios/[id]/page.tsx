@@ -58,7 +58,7 @@ export default async function ScenarioPage({
               columns: {
                 id: true,
                 title: true,
-                profileImageId: true,
+                profileImageIdMedia: true,
                 visibility: true,
                 publicName: true,
               },
@@ -199,10 +199,10 @@ export default async function ScenarioPage({
                   className="flex items-center gap-[12px]"
                 >
                   <div className="size-[48px] shrink-0 aspect-square rounded-[12px] overflow-hidden relative bg-gradient-to-br from-purple-950 to-pink-800 z-0">
-                    {scenarioPersona.persona.profileImageId && (
+                    {scenarioPersona.persona.profileImageIdMedia && (
                       <img
                         src={getImageUrl(
-                          scenarioPersona.persona.profileImageId
+                          scenarioPersona.persona.profileImageIdMedia
                         )}
                         alt={scenarioPersona.persona.title ?? ""}
                         className="absolute top-0 left-0 w-full h-full object-cover object-top -z-10"

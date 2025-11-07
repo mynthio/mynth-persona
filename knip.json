@@ -1,0 +1,35 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "src/app/**/page.{ts,tsx}",
+    "src/app/**/layout.{ts,tsx}",
+    "src/app/**/route.{ts,tsx}",
+    "src/app/**/loading.{ts,tsx}",
+    "src/app/**/error.{ts,tsx}",
+    "src/app/**/not-found.{ts,tsx}",
+    "src/middleware.ts",
+    "src/instrumentation.ts",
+    "next.config.mjs",
+    "trigger.config.ts"
+  ],
+  "project": ["src/**/*.{ts,tsx}"],
+  "ignore": [
+    "src/components/ui/**",
+    "src/components/ai-elements/**",
+    "src/components/mynth-ui/**",
+    "src/components/animate-ui/**"
+  ],
+  "ignoreDependencies": [
+    "@radix-ui/*",
+    "class-variance-authority",
+    "clsx",
+    "tailwind-merge",
+    "lucide-react"
+  ],
+  "rules": {
+    "files": "error",
+    "dependencies": "error",
+    "devDependencies": "warn",
+    "exports": "warn"
+  }
+}

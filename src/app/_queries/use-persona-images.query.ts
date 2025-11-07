@@ -7,7 +7,7 @@ export const usePersonaImagesQuery = (
   config?: SWRConfiguration
 ) => {
   return useSWR<PublicPersonaImage[]>(
-    personaId ? `/api/personas/${personaId}/images` : null,
+    personaId ? `/api/images?personaId=${personaId}` : null,
     fetcher,
     {
       revalidateIfStale: false,
@@ -25,7 +25,7 @@ export const usePersonaImagesMutation = (personaId: string) => {
       data: PublicPersonaImage[] | undefined
     ) => PublicPersonaImage[] | undefined
   ) =>
-    mutate<PublicPersonaImage[]>(`/api/personas/${personaId}/images`, mutator, {
+    mutate<PublicPersonaImage[]>(`/api/images?personaId=${personaId}`, mutator, {
       revalidate: false,
     });
 };

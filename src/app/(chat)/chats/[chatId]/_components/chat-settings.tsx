@@ -7,12 +7,17 @@ import { TextareaAutosize } from "@/components/mynth-ui/base/textarea";
 import { useSidebar } from "@/components/ui/sidebar";
 
 import {
+  ArrowClockwiseIcon,
   ArrowLeftIcon,
   CheckIcon,
+  CircleNotchIcon,
   FeatherIcon,
   FireIcon,
   GearSixIcon,
+  ImageSquareIcon,
+  InfoIcon,
   RobotIcon,
+  SparkleIcon,
   UserSquareIcon,
   XIcon,
 } from "@phosphor-icons/react/dist/ssr";
@@ -38,6 +43,7 @@ import {
 import { useToast } from "@/components/ui/toast";
 import { filter, map, pipe, toArray } from "@fxts/core";
 import { Label } from "@/components/mynth-ui/base/label";
+import { ChatSettingsImages } from "./chat-settings-images";
 
 type ChatSettingsProps = {
   defaultOpen: boolean;
@@ -166,6 +172,8 @@ function ChatSettingsContent() {
         return <ChatSettingsUser />;
       case "scenario":
         return <ChatSettingsScenario />;
+      case "images":
+        return <ChatSettingsImages />;
       default:
         return <ChatSettingsHome />;
     }
@@ -222,6 +230,13 @@ function ChatSettingsMenu() {
       >
         <FeatherIcon />
         Scenario
+      </MenuButton>
+      <MenuButton
+        onClick={() => navigateSettings("images")}
+        isActive={current === "images"}
+      >
+        <ImageSquareIcon />
+        Images
       </MenuButton>
 
       <MenuButton className="text-red-500 md:hidden" onClick={closeSettings}>
@@ -477,6 +492,7 @@ function ChatSettingsScenario() {
     </Form>
   );
 }
+
 
 function ChatSettingsModel() {
   const { chatId, modelId, setModelId, mode } = useChatMain();

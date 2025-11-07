@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db/drizzle";
-import { images, personas } from "@/db/schema";
+import { media, personas } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { and, eq } from "drizzle-orm";
 import "server-only";
@@ -9,13 +9,13 @@ import { z } from "zod";
 
 // Zod schema for validation
 const SetPersonaProfileImageSchema = z.object({
-  imageId: z
+  mediaId: z
     .string()
-    .min(1, "Image ID is required")
-    .startsWith("img_", "Invalid image ID format"),
+    .min(1, "Media ID is required")
+    .startsWith("med_", "Invalid media ID format"),
 });
 
-export async function setPersonaProfileImage(imageId: string) {
+export async function setPersonaProfileImage(mediaId: string) {
   const { userId } = await auth();
 
   if (!userId) {
@@ -23,14 +23,14 @@ export async function setPersonaProfileImage(imageId: string) {
   }
 
   // Validate input with Zod
-  const validationResult = SetPersonaProfileImageSchema.safeParse({ imageId });
+  const validationResult = SetPersonaProfileImageSchema.safeParse({ mediaId });
   if (!validationResult.success) {
     throw new Error(`Invalid input: ${validationResult.error.message}`);
   }
 
-  // Get image and persona in a single query to validate ownership
-  const imageWithPersona = await db.query.images.findFirst({
-    where: eq(images.id, imageId),
+  // Get media and persona in a single query to validate ownership
+  const mediaWithPersona = await db.query.media.findFirst({
+    where: eq(media.id, mediaId),
     columns: {
       id: true,
       personaId: true,
@@ -45,11 +45,11 @@ export async function setPersonaProfileImage(imageId: string) {
     },
   });
 
-  if (!imageWithPersona) {
-    throw new Error("Image not found");
+  if (!mediaWithPersona) {
+    throw new Error("Media not found");
   }
 
-  if (imageWithPersona.persona.userId !== userId) {
+  if (mediaWithPersona.persona.userId !== userId) {
     throw new Error("Unauthorized");
   }
 
@@ -57,11 +57,11 @@ export async function setPersonaProfileImage(imageId: string) {
   await db
     .update(personas)
     .set({
-      profileImageId: imageId,
+      profileImageIdMedia: mediaId,
     })
     .where(
       and(
-        eq(personas.id, imageWithPersona.personaId),
+        eq(personas.id, mediaWithPersona.personaId),
         eq(personas.userId, userId)
       )
     );

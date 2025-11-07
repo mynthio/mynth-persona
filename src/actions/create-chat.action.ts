@@ -37,6 +37,7 @@ export const createChatAction = async (personaId: string) => {
       visibility: true,
       publicVersionId: true,
       currentVersionId: true,
+      profileImageIdMedia: true,
     },
   });
 
@@ -107,6 +108,9 @@ export const createChatAction = async (personaId: string) => {
       mode: "roleplay",
       settings: {
         model: modelId,
+        ...(persona.profileImageIdMedia && {
+          sceneImageMediaId: persona.profileImageIdMedia,
+        }),
       } satisfies ChatSettings,
     });
 

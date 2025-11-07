@@ -4,7 +4,13 @@ import { useQueryState } from "nuqs";
 import { useCallback, useMemo } from "react";
 
 // Possible navigation targets for settings
-export type SettingsNav = "_" | "settings" | "model" | "user" | "scenario";
+export type SettingsNav =
+  | "_"
+  | "settings"
+  | "model"
+  | "user"
+  | "scenario"
+  | "images";
 
 const DEFAULT_OPEN_VALUE: SettingsNav = "_";
 

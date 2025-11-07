@@ -50,6 +50,7 @@ export abstract class ImageGenerationBase {
       height?: number;
       userId?: string;
       loras?: string[];
+      referenceImages?: string[];
     }
   ): Promise<ImageGenerationResult>;
 }

@@ -6,6 +6,15 @@ export const personaUIMessageMetadataSchema = z.object({
 
   messageId: z.string().optional(),
 
+  media: z
+    .array(
+      z.object({
+        id: z.string(),
+        type: z.enum(["image", "video"]),
+      })
+    )
+    .optional(),
+
   usage: z.object({
     inputTokens: z.number().optional(),
     outputTokens: z.number().optional(),

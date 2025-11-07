@@ -80,6 +80,7 @@ export const createChatWithScenarioAction = async (
       visibility: true,
       publicVersionId: true,
       currentVersionId: true,
+      profileImageIdMedia: true,
     },
   });
 
@@ -153,6 +154,9 @@ export const createChatWithScenarioAction = async (
   const chatSettings: ChatSettings = {
     model: modelId,
     scenario: chatSettingsScenario,
+    ...(persona.profileImageIdMedia && {
+      sceneImageMediaId: persona.profileImageIdMedia,
+    }),
   };
 
   // Copy user persona from scenario to chat settings (if defined)

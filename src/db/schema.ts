@@ -338,6 +338,9 @@ export const media = pgTable(
     userId: varchar("user_id", { length: 255 })
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    chatId: text("chat_id").references(() => chats.id, {
+      onDelete: "set null",
+    }),
     generationId: text("generation_id").references(() => mediaGenerations.id, {
       onDelete: "set null",
     }),
@@ -601,6 +604,7 @@ export const chatsRelations = relations(chats, ({ one, many }) => ({
   }),
   messages: many(messages),
   chatPersonas: many(chatPersonas),
+  media: many(media),
 }));
 
 export const chatPersonasRelations = relations(chatPersonas, ({ one }) => ({
@@ -734,6 +738,10 @@ export const mediaRelations = relations(media, ({ one, many }) => ({
   user: one(users, {
     fields: [media.userId],
     references: [users.id],
+  }),
+  chat: one(chats, {
+    fields: [media.chatId],
+    references: [chats.id],
   }),
   generation: one(mediaGenerations, {
     fields: [media.generationId],

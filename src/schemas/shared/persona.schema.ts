@@ -43,7 +43,7 @@ export const publicPersonaDataSchema = z.object({
 export const publicPersonaSchema = z.object({
   id: z.string(),
   title: z.string().nullable(),
-  profileImageId: z.string().nullable(),
+  profileImageIdMedia: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

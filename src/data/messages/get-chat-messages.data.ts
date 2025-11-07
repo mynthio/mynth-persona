@@ -49,17 +49,17 @@ export async function getChatMessagesData(
       depth: number;
     }>`
       with recursive thread as (
-        select m.id, m.parent_id, m.chat_id, m.role, m.parts, m.created_at, m.updated_at, 1 as depth
+        select m.id, m.parent_id, m.chat_id, m.role, m.parts, m.created_at, m.updated_at, m.metadata, 1 as depth
         from messages m
         where m.id = ${leafId} and m.chat_id = ${chatId}
         union all
-        select pm.id, pm.parent_id, pm.chat_id, pm.role, pm.parts, pm.created_at, pm.updated_at, thread.depth + 1
+        select pm.id, pm.parent_id, pm.chat_id, pm.role, pm.parts, pm.created_at, pm.updated_at, pm.metadata, thread.depth + 1
         from messages pm
         join thread on thread.parent_id = pm.id
       )
-      select id, parent_id, chat_id, role, parts, created_at, updated_at, depth
+      select id, parent_id, chat_id, role, parts, created_at, updated_at, metadata, depth
       from (
-        select id, parent_id, chat_id, role, parts, created_at, updated_at, depth
+        select id, parent_id, chat_id, role, parts, created_at, updated_at, metadata, depth
         from thread
         order by depth asc
         limit ${effectiveLimit}
@@ -78,6 +78,7 @@ export async function getChatMessagesData(
 
         metadata: {
           parentId: r.parent_id as string | null,
+          media: (r.metadata as PersonaUIMessage["metadata"] | null)?.media,
           usage: {},
         },
       } satisfies PersonaUIMessage)

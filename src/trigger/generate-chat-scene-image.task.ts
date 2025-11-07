@@ -1,20 +1,19 @@
 import { db } from "@/db/drizzle";
-import { media, mediaGenerations, personas } from "@/db/schema";
+import { chats, media, mediaGenerations } from "@/db/schema";
 import { metadata, task } from "@trigger.dev/sdk";
-import { eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 
-import { PersonaWithVersion } from "@/types/persona.type";
 import logsnag from "@/lib/logsnag";
-import { ImageModelId, IMAGE_MODELS } from "@/config/shared/image-models";
+import { ImageModelId } from "@/config/shared/image-models";
 import { ImageGenerationFactory } from "@/lib/generation/image-generation/image-generation-factory";
 import { processImage } from "@/lib/image-processing/image-processor";
 import { uploadToBunny } from "@/lib/upload";
-import { ShotType } from "@/types/image-generation/shot-type.type";
-import { ImageStyle } from "@/types/image-generation/image-style.type";
-import { craftImagePromptForPersona } from "./utils/generate-persona-image-prompt";
+import { craftImagePromptForSceneImage } from "./utils/generate-scene-image-prompt";
 import { logger } from "@/lib/logger";
+
+import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
 import {
   getImageRateLimiterForPlan,
   imageRateLimitRestore,
@@ -23,48 +22,33 @@ import { PlanId } from "@/config/shared/plans";
 import { decrementConcurrentImageJob } from "@/lib/concurrent-image-jobs";
 
 // Zod schema for input validation
-const GeneratePersonaImageTaskPayloadSchema = z.object({
-  persona: z.object({
-    id: z.string(),
-    version: z
-      .object({
-        data: z.record(z.string(), z.any()),
-      })
-      .nullable(),
-  }),
+const GenerateChatSceneImageTaskPayloadSchema = z.object({
+  chatId: z.string(),
   userId: z.string(),
-
   modelId: z.string(),
-  style: z.string(),
-  shotType: z.string(),
-  nsfw: z.boolean().default(false),
-  userNote: z.string().default(""),
   cost: z.number(),
   planId: z.string(),
 });
 
-type GeneratePersonaImageTaskPayload = z.infer<
-  typeof GeneratePersonaImageTaskPayloadSchema
+type GenerateChatSceneImageTaskPayload = z.infer<
+  typeof GenerateChatSceneImageTaskPayloadSchema
 > & {
-  persona: PersonaWithVersion;
   modelId: ImageModelId;
-  style: ImageStyle;
-  shotType: ShotType;
   planId: PlanId;
 };
 
-export const generatePersonaImageTask = task({
-  id: "generate-persona-image",
+export const generateChatSceneImageTask = task({
+  id: "generate-chat-scene-image",
   maxDuration: 300,
   retry: {
     maxAttempts: 1,
   },
-  run: async (payload: GeneratePersonaImageTaskPayload, { ctx }) => {
+  run: async (payload: GenerateChatSceneImageTaskPayload, { ctx }) => {
     /**
      * Validate input data with Zod schema
      */
     const validationResult =
-      GeneratePersonaImageTaskPayloadSchema.safeParse(payload);
+      GenerateChatSceneImageTaskPayloadSchema.safeParse(payload);
     if (!validationResult.success) {
       throw new Error(`Invalid payload: ${validationResult.error.message}`);
     }
@@ -72,24 +56,43 @@ export const generatePersonaImageTask = task({
     /**
      * Get data from payload
      */
-    const { userId, persona, modelId, style, shotType, nsfw, userNote } =
-      payload;
+    const { userId, chatId, modelId } = payload;
 
-    // Get the appropriate model based on modelId
+    // Fetch chat with personas
+    const chat = await db.query.chats.findFirst({
+      where: eq(chats.id, chatId),
+      with: {
+        chatPersonas: {
+          with: {
+            personaVersion: true,
+          },
+        },
+      },
+    });
+
+    if (!chat) {
+      throw new Error("Chat not found");
+    }
+
+    if (chat.chatPersonas.length === 0) {
+      throw new Error("Chat has no associated personas");
+    }
+
+    // Get the first persona (assuming single-persona chats for now)
+    const chatPersona = chat.chatPersonas[0];
+    const chatSettings = chat.settings as ChatSettings | null;
+    const persona = chatPersona.personaVersion;
+
+    // Get the appropriate model
     const imageGenerationModel = ImageGenerationFactory.byModelId(modelId);
 
     let imagePrompt = metadata.get("imagePrompt") as string | undefined;
 
     if (!imagePrompt) {
-      const imageGenerationResult = await craftImagePromptForPersona({
-        personaData: persona.version?.data,
+      const imageGenerationResult = await craftImagePromptForSceneImage({
+        personaData: persona.data,
+        chatSettings: chatSettings,
         modelName: imageGenerationModel.displayName,
-        options: {
-          style,
-          shotType,
-          nsfw,
-          userNote,
-        },
       });
 
       if (!imageGenerationResult?.prompt) {
@@ -100,10 +103,28 @@ export const generatePersonaImageTask = task({
       metadata.set("imagePrompt", imagePrompt);
     }
 
-    // Generate image using model's default dimensions
-    const generateImageResult = await imageGenerationModel.generate(
-      imagePrompt
-    );
+    // Generate image (no reference images for scene)
+    let generateImageResult;
+    try {
+      generateImageResult = await imageGenerationModel.generate(imagePrompt);
+    } catch (error) {
+      const errorMessage = String(error);
+
+      // Log original error for debugging
+      logger.error({ error: errorMessage, chatId }, "Scene image generation failed");
+
+      // Check if it's a content moderation error
+      if (
+        errorMessage.includes("invalidProviderResponse") &&
+        (errorMessage.includes("filtered out because it violated") ||
+         errorMessage.includes("usage guidelines"))
+      ) {
+        throw new Error("CONTENT_MODERATED");
+      }
+
+      // Throw generic error for everything else
+      throw new Error("UNKNOWN_ERROR");
+    }
 
     /**
      * Process Image
@@ -125,7 +146,7 @@ export const generatePersonaImageTask = task({
       ]
     );
 
-    // Upload to Bunny.net storage using upload service
+    // Upload to Bunny.net storage
     const mediaId = `med_${nanoid(32)}`;
     const mediaGenerationId = `mdg_${nanoid()}`;
 
@@ -142,52 +163,49 @@ export const generatePersonaImageTask = task({
 
     const imageUrl = `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/${mainFilePath}`;
 
+    // Insert media and mediaGenerations, and update chat settings in transaction
     await db.transaction(async (tx) => {
       await tx.insert(mediaGenerations).values({
         id: mediaGenerationId,
         metadata: {
-          personaId: persona.id,
+          chatId,
+          personaId: chatPersona.personaId,
           prompt: imagePrompt,
           aiModel: imageGenerationModel.modelId,
-          runId: ctx.run.id,
+          isSceneImage: true,
         },
         settings: {
           modelId,
-          style,
-          shotType,
-          nsfw,
-          userNote,
         },
-        cost: payload.cost,
         status: "success",
-        createdAt: new Date(),
-        updatedAt: new Date(),
         completedAt: new Date(),
       });
 
       await tx.insert(media).values({
         id: mediaId,
-        personaId: persona.id,
+        personaId: chatPersona.personaId,
         userId,
+        chatId,
         generationId: mediaGenerationId,
-        visibility: "private",
-        metadata: {},
         type: "image",
-        nsfw: nsfw ? "explicit" : "sfw",
-        createdAt: new Date(),
+        visibility: "private",
+        nsfw: "sfw",
+        metadata: {
+          isSceneImage: true,
+        },
       });
 
-      /**
-       * Set persona profile image if empty
-       */
-      if (!persona.profileImageIdMedia) {
-        await tx
-          .update(personas)
-          .set({
-            profileImageIdMedia: mediaId,
-          })
-          .where(eq(personas.id, persona.id));
-      }
+      // Set this as the scene image atomically to avoid race conditions
+      await tx
+        .update(chats)
+        .set({
+          settings: sql`jsonb_set(
+            COALESCE(${chats.settings}, '{}'::jsonb),
+            '{sceneImageMediaId}',
+            ${JSON.stringify(mediaId)}::jsonb
+          )`,
+        })
+        .where(eq(chats.id, chatId));
     });
 
     logger.flush();
@@ -198,6 +216,20 @@ export const generatePersonaImageTask = task({
     };
   },
   onFailure: async ({ payload, error }) => {
+    const mediaGenerationId = metadata.get("mediaGenerationId")?.toString();
+
+    if (mediaGenerationId) {
+      await db
+        .update(mediaGenerations)
+        .set({
+          status: "fail",
+          metadata: {
+            errorCode: error instanceof Error ? error.message : "UNKNOWN_ERROR",
+          },
+        })
+        .where(eq(mediaGenerations.id, mediaGenerationId));
+    }
+
     // Restore rate limit points on failure
     const { userId, cost, planId } = payload;
     const rateLimiter = getImageRateLimiterForPlan(planId);
@@ -212,9 +244,9 @@ export const generatePersonaImageTask = task({
 
     await logsnag
       .track({
-        channel: "persona-image-generation",
-        event: "image-generation-completed",
-        description: "Image generation completed",
+        channel: "chat-scene-image-generation",
+        event: "chat-scene-image-generation-completed",
+        description: "Chat scene image generation completed",
         icon: "🖼️",
         user_id: payload.userId,
       })

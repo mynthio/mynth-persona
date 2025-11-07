@@ -111,7 +111,7 @@ export default function Home() {
               id: data.object!.personaId!,
               title: data.object?.persona?.title ?? null,
               currentVersionId: data.object?.versionId ?? null,
-              profileImageId: null,
+              profileImageIdMedia: null,
               createdAt,
             };
 

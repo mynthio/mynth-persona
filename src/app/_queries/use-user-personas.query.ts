@@ -10,7 +10,7 @@ export type UserPersonaListItem = {
   id: string;
   title: string | null;
   currentVersionId: string | null;
-  profileImageId: string | null;
+  profileImageIdMedia: string | null;
   // Note: serialized as ISO string from API
   createdAt: string;
 };

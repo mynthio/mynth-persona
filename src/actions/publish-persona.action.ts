@@ -28,7 +28,7 @@ export async function publishPersonaAction(personaId: string) {
       visibility: true,
       publicVersionId: true,
       lastPublishAttempt: true,
-      profileImageId: true,
+      profileImageIdMedia: true,
       currentVersionId: true,
     },
   });
@@ -41,7 +41,7 @@ export async function publishPersonaAction(personaId: string) {
     throw new Error("Persona version is required to publish persona");
   }
 
-  if (!persona.profileImageId) {
+  if (!persona.profileImageIdMedia) {
     throw new Error("Persona profile image is required to publish persona");
   }
 

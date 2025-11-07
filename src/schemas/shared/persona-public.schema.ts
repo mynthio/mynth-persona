@@ -24,7 +24,7 @@ export const publicPersonaListItemSchema = z.object({
   slug: z.string(),
   publicName: z.string(),
   headline: z.string(),
-  profileImageId: z.string(),
+  profileImageIdMedia: z.string(),
   profileSpotlightMediaId: z.string().nullable().optional(),
   nsfwRating: nsfwRatingEnumSchema,
   status: personaStatusEnumSchema,

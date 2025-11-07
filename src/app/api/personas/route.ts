@@ -67,7 +67,7 @@ export async function GET(request: Request) {
       id: personas.id,
       title: personas.title,
       currentVersionId: personas.currentVersionId,
-      profileImageId: personas.profileImageId,
+      profileImageIdMedia: personas.profileImageIdMedia,
       createdAt: personas.createdAt,
     })
     .from(personas)

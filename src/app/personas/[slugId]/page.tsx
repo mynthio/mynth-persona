@@ -13,8 +13,8 @@ import { PersonaScenarios } from "./_components/persona-scenarios";
 import { BirdIcon } from "@phosphor-icons/react/dist/ssr";
 
 // Helper functions
-const getPersonaImageUrl = (profileImageId?: string | null) =>
-  profileImageId ? getImageUrl(profileImageId, "full") : undefined;
+const getPersonaImageUrl = (profileImageIdMedia?: string | null) =>
+  profileImageIdMedia ? getImageUrl(profileImageIdMedia, "full") : undefined;
 
 const getDisplayName = (
   personaPublicName?: string | null,
@@ -35,7 +35,7 @@ export async function generateMetadata({
       slug: true,
       publicName: true,
       headline: true,
-      profileImageId: true,
+      profileImageIdMedia: true,
     },
   });
 
@@ -49,7 +49,7 @@ export async function generateMetadata({
   const displayName = persona.publicName!;
   const headline = persona.headline!;
   const title = `${displayName} - ${headline}`;
-  const imageUrl = getPersonaImageUrl(persona.profileImageId);
+  const imageUrl = getPersonaImageUrl(persona.profileImageIdMedia);
   const description = `${headline}`;
 
   return {
@@ -95,7 +95,7 @@ export default async function PersonaPublicPage({
       slug: true,
       publicName: true,
       headline: true,
-      profileImageId: true,
+      profileImageIdMedia: true,
       status: true,
       nsfwRating: true,
       gender: true,
@@ -123,7 +123,7 @@ export default async function PersonaPublicPage({
     <div className="relative overflow-clip rounded-[15px] h-full p-[12px]">
       {/* Banner */}
       <PersonaBanner
-        profileImageId={persona.profileImageId}
+        profileImageIdMedia={persona.profileImageIdMedia}
         fallbackGradient={DEFAULT_GRADIENT_BACKGROUND}
       />
 
@@ -145,7 +145,7 @@ export default async function PersonaPublicPage({
           w-full aspect-square p-[4px] flex items-center justify-center bg-surface/30 backdrop-blur-[4px]"
           >
             <img
-              src={getPersonaImageUrl(persona.profileImageId)}
+              src={getPersonaImageUrl(persona.profileImageIdMedia)}
               alt={displayName}
               draggable={false}
               className="w-full h-full object-cover object-top rounded-[20px] md:rounded-[60px] select-none"

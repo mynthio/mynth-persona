@@ -71,6 +71,13 @@
       "when": 1761587147407,
       "tag": "0009_spooky_mephistopheles",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1762449916998,
+      "tag": "0010_shocking_firebird",
+      "breakpoints": true
     }
   ]
 }

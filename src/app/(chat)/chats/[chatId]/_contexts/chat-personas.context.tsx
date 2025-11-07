@@ -8,7 +8,7 @@ type ChatPersona = {
 
   name: string;
 
-  profileImageId?: string;
+  profileImageIdMedia?: string;
 };
 
 export const ChatPersonasContext = createContext<{

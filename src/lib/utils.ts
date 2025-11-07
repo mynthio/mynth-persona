@@ -6,11 +6,19 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const getImageUrl = (
-  imageId: string,
+  mediaId: string,
   variant: "full" | "thumb" = "full"
 ) => {
   const suffix = variant === "thumb" ? "_thumb" : "";
-  return `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/personas/${imageId}${suffix}.webp`;
+  return `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/media/${mediaId}${suffix}.webp`;
+};
+
+export const getMediaImageUrl = (
+  mediaId: string,
+  variant: "full" | "thumb" = "full"
+) => {
+  const suffix = variant === "thumb" ? "_thumb" : "";
+  return `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/media/${mediaId}${suffix}.webp`;
 };
 
 export const getVideoUrl = (mediaId: string) => {

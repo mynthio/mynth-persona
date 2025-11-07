@@ -36,7 +36,7 @@ export default function WorkbenchSidebarManage() {
 
   const isPublished = data?.visibility === "public";
   const isPending = data?.lastPublishAttempt?.status === "pending";
-  const hasProfileImage = Boolean(persona?.profileImageId);
+  const hasProfileImage = Boolean(persona?.profileImageIdMedia);
 
   const lastAttemptAt = useMemo(() => {
     const ts = data?.lastPublishAttempt?.attemptedAt;

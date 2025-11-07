@@ -1,5 +1,5 @@
 import { db } from "@/db/drizzle";
-import { images, imageGenerations } from "@/db/schema";
+import { media, mediaGenerations } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -17,9 +17,9 @@ export async function GET(
 
     const { imageId } = await params;
 
-    // Get image with its generation details
-    const imageData = await db.query.images.findFirst({
-      where: eq(images.id, imageId),
+    // Get media with its generation details
+    const mediaData = await db.query.media.findFirst({
+      where: eq(media.id, imageId),
       with: {
         persona: {
           columns: {
@@ -28,42 +28,38 @@ export async function GET(
             userId: true,
           },
         },
+        generation: true,
       },
     });
 
-    if (!imageData) {
+    if (!mediaData) {
       return NextResponse.json({ error: "Image not found" }, { status: 404 });
     }
 
     // Check if user owns the persona that the image belongs to
-    if (imageData.persona.userId !== userId) {
+    if (mediaData.persona.userId !== userId) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Get the image generation details
-    const generationData = await db.query.imageGenerations.findFirst({
-      where: eq(imageGenerations.imageId, imageId),
-    });
-
     const response = {
-      id: imageData.id,
-      personaId: imageData.personaId,
-      createdAt: imageData.createdAt,
+      id: mediaData.id,
+      personaId: mediaData.personaId,
+      createdAt: mediaData.createdAt,
       persona: {
-        id: imageData.persona.id,
-        title: imageData.persona.title,
+        id: mediaData.persona.id,
+        title: mediaData.persona.title,
       },
-      generation: generationData
+      generation: mediaData.generation
         ? {
-            id: generationData.id,
-            prompt: generationData.prompt,
-            aiModel: generationData.aiModel,
-            status: generationData.status,
-            tokensCost: generationData.tokensCost,
-            errorMessage: generationData.errorMessage,
-            settings: generationData.settings,
-            createdAt: generationData.createdAt,
-            completedAt: generationData.completedAt,
+            id: mediaData.generation.id,
+            prompt: (mediaData.generation.metadata as any)?.prompt || null,
+            aiModel: (mediaData.generation.metadata as any)?.aiModel || null,
+            status: mediaData.generation.status,
+            tokensCost: mediaData.generation.cost,
+            errorMessage: null,
+            settings: mediaData.generation.settings,
+            createdAt: mediaData.generation.createdAt,
+            completedAt: mediaData.generation.completedAt,
           }
         : null,
     };

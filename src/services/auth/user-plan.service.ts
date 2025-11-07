@@ -1,6 +1,7 @@
 import "server-only";
 
 import { auth } from "@clerk/nextjs/server";
+import { PlanId } from "@/config/shared/plans";
 
 export const getUserPlan = async () => {
   const { sessionClaims } = await auth();
@@ -14,5 +15,5 @@ export const getUserPlan = async () => {
       ? sessionClaims.pla?.split(":")[1]
       : "free";
 
-  return planId;
+  return planId as PlanId;
 };

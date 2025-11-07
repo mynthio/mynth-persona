@@ -10,6 +10,7 @@ type GenerateOptions = {
   height?: number;
   userId?: string;
   loras?: string[];
+  referenceImages?: string[];
 };
 
 type PerRequestConfig = {
@@ -151,6 +152,7 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
         height,
         numberResults: this.getNumberResults(),
         includeCost: true,
+        referenceImages: options?.referenceImages ?? undefined,
         ...requestConfig,
       });
 

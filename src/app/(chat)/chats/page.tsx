@@ -37,7 +37,7 @@ export default async function ChatsPage({ searchParams }: PageProps<"/chats">) {
             <img
               width={220}
               height={320}
-              src={getImageUrl(randomPersona.profileImageId!, "full")}
+              src={getImageUrl(randomPersona.profileImageIdMedia!, "full")}
               className="object-cover w-11/12 h-11/12 rounded-[32px]"
               alt={randomPersona.publicName!}
               loading="lazy"
@@ -45,7 +45,7 @@ export default async function ChatsPage({ searchParams }: PageProps<"/chats">) {
             <img
               width={220}
               height={320}
-              src={getImageUrl(randomPersona.profileImageId!, "full")}
+              src={getImageUrl(randomPersona.profileImageIdMedia!, "full")}
               className="object-cover w-full h-full absolute top-0 left-0 rounded-[32px] blur-[12px] opacity-50 -z-1"
               alt={randomPersona.publicName!}
               loading="lazy"

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 
 import { useEffect, useRef, useState } from "react";
 import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
@@ -24,6 +24,7 @@ import {
   CircleNotchIcon,
   CopyIcon,
   PencilSimpleIcon,
+  SparkleIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
@@ -46,6 +47,23 @@ import {
   MenuTrigger,
 } from "@/components/mynth-ui/base/menu";
 import { useCopyToClipboard } from "@uidotdev/usehooks";
+import { ChatMessageImages } from "./chat-message-images";
+import { ChatMessageImageInProgress } from "./chat-message-image-in-progress";
+import { useChatImageGenerationStore } from "@/stores/chat-image-generation.store";
+import { SWRConfig } from "swr";
+import { ImageIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+  generateMessageImage,
+  ImageGenerationMode,
+} from "@/actions/generate-message-image";
+import {
+  IMAGE_MODELS,
+  ImageModelId,
+  supportsReferenceImages,
+} from "@/config/shared/image-models";
+import { MenuSeparator } from "@/components/mynth-ui/base/menu";
+import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
+import { useToast } from "@/components/ui/toast";
 
 type ChatMessagesProps = {
   containerRef: React.RefObject<HTMLDivElement>;
@@ -258,18 +276,52 @@ type ChatMessageProps = {
 function ChatMessage(props: ChatMessageProps) {
   const { user } = useUser();
   const { personas } = useChatPersonas();
-  const { editMessageId } = useChatMain();
+  const { editMessageId, chatId } = useChatMain();
+  const imageGenerationRuns = useChatImageGenerationStore(
+    (state) => state.imageGenerationRuns
+  );
+  const removeImageGenerationRun = useChatImageGenerationStore(
+    (state) => state.removeImageGenerationRun
+  );
 
   const avatarUrl = React.useMemo(() => {
     if (props.message.role === "user") {
       return user?.imageUrl;
     } else if (props.message.role === "assistant") {
-      if (personas[0]?.profileImageId) {
-        return getImageUrl(personas[0].profileImageId, "thumb");
+      if (personas[0]?.profileImageIdMedia) {
+        return getImageUrl(personas[0].profileImageIdMedia, "thumb");
       }
     }
     return null;
   }, [user, props.message.role, personas]);
+
+  // Get in-progress image generation runs for this message
+  const inProgressRuns = useMemo(() => {
+    return Object.values(imageGenerationRuns).filter(
+      (r) => r.messageId === props.message.id
+    );
+  }, [imageGenerationRuns, props.message.id]);
+
+  const messageMediaIds = useMemo(() => {
+    const media = props.message.metadata?.media;
+    if (!media || media.length === 0) {
+      return null;
+    }
+
+    return new Set(media.map((item) => item.id));
+  }, [props.message.metadata?.media]);
+
+  useEffect(() => {
+    if (!messageMediaIds) return;
+
+    inProgressRuns.forEach((run) => {
+      const mediaId = run.output?.mediaId;
+
+      if (mediaId && messageMediaIds.has(mediaId)) {
+        removeImageGenerationRun(run.runId);
+      }
+    });
+  }, [inProgressRuns, messageMediaIds, removeImageGenerationRun]);
 
   return (
     <Message
@@ -288,13 +340,25 @@ function ChatMessage(props: ChatMessageProps) {
               parts={props.message.parts}
             />
           ) : (
-            props.message.parts?.map((part, partIndex) => (
-              <ChatMessagePart
-                key={partIndex}
-                messageId={props.message.id}
-                part={part}
+            <>
+              {props.message.parts?.map((part, partIndex) => (
+                <ChatMessagePart
+                  key={partIndex}
+                  messageId={props.message.id}
+                  part={part}
+                />
+              ))}
+
+              <ChatMessageImages
+                media={props.message.metadata?.media}
+                inProgressRuns={inProgressRuns}
               />
-            ))
+
+              {inProgressRuns.length > 0 &&
+                inProgressRuns.map((run) => (
+                  <ChatMessageImageInProgress key={run.runId} run={run} />
+                ))}
+            </>
           )}
         </MessageContent>
 
@@ -564,6 +628,13 @@ function ChatMessageActions(props: ChatMessageActions) {
         />
       )}
 
+      {message.role === "assistant" && (
+        <>
+          <ButtonGroup.Separator />
+          <ChatMessageGenerateImageButton messageId={message.id} />
+        </>
+      )}
+
       {message.role === "user" && (
         <>
           <ButtonGroup.Separator />
@@ -681,5 +752,183 @@ function ChatMessageBranches(props: ChatMessageBranchesProps) {
         <CaretRightIcon />
       </Button>
     </>
+  );
+}
+
+type ChatMessageGenerateImageButtonProps = {
+  messageId: string;
+};
+
+function ChatMessageGenerateImageButton(
+  props: ChatMessageGenerateImageButtonProps
+) {
+  const { chatId, settings } = useChatMain();
+  const { navigateSettings } = useSettingsNavigation();
+  const addImageGenerationRun = useChatImageGenerationStore(
+    (state) => state.addImageGenerationRun
+  );
+  const [isGenerating, setIsGenerating] = useState(false);
+  const toast = useToast();
+
+  // Get character mode models (support reference images)
+  const characterModeModels = useMemo(
+    () =>
+      Object.values(IMAGE_MODELS).filter((model) =>
+        supportsReferenceImages(model.id)
+      ),
+    []
+  );
+
+  // Get creative mode models (all models)
+  const creativeModeModels = useMemo(() => Object.values(IMAGE_MODELS), []);
+
+  const hasSceneImage = !!settings.sceneImageMediaId;
+
+  const handleGenerateImage = async (
+    modelId: ImageModelId,
+    mode: ImageGenerationMode
+  ) => {
+    try {
+      setIsGenerating(true);
+
+      const result = await generateMessageImage(props.messageId, chatId, {
+        modelId,
+        mode,
+      });
+
+      // Add to store to track in-progress generation
+      addImageGenerationRun(result.runId, {
+        runId: result.runId,
+        publicAccessToken: result.publicAccessToken,
+        messageId: props.messageId,
+        chatId: chatId,
+        startedAt: Date.now(),
+        modelId,
+        status: "PENDING",
+      });
+    } catch (error) {
+      console.error("Failed to generate image:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+
+      // Provide specific error message for concurrent job limit
+      if (errorMessage === "CONCURRENT_LIMIT_EXCEEDED") {
+        toast.add({
+          title: "Concurrent generation limit reached",
+          description:
+            "You've reached the limit of concurrent generations. Upgrade your plan for more.",
+          type: "error",
+        });
+      } else if (errorMessage === "SCENE_IMAGE_REQUIRED") {
+        toast.add({
+          title: "Scene image required",
+          description:
+            "Generate a scene image first in chat settings to use character mode.",
+          type: "error",
+        });
+      } else if (errorMessage === "MODEL_DOES_NOT_SUPPORT_REFERENCE_IMAGES") {
+        toast.add({
+          title: "Model incompatible",
+          description:
+            "This model doesn't support character mode. Try creative mode instead.",
+          type: "error",
+        });
+      } else if (errorMessage === "RATE_LIMIT_EXCEEDED") {
+        toast.add({
+          title: "Rate limit exceeded",
+          description:
+            "You've reached your image generation limit. Please try again later.",
+          type: "error",
+        });
+      } else {
+        toast.add({
+          title: "Failed to generate image",
+          description: errorMessage,
+          type: "error",
+        });
+      }
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleOpenSettings = () => {
+    navigateSettings("images");
+  };
+
+  return (
+    <Menu modal={false}>
+      <MenuTrigger
+        nativeButton
+        render={
+          <Button
+            size="icon-sm"
+            disabled={isGenerating}
+            title="Generate image for this message"
+          />
+        }
+      >
+        {isGenerating ? (
+          <CircleNotchIcon className="animate-spin" />
+        ) : (
+          <ImageIcon />
+        )}
+      </MenuTrigger>
+
+      <MenuPositioner>
+        <MenuPopup>
+          {/* Character Mode Section */}
+          <div className="px-3 py-1.5 text-xs font-medium text-surface-foreground/60 uppercase tracking-wide">
+            Character Mode
+          </div>
+
+          {!hasSceneImage ? (
+            <MenuItem onClick={handleOpenSettings}>
+              Generate scene image first
+            </MenuItem>
+          ) : (
+            characterModeModels.map((model) => (
+              <MenuItem
+                key={model.id}
+                onClick={() => handleGenerateImage(model.id, "character")}
+                disabled={isGenerating}
+              >
+                <div className="flex items-center w-full justify-between gap-[4px]">
+                  {model.displayName}
+                  {model.cost > 1 && (
+                    <span className="text-yellow-800 bg-yellow-200 p-[4px] text-[0.8rem] rounded-[6px]">
+                      <SparkleIcon />
+                    </span>
+                  )}
+                </div>
+              </MenuItem>
+            ))
+          )}
+
+          <MenuSeparator />
+
+          {/* Creative Mode Section */}
+          <div className="px-3 py-1.5 text-xs font-medium text-surface-foreground/60 uppercase tracking-wide">
+            Creative Mode
+          </div>
+          {creativeModeModels.map((model) => (
+            <MenuItem
+              key={`creative-${model.id}`}
+              onClick={() => handleGenerateImage(model.id, "creative")}
+              disabled={isGenerating}
+            >
+              <div className="flex items-center w-full justify-between gap-[4px]">
+                {model.displayName}
+                {model.cost > 1 && (
+                  <span className="text-yellow-800 bg-yellow-200 p-[4px] text-[0.8rem] rounded-[6px]">
+                    <SparkleIcon />
+                  </span>
+                )}
+              </div>
+            </MenuItem>
+          ))}
+        </MenuPopup>
+      </MenuPositioner>
+    </Menu>
   );
 }

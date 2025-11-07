@@ -168,9 +168,9 @@ function PersonaSelectorField({
                     className="w-full flex items-center gap-[9px] bg-white border-[2px] border-surface-100 rounded-[18px] p-[6px]"
                   >
                     <div className="shrink-0 size-[32px] rounded-[12px] overflow-hidden bg-surface-100 flex items-center justify-center">
-                      {persona.profileImageId ? (
+                      {persona.profileImageIdMedia ? (
                         <img
-                          src={getImageUrl(persona.profileImageId, "thumb")}
+                          src={getImageUrl(persona.profileImageIdMedia, "thumb")}
                           alt={
                             persona.publicName || persona.title || persona.id
                           }

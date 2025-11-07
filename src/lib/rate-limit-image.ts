@@ -68,6 +68,15 @@ export const imageRateLimitGuard = async (
   identifier: string,
   cost: number = 1
 ): Promise<ImageRateLimitResult> => {
+  // Check if user is whitelisted
+  const whitelistedUserIds =
+    process.env.IMAGE_RATE_LIMIT_WHITELIST_USER_IDS?.split(",").map((id) =>
+      id.trim()
+    ) || [];
+  if (whitelistedUserIds.includes(identifier)) {
+    return { success: true };
+  }
+
   // Skip rate limiting in non-production environments
   // if (process.env.NODE_ENV !== "production") {
   //   return { success: true };

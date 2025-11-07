@@ -19,6 +19,7 @@ import {
 } from "@/lib/rate-limit-image";
 import { ImageModelId, getModelCost } from "@/config/shared/image-models";
 import { incrementConcurrentImageJob } from "@/lib/concurrent-image-jobs";
+import { ActionResult } from "@/types/action-result.type";
 
 type GeneratePersonaImageSettings = {
   modelId: ImageModelId;
@@ -28,14 +29,26 @@ type GeneratePersonaImageSettings = {
   userNote?: string;
 };
 
+type GeneratePersonaImageResult = {
+  taskId: string;
+  publicAccessToken: string;
+  cost: number;
+};
+
 export const generatePersonaImage = async (
   personaId: string,
   settings: GeneratePersonaImageSettings
-) => {
+): Promise<ActionResult<GeneratePersonaImageResult>> => {
   const { userId } = await auth();
 
   if (!userId) {
-    throw new Error("Unauthorized");
+    return {
+      success: false,
+      error: {
+        code: "UNAUTHORIZED",
+        message: "You must be logged in to generate images",
+      },
+    };
   }
 
   const planId = await getUserPlan();
@@ -46,7 +59,13 @@ export const generatePersonaImage = async (
     planId as PlanId
   );
   if (!concurrentJobResult.success) {
-    throw concurrentJobResult.error;
+    return {
+      success: false,
+      error: {
+        code: "CONCURRENT_LIMIT_EXCEEDED",
+        message: "Concurrent generation limit reached",
+      },
+    };
   }
 
   // Calculate cost based on model
@@ -56,7 +75,13 @@ export const generatePersonaImage = async (
 
   const rateLimitResult = await imageRateLimitGuard(rateLimiter, userId, cost);
   if (!rateLimitResult.success) {
-    throw new Error("RATE_LIMIT_EXCEEDED");
+    return {
+      success: false,
+      error: {
+        code: "RATE_LIMIT_EXCEEDED",
+        message: "Rate limit exceeded",
+      },
+    };
   }
 
   const persona = await db.query.personas.findFirst({
@@ -71,11 +96,23 @@ export const generatePersonaImage = async (
   });
 
   if (!persona) {
-    throw new Error("Persona not found");
+    return {
+      success: false,
+      error: {
+        code: "PERSONA_NOT_FOUND",
+        message: "Persona not found",
+      },
+    };
   }
 
   if (!persona.currentVersion) {
-    throw new Error("Persona has no current version");
+    return {
+      success: false,
+      error: {
+        code: "NO_CURRENT_VERSION",
+        message: "Persona has no current version",
+      },
+    };
   }
 
   const taskHandle = await tasks.trigger<typeof generatePersonaImageTask>(
@@ -101,8 +138,11 @@ export const generatePersonaImage = async (
   );
 
   return {
-    taskId: taskHandle.id,
-    publicAccessToken: taskHandle.publicAccessToken,
-    cost,
+    success: true,
+    data: {
+      taskId: taskHandle.id,
+      publicAccessToken: taskHandle.publicAccessToken,
+      cost,
+    },
   };
 };

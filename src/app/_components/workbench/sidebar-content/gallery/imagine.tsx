@@ -53,15 +53,42 @@ export default function Imagine() {
     setIsLoading(true);
 
     try {
-      const { taskId: runId, publicAccessToken } = await generatePersonaImage(
-        personaId,
-        {
-          modelId: options.modelId,
-          style: (options.style || "auto") as ImageStyle,
-          shotType: options.shotType,
-          userNote: options.userNote,
+      const result = await generatePersonaImage(personaId, {
+        modelId: options.modelId,
+        style: (options.style || "auto") as ImageStyle,
+        shotType: options.shotType,
+        userNote: options.userNote,
+      });
+
+      if (!result.success) {
+        // Handle error from server action
+        const { code, message } = result.error;
+
+        if (code === "CONCURRENT_LIMIT_EXCEEDED") {
+          toast.add({
+            title: "Concurrent generation limit reached",
+            description:
+              "You've reached the limit of concurrent generations. Upgrade your plan for more.",
+            type: "error",
+          });
+        } else if (code === "RATE_LIMIT_EXCEEDED") {
+          toast.add({
+            title: "Rate limit exceeded",
+            description:
+              "You've reached your image generation limit. Please try again later.",
+            type: "error",
+          });
+        } else {
+          toast.add({
+            title: "Failed to generate image",
+            description: message,
+            type: "error",
+          });
         }
-      );
+        return;
+      }
+
+      const { taskId: runId, publicAccessToken } = result.data;
 
       // Use action method to avoid stale state issues
       personaGenerationStore.addImageGenerationRun(runId, {
@@ -74,31 +101,14 @@ export default function Imagine() {
       // Ensure main content is the Gallery so the in-progress tile is visible
       setWorkbenchMode("gallery");
     } catch (error) {
+      // Handle unexpected errors (network issues, etc.)
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-
-      // Provide specific error message for concurrent job limit
-      if (errorMessage === "CONCURRENT_LIMIT_EXCEEDED") {
-        toast.add({
-          title: "Concurrent generation limit reached",
-          description:
-            "You've reached the limit of concurrent generations. Upgrade your plan for more.",
-          type: "error",
-        });
-      } else if (errorMessage === "RATE_LIMIT_EXCEEDED") {
-        toast.add({
-          title: "Rate limit exceeded",
-          description:
-            "You've reached your image generation limit. Please try again later.",
-          type: "error",
-        });
-      } else {
-        toast.add({
-          title: "Failed to generate image",
-          description: errorMessage,
-          type: "error",
-        });
-      }
+      toast.add({
+        title: "Failed to generate image",
+        description: errorMessage,
+        type: "error",
+      });
     } finally {
       setIsLoading(false);
     }

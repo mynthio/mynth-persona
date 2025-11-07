@@ -90,10 +90,38 @@ export function ChatSettingsImages() {
     try {
       const result = await generateChatSceneImage(chatId, modelId);
 
+      if (!result.success) {
+        // Handle error from server action
+        const { code, message } = result.error;
+
+        if (code === "CONCURRENT_LIMIT_EXCEEDED") {
+          add({
+            title: "Concurrent generation limit reached",
+            description:
+              "You've reached the limit of concurrent generations. Upgrade your plan for more.",
+            type: "error",
+          });
+        } else if (code === "RATE_LIMIT_EXCEEDED") {
+          add({
+            title: "Rate limit exceeded",
+            description:
+              "You've reached your image generation limit. Please try again later.",
+            type: "error",
+          });
+        } else {
+          add({
+            title: "Couldn't trigger scene image",
+            description: message,
+            type: "error",
+          });
+        }
+        return;
+      }
+
       // Add run to the store
-      addSceneImageGenerationRun(result.runId, {
-        runId: result.runId,
-        publicAccessToken: result.publicAccessToken,
+      addSceneImageGenerationRun(result.data.runId, {
+        runId: result.data.runId,
+        publicAccessToken: result.data.publicAccessToken,
         chatId,
         startedAt: Date.now(),
       });
@@ -103,31 +131,14 @@ export function ChatSettingsImages() {
         description: `Generating with ${IMAGE_MODELS[modelId].displayName}.`,
       });
     } catch (error) {
+      // Handle unexpected errors (network issues, etc.)
       const errorMessage =
         error instanceof Error ? error.message : "Unexpected error";
-
-      // Provide specific error message for concurrent job limit
-      if (errorMessage === "CONCURRENT_LIMIT_EXCEEDED") {
-        add({
-          title: "Concurrent generation limit reached",
-          description:
-            "You've reached the limit of concurrent generations. Upgrade your plan for more.",
-          type: "error",
-        });
-      } else if (errorMessage === "RATE_LIMIT_EXCEEDED") {
-        add({
-          title: "Rate limit exceeded",
-          description:
-            "You've reached your image generation limit. Please try again later.",
-          type: "error",
-        });
-      } else {
-        add({
-          title: "Couldn't trigger scene image",
-          description: errorMessage,
-          type: "error",
-        });
-      }
+      add({
+        title: "Couldn't trigger scene image",
+        description: errorMessage,
+        type: "error",
+      });
     } finally {
       setIsGenerating(false);
     }

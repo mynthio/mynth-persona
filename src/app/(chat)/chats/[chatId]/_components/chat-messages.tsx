@@ -796,10 +796,52 @@ function ChatMessageGenerateImageButton(
         mode,
       });
 
+      if (!result.success) {
+        // Handle error from server action
+        const { code, message } = result.error;
+
+        if (code === "CONCURRENT_LIMIT_EXCEEDED") {
+          toast.add({
+            title: "Concurrent generation limit reached",
+            description:
+              "You've reached the limit of concurrent generations. Upgrade your plan for more.",
+            type: "error",
+          });
+        } else if (code === "SCENE_IMAGE_REQUIRED") {
+          toast.add({
+            title: "Scene image required",
+            description:
+              "Generate a scene image first in chat settings to use character mode.",
+            type: "error",
+          });
+        } else if (code === "MODEL_DOES_NOT_SUPPORT_REFERENCE_IMAGES") {
+          toast.add({
+            title: "Model incompatible",
+            description:
+              "This model doesn't support character mode. Try creative mode instead.",
+            type: "error",
+          });
+        } else if (code === "RATE_LIMIT_EXCEEDED") {
+          toast.add({
+            title: "Rate limit exceeded",
+            description:
+              "You've reached your image generation limit. Please try again later.",
+            type: "error",
+          });
+        } else {
+          toast.add({
+            title: "Failed to generate image",
+            description: message,
+            type: "error",
+          });
+        }
+        return;
+      }
+
       // Add to store to track in-progress generation
-      addImageGenerationRun(result.runId, {
-        runId: result.runId,
-        publicAccessToken: result.publicAccessToken,
+      addImageGenerationRun(result.data.runId, {
+        runId: result.data.runId,
+        publicAccessToken: result.data.publicAccessToken,
         messageId: props.messageId,
         chatId: chatId,
         startedAt: Date.now(),
@@ -807,46 +849,15 @@ function ChatMessageGenerateImageButton(
         status: "PENDING",
       });
     } catch (error) {
+      // Handle unexpected errors (network issues, etc.)
       console.error("Failed to generate image:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-
-      // Provide specific error message for concurrent job limit
-      if (errorMessage === "CONCURRENT_LIMIT_EXCEEDED") {
-        toast.add({
-          title: "Concurrent generation limit reached",
-          description:
-            "You've reached the limit of concurrent generations. Upgrade your plan for more.",
-          type: "error",
-        });
-      } else if (errorMessage === "SCENE_IMAGE_REQUIRED") {
-        toast.add({
-          title: "Scene image required",
-          description:
-            "Generate a scene image first in chat settings to use character mode.",
-          type: "error",
-        });
-      } else if (errorMessage === "MODEL_DOES_NOT_SUPPORT_REFERENCE_IMAGES") {
-        toast.add({
-          title: "Model incompatible",
-          description:
-            "This model doesn't support character mode. Try creative mode instead.",
-          type: "error",
-        });
-      } else if (errorMessage === "RATE_LIMIT_EXCEEDED") {
-        toast.add({
-          title: "Rate limit exceeded",
-          description:
-            "You've reached your image generation limit. Please try again later.",
-          type: "error",
-        });
-      } else {
-        toast.add({
-          title: "Failed to generate image",
-          description: errorMessage,
-          type: "error",
-        });
-      }
+      toast.add({
+        title: "Failed to generate image",
+        description: errorMessage,
+        type: "error",
+      });
     } finally {
       setIsGenerating(false);
     }

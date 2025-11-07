@@ -22,6 +22,7 @@ import {
 } from "@/config/shared/image-models";
 import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
 import { incrementConcurrentImageJob } from "@/lib/concurrent-image-jobs";
+import { ActionResult } from "@/types/action-result.type";
 
 export type ImageGenerationMode = "character" | "creative";
 
@@ -30,15 +31,27 @@ type GenerateMessageImageOptions = {
   mode?: ImageGenerationMode;
 };
 
+type GenerateMessageImageResult = {
+  runId: string;
+  publicAccessToken: string;
+  cost: number;
+};
+
 export const generateMessageImage = async (
   messageId: string,
   chatId: string,
   options?: GenerateMessageImageOptions
-) => {
+): Promise<ActionResult<GenerateMessageImageResult>> => {
   const { userId } = await auth();
 
   if (!userId) {
-    throw new Error("Unauthorized");
+    return {
+      success: false,
+      error: {
+        code: "UNAUTHORIZED",
+        message: "You must be logged in to generate images",
+      },
+    };
   }
 
   // Get mode and modelId from options
@@ -47,7 +60,13 @@ export const generateMessageImage = async (
 
   // Validate modelId
   if (!(modelId in IMAGE_MODELS)) {
-    throw new Error("INVALID_MODEL_ID");
+    return {
+      success: false,
+      error: {
+        code: "INVALID_MODEL_ID",
+        message: "Invalid model ID",
+      },
+    };
   }
 
   // Verify chat ownership
@@ -56,20 +75,38 @@ export const generateMessageImage = async (
   });
 
   if (!chat) {
-    throw new Error("Chat not found");
+    return {
+      success: false,
+      error: {
+        code: "CHAT_NOT_FOUND",
+        message: "Chat not found",
+      },
+    };
   }
 
   // Character mode validation
   if (mode === "character") {
     // Check if model supports reference images
     if (!supportsReferenceImages(modelId)) {
-      throw new Error("MODEL_DOES_NOT_SUPPORT_REFERENCE_IMAGES");
+      return {
+        success: false,
+        error: {
+          code: "MODEL_DOES_NOT_SUPPORT_REFERENCE_IMAGES",
+          message: "Model does not support character mode",
+        },
+      };
     }
 
     // Check if scene image exists
     const chatSettings = chat.settings as ChatSettings | null;
     if (!chatSettings?.sceneImageMediaId) {
-      throw new Error("SCENE_IMAGE_REQUIRED");
+      return {
+        success: false,
+        error: {
+          code: "SCENE_IMAGE_REQUIRED",
+          message: "Scene image is required for character mode",
+        },
+      };
     }
   }
 
@@ -79,7 +116,13 @@ export const generateMessageImage = async (
   });
 
   if (!message) {
-    throw new Error("Message not found");
+    return {
+      success: false,
+      error: {
+        code: "MESSAGE_NOT_FOUND",
+        message: "Message not found",
+      },
+    };
   }
 
   const planId = await getUserPlan();
@@ -90,7 +133,13 @@ export const generateMessageImage = async (
     planId as PlanId
   );
   if (!concurrentJobResult.success) {
-    throw concurrentJobResult.error;
+    return {
+      success: false,
+      error: {
+        code: "CONCURRENT_LIMIT_EXCEEDED",
+        message: "Concurrent generation limit reached",
+      },
+    };
   }
 
   // Calculate cost based on model
@@ -100,7 +149,13 @@ export const generateMessageImage = async (
 
   const rateLimitResult = await imageRateLimitGuard(rateLimiter, userId, cost);
   if (!rateLimitResult.success) {
-    throw new Error("RATE_LIMIT_EXCEEDED");
+    return {
+      success: false,
+      error: {
+        code: "RATE_LIMIT_EXCEEDED",
+        message: "Rate limit exceeded",
+      },
+    };
   }
 
   const taskHandle = await tasks.trigger<typeof generateMessageImageTask>(
@@ -120,8 +175,11 @@ export const generateMessageImage = async (
   );
 
   return {
-    runId: taskHandle.id,
-    publicAccessToken: taskHandle.publicAccessToken,
-    cost,
+    success: true,
+    data: {
+      runId: taskHandle.id,
+      publicAccessToken: taskHandle.publicAccessToken,
+      cost,
+    },
   };
 };

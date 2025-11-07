@@ -19,15 +19,28 @@ import {
   getModelCost,
 } from "@/config/shared/image-models";
 import { incrementConcurrentImageJob } from "@/lib/concurrent-image-jobs";
+import { ActionResult } from "@/types/action-result.type";
+
+type GenerateChatSceneImageResult = {
+  runId: string;
+  publicAccessToken: string;
+  cost: number;
+};
 
 export const generateChatSceneImage = async (
   chatId: string,
   modelId: ImageModelId = DEFAULT_IMAGE_MODEL_ID
-) => {
+): Promise<ActionResult<GenerateChatSceneImageResult>> => {
   const { userId } = await auth();
 
   if (!userId) {
-    throw new Error("Unauthorized");
+    return {
+      success: false,
+      error: {
+        code: "UNAUTHORIZED",
+        message: "You must be logged in to generate images",
+      },
+    };
   }
 
   // Verify chat ownership
@@ -36,7 +49,13 @@ export const generateChatSceneImage = async (
   });
 
   if (!chat) {
-    throw new Error("Chat not found");
+    return {
+      success: false,
+      error: {
+        code: "CHAT_NOT_FOUND",
+        message: "Chat not found",
+      },
+    };
   }
 
   const planId = await getUserPlan();
@@ -47,7 +66,13 @@ export const generateChatSceneImage = async (
     planId as PlanId
   );
   if (!concurrentJobResult.success) {
-    throw concurrentJobResult.error;
+    return {
+      success: false,
+      error: {
+        code: "CONCURRENT_LIMIT_EXCEEDED",
+        message: "Concurrent generation limit reached",
+      },
+    };
   }
 
   // Calculate cost based on model
@@ -57,7 +82,13 @@ export const generateChatSceneImage = async (
 
   const rateLimitResult = await imageRateLimitGuard(rateLimiter, userId, cost);
   if (!rateLimitResult.success) {
-    throw new Error("RATE_LIMIT_EXCEEDED");
+    return {
+      success: false,
+      error: {
+        code: "RATE_LIMIT_EXCEEDED",
+        message: "Rate limit exceeded",
+      },
+    };
   }
 
   const taskHandle = await tasks.trigger<typeof generateChatSceneImageTask>(
@@ -75,8 +106,11 @@ export const generateChatSceneImage = async (
   );
 
   return {
-    runId: taskHandle.id,
-    publicAccessToken: taskHandle.publicAccessToken,
-    cost,
+    success: true,
+    data: {
+      runId: taskHandle.id,
+      publicAccessToken: taskHandle.publicAccessToken,
+      cost,
+    },
   };
 };

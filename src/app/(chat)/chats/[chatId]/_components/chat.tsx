@@ -90,7 +90,7 @@ export default function Chat(props: ChatProps) {
   });
 
   return (
-    <div className="w-full flex flex-col justify-center items-center h-full mx-auto px-[12px] md:px-0 mt-auto">
+    <div className="w-full flex flex-col justify-center items-center h-full mx-auto px-[12px] md:px-0 mt-auto relative z-0">
       <ChatMessages
         containerRef={messagesContainerRef}
         shouldScrollRef={shouldScrollRef}
@@ -165,7 +165,12 @@ function ChatPrompt(props: ChatPromptProps) {
   };
 
   return (
-    <PromptInput onSubmit={handleSubmit} className="mt-4" globalDrop multiple>
+    <PromptInput
+      onSubmit={handleSubmit}
+      className="mt-4 sticky bottom-4 max-w-3xl mx-auto z-50 backdrop-blur-3xl bg-background/80"
+      globalDrop
+      multiple
+    >
       <PromptInputHeader></PromptInputHeader>
       <PromptInputBody>
         <PromptInputTextarea

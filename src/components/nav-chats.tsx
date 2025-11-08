@@ -8,6 +8,7 @@ import {
   Loader2,
   BookOpen,
   ChevronRight,
+  MessagesSquareIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
@@ -103,8 +104,11 @@ export function NavChats() {
       <SidebarMenu>
         <Collapsible defaultOpen>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Recent Chats">
-              <a href={"/chats"}>Recent Chats</a>
+            <SidebarMenuButton asChild tooltip="Chats">
+              <Link href={"/chats"}>
+                <MessagesSquareIcon />
+                Chats
+              </Link>
             </SidebarMenuButton>
             {chats.length > 0 ? (
               <>
@@ -118,10 +122,13 @@ export function NavChats() {
                   <SidebarMenuSub>
                     {chats.slice(0, 10).map((chat) => (
                       <SidebarMenuSubItem key={chat.id}>
-                        <SidebarMenuSubButton asChild>
-                          <a href={`/chats/${chat.id}`}>
+                        <SidebarMenuSubButton
+                          asChild
+                          className="rounded-[0.76rem] h-8 text-[0.84rem]"
+                        >
+                          <Link href={`/chats/${chat.id}`}>
                             <span>{chat.title}</span>
-                          </a>
+                          </Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}

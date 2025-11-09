@@ -16,6 +16,8 @@ import {
   GearSixIcon,
   ImageSquareIcon,
   InfoIcon,
+  PushPinIcon,
+  PushPinSimpleSlashIcon,
   RobotIcon,
   SparkleIcon,
   UserSquareIcon,
@@ -44,6 +46,7 @@ import { useToast } from "@/components/ui/toast";
 import { filter, map, pipe, toArray } from "@fxts/core";
 import { Label } from "@/components/mynth-ui/base/label";
 import { ChatSettingsImages } from "./chat-settings-images";
+import { usePinnedModels } from "../_hooks/use-pinned-models.hook";
 
 type ChatSettingsProps = {
   defaultOpen: boolean;
@@ -502,6 +505,7 @@ function ChatSettingsModel() {
   const [isLoading, setIsLoading] = useState(false);
   const [showFreeOnly, setShowFreeOnly] = useState(false);
   const [showVeniceOnly, setShowVeniceOnly] = useState(false);
+  const { isPinned, canPin, togglePin } = usePinnedModels();
 
   const models = useMemo(() => {
     const normalizedQuery = debouncedQuery.trim().toLowerCase();
@@ -587,6 +591,9 @@ function ChatSettingsModel() {
             }
             key={model.modelId}
             model={textGenerationModels[model.modelId]}
+            isPinned={isPinned(model.modelId)}
+            canPin={canPin()}
+            onTogglePin={() => togglePin(model.modelId)}
           />
         ))}
       </div>
@@ -598,13 +605,17 @@ function ModelCard(props: {
   isSelected: boolean;
   onSelect: () => void;
   model: TextGenerationModelConfig;
+  isPinned: boolean;
+  canPin: boolean;
+  onTogglePin: () => void;
 }) {
-  const { isSelected, onSelect, model } = props;
+  const { isSelected, onSelect, model, isPinned, canPin, onTogglePin } = props;
+  const canTogglePin = isPinned || canPin;
 
   return (
     <div
       className={cn(
-        "bg-white rounded-[24px] px-[16px] py-[12px] cursor-pointer",
+        "group bg-white rounded-[24px] px-[16px] py-[12px] cursor-pointer",
         {
           "border-[3px] border-surface-200": isSelected,
         }
@@ -613,7 +624,7 @@ function ModelCard(props: {
     >
       <div>
         <div className="flex items-center justify-between">
-          <div>
+          <div className="flex-1 min-w-0">
             <h5 className="font-onest text-[1.1rem] truncate">
               {model.displayName}
             </h5>
@@ -622,11 +633,43 @@ function ModelCard(props: {
             </p>
           </div>
 
-          {model.isPremium ? (
-            <Label color={model.isPremium ? "red" : "green"} size="sm">
-              Premium <FireIcon weight="bold" />
-            </Label>
-          ) : null}
+          <div className="flex items-center gap-[8px] shrink-0">
+            {model.isPremium && (
+              <Label color="red" size="sm">
+                Premium <FireIcon weight="bold" />
+              </Label>
+            )}
+
+            {canTogglePin && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onTogglePin();
+                }}
+                className={cn(
+                  "flex items-center justify-center w-[32px] h-[32px] rounded-[10px] transition-all duration-150",
+                  "hover:bg-surface-200/50 active:scale-95",
+                  "opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100",
+                  {
+                    "opacity-100": isPinned,
+                  }
+                )}
+                aria-label={isPinned ? "Unpin model" : "Pin model"}
+              >
+                {isPinned ? (
+                  <PushPinIcon
+                    weight="fill"
+                    className="w-[16px] h-[16px] text-blue-600"
+                  />
+                ) : (
+                  <PushPinSimpleSlashIcon
+                    weight="regular"
+                    className="w-[16px] h-[16px] text-surface-foreground/40"
+                  />
+                )}
+              </button>
+            )}
+          </div>
         </div>
       </div>
       <p className="text-surface-foreground/60 text-[.85rem] leading-tight mt-[12px]">

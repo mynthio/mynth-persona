@@ -8,7 +8,7 @@ import {
   useChatStatus,
 } from "@ai-sdk-tools/store";
 import { DefaultChatTransport } from "ai";
-import { FormEvent, useEffect, useRef } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import {
   PromptInput,
   PromptInputBody,
@@ -32,6 +32,10 @@ import ChatMessages from "./chat-messages";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
+import { ChatModelPickerMenu } from "./chat-model-picker-menu";
+import { updateChatAction } from "@/actions/update-chat.action";
+import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
+import { useToast } from "@/components/ui/toast";
 
 type ChatProps = {
   chat: { id: string; mode: ChatMode };
@@ -233,18 +237,39 @@ function ChatPrompt(props: ChatPromptProps) {
 
 function ChatModelSelector() {
   const { navigateSettings } = useSettingsNavigation();
-  const { modelId } = useChatMain();
+  const { chatId, modelId, setModelId } = useChatMain();
+  const { add } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleModelChange = async (selectedModelId: TextGenerationModelId) => {
+    if (isLoading || modelId === selectedModelId) return;
+    setIsLoading(true);
+
+    const oldModelId = modelId;
+    setModelId(selectedModelId);
+
+    await updateChatAction(chatId, {
+      settings: {
+        model: selectedModelId,
+      },
+    })
+      .catch(() => {
+        setModelId(oldModelId);
+        add({
+          title: "Failed switch to model",
+          description: "Try again or contact support",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
 
   return (
-    <Button
-      size="sm"
-      className="leading-none max-w-[180px] truncate"
-      aria-label="Select AI model for role-play"
-      onClick={() => navigateSettings("model")}
-    >
-      <span className="truncate">
-        {textGenerationModels[modelId!]?.displayName}
-      </span>
-    </Button>
+    <ChatModelPickerMenu
+      currentModelId={modelId!}
+      onModelChange={handleModelChange}
+      onOpenSettings={() => navigateSettings("model")}
+    />
   );
 }

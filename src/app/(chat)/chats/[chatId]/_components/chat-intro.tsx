@@ -55,7 +55,21 @@ export function ChatIntro() {
           say "Hi" to {persona.name}
         </Button>
         ? <br />
-        Or perhaps you want to{" "}
+        Or let{" "}
+        <Button
+          onClick={() =>
+            sendMessage(undefined, {
+              body: {
+                event: "regenerate",
+              },
+            })
+          }
+        >
+          {persona.name} start the conversation
+        </Button>
+        ?
+        <br />
+        Perhaps you want to{" "}
         <Button onClick={() => navigateSettings("scenario")}>
           set some scenario
         </Button>{" "}

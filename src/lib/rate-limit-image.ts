@@ -4,6 +4,7 @@ import Redis from "ioredis";
 import { RateLimiterRedis } from "rate-limiter-flexible";
 import { type PlanId } from "@/config/shared/plans";
 import { logger } from "@/lib/logger";
+import ms from "ms";
 
 const REDIS_URL = process.env.REDIS_URL;
 
@@ -44,6 +45,14 @@ const BlazeImageGenerationsRateLimit = new RateLimiterRedis({
   keyPrefix: "rate-limit:image:plan:blaze",
   points: 30,
   duration: 3600, // 1 hour in seconds
+});
+
+// Temporary beta limit for message image generation: 30 credits per day for all plans
+export const BetaMessageImageGenerationsRateLimit = new RateLimiterRedis({
+  storeClient: redisClient,
+  keyPrefix: "rate-limit:beta:message-image",
+  points: 30,
+  duration: ms("1 day") / 1000, // Convert ms to seconds
 });
 
 export const IMAGE_GENERATIONS_RATE_LIMITERS: Record<PlanId, RateLimiterRedis> =

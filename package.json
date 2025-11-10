@@ -119,6 +119,18 @@
     "overrides": {
       "@types/react": "19.2.2",
       "@types/react-dom": "19.2.2"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@clerk/shared",
+      "@heroui/shared-utils",
+      "@tailwindcss/oxide",
+      "bufferutil",
+      "core-js",
+      "esbuild",
+      "msw",
+      "protobufjs",
+      "sharp",
+      "unrs-resolver"
+    ]
   }
 }

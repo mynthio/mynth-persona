@@ -10,7 +10,7 @@ import { generateMessageImageTask } from "@/trigger/generate-message-image.task"
 import { getUserPlan } from "@/services/auth/user-plan.service";
 import { PlanId } from "@/config/shared/plans";
 import {
-  IMAGE_GENERATIONS_RATE_LIMITERS,
+  BetaMessageImageGenerationsRateLimit,
   imageRateLimitGuard,
 } from "@/lib/rate-limit-image";
 import {
@@ -145,9 +145,12 @@ export const generateMessageImage = async (
   // Calculate cost based on model
   const cost = getModelCost(modelId);
 
-  const rateLimiter = IMAGE_GENERATIONS_RATE_LIMITERS[planId as PlanId];
-
-  const rateLimitResult = await imageRateLimitGuard(rateLimiter, userId, cost);
+  // Use temporary beta rate limiter (30 credits/day for all plans)
+  const rateLimitResult = await imageRateLimitGuard(
+    BetaMessageImageGenerationsRateLimit,
+    userId,
+    cost
+  );
   if (!rateLimitResult.success) {
     return {
       success: false,

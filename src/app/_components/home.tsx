@@ -51,6 +51,7 @@ import {
 } from "@/schemas/shared/persona/persona-property-name.schema";
 import { CreateChatButton } from "@/components/create-chat-button";
 import { useUserPersonasMutation } from "@/app/_queries/use-user-personas.query";
+import { BetaImageLimitBanner } from "@/components/beta-image-limit-banner";
 
 dayjs.extend(relativeTime);
 
@@ -289,6 +290,9 @@ export default function Home() {
           exit={{ opacity: 0, y: -8, scale: 0.98 }}
           transition={{ duration: 0.2, ease: "easeInOut" }}
         >
+          <div className="max-w-3xl mx-auto mb-[24px] mt-[24px] px-[12px] md:px-0">
+            <BetaImageLimitBanner />
+          </div>
           <PersonaCreator
             onGenerate={(prompt, options) => {
               handleSubmit(prompt, options);

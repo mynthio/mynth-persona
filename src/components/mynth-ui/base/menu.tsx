@@ -72,8 +72,7 @@ function MenuItem({
       )}
       {...props}
     >
-      {icon && <span className="mr-2 shrink-0">{icon}</span>}
-      <span className="truncate">{children}</span>
+      {children}
     </MenuPrimitive.Item>
   );
 }

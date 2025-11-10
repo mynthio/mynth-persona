@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
-import { filter, map, pipe, toArray } from "@fxts/core";
 import {
   Menu,
   MenuTrigger,
@@ -41,41 +40,36 @@ export function ChatModelPickerMenu({
   const debouncedQuery = useDebounce(query, 300);
   const { pinnedModelIds, isPinned, canPin, togglePin } = usePinnedModels();
 
-  const allModels = useMemo(
-    () =>
-      pipe(
-        chatConfig.models,
-        filter((m) => {
-          const model = textGenerationModels[m.modelId];
-          const searchText = debouncedQuery.toLowerCase();
+  const allModels = useMemo(() => {
+    const searchText = debouncedQuery.trim().toLowerCase();
+    return chatConfig.models
+      .filter((modelCfg) => {
+        if (!searchText) return true;
+        const model = textGenerationModels[modelCfg.modelId];
+        return (
+          model.displayName.toLowerCase().includes(searchText) ||
+          model.modelId.toLowerCase().includes(searchText)
+        );
+      })
+      .map((m) => ({
+        ...m,
+        ...textGenerationModels[m.modelId],
+      }));
+  }, [debouncedQuery]);
 
-          if (!searchText) return true;
-
-          return (
-            model.displayName.toLowerCase().includes(searchText) ||
-            model.modelId.toLowerCase().includes(searchText)
-          );
-        }),
-        map((m) => ({
-          ...m,
-          ...textGenerationModels[m.modelId],
-        })),
-        toArray,
-      ),
-    [debouncedQuery],
-  );
-
-  const pinnedModels = useMemo(
-    () => allModels.filter((m) => pinnedModelIds.includes(m.modelId)),
-    [allModels, pinnedModelIds],
-  );
+  const pinnedModels = useMemo(() => {
+    const byId = new Map(allModels.map((m) => [m.modelId, m]));
+    return pinnedModelIds
+      .map((id) => byId.get(id))
+      .filter(Boolean) as typeof allModels;
+  }, [allModels, pinnedModelIds]);
 
   const unpinnedModels = useMemo(
     () =>
       allModels
         .filter((m) => !pinnedModelIds.includes(m.modelId))
         .sort((a, b) => a.displayName.localeCompare(b.displayName)),
-    [allModels, pinnedModelIds],
+    [allModels, pinnedModelIds]
   );
 
   const hasPinnedModels = pinnedModels.length > 0;
@@ -102,70 +96,22 @@ export function ChatModelPickerMenu({
             "w-[340px] max-h-[500px] flex flex-col p-0 overflow-hidden rounded-[24px]"
           )}
         >
-          <div className="p-[12px] pb-[8px]">
-            <Input
-              name="model-search"
-              placeholder="Search models..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="w-full bg-white rounded-[15px] border-0 h-[38px]"
-            />
-          </div>
+          {/* <SearchInput value={query} onChange={setQuery} /> */}
 
           <div className="flex-1 overflow-y-auto px-[4px] pb-[4px]">
             {hasPinnedModels && (
               <>
-                <div className="px-[12px] py-[6px]">
-                  <span className="text-[0.75rem] font-medium text-surface-foreground/50 uppercase tracking-wide">
-                    Pinned
-                  </span>
-                </div>
+                <SectionHeader title="Pinned" />
                 {pinnedModels.map((model) => (
-                  <MenuItem
+                  <ModelRow
                     key={model.modelId}
-                    className={cn(
-                      "group flex items-center justify-between h-auto py-[10px] rounded-[12px]",
-                      {
-                        "bg-surface/80": model.modelId === currentModelId,
-                      }
-                    )}
-                    onClick={() => onModelChange(model.modelId as TextGenerationModelId)}
-                  >
-                    <div className="flex items-center gap-[8px] flex-1 min-w-0">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-[6px]">
-                          <span className="font-onest text-[0.95rem] truncate">
-                            {model.displayName}
-                          </span>
-                          {model.isPremium && (
-                            <Label color="red" size="sm">
-                              <FireIcon weight="bold" className="w-[12px] h-[12px]" />
-                            </Label>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        togglePin(model.modelId);
-                      }}
-                      className={cn(
-                        "flex items-center justify-center w-[24px] h-[24px] rounded-[8px] transition-all duration-150",
-                        "hover:bg-surface-200/50 active:scale-95",
-                        "opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100",
-                        {
-                          "opacity-100": isPinned(model.modelId),
-                        }
-                      )}
-                      aria-label="Unpin model"
-                    >
-                      <PushPinIcon
-                        weight="fill"
-                        className="w-[14px] h-[14px] text-blue-600"
-                      />
-                    </button>
-                  </MenuItem>
+                    model={model}
+                    selected={model.modelId === currentModelId}
+                    isPinned={true}
+                    canPin={true}
+                    onSelect={(id) => onModelChange(id)}
+                    onTogglePin={() => togglePin(model.modelId)}
+                  />
                 ))}
                 <MenuSeparator />
               </>
@@ -173,71 +119,22 @@ export function ChatModelPickerMenu({
 
             {!hasPinnedModels && (
               <>
-                <div className="px-[12px] py-[6px] mb-[4px]">
-                  <span className="text-[0.75rem] text-surface-foreground/40 italic">
-                    Pin your favorite models (up to 5)
-                  </span>
-                </div>
+                <EmptyHint text="Pin your favorite models (up to 5)" />
                 <MenuSeparator />
               </>
             )}
 
             {unpinnedModels.length > 0 ? (
               unpinnedModels.map((model) => (
-                <MenuItem
+                <ModelRow
                   key={model.modelId}
-                  className={cn(
-                    "group flex items-center justify-between h-auto py-[10px] rounded-[12px]",
-                    {
-                      "bg-surface/80": model.modelId === currentModelId,
-                    }
-                  )}
-                  onClick={() => onModelChange(model.modelId as TextGenerationModelId)}
-                >
-                  <div className="flex items-center gap-[8px] flex-1 min-w-0">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-[6px]">
-                        <span className="font-onest text-[0.95rem] truncate">
-                          {model.displayName}
-                        </span>
-                        {model.isPremium && (
-                          <Label color="red" size="sm">
-                            <FireIcon weight="bold" className="w-[12px] h-[12px]" />
-                          </Label>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  {(isPinned(model.modelId) || canPin()) && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        togglePin(model.modelId);
-                      }}
-                      className={cn(
-                        "flex items-center justify-center w-[24px] h-[24px] rounded-[8px] transition-all duration-150",
-                        "hover:bg-surface-200/50 active:scale-95",
-                        "opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100",
-                        {
-                          "opacity-100": isPinned(model.modelId),
-                        }
-                      )}
-                      aria-label={isPinned(model.modelId) ? "Unpin model" : "Pin model"}
-                    >
-                      {isPinned(model.modelId) ? (
-                        <PushPinIcon
-                          weight="fill"
-                          className="w-[14px] h-[14px] text-blue-600"
-                        />
-                      ) : (
-                        <PushPinSimpleSlashIcon
-                          weight="regular"
-                          className="w-[14px] h-[14px] text-surface-foreground/40"
-                        />
-                      )}
-                    </button>
-                  )}
-                </MenuItem>
+                  model={model}
+                  selected={model.modelId === currentModelId}
+                  isPinned={isPinned(model.modelId)}
+                  canPin={canPin()}
+                  onSelect={(id) => onModelChange(id)}
+                  onTogglePin={() => togglePin(model.modelId)}
+                />
               ))
             ) : (
               <div className="px-[12px] py-[24px] text-center">
@@ -250,7 +147,6 @@ export function ChatModelPickerMenu({
 
           <div className="border-t border-surface-200 p-[8px]">
             <Button
-              variant="ghost"
               size="sm"
               onClick={onOpenSettings}
               className="w-full justify-start text-[0.9rem] h-[36px] rounded-[12px]"
@@ -262,5 +158,116 @@ export function ChatModelPickerMenu({
         </MenuPopup>
       </MenuPositioner>
     </Menu>
+  );
+}
+
+function SearchInput({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+}) {
+  return (
+    <div className="p-[12px] pb-[8px]">
+      <Input
+        name="model-search"
+        placeholder="Search models..."
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full bg-white rounded-[15px] border-0 h-[38px]"
+      />
+    </div>
+  );
+}
+
+function SectionHeader({ title }: { title: string }) {
+  return (
+    <div className="px-[12px] py-[6px]">
+      <span className="text-[0.75rem] font-medium text-surface-foreground/50 uppercase tracking-wide">
+        {title}
+      </span>
+    </div>
+  );
+}
+
+function EmptyHint({ text }: { text: string }) {
+  return (
+    <div className="px-[12px] py-[6px] mb-[4px]">
+      <span className="text-[0.75rem] text-surface-foreground/40 italic">
+        {text}
+      </span>
+    </div>
+  );
+}
+
+function PremiumBadge() {
+  return <FireIcon className="text-rose-500 shrink-0" weight="bold" />;
+}
+
+function ModelRow({
+  model,
+  selected,
+  isPinned,
+  canPin,
+  onSelect,
+  onTogglePin,
+}: {
+  model: any;
+  selected: boolean;
+  isPinned: boolean;
+  canPin: boolean;
+  onSelect: (id: TextGenerationModelId) => void;
+  onTogglePin: () => void;
+}) {
+  const showPinButton = isPinned || canPin;
+  return (
+    <MenuItem
+      className={cn(
+        "group w-full flex flex-row items-center gap-[8px] px-[12px]",
+        {
+          "bg-surface/80": selected,
+        }
+      )}
+      onClick={() => onSelect(model.modelId as TextGenerationModelId)}
+    >
+      <div className="flex w-full gap-[4px] truncate">
+        <span className="font-onest text-[0.95rem] truncate">
+          {model.displayName}
+        </span>
+
+        {model.isPremium && <PremiumBadge />}
+      </div>
+
+      {showPinButton && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onTogglePin();
+          }}
+          className={cn(
+            "flex items-center justify-center w-[24px] h-[24px] rounded-[8px] transition-all duration-150 shrink-0",
+            "hover:bg-surface-200/50 active:scale-95",
+            "opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100",
+            {
+              "opacity-100": isPinned,
+            }
+          )}
+          aria-label={isPinned ? "Unpin model" : "Pin model"}
+        >
+          {isPinned ? (
+            <PushPinIcon
+              weight="fill"
+              className="w-[14px] h-[14px] text-violet-600"
+            />
+          ) : (
+            <PushPinSimpleSlashIcon
+              weight="regular"
+              className="w-[14px] h-[14px] text-surface-foreground/40"
+            />
+          )}
+        </button>
+      )}
+    </MenuItem>
   );
 }

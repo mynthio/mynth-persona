@@ -9,6 +9,7 @@ import { ChatMode } from "@/schemas/backend/chats/chat.schema";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { updateChatAction } from "@/actions/update-chat.action";
 import { useState } from "react";
+import { BetaImageLimitBanner } from "@/components/beta-image-limit-banner";
 
 export function ChatIntro() {
   const messagesCount = useMessageCount();
@@ -23,6 +24,9 @@ export function ChatIntro() {
 
   return (
     <div className="text-center flex items-center flex-col gap-[42px] justify-center text-balance text-surface-foreground/80 py-[42px] mt-[42px] shrink-0">
+      <div className="w-full max-w-2xl px-[12px] md:px-0">
+        <BetaImageLimitBanner />
+      </div>
       {persona.profileImageIdMedia && (
         <div className="size-[148px] flex items-center justify-center  relative z-0">
           <img

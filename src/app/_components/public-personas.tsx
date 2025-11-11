@@ -4,8 +4,7 @@ import { PublicPersonaListItem } from "@/schemas/shared/persona-public.schema";
 import { getImageUrl, getVideoUrl } from "@/lib/utils";
 import { Masonry, useInfiniteLoader } from "masonic";
 import { useCallback, useMemo, useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { useSidebar } from "@/components/ui/sidebar";
+
 import {
   BirdIcon,
   CircleNotchIcon,
@@ -25,6 +24,7 @@ import useSWRInfinite from "swr/infinite";
 import { fetcher } from "@/lib/fetcher";
 import { Menu } from "@base-ui-components/react/menu";
 import { Button } from "@/components/mynth-ui/base/button";
+import { Link } from "@/components/ui/link";
 
 export default function PublicPersonas() {
   const [includeNsfw, setIncludeNsfw] = useLocalStorage("show-nsfw", false);

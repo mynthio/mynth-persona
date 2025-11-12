@@ -10,7 +10,8 @@ export type ChatConfig = {
   models: ChatConfigModels;
 };
 
-export const DEFAULT_CHAT_MODEL: TextGenerationModelId = "x-ai/grok-4-fast";
+export const DEFAULT_CHAT_MODEL: TextGenerationModelId =
+  "aion-labs/aion-rp-llama-3.1-8b";
 
 export const chatConfig: ChatConfig = {
   models: [
@@ -64,6 +65,9 @@ export const chatConfig: ChatConfig = {
     },
     {
       modelId: "anthropic/claude-haiku-4.5",
+    },
+    {
+      modelId: "raifle/sorcererlm-8x22b",
     },
   ],
 };

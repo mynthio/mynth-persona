@@ -1,13 +1,16 @@
 import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-router";
 import { logAiSdkUsage, logger } from "@/lib/logger";
-import { getDefaultPromptDefinitionForMode } from "@/lib/prompts/registry";
+import {
+  personaGenerateThinkingV1,
+  personaExtractV1,
+} from "@/lib/prompts/registry";
 import {
   CreatorPersonaGenerate,
   creatorPersonaGenerateSchema,
 } from "@/schemas/shared/creator/persona-generate.schema";
 import { createPersona } from "@/services/persona/create-persona";
 import { auth } from "@clerk/nextjs/server";
-import { streamObject } from "ai";
+import { streamObject, streamText } from "ai";
 import { transformCreatorPersonaGenerateToPersonaData } from "@/schemas/transformers";
 import ms from "ms";
 import { z } from "zod";
@@ -24,7 +27,7 @@ import { personas } from "@/db/schema";
 import { and, eq, ne } from "drizzle-orm";
 import {
   personaGenerationModelIds,
-  personaGenerationModelWeights,
+  personaGenerationModels,
 } from "@/config/shared/models/persona-generation-models.config";
 import { pickByWeightedPriority } from "@/lib/utils";
 
@@ -42,10 +45,11 @@ const jsonRequestSchema = z.object({
   modelId: z.enum(personaGenerationModelIds).optional(),
 });
 
-const SYSTEM = getDefaultPromptDefinitionForMode(
-  "persona",
-  "generate"
-).render();
+// Phase 1: Creative thinking prompt (no schema constraints)
+const THINKING_SYSTEM = personaGenerateThinkingV1.render();
+
+// Phase 2: Extraction prompt (structured output)
+const EXTRACT_SYSTEM = personaExtractV1.render();
 
 export async function POST(req: Request) {
   const { userId } = await auth();
@@ -114,153 +118,197 @@ export async function POST(req: Request) {
 
   const openrouter = getOpenRouter();
 
-  const { main, fallbacks } =
+  // Phase 1: Creative model selection (weighted random)
+  const { main: creativeModel, fallbacks: creativeFallbacks } =
     json.modelId && json.modelId !== "auto"
       ? { main: json.modelId, fallbacks: undefined }
-      : pickByWeightedPriority(personaGenerationModelWeights);
+      : pickByWeightedPriority(personaGenerationModels);
 
-  const model = openrouter(main, {
-    models: fallbacks,
-  });
+  // Phase 2: Extraction model
+  const extractionModel = "x-ai/grok-4-fast";
 
-  const result = streamObject({
-    model,
-    schema: creatorPersonaGenerateSchema,
-    system: SYSTEM,
-    prompt,
-    abortSignal: AbortSignal.timeout(ms("80s")),
-  });
-
-  const { textStream } = result;
-
-  // Prefix: Start of wrapper object with persona content
-  const prefix = '{"persona":';
-
-  // Create a custom ReadableStream that injects the wrapper
+  // Create a custom ReadableStream that implements 2-phase generation
   const customStream = new ReadableStream({
     async start(controller) {
-      // Enqueue prefix first
-      controller.enqueue(new TextEncoder().encode(prefix));
+      try {
+        // ============================================================
+        // PHASE 1: Generate creative thinking text
+        // ============================================================
+        const thinkingModelProvider = openrouter(creativeModel, {
+          models: creativeFallbacks,
+        });
 
-      let personaDataJson = "";
+        const thinkingResult = streamText({
+          model: thinkingModelProvider,
+          system: THINKING_SYSTEM,
+          prompt,
+          abortSignal: AbortSignal.timeout(ms("80s")),
+        });
 
-      // Stream the inner object's text chunks
-      for await (const chunk of textStream) {
-        personaDataJson += chunk;
-        controller.enqueue(new TextEncoder().encode(chunk));
-      }
+        // Stream thinking text to client
+        controller.enqueue(new TextEncoder().encode('{"thinking":"'));
 
-      const personaData = JSON.parse(personaDataJson) as CreatorPersonaGenerate;
-
-      let personaId: string | undefined;
-      let versionId: string | undefined;
-
-      const response = await result.response;
-      const usage = await result.usage;
-
-      logAiSdkUsage(
-        {
-          response: response,
-          usage: usage,
-        },
-        {
-          component: "generation:text:complete",
-          useCase: "persona_generation",
+        let thinkingText = "";
+        for await (const chunk of thinkingResult.textStream) {
+          thinkingText += chunk;
+          // Escape quotes and newlines for JSON streaming
+          const escapedChunk = chunk
+            .replace(/\\/g, "\\\\")
+            .replace(/"/g, '\\"')
+            .replace(/\n/g, "\\n")
+            .replace(/\r/g, "\\r")
+            .replace(/\t/g, "\\t");
+          controller.enqueue(new TextEncoder().encode(escapedChunk));
         }
-      );
 
-      // If we have a user, we're going to create a persona in DB
-      if (userId) {
-        if (json.personaId) {
-          /**
-           * Add version to persona
-           */
-          try {
-            const version = await createPersonaVersion({
-              aiModel: response.modelId,
-              data: transformCreatorPersonaGenerateToPersonaData(personaData),
-              personaId: json.personaId,
-              aiNote: personaData.note_for_user ?? undefined,
-              title: personaData.title,
-              userMessage: "Retry",
-            });
+        controller.enqueue(new TextEncoder().encode('","persona":'));
 
-            personaId = json.personaId;
-            versionId = version;
-          } catch (err) {
-            const error = err instanceof Error ? err : new Error(String(err));
+        // Log Phase 1 usage
+        const thinkingResponse = await thinkingResult.response;
+        const thinkingUsage = await thinkingResult.usage;
+        logAiSdkUsage(
+          { response: thinkingResponse, usage: thinkingUsage },
+          { component: "generation:text:stream", useCase: "persona_thinking" }
+        );
 
-            logger.error({
-              event: "create-persona-version-failed",
-              component: "api/creator/personas/generate",
-              attributes: {
-                error: {
-                  message: error.message,
-                  stack: error.stack,
-                  name: error.name,
-                },
-              },
-            });
+        // ============================================================
+        // PHASE 2: Extract structured data from thinking text
+        // ============================================================
+        const extractionModelProvider = openrouter(extractionModel);
 
-            // Re-throw the error to be handled by useObject error handling
-            throw error;
+        const extractionResult = streamObject({
+          model: extractionModelProvider,
+          schema: creatorPersonaGenerateSchema,
+          system: EXTRACT_SYSTEM,
+          prompt: thinkingText, // Use thinking text as input
+          abortSignal: AbortSignal.timeout(ms("80s")),
+        });
+
+        // Stream persona object to client
+        let personaDataJson = "";
+        for await (const chunk of extractionResult.textStream) {
+          personaDataJson += chunk;
+          controller.enqueue(new TextEncoder().encode(chunk));
+        }
+
+        const personaData = JSON.parse(
+          personaDataJson
+        ) as CreatorPersonaGenerate;
+
+        // Log Phase 2 usage
+        const extractionResponse = await extractionResult.response;
+        const extractionUsage = await extractionResult.usage;
+        logAiSdkUsage(
+          { response: extractionResponse, usage: extractionUsage },
+          {
+            component: "generation:text:complete",
+            useCase: "persona_extraction",
           }
-        } else {
-          /**
-           * Create new Persona with version
-           */
-          try {
-            const result = await createPersona({
-              userId,
-              prompt,
-              aiNote: personaData.note_for_user ?? undefined,
-              aiModel: response.modelId,
-              title: personaData.title,
-              data: transformCreatorPersonaGenerateToPersonaData(personaData),
-            });
-            personaId = result.personaId;
-            versionId = result.versionId;
-          } catch (err) {
-            const error = err instanceof Error ? err : new Error(String(err));
+        );
 
-            logger.error({
-              event: "create_persona_failed",
-              component: "api/creator/personas/generate",
-              attributes: {
-                error: {
-                  message: error.message,
-                  stack: error.stack,
-                  name: error.name,
+        // ============================================================
+        // DATABASE SAVE & TRACKING
+        // ============================================================
+        let personaId: string | undefined;
+        let versionId: string | undefined;
+
+        // Save to database if authenticated
+        if (userId) {
+          if (json.personaId) {
+            // Add version to existing persona
+            try {
+              const version = await createPersonaVersion({
+                aiModel: extractionResponse.modelId,
+                data: transformCreatorPersonaGenerateToPersonaData(personaData),
+                personaId: json.personaId,
+                aiNote: personaData.note_for_user ?? undefined,
+                title: personaData.title,
+                userMessage: "Retry",
+              });
+
+              personaId = json.personaId;
+              versionId = version;
+            } catch (err) {
+              const error = err instanceof Error ? err : new Error(String(err));
+              logger.error({
+                event: "create-persona-version-failed",
+                component: "api/creator/personas/generate",
+                attributes: {
+                  error: {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name,
+                  },
                 },
+              });
+              throw error;
+            }
+          } else {
+            // Create new persona
+            try {
+              const result = await createPersona({
                 userId,
                 prompt,
-              },
-            });
-
-            // Re-throw the error to be handled by useObject error handling
-            throw error;
+                aiNote: personaData.note_for_user ?? undefined,
+                aiModel: extractionResponse.modelId,
+                title: personaData.title,
+                data: transformCreatorPersonaGenerateToPersonaData(personaData),
+              });
+              personaId = result.personaId;
+              versionId = result.versionId;
+            } catch (err) {
+              const error = err instanceof Error ? err : new Error(String(err));
+              logger.error({
+                event: "create_persona_failed",
+                component: "api/creator/personas/generate",
+                attributes: {
+                  error: {
+                    message: error.message,
+                    stack: error.stack,
+                    name: error.name,
+                  },
+                  userId,
+                  prompt,
+                },
+              });
+              throw error;
+            }
           }
         }
+
+        // Track completion
+        const trackingUser = userId ? userId : await getIpAddress();
+        await trackGeneratePersonaCompleted({
+          isAnonymous: !userId,
+          userId: trackingUser,
+          modelId: extractionResponse.modelId,
+        });
+
+        // Append personaId and versionId if available
+        const dynamicSuffix = `${
+          personaId && versionId
+            ? `,"personaId":"${personaId}","versionId":"${versionId}"`
+            : ""
+        }}`;
+
+        controller.enqueue(new TextEncoder().encode(dynamicSuffix));
+        controller.close();
+      } catch (error) {
+        // Handle errors gracefully
+        const err = error instanceof Error ? error : new Error(String(error));
+        logger.error({
+          event: "persona-generation-failed",
+          component: "api/creator/personas/generate",
+          attributes: {
+            error: {
+              message: err.message,
+              stack: err.stack,
+              name: err.name,
+            },
+          },
+        });
+        controller.error(error);
       }
-
-      const trackingUser = userId ? userId : await getIpAddress();
-      await trackGeneratePersonaCompleted({
-        isAnonymous: !userId,
-        userId: trackingUser,
-        modelId: response.modelId,
-      });
-
-      // Create dynamic suffix with actual IDs
-      const dynamicSuffix = `${
-        personaId && versionId
-          ? `,"personaId":"${personaId}","versionId":"${versionId}"`
-          : ""
-      }}`;
-
-      // Enqueue suffix last
-      controller.enqueue(new TextEncoder().encode(dynamicSuffix));
-
-      controller.close();
     },
   });
 

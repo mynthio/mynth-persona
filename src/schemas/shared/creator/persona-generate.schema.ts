@@ -26,26 +26,16 @@ export const creatorPersonaGenerateSchema = z.object({
     .describe("Short, concise 1 sentence summary of the character."),
   appearance: z
     .string()
-    .describe(
-      "Purely visual and stylistic description for imagining or image generation: physique/build, facial structure/features, eyes, skin, hair, posture, wardrobe/style, color palette, materials/textures, accessories, and, optionally, distinctive marks. Avoid overuse of scars, marks and things like this, especially if not explicitly asked."
-    ),
+    .describe("Character's appearance and visual description."),
   personality: z
     .string()
-    .describe(
-      "Behavioral traits and temperament: how they speak and behave; motivations, strengths, flaws, quirks, and interaction style."
-    ),
-  background: z
-    .string()
-    .describe(
-      "Origin and history: upbringing, family, environment, formative events, training/skills learned, and how they became who they are."
-    ),
+    .describe("Character's personality and behavioral traits."),
+  background: z.string().describe("Character's background and history."),
   occupation: z
     .string()
     .nullable()
     .optional()
-    .describe(
-      "What they do for work/role in society. Can include secret occupations."
-    ),
+    .describe("Character's occupation and work."),
   extensions: z.preprocess((value) => {
     // If value is not an object, omit the field entirely
     if (!value || typeof value !== "object" || value === null) {

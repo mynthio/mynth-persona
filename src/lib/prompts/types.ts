@@ -28,9 +28,14 @@ export type SystemPromptIdForImage<
   M extends ImagePromptMode = ImagePromptMode
 > = `system.image.${M}.${PromptVersion}`;
 
-// New: Specific ID type for persona property action prompts
+// Specific ID types for additional persona prompts (not default modes)
 export type SystemPromptIdForPersonaPropertyAction =
   `system.persona.property-action.${PromptVersion}`;
+export type SystemPromptIdForPersonaGenerateThinking =
+  `system.persona.generate-thinking.${PromptVersion}`;
+export type SystemPromptIdForPersonaExtract =
+  `system.persona.extract.${PromptVersion}`;
+
 export type UserPromptIdForChat<M extends ChatPromptMode = ChatPromptMode> =
   `prompt.chat.${M}.${PromptVersion}`;
 export type UserPromptIdForPersona<
@@ -44,6 +49,8 @@ export type PromptId =
   | SystemPromptIdForPersona
   | SystemPromptIdForImage
   | SystemPromptIdForPersonaPropertyAction
+  | SystemPromptIdForPersonaGenerateThinking
+  | SystemPromptIdForPersonaExtract
   | UserPromptIdForChat
   | UserPromptIdForPersona
   | UserPromptIdForImage;
@@ -84,6 +91,18 @@ export interface PromptDefinitionStory extends PromptDefinitionBase {
 export interface PromptDefinitionPersonaGenerate extends PromptDefinitionBase {
   id: SystemPromptIdForPersona<"generate">;
   mode: "generate";
+  render: () => string;
+}
+
+export interface PromptDefinitionPersonaGenerateThinking extends PromptDefinitionBase {
+  id: SystemPromptIdForPersonaGenerateThinking;
+  mode: "generate-thinking";
+  render: () => string;
+}
+
+export interface PromptDefinitionPersonaExtract extends PromptDefinitionBase {
+  id: SystemPromptIdForPersonaExtract;
+  mode: "extract";
   render: () => string;
 }
 
@@ -143,6 +162,8 @@ export type PromptDefinition =
   | PromptDefinitionRoleplay
   | PromptDefinitionStory
   | PromptDefinitionPersonaGenerate
+  | PromptDefinitionPersonaGenerateThinking
+  | PromptDefinitionPersonaExtract
   | PromptDefinitionPersonaEnhance
   | PromptDefinitionPersonaPublish
   | PromptDefinitionPromptPersonaPublish

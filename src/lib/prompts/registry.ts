@@ -2,6 +2,8 @@
 import { roleplayV1 } from "./templates/roleplay/system.chat.roleplay.v1";
 import { storyV1 } from "./templates/story/system.chat.story.v1";
 import { personaGenerateV1 } from "./templates/persona/system.persona.generate.v1";
+import { personaGenerateThinkingV1 } from "./templates/persona/system.persona.generate.thinking.v1";
+import { personaExtractV1 } from "./templates/persona/system.persona.extract.v1";
 import { personaEnhanceV1 } from "./templates/persona/system.persona.enhance.v1";
 import { personaPublishV1 } from "./templates/persona/system.persona.publish.v1";
 import { personaPublishPromptV1 } from "./templates/persona/prompt.persona.publish.v1";
@@ -17,6 +19,8 @@ import {
   PromptDefinitionRoleplay,
   PromptDefinitionStory,
   PromptDefinitionPersonaGenerate,
+  PromptDefinitionPersonaGenerateThinking,
+  PromptDefinitionPersonaExtract,
   PromptDefinitionPersonaEnhance,
   PromptDefinitionPersonaPublish,
   PromptDefinitionPromptPersonaPublish,
@@ -34,6 +38,8 @@ const PROMPTS = {
   [storyV1.id]: storyV1,
   [roleplayV1.id]: roleplayV1,
   [personaGenerateV1.id]: personaGenerateV1,
+  [personaGenerateThinkingV1.id]: personaGenerateThinkingV1,
+  [personaExtractV1.id]: personaExtractV1,
   [personaEnhanceV1.id]: personaEnhanceV1,
   [personaPublishV1.id]: personaPublishV1,
   [personaPublishPromptV1.id]: personaPublishPromptV1,
@@ -174,3 +180,6 @@ export function getDefaultPromptDefinitionForMode(
 ): PromptDefinition {
   return getDefaultSystemPromptDefinitionForMode(useCase as any, mode as any);
 }
+
+// Export specific prompts for direct access
+export { personaGenerateThinkingV1, personaExtractV1 };

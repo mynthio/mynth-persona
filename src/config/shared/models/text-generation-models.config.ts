@@ -15,7 +15,8 @@ export type TextGenerationModelId =
   | "x-ai/grok-3"
   | "tngtech/deepseek-r1t2-chimera"
   | "deepcogito/cogito-v2-preview-llama-405b"
-  | "anthropic/claude-haiku-4.5";
+  | "anthropic/claude-haiku-4.5"
+  | "raifle/sorcererlm-8x22b";
 
 export type Provider = {
   url?: string;
@@ -507,6 +508,33 @@ export const textGenerationModels: Record<
       training: "no",
       storesMessages: "yes",
       additionalNotes: "",
+    },
+  },
+  "raifle/sorcererlm-8x22b": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    description:
+      "Conjures immersive, emotionally intelligent role-play with vivid spatial detail and enriched narrative depth, excelling in engaging, context-aware storytelling with advanced reasoning—though its sensitivity to sampling parameters demands careful tuning for optimal enchantment.",
+    style:
+      "Strong emotional intelligence with empathetic, immersive responses. Vivid writing enriched with spatial and contextual awareness. Maintains character consistency across extended adventures; adaptive to romantic, dramatic, or conflict-driven scenes with narrative depth.",
+    displayName: "SorcererLM 8x22B",
+    modelId: "raifle/sorcererlm-8x22b",
+    uncensored: true,
+    perks: [
+      "advanced reasoning with emotional intelligence",
+      "vivid writing with spatial and contextual awareness",
+      "enhanced narrative depth for immersive storytelling",
+    ],
+    tags: ["roleplay", "emotional", "long-context"],
+    isPremium: true,
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "no",
+      storesMessages: "yes",
+      additionalNotes:
+        "Built on WizardLM-2-8x22B with 141B parameters. Optimized for roleplay via LoRA training. Recommended settings: Temperature 1, MinP 0.05. Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request.",
     },
   },
 };

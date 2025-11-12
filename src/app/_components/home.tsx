@@ -453,8 +453,10 @@ function PersonaStreamingResult({
   object: DeepPartial<CreatorPersonaGenerateClientResponse> | undefined;
 }) {
   const persona = object?.persona;
+  const thinking = object?.thinking;
   const { isGenerating } = useGenerationContext();
   const [extraSections, setExtraSections] = useState<string[]>([]);
+  const [isThinkingExpanded, setIsThinkingExpanded] = useState(true);
 
   const addNewSection = useCallback(
     (name: string) => {
@@ -612,6 +614,40 @@ function PersonaStreamingResult({
             ))}
           </ButtonGroup>
         </>
+      )}
+
+      {/* Thinking section - less prominent, collapsible, at the very bottom */}
+      {thinking && (
+        <div className="mt-[64px] border-t border-surface-200/30 pt-[24px]">
+          <button
+            onClick={() => setIsThinkingExpanded(!isThinkingExpanded)}
+            className="flex items-center gap-[8px] text-surface-foreground/40 hover:text-surface-foreground/60 transition-colors mb-[12px]"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 256 256"
+              className={`transform transition-transform ${
+                isThinkingExpanded ? "rotate-90" : ""
+              }`}
+            >
+              <path
+                fill="currentColor"
+                d="M181.66 133.66l-80 80a8 8 0 0 1-11.32-11.32L164.69 128L90.34 53.66a8 8 0 0 1 11.32-11.32l80 80a8 8 0 0 1 0 11.32"
+              />
+            </svg>
+            <span className="text-[0.85rem] font-mono font-[500] uppercase tracking-wide">
+              Thinking Process
+            </span>
+          </button>
+
+          {isThinkingExpanded && (
+            <div className="text-surface-foreground/50 text-[0.95rem] leading-relaxed font-[300] whitespace-pre-wrap pl-[24px]">
+              {thinking}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

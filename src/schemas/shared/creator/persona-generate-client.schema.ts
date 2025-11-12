@@ -6,6 +6,7 @@ export const creatorPersonaGenerateClientSchema = z.object({
   persona: creatorPersonaGenerateSchema,
   personaId: z.string().optional(),
   versionId: z.string().optional(),
+  thinking: z.string().optional(), // Phase 1 creative text (not saved to DB)
 });
 
 export type CreatorPersonaGenerateClientResponse = z.infer<

@@ -7,17 +7,13 @@ import {
   CheckIcon,
   GhostIcon,
   ShuffleIcon,
-  SlidersHorizontalIcon,
   SparkleIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "@/components/ui/tooltip";
-import { Popover, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
 import { Select } from "@base-ui-components/react/select";
-import { Field } from "@base-ui-components/react/field";
-import { Form } from "@base-ui-components/react/form";
 import { AnimatePresence, motion } from "motion/react";
-import { Button } from "@/components/mynth-ui/base/button";
 import posthog from "posthog-js";
+import { personaGenerationModels } from "@/config/shared/models/persona-generation-models.config";
 
 export default function PersonaCreator({
   onGenerate,
@@ -139,38 +135,7 @@ export default function PersonaCreator({
 
         <div className="flex items-center justify-between w-full mt-[24px] md:px-[12px]">
           <div className="flex items-center gap-[2px]">
-            <Popover modal={false}>
-              <PopoverTrigger
-                render={
-                  <Button size="icon">
-                    <SlidersHorizontalIcon size={16} />
-                  </Button>
-                }
-              />
-
-              <PopoverPopup
-                positioner={{
-                  side: "top",
-                }}
-              >
-                <Form
-                  onSubmit={async (event) => {
-                    event.preventDefault();
-                  }}
-                >
-                  <Field.Root>
-                    <Field.Label className="text-surface-foreground/80 text-[0.85rem] font-[500] font-onest px-[4px]">
-                      Model
-                    </Field.Label>
-
-                    <ModelSelector
-                      onModelSelect={setModel}
-                      defaultValue={model}
-                    />
-                  </Field.Root>
-                </Form>
-              </PopoverPopup>
-            </Popover>
+            <ModelSelector onModelSelect={setModel} defaultValue={model} />
           </div>
 
           <div className="flex items-center gap-[2px]">
@@ -266,40 +231,11 @@ export default function PersonaCreator({
   );
 }
 
-const models = [
-  {
-    value: "auto",
-    label: <>Auto</>,
-  },
-  {
-    value: "thedrummer/anubis-70b-v1.1",
-    label: <>Anubis 70B</>,
-  },
-  {
-    value: "meta-llama/llama-4-maverick",
-    label: <>Llama 4 Maverick</>,
-  },
-  {
-    value: "moonshotai/kimi-k2-0905",
-    label: <>Kimi K2</>,
-  },
-  {
-    value: "x-ai/grok-3-mini",
-    label: <>Grok 3 Mini</>,
-  },
-  {
-    value: "x-ai/grok-4-fast",
-    label: <>Grok 4 Fast (BETA)</>,
-  },
-  {
-    value: "sao10k/l3.3-euryale-70b",
-    label: <>L3.3 Euryale 70B</>,
-  },
-  {
-    value: "inclusionai/ling-1t",
-    label: <>LING 1T</>,
-  },
-];
+// Transform config models to Select component format
+const selectModels = personaGenerationModels.map((model) => ({
+  value: model.id,
+  label: <>{model.displayName}</>,
+}));
 
 export function ModelSelector({
   onModelSelect,
@@ -310,13 +246,13 @@ export function ModelSelector({
 }) {
   return (
     <Select.Root
-      items={models}
+      items={selectModels}
       value={defaultValue}
       modal={true}
       name="model"
       onValueChange={onModelSelect}
     >
-      <Select.Trigger className="flex h-10 min-w-[230px] items-center justify-between gap-3 rounded-md bg-surface text-surface-foreground/80 border-[2px] border-surface-100 pr-3 pl-3.5 text-base select-none hover:bg-surface-100 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-surface-100 cursor-default">
+      <Select.Trigger className="flex h-10 w-auto max-w-[180px] items-center gap-2 rounded-md bg-transparent text-surface-foreground/80 px-3 text-base select-none hover:bg-surface-100/50 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-blue-800 data-[popup-open]:bg-surface-100/50 cursor-default transition-all duration-250">
         <Select.Value />
         <Select.Icon className="flex">
           <CaretUpIcon />
@@ -329,7 +265,7 @@ export function ModelSelector({
         >
           <Select.ScrollUpArrow className="top-0 z-[1] flex h-4 w-full cursor-default items-center justify-center rounded-md bg-[canvas] text-center text-xs before:absolute before:top-[-100%] before:left-0 before:h-full before:w-full before:content-[''] data-[direction=down]:bottom-0 data-[direction=down]:before:bottom-[-100%]" />
           <Select.Popup className="group max-h-[var(--available-height)] origin-[var(--transform-origin)] overflow-y-auto bg-clip-padding rounded-md bg-surface py-1 text-surface-foreground/80 shadow-lg shadow-gray-200 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[side=none]:data-[ending-style]:transition-none data-[starting-style]:scale-90 data-[starting-style]:opacity-0 data-[side=none]:data-[starting-style]:scale-100 data-[side=none]:data-[starting-style]:opacity-100 data-[side=none]:data-[starting-style]:transition-none data-[side=none]:scroll-py-5 dark:shadow-none dark:outline-gray-300">
-            {models.map(({ label, value }) => (
+            {selectModels.map(({ label, value }) => (
               <Select.Item
                 key={value}
                 value={value}

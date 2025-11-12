@@ -25,6 +25,7 @@ import { fetcher } from "@/lib/fetcher";
 import { Menu } from "@base-ui-components/react/menu";
 import { Button } from "@/components/mynth-ui/base/button";
 import { Link } from "@/components/ui/link";
+import { ProgressiveBlur } from "@/components/ui/progressive-blur";
 
 export default function PublicPersonas() {
   const [includeNsfw, setIncludeNsfw] = useLocalStorage("show-nsfw", false);
@@ -370,15 +371,12 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
         </div>
       </div>
 
-      <div className="pointer-events-none z-10 bg-gradient-to-t from-background via-background to-background/0 pt-[48px] pb-[32px] px-[24px]">
-        <div className="text-foreground/80 font-[600] font-onest text-[1.66rem] leading-[1.52rem]">
+      <div className="pointer-events-none z-10 pt-[48px] pb-[32px] px-[24px]">
+        <div className="text-white/90 font-[600] font-onest text-[1.66rem] leading-[1.52rem]">
           {persona.publicName}
         </div>
-        {/* <div className="text-white/80 text-[11px] md:text-xs">
-          {persona.ageBucket}
-        </div> */}
 
-        <div className="text-foreground/70 text-[0.93rem] leading-[0.935rem] mt-[6px]">
+        <div className="text-white/70 text-balance text-[0.93rem] leading-[0.935rem] mt-[6px]">
           {persona.headline}
         </div>
       </div>
@@ -409,6 +407,8 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
           crossOrigin="anonymous"
         />
       ) : null}
+
+      <div className="w-full h-[300px] bg-linear-to-t from-black to-black/0 absolute bottom-0 left-0" />
     </Link>
   );
 }

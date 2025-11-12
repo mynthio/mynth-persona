@@ -4,7 +4,11 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { PanelLeftIcon } from "lucide-react";
-
+import {
+  IconLayoutSidebar,
+  IconLayoutSidebarFilled,
+  IconLayoutSidebarRightFilled,
+} from "@tabler/icons-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -24,6 +28,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { SidebarIcon } from "@phosphor-icons/react/dist/ssr";
+import { TextureOverlay } from "./texture-overlay";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -248,9 +254,14 @@ function Sidebar({
         >
           {children}
 
-          <img
+          {/* <img
             src="https://w.wallhaven.cc/full/7j/wallhaven-7jgyre.jpg"
             className="absolute w-full h-full left-0 top-0 object-cover opacity-5 -z-10"
+          /> */}
+          <TextureOverlay
+            texture="paperGrain"
+            opacity={0.5}
+            className="-z-10"
           />
         </div>
       </div>
@@ -278,7 +289,7 @@ function SidebarTrigger({
       }}
       {...props}
     >
-      <PanelLeftIcon />
+      <IconLayoutSidebar stroke={1.5} />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

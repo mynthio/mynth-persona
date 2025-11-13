@@ -8,7 +8,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { PersonIcon } from "@phosphor-icons/react/dist/ssr";
+import { HeartRounded } from "@untitledui/icons";
 
 export function NavMain() {
   return (
@@ -22,13 +22,7 @@ export function NavMain() {
 
         <SidebarMenuItem>
           <SidebarMenuButton>
-            <PersonIcon /> Personas
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-
-        <SidebarMenuItem>
-          <SidebarMenuButton>
-            <ImageIcon /> Images
+            <HeartRounded /> Library
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>

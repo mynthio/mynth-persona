@@ -26,21 +26,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <div className="group-data-[collapsible=icon]:hidden flex flex-row items-center gap-2 justify-between">
+            <div className="group-data-[collapsible=icon]:hidden flex flex-row items-center gap-2 justify-center">
               <img
                 className="aspect-square size-6 rounded-[6px] group-data-[collapsible=icon]:hidden"
                 src="https://mynth-persona-prod.b-cdn.net/static/prsna-logo.webp"
                 alt="Prsna"
               />
 
-              <Link
+              {/* <Link
                 href="/"
-                className="group-data-[collapsible=icon]:hidden font-onest leading-0 text-xs tracking-tight font-extrabold uppercase cursor-default select-none"
+                className="group-data-[collapsible=icon]:hidden text-foreground/70 font-onest leading-0 text-xs tracking-tight font-extrabold uppercase cursor-default select-none"
               >
                 Prsna
-              </Link>
-
-              <SidebarTrigger className="shrink-0" />
+              </Link> */}
             </div>
 
             <SidebarMenuButton className="group-data-[collapsible=icon]:flex hidden">

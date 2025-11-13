@@ -32,6 +32,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
+  SidebarInput,
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUserChatsQuery } from "@/app/_queries/use-user-chats.query";
@@ -43,6 +44,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
+import { MessageChatCircle } from "@untitledui/icons";
 
 export function NavChats() {
   const { isMobile } = useSidebar();
@@ -53,91 +55,24 @@ export function NavChats() {
 
   const chats = data?.data ?? [];
 
-  const handleDeleteChat = async (chatId: string, chatTitle: string | null) => {
-    if (
-      !confirm(`Are you sure you want to delete "${chatTitle ?? "this chat"}"?`)
-    ) {
-      return;
-    }
-
-    setDeletingChatId(chatId);
-
-    try {
-      const result = await deleteChatAction({ chatId });
-
-      if (result.success) {
-        toast.success("Chat deleted successfully");
-
-        // Optimistically update the cache
-        mutate(
-          (current) => {
-            if (!current) return current;
-            return {
-              ...current,
-              data: current.data.filter((chat) => chat.id !== chatId),
-            };
-          },
-          { revalidate: false }
-        );
-
-        // Navigate to chats page if we're on the deleted chat page
-        if (pathname.includes(chatId)) {
-          router.push("/chats");
-        }
-      } else {
-        toast.error(result.error ?? "Failed to delete chat");
-      }
-    } catch (error) {
-      toast.error("Failed to delete chat");
-      console.error("Error deleting chat:", error);
-    } finally {
-      setDeletingChatId(null);
-    }
-  };
-
-  const getChatIcon = (mode: "roleplay" | "story") => {
-    return mode === "story" ? BookOpen : MessageSquare;
-  };
-
   return (
     <SidebarGroup>
+      <SidebarGroupLabel>Chats</SidebarGroupLabel>
+      {/* <SidebarInput placeholder="Type to search..." /> */}
       <SidebarMenu>
-        <Collapsible defaultOpen>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Chats">
-              <Link href={"/chats"}>
-                <MessagesSquareIcon />
-                Chats
+        {chats.slice(0, 10).map((chat) => (
+          <SidebarMenuItem key={chat.id}>
+            <SidebarMenuButton
+              asChild
+              className="rounded-[0.76rem] h-8 text-[0.84rem]"
+            >
+              <Link href={`/chats/${chat.id}`}>
+                <MessageChatCircle className="size-1" />
+                {chat.title}
               </Link>
             </SidebarMenuButton>
-            {chats.length > 0 ? (
-              <>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuAction className="data-[state=open]:rotate-90">
-                    <ChevronRight />
-                    <span className="sr-only">Toggle</span>
-                  </SidebarMenuAction>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    {chats.slice(0, 10).map((chat) => (
-                      <SidebarMenuSubItem key={chat.id}>
-                        <SidebarMenuSubButton
-                          asChild
-                          className="rounded-[0.76rem] h-8 text-[0.84rem]"
-                        >
-                          <Link href={`/chats/${chat.id}`}>
-                            <span>{chat.title}</span>
-                          </Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                </CollapsibleContent>
-              </>
-            ) : null}
           </SidebarMenuItem>
-        </Collapsible>
+        ))}
       </SidebarMenu>
     </SidebarGroup>
   );

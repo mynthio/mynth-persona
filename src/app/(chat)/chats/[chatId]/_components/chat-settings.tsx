@@ -42,7 +42,7 @@ import {
   TextGenerationModelId,
   textGenerationModels,
 } from "@/config/shared/models/text-generation-models.config";
-import { useToast } from "@/components/ui/toast";
+import { toastManager } from "@/components/ui/toast";
 import { filter, map, pipe, toArray } from "@fxts/core";
 import { Label } from "@/components/mynth-ui/base/label";
 import { ChatSettingsImages } from "./chat-settings-images";
@@ -499,7 +499,6 @@ function ChatSettingsScenario() {
 
 function ChatSettingsModel() {
   const { chatId, modelId, setModelId, mode } = useChatMain();
-  const { add } = useToast();
   const [query, setQuery] = useState<string>("");
   const debouncedQuery = useDebounce(query, 300);
   const [isLoading, setIsLoading] = useState(false);
@@ -561,7 +560,7 @@ function ChatSettingsModel() {
     })
       .catch(() => {
         setModelId(oldModelId);
-        add({
+        toastManager.add({
           title: "Failed switch to model",
           description: "Try again or contact support",
         });

@@ -29,7 +29,7 @@ import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
 import { DISCORD_INVITE_URL } from "@/lib/constants";
 import { ScrollArea } from "@/components/mynth-ui/base/scroll-area";
 import { publishScenarioAction } from "@/actions/scenarios";
-import { useToast } from "@/components/ui/toast";
+import { toastManager } from "@/components/ui/toast";
 
 export function PublishScenarioDialog() {
   const searchParams = useSearchParams();
@@ -67,7 +67,6 @@ function PublishScenarioForm(props: PublishScenarioFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiGenerate, setAiGenerate] = useState(true);
   const router = useRouter();
-  const toast = useToast();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -130,7 +129,7 @@ function PublishScenarioForm(props: PublishScenarioFormProps) {
 
       if (result.success) {
         // Show success toast
-        toast.add({
+        toastManager.add({
           title: "Scenario publishing started",
           description:
             "Your scenario is being reviewed and will be published shortly.",

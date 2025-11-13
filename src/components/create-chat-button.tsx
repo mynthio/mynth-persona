@@ -2,7 +2,7 @@
 
 import { createChatAction } from "@/actions/create-chat.action";
 import { Button } from "./mynth-ui/base/button";
-import { useToast } from "./ui/toast";
+import { toastManager } from "./ui/toast";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserChatsMutation } from "@/app/_queries/use-user-chats.query";
@@ -18,7 +18,6 @@ export function CreateChatButton({
 }: CreateChatButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const mutate = useUserChatsMutation();
-  const { promise } = useToast();
   const { push } = useRouter();
 
   return (
@@ -33,7 +32,7 @@ export function CreateChatButton({
             path: typeof window !== "undefined" ? window.location.pathname : undefined,
           });
         } catch {}
-        promise(
+        toastManager.promise(
           createChatAction(personaId)
             .catch((error) => {
               if (error.message === "NEXT_REDIRECT") {
@@ -48,17 +47,21 @@ export function CreateChatButton({
                   : undefined
               );
               push(`/chats/${createdChat.id}`);
+              return createdChat;
             })
             .finally(() => {
               setIsLoading(false);
             }),
           {
-            loading:
-              "Creating chat for persona. This may take few seconds in some cases...",
-            error: (error) =>
-              `Failed to create chat, please try again later or contact support.`,
-            success:
-              "Chat created successfully, you're going to be redirected to chat now.",
+            loading: {
+              title: "Creating chat for persona. This may take few seconds in some cases...",
+            },
+            success: () => ({
+              title: "Chat created successfully, you're going to be redirected to chat now.",
+            }),
+            error: () => ({
+              title: "Failed to create chat, please try again later or contact support.",
+            }),
           }
         );
       }}

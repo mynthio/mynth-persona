@@ -2,7 +2,7 @@
 
 import { createChatWithScenarioAction } from "@/actions/create-chat-with-scenario.action";
 import { Button } from "./mynth-ui/base/button";
-import { useToast } from "./ui/toast";
+import { toastManager } from "./ui/toast";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserChatsMutation } from "@/app/_queries/use-user-chats.query";
@@ -20,7 +20,6 @@ export function CreateChatWithScenarioButton({
 }: CreateChatWithScenarioButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const mutate = useUserChatsMutation();
-  const { promise } = useToast();
   const { push } = useRouter();
 
   return (
@@ -40,7 +39,7 @@ export function CreateChatWithScenarioButton({
             personaId,
           });
         } catch {}
-        promise(
+        toastManager.promise(
           createChatWithScenarioAction({ personaId, scenarioId })
             .catch((error) => {
               if (error.message === "NEXT_REDIRECT") {
@@ -55,17 +54,21 @@ export function CreateChatWithScenarioButton({
                   : undefined
               );
               push(`/chats/${createdChat.id}`);
+              return createdChat;
             })
             .finally(() => {
               setIsLoading(false);
             }),
           {
-            loading:
-              "Creating chat with scenario. This may take few seconds in some cases...",
-            error: (error) =>
-              `Failed to create chat, please try again later or contact support.`,
-            success:
-              "Chat created successfully, you're going to be redirected to chat now.",
+            loading: {
+              title: "Creating chat with scenario. This may take few seconds in some cases...",
+            },
+            success: () => ({
+              title: "Chat created successfully, you're going to be redirected to chat now.",
+            }),
+            error: () => ({
+              title: "Failed to create chat, please try again later or contact support.",
+            }),
           }
         );
       }}

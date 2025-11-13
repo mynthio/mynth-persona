@@ -18,7 +18,7 @@ import { ImageStyle } from "@/types/image-generation/image-style.type";
 import { ShotType } from "@/types/image-generation/shot-type.type";
 import { ImageModelId, IMAGE_MODELS } from "@/config/shared/image-models";
 import { useState } from "react";
-import { useToast } from "@/components/ui/toast";
+import { toastManager } from "@/components/ui/toast";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 import { Sparkles } from "lucide-react";
 
@@ -37,7 +37,6 @@ export default function Imagine() {
   const [, setWorkbenchMode] = useWorkbenchMode();
 
   // Plan-based access and rate limiting handled server-side
-  const toast = useToast();
 
   const [options, setOptions] = useState<GenerationOptions>({
     modelId: "black-forest-labs/flux-dev",
@@ -65,21 +64,21 @@ export default function Imagine() {
         const { code, message } = result.error;
 
         if (code === "CONCURRENT_LIMIT_EXCEEDED") {
-          toast.add({
+          toastManager.add({
             title: "Concurrent generation limit reached",
             description:
               "You've reached the limit of concurrent generations. Upgrade your plan for more.",
             type: "error",
           });
         } else if (code === "RATE_LIMIT_EXCEEDED") {
-          toast.add({
+          toastManager.add({
             title: "Rate limit exceeded",
             description:
               "You've reached your image generation limit. Please try again later.",
             type: "error",
           });
         } else {
-          toast.add({
+          toastManager.add({
             title: "Failed to generate image",
             description: message,
             type: "error",
@@ -104,7 +103,7 @@ export default function Imagine() {
       // Handle unexpected errors (network issues, etc.)
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      toast.add({
+      toastManager.add({
         title: "Failed to generate image",
         description: errorMessage,
         type: "error",

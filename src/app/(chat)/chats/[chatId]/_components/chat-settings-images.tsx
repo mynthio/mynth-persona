@@ -12,7 +12,7 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/mynth-ui/base/button";
 import { useChatPersonas } from "../_contexts/chat-personas.context";
 import { useChatMain } from "../_contexts/chat-main.context";
-import { useToast } from "@/components/ui/toast";
+import { toastManager } from "@/components/ui/toast";
 import { getMediaImageUrl } from "@/lib/utils";
 import { generateChatSceneImage } from "@/actions/generate-chat-scene-image";
 import {
@@ -38,7 +38,6 @@ export function ChatSettingsImages() {
   const { chatId, settings, setSettings } = useChatMain();
   const { personas } = useChatPersonas();
   const persona = personas[0];
-  const { add } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const addSceneImageGenerationRun = useChatImageGenerationStore(
     (state) => state.addSceneImageGenerationRun
@@ -95,21 +94,21 @@ export function ChatSettingsImages() {
         const { code, message } = result.error;
 
         if (code === "CONCURRENT_LIMIT_EXCEEDED") {
-          add({
+          toastManager.add({
             title: "Concurrent generation limit reached",
             description:
               "You've reached the limit of concurrent generations. Upgrade your plan for more.",
             type: "error",
           });
         } else if (code === "RATE_LIMIT_EXCEEDED") {
-          add({
+          toastManager.add({
             title: "Rate limit exceeded",
             description:
               "You've reached your image generation limit. Please try again later.",
             type: "error",
           });
         } else {
-          add({
+          toastManager.add({
             title: "Couldn't trigger scene image",
             description: message,
             type: "error",
@@ -126,7 +125,7 @@ export function ChatSettingsImages() {
         startedAt: Date.now(),
       });
 
-      add({
+      toastManager.add({
         title: "Scene image job started",
         description: `Generating with ${IMAGE_MODELS[modelId].displayName}.`,
       });
@@ -134,7 +133,7 @@ export function ChatSettingsImages() {
       // Handle unexpected errors (network issues, etc.)
       const errorMessage =
         error instanceof Error ? error.message : "Unexpected error";
-      add({
+      toastManager.add({
         title: "Couldn't trigger scene image",
         description: errorMessage,
         type: "error",
@@ -163,12 +162,12 @@ export function ChatSettingsImages() {
         sceneImageMediaId: persona.profileImageIdMedia,
       });
 
-      add({
+      toastManager.add({
         title: "Scene image updated",
         description: "Set to persona's profile image.",
       });
     } catch (error) {
-      add({
+      toastManager.add({
         title: "Failed to update scene image",
         description: "Try again or contact support",
         type: "error",

@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/components/ui/toast";
+import { toastManager } from "@/components/ui/toast";
 import {
   Dialog,
   DialogContent,
@@ -30,7 +30,6 @@ export default function WorkbenchSidebarManage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showPublishDialog, setShowPublishDialog] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const toast = useToast();
   const { mutate } = useSWRConfig();
   const { data: persona } = usePersonaQuery(personaId);
 
@@ -51,13 +50,13 @@ export default function WorkbenchSidebarManage() {
   async function onPublishConfirm() {
     if (!personaId) return;
     if (!termsAccepted) {
-      toast.add({ title: "Please accept the terms of use to continue" });
+      toastManager.add({ title: "Please accept the terms of use to continue" });
       return;
     }
     try {
       setSubmitting(true);
       await publishPersonaAction(personaId);
-      toast.add({
+      toastManager.add({
         title: "Publishing started",
         description: "We'll update the status once it's complete.",
       });
@@ -66,7 +65,7 @@ export default function WorkbenchSidebarManage() {
       setShowPublishDialog(false);
     } catch (e: any) {
       const message = e?.message || "Failed to start publishing";
-      toast.add({ title: message });
+      toastManager.add({ title: message });
     } finally {
       setSubmitting(false);
     }
@@ -77,14 +76,14 @@ export default function WorkbenchSidebarManage() {
     try {
       setSubmitting(true);
       await updatePersonaVisibilityAction(personaId, "private");
-      toast.add({ title: "Persona unpublished" });
+      toastManager.add({ title: "Persona unpublished" });
       await Promise.all([
         mutate(`/api/personas/${personaId}/publish-status`),
         mutate(`/api/personas/${personaId}`),
       ]);
     } catch (e: any) {
       const message = e?.message || "Failed to unpublish persona";
-      toast.add({ title: message });
+      toastManager.add({ title: message });
     } finally {
       setSubmitting(false);
     }
@@ -95,7 +94,7 @@ export default function WorkbenchSidebarManage() {
     try {
       setSubmitting(true);
       await updatePersonaVisibilityAction(personaId, "deleted");
-      toast.add({ title: "Persona deleted" });
+      toastManager.add({ title: "Persona deleted" });
       await Promise.all([
         mutate(`/api/personas/${personaId}/publish-status`),
         mutate(`/api/personas/${personaId}`),
@@ -105,7 +104,7 @@ export default function WorkbenchSidebarManage() {
       setShowDeleteDialog(false);
     } catch (e: any) {
       const message = e?.message || "Failed to delete persona";
-      toast.add({ title: message });
+      toastManager.add({ title: message });
     } finally {
       setSubmitting(false);
     }

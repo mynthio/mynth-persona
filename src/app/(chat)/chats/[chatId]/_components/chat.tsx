@@ -35,7 +35,7 @@ import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import { ChatModelPickerMenu } from "./chat-model-picker-menu";
 import { updateChatAction } from "@/actions/update-chat.action";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
-import { useToast } from "@/components/ui/toast";
+import { toastManager } from "@/components/ui/toast";
 
 type ChatProps = {
   chat: { id: string; mode: ChatMode };
@@ -238,7 +238,6 @@ function ChatPrompt(props: ChatPromptProps) {
 function ChatModelSelector() {
   const { navigateSettings } = useSettingsNavigation();
   const { chatId, modelId, setModelId } = useChatMain();
-  const { add } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleModelChange = async (selectedModelId: TextGenerationModelId) => {
@@ -255,7 +254,7 @@ function ChatModelSelector() {
     })
       .catch(() => {
         setModelId(oldModelId);
-        add({
+        toastManager.add({
           title: "Failed switch to model",
           description: "Try again or contact support",
         });

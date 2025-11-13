@@ -25,7 +25,7 @@ import { useEffect, useRef } from "react";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSWRConfig } from "swr";
-import { useToast } from "@/components/ui/toast";
+import { toastManager } from "@/components/ui/toast";
 
 type CreatorProps = {
   prompt: string;
@@ -194,7 +194,6 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
   const personaGenerationStore = usePersonaGenerationStore();
   const mutateCurrentVersion = usePersonaVersionMutation(personaId);
   const [, setWorkbenchMode] = useWorkbenchMode();
-  const toast = useToast();
   const { mutate: swrMutate } = useSWRConfig();
   const { data: currentVersion } = usePersonaVersionQuery(
     personaId,
@@ -240,7 +239,7 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
         });
       },
       onFinish: () => {
-        toast.add({
+        toastManager.add({
           title: "Finished generating version",
         });
 

@@ -63,7 +63,7 @@ import {
 } from "@/config/shared/image-models";
 import { MenuSeparator } from "@/components/mynth-ui/base/menu";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
-import { useToast } from "@/components/ui/toast";
+import { toastManager } from "@/components/ui/toast";
 
 type ChatMessagesProps = {
   containerRef: React.RefObject<HTMLDivElement>;
@@ -768,7 +768,6 @@ function ChatMessageGenerateImageButton(
     (state) => state.addImageGenerationRun
   );
   const [isGenerating, setIsGenerating] = useState(false);
-  const toast = useToast();
 
   // Get character mode models (support reference images)
   const characterModeModels = useMemo(
@@ -801,35 +800,35 @@ function ChatMessageGenerateImageButton(
         const { code, message } = result.error;
 
         if (code === "CONCURRENT_LIMIT_EXCEEDED") {
-          toast.add({
+          toastManager.add({
             title: "Concurrent generation limit reached",
             description:
               "You've reached the limit of concurrent generations. Upgrade your plan for more.",
             type: "error",
           });
         } else if (code === "SCENE_IMAGE_REQUIRED") {
-          toast.add({
+          toastManager.add({
             title: "Scene image required",
             description:
               "Generate a scene image first in chat settings to use character mode.",
             type: "error",
           });
         } else if (code === "MODEL_DOES_NOT_SUPPORT_REFERENCE_IMAGES") {
-          toast.add({
+          toastManager.add({
             title: "Model incompatible",
             description:
               "This model doesn't support character mode. Try creative mode instead.",
             type: "error",
           });
         } else if (code === "RATE_LIMIT_EXCEEDED") {
-          toast.add({
+          toastManager.add({
             title: "Rate limit exceeded",
             description:
               "You've reached your image generation limit. Please try again later.",
             type: "error",
           });
         } else {
-          toast.add({
+          toastManager.add({
             title: "Failed to generate image",
             description: message,
             type: "error",
@@ -853,7 +852,7 @@ function ChatMessageGenerateImageButton(
       console.error("Failed to generate image:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      toast.add({
+      toastManager.add({
         title: "Failed to generate image",
         description: errorMessage,
         type: "error",

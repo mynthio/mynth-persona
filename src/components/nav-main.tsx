@@ -22,7 +22,7 @@ export function NavMain() {
 
         <SidebarMenuItem>
           <SidebarMenuButton>
-            <HeartRounded /> Library
+            <HeartRounded strokeWidth={2} /> Library
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>

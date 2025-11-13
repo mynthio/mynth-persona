@@ -12,9 +12,11 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
+import TextareaAutosize from "react-textarea-autosize";
 
 import {
   ArrowsClockwiseIcon,
+  ArrowUpIcon,
   CircleNotchIcon,
   PaperPlaneTiltIcon,
   SlidersHorizontalIcon,
@@ -41,6 +43,21 @@ import {
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input";
 import { Button } from "@/components/ui/button";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupText,
+} from "@/components/ui/input-group";
+import { Send01 } from "@untitledui/icons";
+import { IconPlus } from "@tabler/icons-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
 
 type ChatProps = {
   chat: { id: string; mode: ChatMode };
@@ -165,24 +182,46 @@ function ChatPrompt(props: ChatPromptProps) {
   };
 
   return (
-    <PromptInput
-      onSubmit={handleSubmit}
-      className="mt-4 sticky bottom-4 max-w-3xl mx-auto z-50 backdrop-blur-3xl bg-background/80"
-      globalDrop
-      multiple
-    >
-      <PromptInputHeader></PromptInputHeader>
-      <PromptInputBody>
-        <PromptInputTextarea
-          onChange={(e) => setText(e.target.value)}
-          ref={textareaRef}
-          value={text}
+    <div className="sticky bottom-4 grid w-full max-w-xl gap-6 z-10">
+      <InputGroup className="dark:bg-input/30 backdrop-blur-3xl rounded-3xl">
+        <TextareaAutosize
+          data-slot="input-group-control"
+          className="flex field-sizing-content min-h-16 w-full resize-none rounded-3xl bg-transparent px-6 py-4.5 text-base transition-[color,box-shadow] outline-none text-[1.05rem]"
+          placeholder="Type your message..."
         />
-      </PromptInputBody>
-      <PromptInputFooter>
-        <PromptInputSubmit disabled={!text && !status} status={status} />
-      </PromptInputFooter>
-    </PromptInput>
+        <InputGroupAddon align="block-end">
+          <InputGroupButton
+            variant="outline"
+            className="rounded-full"
+            size="icon-xs"
+          >
+            <IconPlus />
+          </InputGroupButton>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <InputGroupButton variant="ghost">Auto</InputGroupButton>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              side="top"
+              align="start"
+              className="[--radius:0.95rem]"
+            >
+              <DropdownMenuItem>Auto</DropdownMenuItem>
+              <DropdownMenuItem>Agent</DropdownMenuItem>
+              <DropdownMenuItem>Manual</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <InputGroupButton
+            variant="default"
+            className="ml-auto size-9 rounded-xl"
+          >
+            <Send01 strokeWidth={1.5} />
+            <span className="sr-only">Send</span>
+          </InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
+    </div>
   );
 }
 

@@ -11,7 +11,7 @@ export default async function HomePage() {
         <Home />
       </GenerationContextProvider>
 
-      <FloatingOrbs className="absolute left-0 top-0 right-0 -z-1 pointer-events-none" />
+      {/* <FloatingOrbs className="absolute left-0 top-0 right-0 -z-1 pointer-events-none" /> */}
     </>
   );
 }

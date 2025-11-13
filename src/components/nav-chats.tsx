@@ -1,49 +1,18 @@
 "use client";
 
-import {
-  MessageSquare,
-  MoreHorizontal,
-  Trash2,
-  Plus,
-  Loader2,
-  BookOpen,
-  ChevronRight,
-  MessagesSquareIcon,
-} from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-  SidebarGroupContent,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
-  SidebarInput,
 } from "@/components/ui/sidebar";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useUserChatsQuery } from "@/app/_queries/use-user-chats.query";
 import { useState } from "react";
-import { deleteChatAction } from "@/actions/delete-chat.action";
-import { toast } from "sonner";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "./ui/collapsible";
 import { MessageChatCircle } from "@untitledui/icons";
 
 export function NavChats() {
@@ -62,13 +31,10 @@ export function NavChats() {
       <SidebarMenu>
         {chats.slice(0, 10).map((chat) => (
           <SidebarMenuItem key={chat.id}>
-            <SidebarMenuButton
-              asChild
-              className="rounded-[0.76rem] h-8 text-[0.84rem]"
-            >
+            <SidebarMenuButton asChild className="[&>svg]:size-3 font-normal">
               <Link href={`/chats/${chat.id}`}>
-                <MessageChatCircle className="size-1" />
-                {chat.title}
+                <MessageChatCircle strokeWidth={1.5} className="size-1" />
+                <span className="truncate">{chat.title}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

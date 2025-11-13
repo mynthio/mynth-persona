@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
-import { Inter, Onest, Space_Mono } from "next/font/google";
+import {
+  Geist,
+  Inter,
+  Montserrat,
+  Onest,
+  Poppins,
+  Space_Mono,
+} from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -21,6 +28,22 @@ const spaceMono = Space_Mono({
   variable: "--font-space-mono",
   subsets: ["latin"],
   weight: ["400", "700"],
+});
+
+const geist = Geist({
+  variable: "--font-geist",
+  subsets: ["latin"],
+});
+
+const poppins = Poppins({
+  variable: "--font-poppins",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
@@ -130,14 +153,21 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
+      <head>
+        <script
+          async
+          crossOrigin="anonymous"
+          src="https://tweakcn.com/live-preview.min.js"
+        />
+      </head>
       <body
-        className={`${inter.variable} ${onest.variable} ${spaceMono.variable} antialiased h-full`}
+        className={`${inter.variable} ${onest.variable} ${spaceMono.variable} ${geist.variable} ${poppins.variable} ${montserrat.variable} antialiased h-full z-0 relative`}
       >
         <Providers>
           <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
 
-            <main className="h-full w-full min-w-0 min-h-0 relative">
+            <main className="h-full w-full min-w-0 min-h-0 relative rounded-xl bg-background">
               {children}
             </main>
           </SidebarProvider>

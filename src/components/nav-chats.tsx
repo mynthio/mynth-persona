@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/sidebar";
 import { useUserChatsQuery } from "@/app/_queries/use-user-chats.query";
 import { useState } from "react";
-import { MessageChatCircle } from "@untitledui/icons";
+import { MessageChatCircle, SearchMd } from "@untitledui/icons";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "./ui/input-group";
 
 export function NavChats() {
   const { isMobile } = useSidebar();
@@ -25,10 +26,20 @@ export function NavChats() {
   const chats = data?.data ?? [];
 
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel>Chats</SidebarGroupLabel>
+    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+      {/* <SidebarGroupLabel>Chats</SidebarGroupLabel> */}
       {/* <SidebarInput placeholder="Type to search..." /> */}
-      <SidebarMenu>
+      <InputGroup className="h-8">
+        <InputGroupInput
+          className="text-xs placeholder:text-xs h-7 py-0.5"
+          placeholder="Search chats..."
+        />
+        <InputGroupAddon>
+          <SearchMd className="size-3" />
+        </InputGroupAddon>
+      </InputGroup>
+
+      <SidebarMenu className="mt-2">
         {chats.slice(0, 10).map((chat) => (
           <SidebarMenuItem key={chat.id}>
             <SidebarMenuButton asChild className="[&>svg]:size-3 font-normal">

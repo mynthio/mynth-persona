@@ -1,7 +1,7 @@
 "use client";
 
 import { createChatWithScenarioAction } from "@/actions/create-chat-with-scenario.action";
-import { Button } from "./mynth-ui/base/button";
+import { Button } from "./ui/button";
 import { useToast } from "./ui/toast";
 import { useState } from "react";
 import { useRouter } from "next/navigation";

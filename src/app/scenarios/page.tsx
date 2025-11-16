@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/mynth-ui/base/button";
+import { Button } from "@/components/ui/button";
 import { PlusIcon } from "@phosphor-icons/react/dist/ssr";
 import { ScenariosList } from "./_components/scenarios-list";
 import { Link } from "@/components/ui/link";
@@ -89,7 +89,6 @@ export default function ScenariosPage() {
 
         <div className="mb-[12px]">
           <Button
-            color={eventFilter === "halloween" ? "primary" : "default"}
             onClick={toggleHalloweenFilter}
           >
             {eventFilter === "halloween" ? "Show All Scenarios" : "Halloween Events Only"}

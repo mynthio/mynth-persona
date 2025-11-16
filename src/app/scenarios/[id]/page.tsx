@@ -1,6 +1,6 @@
 import { Response } from "@/components/ai-elements/response";
-import { Button } from "@/components/mynth-ui/base/button";
-import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { Label } from "@/components/mynth-ui/base/label";
 import {
   Menu,
@@ -131,7 +131,7 @@ export default async function ScenarioPage({
               </div>
             </div>
 
-            <ButtonGroup spacing="compact">
+            <ButtonGroup>
               {/* <Button size="sm" color="primary">
               Chat
             </Button> */}
@@ -227,7 +227,6 @@ export default async function ScenarioPage({
                       personaId={scenarioPersona.personaId}
                       scenarioId={scenario.id}
                       size="sm"
-                      color="primary"
                     >
                       Launch scenario
                     </CreateChatWithScenarioButton>

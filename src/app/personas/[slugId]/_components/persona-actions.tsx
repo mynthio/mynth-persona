@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { CreateChatButton } from "@/components/create-chat-button";
-import { Button } from "@/components/mynth-ui/base/button";
-import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   ChatsTeardropIcon,
   IdentificationCardIcon,
@@ -27,7 +27,7 @@ export function PersonaActions({
   return (
     <>
       <ButtonGroup>
-        <CreateChatButton personaId={personaId} size="sm" color="primary">
+        <CreateChatButton personaId={personaId} size="sm">
           <ChatsTeardropIcon /> Chat
         </CreateChatButton>
 

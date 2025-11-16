@@ -11,7 +11,7 @@ import {
   useChatStatus,
 } from "@ai-sdk-tools/store";
 import { Message, MessageContent } from "@/components/ai-elements/message";
-import { Button } from "@/components/mynth-ui/base/button";
+import { Button } from "@/components/ui/button";
 import {
   ArrowsCounterClockwiseIcon,
   BrainIcon,
@@ -25,7 +25,10 @@ import {
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
-import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
+import {
+  ButtonGroup,
+  ButtonGroupSeparator,
+} from "@/components/ui/button-group";
 import { Response } from "@/components/ai-elements/response";
 import { TextareaAutosize } from "@/components/mynth-ui/base/textarea";
 import { nanoid } from "nanoid";
@@ -196,7 +199,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
   return (
     <div
       ref={containerRef}
-      className="w-full h-full max-w-[42rem] mx-auto transition-[padding] duration-300 relative z-0"
+      className="w-full h-full max-w-3xl mx-auto transition-[padding] duration-300 relative z-0"
       style={{ paddingBottom: dynamicPaddingBottom }}
     >
       {isLoadingMore && (
@@ -328,7 +331,7 @@ function ChatMessage(props: ChatMessageProps) {
       }`}
     >
       <div className="w-full flex items-end justify-end group-[.is-assistant]:flex-row-reverse gap-[4px]">
-        <MessageContent>
+        <MessageContent className="group-[.is-user]:rounded-3xl group-[.is-user]:rounded-br-sm group-[.is-user]:px-6">
           {editMessageId === props.message.id &&
           props.message.role === "user" ? (
             <EditMessage
@@ -519,7 +522,7 @@ function EditMessage(props: EditMessageProps) {
           >
             Cancel
           </Button>
-          <Button type="submit" size="sm" color="primary">
+          <Button type="submit" size="sm">
             Save
           </Button>
         </ButtonGroup>
@@ -598,14 +601,11 @@ function ChatMessageActions(props: ChatMessageActions) {
   if (editMessageId === message.id) return null;
 
   return (
-    <ButtonGroup
-      spacing="compact"
-      className="group-[.is-assistant]:self-start pointer-fine:opacity-20 pointer-fine:hover:opacity-100 transition-opacity duration-250"
-    >
+    <ButtonGroup className="group-[.is-assistant]:self-start pointer-fine:opacity-20 pointer-fine:hover:opacity-100 transition-opacity duration-250">
       {message.role === "assistant" && (
         <>
           <ChatMessageRegenerate messageId={message.id} />
-          <ButtonGroup.Separator />
+          <ButtonGroupSeparator />
         </>
       )}
       {shouldShowLoadingIndicator ? (
@@ -622,14 +622,14 @@ function ChatMessageActions(props: ChatMessageActions) {
 
       {message.role === "assistant" && (
         <>
-          <ButtonGroup.Separator />
+          <ButtonGroupSeparator />
           <ChatMessageGenerateImageButton messageId={message.id} />
         </>
       )}
 
       {message.role === "user" && (
         <>
-          <ButtonGroup.Separator />
+          <ButtonGroupSeparator />
           <ChatMessageEditButton messageId={message.id} />
         </>
       )}

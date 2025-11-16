@@ -23,7 +23,7 @@ import { useLocalStorage } from "@uidotdev/usehooks";
 import useSWRInfinite from "swr/infinite";
 import { fetcher } from "@/lib/fetcher";
 import { Menu } from "@base-ui-components/react/menu";
-import { Button } from "@/components/mynth-ui/base/button";
+import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
 import { ProgressiveBlur } from "@/components/ui/progressive-blur";
 

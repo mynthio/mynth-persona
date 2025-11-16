@@ -20,9 +20,7 @@ const FAILURE_STATUSES = new Set([
   "TIMED_OUT",
 ]);
 
-const parseRunOutput = (
-  output: unknown
-): { mediaId?: string } | undefined => {
+const parseRunOutput = (output: unknown): { mediaId?: string } | undefined => {
   if (!output || typeof output !== "object") {
     return undefined;
   }
@@ -71,13 +69,7 @@ export function ChatSettingsSceneImageInProgress({
       // Remove failed runs from the store
       removeSceneImageGenerationRun(runId);
     }
-  }, [
-    latestRunOutput,
-    removeSceneImageGenerationRun,
-    run,
-    runId,
-    onComplete,
-  ]);
+  }, [latestRunOutput, removeSceneImageGenerationRun, run, runId, onComplete]);
 
   return null;
 }

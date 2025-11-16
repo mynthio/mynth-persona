@@ -10,7 +10,6 @@ import {
   SparkleIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Popover, PopoverPopup, PopoverTrigger } from "@/components/ui/popover";
 import { Select } from "@base-ui-components/react/select";
 import { AnimatePresence, motion } from "motion/react";
 import posthog from "posthog-js";

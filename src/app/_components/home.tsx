@@ -32,17 +32,13 @@ import { snakeCase, spaceCase } from "case-anything";
 import { Response } from "@/components/ai-elements/response";
 import { useGenerationContext } from "@/contexts/generation-context";
 import { z } from "zod";
-import { Button } from "@/components/mynth-ui/base/button";
-import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
+import { Button } from "@/components/ui/button";
+import { ButtonGroup, ButtonGroupSeparator } from "@/components/ui/button-group";
 import {
   Popover,
   PopoverContent,
-  PopoverFooter,
-  PopoverPopup,
-  PopoverPositioner,
-  PopoverSubmitButton,
   PopoverTrigger,
-} from "@/components/mynth-ui/base/popover";
+} from "@/components/ui/popover";
 import { Input } from "@/components/mynth-ui/base/input";
 import { Form } from "@base-ui-components/react/form";
 import {
@@ -393,7 +389,7 @@ function Footer({
                   Workbench
                 </Link>
 
-                <CreateChatButton personaId={personaId} color="primary">
+                <CreateChatButton personaId={personaId}>
                   <ChatsTeardropIcon size={16} />
                 </CreateChatButton>
 
@@ -593,7 +589,7 @@ function PersonaStreamingResult({
           <ButtonGroup>
             <AddCustomPropertyPopover onAdd={addNewSection} />
 
-            <ButtonGroup.Separator />
+            <ButtonGroupSeparator />
 
             {randomFollowUps.map((item) => (
               <Button
@@ -655,42 +651,40 @@ function AddCustomPropertyPopover({
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger
-        render={
-          <Button disabled={isGenerating}>
-            <PlusIcon size={12} /> Custom
-          </Button>
-        }
-      />
+      <PopoverTrigger asChild>
+        <Button disabled={isGenerating}>
+          <PlusIcon size={12} /> Custom
+        </Button>
+      </PopoverTrigger>
 
-      <PopoverPositioner side="top" align="start">
-        <PopoverPopup className="min-w-[260px]">
-          <Form
-            onSubmit={async (e) => {
-              e.preventDefault();
+      <PopoverContent side="top" align="start" className="min-w-[260px]">
+        <Form
+          onSubmit={async (e) => {
+            e.preventDefault();
 
-              const formData = new FormData(e.currentTarget);
+            const formData = new FormData(e.currentTarget);
 
-              /**
-               * Normalize before validation, so users can use spaces, dashes, and underscores
-               */
-              const normalizedProperty = snakeCase(
-                formData.get("property")?.toString() ?? "",
-                {
-                  keepSpecialCharacters: false,
-                }
+            /**
+             * Normalize before validation, so users can use spaces, dashes, and underscores
+             */
+            const normalizedProperty = snakeCase(
+              formData.get("property")?.toString() ?? "",
+              {
+                keepSpecialCharacters: false,
+              }
+            );
+
+            const property =
+              await personaNewCustomPropertyNameSchema.parseAsync(
+                normalizedProperty
               );
 
-              const property =
-                await personaNewCustomPropertyNameSchema.parseAsync(
-                  normalizedProperty
-                );
-
-              onAdd(property);
-              setIsOpen(false);
-            }}
-          >
-            <PopoverContent>
+            onAdd(property);
+            setIsOpen(false);
+          }}
+        >
+          <div className="space-y-3">
+            <div>
               <p className="font-onest text-[0.75rem] font-[500] text-surface-foreground/50 mb-[6px] px-[4px]">
                 Property name
               </p>
@@ -701,13 +695,18 @@ function AddCustomPropertyPopover({
                 minLength={1}
                 maxLength={CUSTOM_PROPERTY_NAME_MAX_LENGTH}
               />
-            </PopoverContent>
-            <PopoverFooter>
-              <PopoverSubmitButton type="submit">Add</PopoverSubmitButton>
-            </PopoverFooter>
-          </Form>
-        </PopoverPopup>
-      </PopoverPositioner>
+            </div>
+            <div className="w-full flex items-center justify-center">
+              <Button
+                type="submit"
+                className="bg-background text-surface hover:text-surface hover:bg-background/90 w-full"
+              >
+                Add
+              </Button>
+            </div>
+          </div>
+        </Form>
+      </PopoverContent>
     </Popover>
   );
 }

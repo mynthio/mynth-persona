@@ -14,11 +14,10 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Link } from "./ui/link";
-import { SidebarIcon } from "@phosphor-icons/react/dist/ssr";
 import { IconLayoutSidebar } from "@tabler/icons-react";
+import { CreateButton } from "@/components/create-button";
+import { Link } from "./ui/link";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -31,17 +30,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <div className="group-data-[collapsible=icon]:hidden flex flex-row items-center gap-2 justify-center">
-              <img
-                className="aspect-square size-8 rounded-md group-data-[collapsible=icon]:hidden"
-                src="https://mynth-persona-prod.b-cdn.net/static/prsna-logo.webp"
-                alt="Prsna"
-              />
-            </div>
+            <div className="group-data-[collapsible=icon]:hidden flex flex-row items-center gap-2 justify-between">
+              <Link href="/" className="group-data-[collapsible=icon]:hidden">
+                <img
+                  className="aspect-square size-8 rounded-md"
+                  src="https://mynth-persona-prod.b-cdn.net/static/prsna-logo.webp"
+                  alt="Prsna"
+                />
+              </Link>
 
-            <SidebarMenuButton className="group-data-[collapsible=icon]:flex hidden">
-              <IconLayoutSidebar />
-            </SidebarMenuButton>
+              <CreateButton />
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

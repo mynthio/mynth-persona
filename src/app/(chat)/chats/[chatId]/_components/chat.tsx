@@ -11,7 +11,7 @@ import { DefaultChatTransport } from "ai";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
-import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
+import { ButtonGroup } from "@/components/ui/button-group";
 import TextareaAutosize from "react-textarea-autosize";
 
 import {

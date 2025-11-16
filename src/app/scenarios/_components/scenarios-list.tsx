@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/mynth-ui/base/button";
+import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
 import {
   GlobeIcon,
@@ -97,7 +97,6 @@ export function ScenariosList({ initialData, eventFilter }: ScenariosListProps) 
       {(hasPrevious || hasMore) && (
         <div className="flex items-center justify-center gap-[8px] mt-[24px]">
           <Button
-            color="default"
             onClick={handlePrevious}
             disabled={!hasPrevious || isLoading}
           >
@@ -105,7 +104,6 @@ export function ScenariosList({ initialData, eventFilter }: ScenariosListProps) 
             Previous
           </Button>
           <Button
-            color="default"
             onClick={handleNext}
             disabled={!hasMore || isLoading}
           >

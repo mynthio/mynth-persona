@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertDialog } from "@base-ui-components/react/alert-dialog";
-import { Button } from "@/components/mynth-ui/base/button";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { deleteChatAction } from "@/actions/delete-chat.action";
 import { useSWRConfig } from "swr";
@@ -32,7 +32,7 @@ export function DeleteChat() {
     <AlertDialog.Root>
       <AlertDialog.Trigger
         render={
-          <Button className="shrink-0" color="red" variant="outline">
+          <Button className="shrink-0" variant="outline">
             Delete
           </Button>
         }
@@ -50,7 +50,7 @@ export function DeleteChat() {
             <AlertDialog.Close render={<Button />}>Cancel</AlertDialog.Close>
             <AlertDialog.Close
               onClick={handleConfirm}
-              render={<Button color="red" variant="outline" />}
+              render={<Button variant="outline" />}
               aria-disabled={isDeleting}
             >
               Delete

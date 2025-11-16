@@ -1,6 +1,10 @@
 "use client";
 
-import { Dialog } from "@base-ui-components/react/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   ArrowClockwiseIcon,
   CircleNotchIcon,
@@ -9,7 +13,7 @@ import {
   SparkleIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { useMemo, useState } from "react";
-import { Button } from "@/components/mynth-ui/base/button";
+import { Button } from "@/components/ui/button";
 import { useChatPersonas } from "../_contexts/chat-personas.context";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { useToast } from "@/components/ui/toast";
@@ -213,40 +217,7 @@ export function ChatSettingsImages() {
               <CircleNotchIcon className="animate-spin" />
             </div>
           ) : sceneImageUrl ? (
-            <Dialog.Root modal={false}>
-              <Dialog.Trigger>
-                <img
-                  src={sceneImageUrl}
-                  alt="Scene"
-                  className="size-[42px] rounded-[16px] object-cover object-top"
-                />
-              </Dialog.Trigger>
-              <Dialog.Portal>
-                <Dialog.Backdrop className="fixed inset-0 z-overlay bg-background/20 backdrop-blur-[1px] transition-all duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 data-[starting-style]:backdrop-blur-none dark:opacity-70" />
-                <Dialog.Popup
-                  className="fixed z-dialog left-1/2 max-w-[800px] h-[80vh]
-            -translate-x-1/2 -translate-y-1/2
-
-            top-[calc(50%+1.25rem*var(--nested-dialogs))] scale-[calc(1-0.03*var(--nested-dialogs))] data-[nested-dialog-open]:grayscale-100 data-[nested-dialog-open]:after:absolute data-[nested-dialog-open]:after:inset-0 data-[nested-dialog-open]:after:rounded-[inherit] data-[nested-dialog-open]:after:bg-background/10 data-[nested-dialog-open]:after:backdrop-blur-[1px]
-            rounded-[32px] transition-all duration-250 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0
-            flex flex-col
-            "
-                >
-                  <div className="w-full h-full flex flex-col items-center justify-center gap-[12px]">
-                    <img
-                      src={sceneImageUrl}
-                      alt="Scene"
-                      className="w-full h-full shrink object-contain rounded-[22px]"
-                    />
-                    <Dialog.Close
-                      render={<Button className="shrink-0" color="primary" />}
-                    >
-                      Close
-                    </Dialog.Close>
-                  </div>
-                </Dialog.Popup>
-              </Dialog.Portal>
-            </Dialog.Root>
+            <SceneImageDialog imageUrl={sceneImageUrl} />
           ) : null}
 
           <Menu>
@@ -365,43 +336,61 @@ export function ChatSettingsImages() {
   );
 }
 
+function SceneImageDialog({ imageUrl }: { imageUrl: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <button onClick={() => setIsOpen(true)}>
+        <img
+          src={imageUrl}
+          alt="Scene"
+          className="size-[42px] rounded-[16px] object-cover object-top"
+        />
+      </button>
+      <DialogContent className="max-w-[800px] h-[80vh]">
+        <DialogTitle className="sr-only">Scene Image</DialogTitle>
+        <div className="w-full h-full flex flex-col items-center justify-center gap-[12px]">
+          <img
+            src={imageUrl}
+            alt="Scene"
+            className="w-full h-full shrink object-contain rounded-[22px]"
+          />
+          <Button className="shrink-0" onClick={() => setIsOpen(false)}>
+            Close
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function ImageGalleryItem({ imageId }: { imageId: string }) {
   const imageUrl = getMediaImageUrl(imageId, "full");
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Dialog.Root modal={false} open={isOpen} onOpenChange={setIsOpen}>
-      <Dialog.Trigger>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <button onClick={() => setIsOpen(true)}>
         <img
           src={imageUrl}
           alt="Chat image"
           className="w-full aspect-square rounded-[12px] object-cover cursor-pointer hover:opacity-90 transition-opacity"
         />
-      </Dialog.Trigger>
-      <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 z-overlay bg-background/20 backdrop-blur-[1px] transition-all duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 data-[starting-style]:backdrop-blur-none dark:opacity-70" />
-        <Dialog.Popup
-          className="fixed z-dialog left-1/2 max-w-[800px] h-[80vh]
-            -translate-x-1/2 -translate-y-1/2
-            top-[calc(50%+1.25rem*var(--nested-dialogs))] scale-[calc(1-0.03*var(--nested-dialogs))] data-[nested-dialog-open]:grayscale-100 data-[nested-dialog-open]:after:absolute data-[nested-dialog-open]:after:inset-0 data-[nested-dialog-open]:after:rounded-[inherit] data-[nested-dialog-open]:after:bg-background/10 data-[nested-dialog-open]:after:backdrop-blur-[1px]
-            rounded-[32px] transition-all duration-250 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0
-            flex flex-col p-[24px]
-            "
-        >
-          <div className="w-full h-full flex flex-col items-center justify-center gap-[12px]">
-            <img
-              src={imageUrl}
-              alt="Chat image"
-              className="w-full h-full shrink object-contain rounded-[22px]"
-            />
-            <Dialog.Close
-              render={<Button className="shrink-0" color="primary" />}
-            >
-              Close
-            </Dialog.Close>
-          </div>
-        </Dialog.Popup>
-      </Dialog.Portal>
-    </Dialog.Root>
+      </button>
+      <DialogContent className="max-w-[800px] h-[80vh]">
+        <DialogTitle className="sr-only">Chat Image</DialogTitle>
+        <div className="w-full h-full flex flex-col items-center justify-center gap-[12px]">
+          <img
+            src={imageUrl}
+            alt="Chat image"
+            className="w-full h-full shrink object-contain rounded-[22px]"
+          />
+          <Button className="shrink-0" onClick={() => setIsOpen(false)}>
+            Close
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

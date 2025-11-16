@@ -1,13 +1,12 @@
 "use client";
 
-import { Button } from "@/components/mynth-ui/base/button";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogBackdrop,
-  DialogPopup,
-  DialogPortal,
+  DialogContent,
+  DialogHeader,
   DialogTitle,
-} from "@/components/mynth-ui/base/dialog";
+} from "@/components/ui/dialog";
 import { Form } from "@/components/mynth-ui/base/form";
 import { Field } from "@/components/mynth-ui/base/field";
 import { Input } from "@/components/mynth-ui/base/input";
@@ -20,12 +19,10 @@ import { publishScenarioFormSchema } from "@/schemas/shared";
 import {
   Popover,
   PopoverContent,
-  PopoverPopup,
-  PopoverPositioner,
   PopoverTrigger,
-} from "@/components/mynth-ui/base/popover";
+} from "@/components/ui/popover";
 import { InfoIcon } from "@phosphor-icons/react/dist/ssr";
-import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { DISCORD_INVITE_URL } from "@/lib/constants";
 import { ScrollArea } from "@/components/mynth-ui/base/scroll-area";
 import { publishScenarioAction } from "@/actions/scenarios";
@@ -43,17 +40,16 @@ export function PublishScenarioDialog() {
       open={Boolean(action === "publish")}
       onOpenChange={() => router.replace(`/scenarios/${params.id}`)}
     >
-      <DialogPortal>
-        <DialogBackdrop />
-        <DialogPopup className="p-0 overflow-hidden justify-center">
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
           <DialogTitle className="sr-only">Publish scenario</DialogTitle>
-          <ScrollArea>
-            <div className="py-[32px]">
-              <PublishScenarioForm scenarioId={params.id} />
-            </div>
-          </ScrollArea>
-        </DialogPopup>
-      </DialogPortal>
+        </DialogHeader>
+        <ScrollArea className="max-h-[calc(100vh-10rem)]">
+          <div className="py-4">
+            <PublishScenarioForm scenarioId={params.id} />
+          </div>
+        </ScrollArea>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -235,7 +231,7 @@ function PublishScenarioForm(props: PublishScenarioFormProps) {
 
         <ButtonGroup className="justify-end">
           <PublishInfo />
-          <Button type="submit" color="primary" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Publishing..." : "Publish Scenario"}
           </Button>
         </ButtonGroup>
@@ -247,43 +243,43 @@ function PublishScenarioForm(props: PublishScenarioFormProps) {
 function PublishInfo() {
   return (
     <Popover modal={false}>
-      <PopoverTrigger nativeButton render={<Button size="icon" />}>
-        <InfoIcon />
+      <PopoverTrigger asChild>
+        <Button size="icon">
+          <InfoIcon />
+        </Button>
       </PopoverTrigger>
-      <PopoverPositioner side="top">
-        <PopoverPopup className="max-w-[420px]">
-          <PopoverContent>
-            <h3 className="text-[1.05rem] font-[500] font-onest">
-              Publishing scenario
-            </h3>
+      <PopoverContent side="top" className="max-w-[420px]">
+        <div className="space-y-2">
+          <h3 className="text-[1.05rem] font-[500] font-onest">
+            Publishing scenario
+          </h3>
 
-            <p>
-              After you submit the scenario to publish, we will perform an
-              automated AI review of scenario content to make sure the content
-              is appropraite. This process may take few minutes, before the
-              scenario is published.
-              <br />
-              <br /> Scenario might not be published if it has inappropriate
-              content.
-              <br />
-              <br /> Scenario background image will be automatically created
-              with AI. For now this is only option available, but we plan more
-              customization in future.
-              <br />
-              <br />
-              In case of any issue, please report them on our Discord:{" "}
-              <a
-                href={DISCORD_INVITE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-purple-500 hover:text-purple-600"
-              >
-                Discord
-              </a>
-            </p>
-          </PopoverContent>
-        </PopoverPopup>
-      </PopoverPositioner>
+          <p className="text-sm">
+            After you submit the scenario to publish, we will perform an
+            automated AI review of scenario content to make sure the content
+            is appropraite. This process may take few minutes, before the
+            scenario is published.
+            <br />
+            <br /> Scenario might not be published if it has inappropriate
+            content.
+            <br />
+            <br /> Scenario background image will be automatically created
+            with AI. For now this is only option available, but we plan more
+            customization in future.
+            <br />
+            <br />
+            In case of any issue, please report them on our Discord:{" "}
+            <a
+              href={DISCORD_INVITE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-500 hover:text-purple-600"
+            >
+              Discord
+            </a>
+          </p>
+        </div>
+      </PopoverContent>
     </Popover>
   );
 }

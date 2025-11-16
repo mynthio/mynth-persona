@@ -15,6 +15,8 @@ import { ChatIntro } from "./_components/chat-intro";
 import { ChatSettings } from "./_components/chat-settings";
 import { ChatSettings as ChatSettingsSchema } from "@/schemas/backend/chats/chat.schema";
 import { Provider } from "@ai-sdk-tools/store";
+import { ChatTopBar } from "./_components/chat-top-bar";
+import { ChatSidebar } from "./_components/chat-sidebar";
 
 export default async function ChatDetailPage({
   params,
@@ -95,8 +97,18 @@ export default async function ChatDetailPage({
               branches={branches}
               activeBranch={leafId}
             >
-              {hasNoMessages && <ChatIntro />}
-              <Chat chat={chat} initialMessages={initialMessages.messages} />
+              <div className="flex">
+                <div className="flex flex-col w-full">
+                  <ChatTopBar className="shrink-0" />
+                  {hasNoMessages && <ChatIntro />}
+                  <Chat
+                    chat={chat}
+                    initialMessages={initialMessages.messages}
+                  />
+                </div>
+
+                <ChatSidebar className="shrink-0" />
+              </div>
               <ChatSettings defaultOpen={areSettingsOpen} />
             </ChatBranchesProvider>
           </ChatPersonasProvider>

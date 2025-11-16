@@ -7,16 +7,15 @@ import {
   UserIcon,
   XIcon,
 } from "@phosphor-icons/react/dist/ssr";
-import { Button } from "./mynth-ui/base/button";
-import { ButtonGroup } from "./mynth-ui/base/button-group";
+import { Button } from "./ui/button";
+import { ButtonGroup } from "./ui/button-group";
 import {
   Dialog,
-  DialogTrigger,
-  DialogBackdrop,
-  DialogPortal,
-  DialogPopup,
+  DialogContent,
+  DialogHeader,
   DialogTitle,
-} from "./mynth-ui/base/dialog";
+  DialogTrigger,
+} from "./ui/dialog";
 import { Input } from "./mynth-ui/base/input";
 import {
   useState,
@@ -174,16 +173,12 @@ export function PersonaSelectorTrigger({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger render={asChild && children ? children : <Button />}>
-        {!asChild && (children || "Select Persona")}
+      <DialogTrigger asChild={asChild}>
+        {asChild && children ? children : <Button>{children || "Select Persona"}</Button>}
       </DialogTrigger>
-
-      <DialogPortal>
-        <DialogBackdrop />
-        <DialogPopup>
-          <PersonaSelectorContent />
-        </DialogPopup>
-      </DialogPortal>
+      <DialogContent className="max-w-2xl h-[600px] max-h-[calc(100vh-3rem)]">
+        <PersonaSelectorContent />
+      </DialogContent>
     </Dialog>
   );
 }
@@ -336,7 +331,9 @@ function PersonaSelectorContent() {
 
   return (
     <>
-      <DialogTitle className="sr-only">Select Persona</DialogTitle>
+      <DialogHeader>
+        <DialogTitle className="sr-only">Select Persona</DialogTitle>
+      </DialogHeader>
 
       <div className="w-full h-full flex flex-col">
         {/* Search and filter section */}

@@ -3,12 +3,6 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { PanelLeftIcon } from "lucide-react";
-import {
-  IconLayoutSidebar,
-  IconLayoutSidebarFilled,
-  IconLayoutSidebarRightFilled,
-} from "@tabler/icons-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -28,9 +22,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { SidebarIcon } from "@phosphor-icons/react/dist/ssr";
-import { TextureOverlay } from "./texture-overlay";
-import { LayoutLeft as LayoutLeftIcon } from "@untitledui/icons";
+import { FlexAlignLeft, LayoutLeft as LayoutLeftIcon } from "@untitledui/icons";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -265,7 +257,7 @@ function SidebarTrigger({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, open } = useSidebar();
 
   return (
     <Button
@@ -280,7 +272,7 @@ function SidebarTrigger({
       }}
       {...props}
     >
-      <LayoutLeftIcon />
+      {open ? <FlexAlignLeft /> : <LayoutLeftIcon />}
 
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
@@ -493,7 +485,7 @@ const sidebarMenuButtonVariants = cva(
       size: {
         default: "h-8 text-sm",
         sm: "h-7 text-xs",
-        lg: "h-12 text-sm group-data-[collapsible=icon]:p-0!",
+        lg: "h-8.5 text-base group-data-[collapsible=icon]:p-0! [&>svg]:size-4.5 gap-3",
       },
     },
     defaultVariants: {

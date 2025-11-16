@@ -12,7 +12,7 @@ import {
 } from "@/components/mynth-ui/base/menu";
 import { Input } from "@/components/mynth-ui/base/input";
 import { Label } from "@/components/mynth-ui/base/label";
-import { Button } from "@/components/mynth-ui/base/button";
+import { Button } from "@/components/ui/button";
 import { chatConfig } from "@/config/shared/chat/chat-models.config";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";

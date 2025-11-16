@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/mynth-ui/base/button";
+import { Button } from "@/components/ui/button";
 import { useChatActions, useMessageCount } from "@ai-sdk-tools/store";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import { useChatPersonas } from "../_contexts/chat-personas.context";

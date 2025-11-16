@@ -54,7 +54,6 @@ export default async function ChatsPage({ searchParams }: PageProps<"/chats">) {
 
           <CreateChatButton
             personaId={randomPersona.id}
-            color="primary"
             className="w-full mx-auto"
           >
             Start Chat

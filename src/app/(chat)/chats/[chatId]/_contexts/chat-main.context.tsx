@@ -17,6 +17,8 @@ import type { TextGenerationModelId } from "@/config/shared/models/text-generati
 export interface ChatContextValue {
   chatId: string;
   mode: ChatMode;
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
   setMode: (mode: ChatMode) => void;
   settings: ChatSettings;
   modelId?: TextGenerationModelId;
@@ -63,10 +65,18 @@ export function ChatMainProvider({
 
   const [editMessageId, setEditMessageIdState] = useState<string | null>(null);
 
+  const [sidebarOpen, setSidebarOpenState] = useState<boolean>(true);
+
+  const setSidebarOpen = useCallback((open: boolean) => {
+    setSidebarOpenState(open);
+  }, []);
+
   const value = useMemo<ChatContextValue>(
     () => ({
       chatId,
       mode: modeState,
+      sidebarOpen,
+      setSidebarOpen,
       setMode,
       settings,
       modelId,
@@ -78,6 +88,8 @@ export function ChatMainProvider({
     [
       chatId,
       modeState,
+      sidebarOpen,
+      setSidebarOpen,
       setMode,
       settings,
       modelId,

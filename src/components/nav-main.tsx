@@ -1,14 +1,12 @@
 "use client";
 
-import { HomeIcon, ImageIcon } from "lucide-react";
-
 import {
   SidebarGroup,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { HeartRounded } from "@untitledui/icons";
+import { Globe04, HeartRounded } from "@untitledui/icons";
 
 export function NavMain() {
   return (
@@ -21,8 +19,15 @@ export function NavMain() {
         </SidebarMenuItem> */}
 
         <SidebarMenuItem>
-          <SidebarMenuButton>
-            <HeartRounded strokeWidth={2} /> Library
+          <SidebarMenuButton size="lg">
+            <Globe04 strokeWidth={2} />
+            <span>PrsnaNet</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+
+        <SidebarMenuItem>
+          <SidebarMenuButton size="lg">
+            <HeartRounded strokeWidth={2} /> <span>Library</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>

@@ -3,12 +3,10 @@
 import * as React from "react";
 import {
   Accordion,
-  AccordionHeader,
+  AccordionContent,
   AccordionItem,
-  AccordionPanel,
   AccordionTrigger,
-} from "@/components/mynth-ui/base/accordion";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr";
+} from "@/components/ui/accordion";
 
 type FaqItem = {
   question: string;
@@ -80,13 +78,36 @@ const FAQ_ITEMS: FaqItem[] = [
   {
     question: "Do you offer refunds?",
     answer: (
-      <p>
-        You bet we do! Just hit us up manually for now - shoot an email to{" "}
-        <a href="mailto:hi@prsna.app" className="underline">
-          hi@prsna.app
-        </a>{" "}
-        and we'll sort you out.
-      </p>
+      <>
+        <p>
+          Yep! Refunds are based on usage since we have a free tier for testing:
+        </p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li>
+            Under 50% of monthly quota used = refund available (full or partial)
+          </li>
+          <li>
+            Over 50% used = non-refundable (you've used the service
+            substantially)
+          </li>
+          <li>Technical issues = always refunded</li>
+        </ul>
+        <p>
+          Email{" "}
+          <a href="mailto:hi@prsna.app" className="underline">
+            hi@prsna.app
+          </a>{" "}
+          within 30 days to request one.
+        </p>
+        <p>
+          We're doing our best to keep prices low and offer a generous free
+          tier, but here's the thing - every generation costs us real money in
+          AI API fees, and those costs are non-refundable on our end. When
+          someone uses the service heavily and then refunds, we're stuck with
+          those bills. We're a small operation trying to make this sustainable,
+          so we really appreciate your understanding on this policy!
+        </p>
+      </>
     ),
   },
   {
@@ -107,17 +128,14 @@ export function PlansFAQ() {
       <h2 className="text-lg font-medium text-surface-foreground">
         Frequently Asked Questions
       </h2>
-      <div className="mt-4 rounded-[16px] border border-surface-200 overflow-hidden">
-        <Accordion>
+      <div className="mt-4">
+        <Accordion type="single" collapsible>
           {FAQ_ITEMS.map((item, idx) => (
-            <AccordionItem key={idx}>
-              <AccordionHeader>
-                <AccordionTrigger>
-                  <span className="pr-2">{item.question}</span>
-                  <PlusIcon className="mr-1 size-3 shrink-0 transition-all ease-out group-data-[panel-open]:rotate-45 group-data-[panel-open]:scale-110" />
-                </AccordionTrigger>
-              </AccordionHeader>
-              <AccordionPanel>{item.answer}</AccordionPanel>
+            <AccordionItem key={idx} value={`item-${idx}`}>
+              <AccordionTrigger>{item.question}</AccordionTrigger>
+              <AccordionContent className="prose dark:prose-invert">
+                {item.answer}
+              </AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>

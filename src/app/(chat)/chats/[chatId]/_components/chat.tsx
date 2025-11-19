@@ -8,34 +8,27 @@ import {
   useChatStatus,
 } from "@ai-sdk-tools/store";
 import { DefaultChatTransport } from "ai";
-import { FormEvent, useEffect, useRef, useState } from "react";
-import {
-  PromptInput,
-  PromptInputBody,
-  PromptInputMessage,
-  PromptInputTextarea,
-  PromptInputFooter,
-  PromptInputTools,
-} from "@/components/mynth-ui/ai/prompt-input";
+import { FormEvent, useRef, useState } from "react";
+
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
-import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
-import { Button } from "@/components/mynth-ui/base/button";
-import {
-  ArrowsClockwiseIcon,
-  CircleNotchIcon,
-  PaperPlaneTiltIcon,
-  SlidersHorizontalIcon,
-} from "@phosphor-icons/react/dist/ssr";
+import TextareaAutosize from "react-textarea-autosize";
+
+import { StopIcon } from "@phosphor-icons/react/dist/ssr";
 import { ChatMode } from "@/schemas/backend/chats/chat.schema";
 import { nanoid } from "nanoid";
 import ChatMessages from "./chat-messages";
-import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import { ChatModelPickerMenu } from "./chat-model-picker-menu";
 import { updateChatAction } from "@/actions/update-chat.action";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
-import { useToast } from "@/components/ui/toast";
+import { toast } from "sonner";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+} from "@/components/ui/input-group";
+import { Send01 } from "@untitledui/icons";
 
 type ChatProps = {
   chat: { id: string; mode: ChatMode };
@@ -85,7 +78,7 @@ export default function Chat(props: ChatProps) {
   });
 
   return (
-    <div className="w-full flex flex-col justify-center items-center h-full mx-auto px-[12px] md:px-0 mt-auto">
+    <div className="w-full flex flex-col justify-center items-center h-full mx-auto px-[12px] md:px-0 mt-auto relative z-0">
       <ChatMessages
         containerRef={messagesContainerRef}
         shouldScrollRef={shouldScrollRef}
@@ -106,50 +99,23 @@ type ChatPromptProps = {
 };
 
 function ChatPrompt(props: ChatPromptProps) {
-  const { sendMessage, regenerate } = useChatActions();
+  const [text, setText] = useState<string>("");
+
+  const { sendMessage, regenerate, stop } = useChatActions();
   const status = useChatStatus();
   const messages = useChatMessages();
 
-  const { openSettings } = useSettingsNavigation();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Scroll to position last user message at top of viewport when new message is sent
-  useEffect(() => {
-    if (props.shouldScrollRef.current && props.messagesContainerRef.current) {
-      props.setShouldScroll(false);
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-      // Wait for the next animation frame to ensure DOM is updated
-      const rafId = requestAnimationFrame(() => {
-        const container = props.messagesContainerRef.current;
-        if (!container) return;
+    const hasText = Boolean(text.trim());
 
-        // Find the last user message by iterating from the end of direct children
-        const messageElements = Array.from(container.children);
-        let lastUserMessageElement: Element | null = null;
-        for (let i = messageElements.length - 1; i >= 0; i--) {
-          const element = messageElements[i];
-          if (element.classList.contains("is-user")) {
-            lastUserMessageElement = element;
-            break;
-          }
-        }
-
-        if (lastUserMessageElement) {
-          // Use scrollIntoView with scroll-margin-top handled via CSS on user messages
-          lastUserMessageElement.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-        }
-      });
-
-      return () => cancelAnimationFrame(rafId);
+    if (!hasText) {
+      return;
     }
-  }, [messages.length, props.messagesContainerRef, props.setShouldScroll]);
 
-  const handleSubmit = async (
-    message: PromptInputMessage,
-    event: FormEvent<HTMLFormElement>
-  ) => {
     if (status !== "ready") {
       if (status === "error") {
         regenerate({
@@ -161,8 +127,6 @@ function ChatPrompt(props: ChatPromptProps) {
         return;
       }
     }
-    const text = message.text?.trim();
-    if (!text || text === "") return;
 
     // Set flag to trigger scroll after message is added
     props.setShouldScroll(true);
@@ -182,63 +146,61 @@ function ChatPrompt(props: ChatPromptProps) {
     );
 
     // Clear input field
+    setText("");
     event.currentTarget.reset();
   };
 
   return (
-    <PromptInput
-      onSubmit={handleSubmit}
-      className="sticky bottom-[12px] z-20 w-full max-w-[40rem] items-start h-auto max-h-auto mx-auto mb-[12px]"
-    >
-      <PromptInputBody className="w-full max-w-full h-full">
-        <PromptInputTextarea
-          disabled={status !== "ready"}
-          placeholder="Write a message..."
-          aria-label="Message Input"
-          className="w-full h-full h-auto"
-        />
-      </PromptInputBody>
-
-      <PromptInputFooter className="w-full px-[24px] h-[42px] shrink-0 mb-[9px]">
-        <PromptInputTools className="w-full">
-          <ButtonGroup>
+    <div className="sticky bottom-4 grid w-full max-w-xl gap-6 z-10 mt-auto">
+      <form onSubmit={handleSubmit} className="w-full">
+        <InputGroup className="dark:bg-input/30 backdrop-blur-3xl rounded-3xl">
+          <TextareaAutosize
+            ref={textareaRef}
+            data-slot="input-group-control"
+            className="flex field-sizing-content min-h-16 w-full resize-none rounded-3xl bg-transparent px-6 py-4.5 text-base transition-[color,box-shadow] outline-none text-[1.05rem]"
+            placeholder="Type your message..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                e.currentTarget.form?.requestSubmit();
+              }
+            }}
+          />
+          <InputGroupAddon align="block-end" className="items-end">
             <ChatModelSelector />
-            <ButtonGroup.Separator />
-            <Button
-              size="icon"
-              onClick={() => openSettings()}
-              aria-label="Open settings"
-            >
-              <SlidersHorizontalIcon />
-            </Button>
-          </ButtonGroup>
-        </PromptInputTools>
 
-        <Button
-          color="primary"
-          size="icon"
-          type="submit"
-          aria-label="Send message"
-          className="shrink-0"
-          disabled={status === "streaming" || status === "submitted"}
-        >
-          {status === "error" ? (
-            <ArrowsClockwiseIcon />
-          ) : status === "streaming" || status === "submitted" ? (
-            <CircleNotchIcon className="animate-spin" />
-          ) : (
-            <PaperPlaneTiltIcon />
-          )}
-        </Button>
-      </PromptInputFooter>
-    </PromptInput>
+            {status === "streaming" || status === "submitted" ? (
+              <InputGroupButton
+                variant="default"
+                className="ml-auto size-9 rounded-xl"
+                onClick={stop}
+                type="button"
+              >
+                <StopIcon weight="fill" className="size-4" />
+                <span className="sr-only">Stop generation</span>
+              </InputGroupButton>
+            ) : (
+              <InputGroupButton
+                variant="default"
+                className="ml-auto size-9 rounded-xl"
+                type="submit"
+              >
+                <Send01 strokeWidth={1.5} />
+                <span className="sr-only">Send</span>
+              </InputGroupButton>
+            )}
+          </InputGroupAddon>
+        </InputGroup>
+      </form>
+    </div>
   );
 }
 
 function ChatModelSelector() {
   const { navigateSettings } = useSettingsNavigation();
   const { chatId, modelId, setModelId } = useChatMain();
-  const { add } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleModelChange = async (selectedModelId: TextGenerationModelId) => {
@@ -255,8 +217,7 @@ function ChatModelSelector() {
     })
       .catch(() => {
         setModelId(oldModelId);
-        add({
-          title: "Failed switch to model",
+        toast.error("Failed switch to model", {
           description: "Try again or contact support",
         });
       })

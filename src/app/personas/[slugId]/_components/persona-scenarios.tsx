@@ -73,7 +73,6 @@ function ScenarioCard({
         <CreateChatWithScenarioButton
           personaId={personaId}
           scenarioId={scenario.id}
-          color="primary"
           className="w-fit"
         >
           Start Chat

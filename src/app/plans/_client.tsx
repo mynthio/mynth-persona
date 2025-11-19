@@ -8,7 +8,7 @@ import {
 import { CLERK_PLAN_SLUG_TO_PLAN_ID } from "@/config/shared/plans";
 import { CheckIcon, CircleNotchIcon } from "@phosphor-icons/react/dist/ssr";
 import { useState } from "react";
-import { Button } from "@/components/mynth-ui/base/button";
+import { Button } from "@/components/ui/button";
 import { StarsBackground } from "@/components/animate-ui/components/backgrounds/stars";
 import { motion } from "motion/react";
 import { SignedIn } from "@clerk/nextjs";

@@ -10,12 +10,8 @@ import {
   useChatMessages,
   useChatStatus,
 } from "@ai-sdk-tools/store";
-import {
-  Message,
-  MessageAvatar,
-  MessageContent,
-} from "@/components/mynth-ui/ai/message";
-import { Button } from "@/components/mynth-ui/base/button";
+import { Message, MessageContent } from "@/components/ai-elements/message";
+import { Button } from "@/components/ui/button";
 import {
   ArrowsCounterClockwiseIcon,
   BrainIcon,
@@ -29,23 +25,27 @@ import {
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
-import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
-import { Response } from "@/components/mynth-ui/ai/response";
-import { TextareaAutosize } from "@/components/mynth-ui/base/textarea";
+import {
+  ButtonGroup,
+  ButtonGroupSeparator,
+} from "@/components/ui/button-group";
+import { Response } from "@/components/ai-elements/response";
 import { nanoid } from "nanoid";
 import { useUser } from "@clerk/nextjs";
 import { useChatPersonas } from "../_contexts/chat-personas.context";
 import { cn, getImageUrl } from "@/lib/utils";
 import { ApiChatMessagesResponse } from "@/app/(chat)/api/chats/[chatId]/messages/route";
 import { Link } from "@/components/ui/link";
-import { Label } from "@/components/mynth-ui/base/label";
+import { Label } from "@/components/ui/label";
 import {
-  Menu,
-  MenuItem,
-  MenuPopup,
-  MenuPositioner,
-  MenuTrigger,
-} from "@/components/mynth-ui/base/menu";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import { Textarea } from "@/components/ui/textarea";
 import { useCopyToClipboard } from "@uidotdev/usehooks";
 import { ChatMessageImages } from "./chat-message-images";
 import { ChatMessageImageInProgress } from "./chat-message-image-in-progress";
@@ -61,9 +61,16 @@ import {
   ImageModelId,
   supportsReferenceImages,
 } from "@/config/shared/image-models";
-import { MenuSeparator } from "@/components/mynth-ui/base/menu";
-import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
-import { useToast } from "@/components/ui/toast";
+import { Spinner } from "@/components/ui/spinner";
+import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Edit04,
+  Image03,
+  RefreshCcw05,
+} from "@untitledui/icons";
 
 type ChatMessagesProps = {
   containerRef: React.RefObject<HTMLDivElement>;
@@ -199,7 +206,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
   return (
     <div
       ref={containerRef}
-      className="w-full h-full max-w-[42rem] mx-auto transition-[padding] duration-300"
+      className="w-full h-full max-w-3xl mx-auto transition-[padding] duration-300 relative z-0"
       style={{ paddingBottom: dynamicPaddingBottom }}
     >
       {isLoadingMore && (
@@ -326,12 +333,12 @@ function ChatMessage(props: ChatMessageProps) {
   return (
     <Message
       from={props.message.role}
-      className={`py-[1.5rem] flex-col gap-[12px] ${
+      className={`py-6 flex-col gap-[12px] ${
         props.message.role === "user" ? "scroll-mt-[80px]" : ""
       }`}
     >
       <div className="w-full flex items-end justify-end group-[.is-assistant]:flex-row-reverse gap-[4px]">
-        <MessageContent>
+        <MessageContent className="group-[.is-user]:rounded-3xl group-[.is-user]:rounded-br-sm group-[.is-user]:px-6 group-[.is-user]:border group-[.is-user]:border-primary-foreground/15">
           {editMessageId === props.message.id &&
           props.message.role === "user" ? (
             <EditMessage
@@ -362,24 +369,30 @@ function ChatMessage(props: ChatMessageProps) {
           )}
         </MessageContent>
 
-        <Menu modal={false}>
-          <MenuTrigger>
-            <MessageAvatar src={avatarUrl ?? undefined} fallback={" "} />
-          </MenuTrigger>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <button className="rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+              <Avatar>
+                <AvatarImage src={avatarUrl ?? undefined} />
+                <AvatarFallback>
+                  {props.message.role === "user" ? "U" : "A"}
+                </AvatarFallback>
+              </Avatar>
+            </button>
+          </DropdownMenuTrigger>
 
-          <MenuPositioner
+          <DropdownMenuContent
             side={"top"}
             align={props.message.role === "assistant" ? "start" : "end"}
+            className="w-48"
           >
-            <MenuPopup>
-              {props.message.role === "user" ? (
-                <UserMessageMenuContent message={props.message} />
-              ) : (
-                <AssistantMessageMenuContent message={props.message} />
-              )}
-            </MenuPopup>
-          </MenuPositioner>
-        </Menu>
+            {props.message.role === "user" ? (
+              <UserMessageMenuContent message={props.message} />
+            ) : (
+              <AssistantMessageMenuContent message={props.message} />
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <ChatMessageActions message={props.message} />
@@ -405,15 +418,14 @@ function UserMessageMenuContent(props: ChatMessageMenuContentProps) {
 
   return (
     <>
-      <MenuItem onClick={handleCopy} icon={<CopyIcon />}>
+      <DropdownMenuItem onClick={handleCopy}>
+        <CopyIcon className="mr-2" size={16} />
         Copy message
-      </MenuItem>
-      <MenuItem
-        onClick={() => setEditMessageId(props.message.id)}
-        icon={<PencilSimpleIcon />}
-      >
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => setEditMessageId(props.message.id)}>
+        <PencilSimpleIcon className="mr-2" size={16} />
         Edit message
-      </MenuItem>
+      </DropdownMenuItem>
     </>
   );
 }
@@ -431,9 +443,10 @@ function AssistantMessageMenuContent(props: ChatMessageMenuContentProps) {
 
   return (
     <>
-      <MenuItem onClick={handleCopy} icon={<CopyIcon />}>
+      <DropdownMenuItem onClick={handleCopy}>
+        <CopyIcon className="mr-2" size={16} />
         Copy message
-      </MenuItem>
+      </DropdownMenuItem>
     </>
   );
 }
@@ -503,26 +516,26 @@ function EditMessage(props: EditMessageProps) {
   };
 
   return (
-    <div className="flex flex-col gap-[12px]">
+    <div className="flex flex-col gap-3">
       <form onSubmit={handleSubmit}>
-        <TextareaAutosize
+        <Textarea
           name="message"
           placeholder="Enter edited message..."
-          className="font-sans bg-none focus-visible:outline-none focus-visible:border-none focus-visible:ring-0 outline-none border-none shadow-none focus:outline-none focus:ring-0 focus:border-none min-h-0"
-          minRows={1}
+          className="min-h-[80px] resize-none"
           defaultValue={initialMessage}
         />
 
-        <ButtonGroup className="justify-end mt-[12px]">
+        <ButtonGroup className="justify-end mt-3">
           <Button
             onClick={() => {
               setEditMessageId(null);
             }}
             size="sm"
+            variant="outline"
           >
             Cancel
           </Button>
-          <Button type="submit" size="sm" color="primary">
+          <Button type="submit" size="sm">
             Save
           </Button>
         </ButtonGroup>
@@ -540,12 +553,7 @@ function ChatMessagePart(props: ChatMessagePartProps) {
   switch (props.part.type) {
     case "text":
       return (
-        <Response
-          className="prose text-surface-foreground
-              [&_em]:font-onest [&_em]:text-purple-900 [&_em]:bg-purple-100/50 [&_em]:rounded-[8px]
-              [&_span.md-doublequoted]:font-[500] [&_span.md-doublequoted]:text-black [&_span.md-doublequoted]:font-onest
-            "
-        >
+        <Response className="prose dark:prose-invert prose-lg">
           {props.part.text}
         </Response>
       );
@@ -606,21 +614,16 @@ function ChatMessageActions(props: ChatMessageActions) {
   if (editMessageId === message.id) return null;
 
   return (
-    <ButtonGroup
-      spacing="compact"
-      className="group-[.is-assistant]:self-start pointer-fine:opacity-20 pointer-fine:hover:opacity-100 transition-opacity duration-250"
-    >
+    <div className="flex gap-2 items-center group-[.is-user]:justify-end pointer-fine:hover:opacity-100 transition-opacity duration-250">
       {message.role === "assistant" && (
         <>
           <ChatMessageRegenerate messageId={message.id} />
-          <ButtonGroup.Separator />
         </>
       )}
       {shouldShowLoadingIndicator ? (
-        // You can replace this with your custom loading UI component
-        <Label variant="ghost">
-          <CircleNotchIcon className="animate-spin" />
-        </Label>
+        <div className="flex items-center justify-center px-2">
+          <Spinner className="size-4" />
+        </div>
       ) : (
         <ChatMessageBranches
           messageId={message.id}
@@ -630,18 +633,16 @@ function ChatMessageActions(props: ChatMessageActions) {
 
       {message.role === "assistant" && (
         <>
-          <ButtonGroup.Separator />
           <ChatMessageGenerateImageButton messageId={message.id} />
         </>
       )}
 
       {message.role === "user" && (
         <>
-          <ButtonGroup.Separator />
           <ChatMessageEditButton messageId={message.id} />
         </>
       )}
-    </ButtonGroup>
+    </div>
   );
 }
 
@@ -655,12 +656,13 @@ function ChatMessageEditButton(props: ChatMessageEditButtonProps) {
   return (
     <Button
       size="icon-sm"
+      variant="ghost"
       disabled={editMessageId === props.messageId}
       onClick={() => {
         setEditMessageId(props.messageId);
       }}
     >
-      <PencilSimpleIcon />
+      <Edit04 strokeWidth={1} />
     </Button>
   );
 }
@@ -677,6 +679,7 @@ function ChatMessageRegenerate(props: ChatMessageRegenerateProps) {
 
   return (
     <Button
+      variant="ghost"
       size="icon-sm"
       onClick={() => {
         regenerate({
@@ -688,7 +691,7 @@ function ChatMessageRegenerate(props: ChatMessageRegenerateProps) {
       }}
       disabled={status === "submitted" || status === "streaming"}
     >
-      <ArrowsCounterClockwiseIcon />
+      <RefreshCcw05 strokeWidth={1} />
     </Button>
   );
 }
@@ -728,6 +731,7 @@ function ChatMessageBranches(props: ChatMessageBranchesProps) {
     <>
       <Button
         size="icon-sm"
+        variant="ghost"
         disabled={currentMessageIndex === 0}
         onClick={() => {
           if (currentMessageIndex > 0) {
@@ -735,13 +739,14 @@ function ChatMessageBranches(props: ChatMessageBranchesProps) {
           }
         }}
       >
-        <CaretLeftIcon />
+        <ChevronLeft strokeWidth={1} />
       </Button>
       <span className="text-[0.75rem] cursor-default pointer-events-none select-none">
         {currentMessageIndex + 1} / {branchSize}
       </span>
       <Button
         size="icon-sm"
+        variant="ghost"
         disabled={currentMessageIndex === branchSize - 1}
         onClick={() => {
           if (currentMessageIndex < branchSize - 1) {
@@ -749,7 +754,7 @@ function ChatMessageBranches(props: ChatMessageBranchesProps) {
           }
         }}
       >
-        <CaretRightIcon />
+        <ChevronRight strokeWidth={1} />
       </Button>
     </>
   );
@@ -763,12 +768,10 @@ function ChatMessageGenerateImageButton(
   props: ChatMessageGenerateImageButtonProps
 ) {
   const { chatId, settings } = useChatMain();
-  const { navigateSettings } = useSettingsNavigation();
   const addImageGenerationRun = useChatImageGenerationStore(
     (state) => state.addImageGenerationRun
   );
   const [isGenerating, setIsGenerating] = useState(false);
-  const toast = useToast();
 
   // Get character mode models (support reference images)
   const characterModeModels = useMemo(
@@ -801,38 +804,28 @@ function ChatMessageGenerateImageButton(
         const { code, message } = result.error;
 
         if (code === "CONCURRENT_LIMIT_EXCEEDED") {
-          toast.add({
-            title: "Concurrent generation limit reached",
+          toast.error("Concurrent generation limit reached", {
             description:
               "You've reached the limit of concurrent generations. Upgrade your plan for more.",
-            type: "error",
           });
         } else if (code === "SCENE_IMAGE_REQUIRED") {
-          toast.add({
-            title: "Scene image required",
+          toast.error("Scene image required", {
             description:
               "Generate a scene image first in chat settings to use character mode.",
-            type: "error",
           });
         } else if (code === "MODEL_DOES_NOT_SUPPORT_REFERENCE_IMAGES") {
-          toast.add({
-            title: "Model incompatible",
+          toast.error("Model incompatible", {
             description:
               "This model doesn't support character mode. Try creative mode instead.",
-            type: "error",
           });
         } else if (code === "RATE_LIMIT_EXCEEDED") {
-          toast.add({
-            title: "Rate limit exceeded",
+          toast.error("Rate limit exceeded", {
             description:
               "You've reached your image generation limit. Please try again later.",
-            type: "error",
           });
         } else {
-          toast.add({
-            title: "Failed to generate image",
+          toast.error("Failed to generate image", {
             description: message,
-            type: "error",
           });
         }
         return;
@@ -853,93 +846,75 @@ function ChatMessageGenerateImageButton(
       console.error("Failed to generate image:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      toast.add({
-        title: "Failed to generate image",
+      toast.error("Failed to generate image", {
         description: errorMessage,
-        type: "error",
       });
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const handleOpenSettings = () => {
-    navigateSettings("images");
-  };
-
   return (
-    <Menu modal={false}>
-      <MenuTrigger
-        nativeButton
-        render={
-          <Button
-            size="icon-sm"
-            disabled={isGenerating}
-            title="Generate image for this message"
-          />
-        }
-      >
-        {isGenerating ? (
-          <CircleNotchIcon className="animate-spin" />
-        ) : (
-          <ImageIcon />
-        )}
-      </MenuTrigger>
-
-      <MenuPositioner>
-        <MenuPopup>
-          {/* Character Mode Section */}
-          <div className="px-3 py-1.5 text-xs font-medium text-surface-foreground/60 uppercase tracking-wide">
-            Character Mode
-          </div>
-
-          {!hasSceneImage ? (
-            <MenuItem onClick={handleOpenSettings}>
-              Generate scene image first
-            </MenuItem>
+    <DropdownMenu modal={false}>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          disabled={isGenerating}
+          title="Generate image for this message"
+        >
+          {isGenerating ? (
+            <Spinner className="size-4" />
           ) : (
-            characterModeModels.map((model) => (
-              <MenuItem
+            <Image03 strokeWidth={1.5} />
+          )}
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="start" className="w-56">
+        {/* Character Mode Section */}
+        {hasSceneImage && (
+          <>
+            <DropdownMenuLabel>Character Mode</DropdownMenuLabel>
+            {characterModeModels.map((model) => (
+              <DropdownMenuItem
                 key={model.id}
                 onClick={() => handleGenerateImage(model.id, "character")}
                 disabled={isGenerating}
               >
-                <div className="flex items-center w-full justify-between gap-[4px]">
+                <div className="flex items-center w-full justify-between gap-1">
                   {model.displayName}
                   {model.cost > 1 && (
-                    <span className="text-yellow-800 bg-yellow-200 p-[4px] text-[0.8rem] rounded-[6px]">
-                      <SparkleIcon />
+                    <span className="text-yellow-800 bg-yellow-200 p-1 text-xs rounded">
+                      <SparkleIcon size={12} />
                     </span>
                   )}
                 </div>
-              </MenuItem>
-            ))
-          )}
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuSeparator />
+          </>
+        )}
 
-          <MenuSeparator />
-
-          {/* Creative Mode Section */}
-          <div className="px-3 py-1.5 text-xs font-medium text-surface-foreground/60 uppercase tracking-wide">
-            Creative Mode
-          </div>
-          {creativeModeModels.map((model) => (
-            <MenuItem
-              key={`creative-${model.id}`}
-              onClick={() => handleGenerateImage(model.id, "creative")}
-              disabled={isGenerating}
-            >
-              <div className="flex items-center w-full justify-between gap-[4px]">
-                {model.displayName}
-                {model.cost > 1 && (
-                  <span className="text-yellow-800 bg-yellow-200 p-[4px] text-[0.8rem] rounded-[6px]">
-                    <SparkleIcon />
-                  </span>
-                )}
-              </div>
-            </MenuItem>
-          ))}
-        </MenuPopup>
-      </MenuPositioner>
-    </Menu>
+        {/* Creative Mode Section */}
+        <DropdownMenuLabel>Creative Mode</DropdownMenuLabel>
+        {creativeModeModels.map((model) => (
+          <DropdownMenuItem
+            key={`creative-${model.id}`}
+            onClick={() => handleGenerateImage(model.id, "creative")}
+            disabled={isGenerating}
+          >
+            <div className="flex items-center w-full justify-between gap-1">
+              {model.displayName}
+              {model.cost > 1 && (
+                <span className="text-yellow-800 bg-yellow-200 p-1 text-xs rounded">
+                  <SparkleIcon size={12} />
+                </span>
+              )}
+            </div>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

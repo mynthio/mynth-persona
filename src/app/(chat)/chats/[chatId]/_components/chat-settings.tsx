@@ -1,40 +1,46 @@
 "use client";
 
-import { Dialog } from "@base-ui-components/react/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
-import { Field, Form } from "@/components/mynth-ui/base/form";
-import { TextareaAutosize } from "@/components/mynth-ui/base/textarea";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Textarea } from "@/components/ui/textarea";
 import { useSidebar } from "@/components/ui/sidebar";
 
 import {
-  ArrowClockwiseIcon,
-  ArrowLeftIcon,
-  CheckIcon,
-  CircleNotchIcon,
-  FeatherIcon,
   FireIcon,
-  GearSixIcon,
-  ImageSquareIcon,
-  InfoIcon,
   PushPinIcon,
   PushPinSimpleSlashIcon,
-  RobotIcon,
-  SparkleIcon,
-  UserSquareIcon,
-  XIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Input } from "@/components/mynth-ui/base/input";
-import { Button } from "@/components/mynth-ui/base/button";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useForm } from "@tanstack/react-form";
+import { z } from "zod";
 import { useChatPersonas } from "../_contexts/chat-personas.context";
-import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { updateChatAction } from "@/actions/update-chat.action";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { CreateChatButton } from "@/components/create-chat-button";
 import { DeleteChat } from "./delete-chat";
-import { ScrollArea } from "@/components/mynth-ui/base/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useDebounce } from "@uidotdev/usehooks";
 import { chatConfig } from "@/config/shared/chat/chat-models.config";
 import {
@@ -42,10 +48,9 @@ import {
   TextGenerationModelId,
   textGenerationModels,
 } from "@/config/shared/models/text-generation-models.config";
-import { useToast } from "@/components/ui/toast";
+import { toast } from "sonner";
 import { filter, map, pipe, toArray } from "@fxts/core";
-import { Label } from "@/components/mynth-ui/base/label";
-import { ChatSettingsImages } from "./chat-settings-images";
+import { Badge } from "@/components/ui/badge";
 import { usePinnedModels } from "../_hooks/use-pinned-models.hook";
 
 type ChatSettingsProps = {
@@ -70,42 +75,23 @@ function ChatSettingsDesktop(props: ChatSettingsDesktopProps) {
   const { areSettingsOpen, closeSettings } = useSettingsNavigation();
 
   return (
-    <Dialog.Root
+    <Dialog
       defaultOpen={props.defaultOpen}
       open={areSettingsOpen}
       onOpenChange={closeSettings}
-      modal={false}
     >
-      <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 z-overlay bg-background/20 backdrop-blur-[1px] transition-all duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 data-[starting-style]:backdrop-blur-none dark:opacity-70" />
-        <Dialog.Popup
-          className="fixed z-dialog left-1/2 -mt-8 w-[800px] max-w-[calc(100vw-3rem)] h-[520px] max-h-[calc(100vh-3rem)]
-            -translate-x-1/2 -translate-y-1/2 
-            outline-[3px] outline-background/5
-            top-[calc(50%+1.25rem*var(--nested-dialogs))] scale-[calc(1-0.03*var(--nested-dialogs))] data-[nested-dialog-open]:grayscale-100 data-[nested-dialog-open]:after:absolute data-[nested-dialog-open]:after:inset-0 data-[nested-dialog-open]:after:rounded-[inherit] data-[nested-dialog-open]:after:bg-background/10 data-[nested-dialog-open]:after:backdrop-blur-[1px] 
-            rounded-[32px] bg-surface p-[12px] px-[24px] text-surface-foreground transition-all duration-250 data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0
-            flex flex-col 
-            "
-        >
-          <div className="flex shrink-0 justify-between px-[12px] mb-[12px] mt-[6px]">
-            <Dialog.Title className="font-onest text-[1.2rem] font-[600] py-[12px]">
-              Settings
-            </Dialog.Title>
-            <Dialog.Close className="size-[36px] flex items-center justify-center transition-colors duration-150 hover:bg-surface-100 rounded-[12px]">
-              <XIcon />
-            </Dialog.Close>
-          </div>
-
-          <div className="flex gap-[18px] h-full overflow-hidden">
-            <ChatSettingsMenu />
-            <ScrollArea className="h-full w-full">
-              <ChatSettingsContent />
-              <div className="h-[24px]"></div>
-            </ScrollArea>
-          </div>
-        </Dialog.Popup>
-      </Dialog.Portal>
-    </Dialog.Root>
+      <DialogContent className="max-w-[800px] h-[520px] max-h-[calc(100vh-3rem)]">
+        <DialogHeader>
+          <DialogTitle>Settings</DialogTitle>
+        </DialogHeader>
+        <div className="flex gap-[18px] h-full overflow-hidden">
+          <ScrollArea className="h-full w-full">
+            <ChatSettingsContent />
+            <div className="h-[24px]"></div>
+          </ScrollArea>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -114,53 +100,28 @@ type ChatSettingsMobileProps = {
 };
 
 function ChatSettingsMobile(props: ChatSettingsMobileProps) {
-  const { areSettingsOpen, closeSettings, current, navigateSettings } =
-    useSettingsNavigation();
+  const { areSettingsOpen, closeSettings } = useSettingsNavigation();
 
   return (
-    <Dialog.Root
+    <Sheet
       defaultOpen={props.defaultOpen}
       open={areSettingsOpen}
       onOpenChange={closeSettings}
-      modal={false}
     >
-      <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 z-overlay bg-background/20 backdrop-blur-[1px] transition-all duration-150 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0 data-[starting-style]:backdrop-blur-none dark:opacity-70" />
-        <Dialog.Popup
-          className="fixed z-dialog left-0 right-0 bottom-0 w-full max-w-[100vw] h-auto min-h-auto max-h-[70vh]
-            rounded-t-[24px] bg-surface text-surface-foreground transition-all duration-250 overflow-hidden
-            scale-[calc(1-0.03*var(--nested-dialogs))] data-[nested-dialog-open]:after:absolute data-[nested-dialog-open]:after:inset-0 data-[nested-dialog-open]:after:rounded-[inherit] data-[nested-dialog-open]:after:bg-background/10 data-[nested-dialog-open]:after:backdrop-blur-[1px] 
-            data-[ending-style]:translate-y-[8%] data-[ending-style]:opacity-0 data-[starting-style]:translate-y-[8%] data-[starting-style]:opacity-0"
-        >
-          <Dialog.Title className="sr-only">Chat Settings</Dialog.Title>
-
-          {current === "_" ? (
-            <div className="mt-[4px] min-h-[240px] px-[8px]">
-              <ChatSettingsMenu />
+      <SheetContent side="bottom" className="h-[70vh]">
+        <SheetHeader>
+          <SheetTitle className="sr-only">Chat Settings</SheetTitle>
+        </SheetHeader>
+        <div className="relative w-full h-full min-h-0">
+          <ScrollArea className="h-full w-full">
+            <div className="px-[24px] pt-[24px]">
+              <ChatSettingsContent />
             </div>
-          ) : (
-            <div className="relative w-full h-[70vh] min-h-0">
-              <div className="absolute top-[16px] left-[12px] z-10">
-                <Button
-                  onClick={() => navigateSettings("_")}
-                  className="bg-surface-100/50 backdrop-blur-[8px]"
-                >
-                  <ArrowLeftIcon />
-                  Settings Menu
-                </Button>
-              </div>
-              <ScrollArea className="h-full w-full">
-                <div className="h-[80px]" />
-                <div className="px-[24px]">
-                  <ChatSettingsContent />
-                </div>
-                <div className="h-[200px]" />
-              </ScrollArea>
-            </div>
-          )}
-        </Dialog.Popup>
-      </Dialog.Portal>
-    </Dialog.Root>
+            <div className="h-[200px]" />
+          </ScrollArea>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
 
@@ -175,8 +136,6 @@ function ChatSettingsContent() {
         return <ChatSettingsUser />;
       case "scenario":
         return <ChatSettingsScenario />;
-      case "images":
-        return <ChatSettingsImages />;
       default:
         return <ChatSettingsHome />;
     }
@@ -197,75 +156,6 @@ function ChatSettingsContent() {
         </motion.div>
       </AnimatePresence>
     </div>
-  );
-}
-
-function ChatSettingsMenu() {
-  const { areSettingsOpen, closeSettings, navigateSettings, current } =
-    useSettingsNavigation();
-
-  return (
-    <div className="flex flex-col justify-start gap-[1px] shrink-0 grow-0 md:w-[220px] px-[24px] md:px-[0px] py-[24px] md:py-0">
-      <MenuButton
-        onClick={() => navigateSettings("settings")}
-        isActive={current === "settings"}
-      >
-        <GearSixIcon />
-        Chat
-      </MenuButton>
-      <MenuButton
-        onClick={() => navigateSettings("model")}
-        isActive={current === "model"}
-      >
-        <RobotIcon />
-        Model
-      </MenuButton>
-      <MenuButton
-        onClick={() => navigateSettings("user")}
-        isActive={current === "user"}
-      >
-        <UserSquareIcon />
-        My persona
-      </MenuButton>
-      <MenuButton
-        onClick={() => navigateSettings("scenario")}
-        isActive={current === "scenario"}
-      >
-        <FeatherIcon />
-        Scenario
-      </MenuButton>
-      <MenuButton
-        onClick={() => navigateSettings("images")}
-        isActive={current === "images"}
-      >
-        <ImageSquareIcon />
-        Images
-      </MenuButton>
-
-      <MenuButton className="text-red-500 md:hidden" onClick={closeSettings}>
-        <XIcon /> Close
-      </MenuButton>
-    </div>
-  );
-}
-
-function MenuButton(props: {
-  children: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
-  isActive?: boolean;
-}) {
-  return (
-    <button
-      className={cn(
-        "flex justify-start items-center gap-[6px] h-[60px] md:h-[46px] w-full px-[12px] text-surface-foreground hover:bg-surface-100 rounded-[18px] md:rounded-[16px] transition-all duration-100",
-        props.isActive && "bg-surface-100/50",
-        props.className
-      )}
-      onClick={props.onClick}
-    >
-      {props.children}
-    </button>
   );
 }
 
@@ -327,179 +217,217 @@ function ChatSettingsUser() {
   const { chatId, settings, setSettings, mode } = useChatMain();
   const { personas } = useChatPersonas();
   const persona = personas[0];
-  const [isUpdating, setIsUpdating] = useState(false);
 
   const isStoryMode = mode === "story";
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (isUpdating || isStoryMode) return;
-    setIsUpdating(true);
+  const formSchema = z.object({
+    name: z.string(),
+    character: z.string(),
+  });
 
-    const formData = new FormData(e.currentTarget);
-    const name = formData.get("name") as string;
-    const character = formData.get("character") as string;
+  const form = useForm({
+    defaultValues: {
+      name: settings.user_persona?.name ?? "",
+      character: settings.user_persona?.character ?? "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async ({ value }) => {
+      if (isStoryMode) return;
 
-    await updateChatAction(chatId, {
-      settings: {
-        user_persona: {
-          enabled: true,
-          name,
-          character,
+      await updateChatAction(chatId, {
+        settings: {
+          user_persona: {
+            enabled: true,
+            name: value.name,
+            character: value.character,
+          },
         },
-      },
-    })
-      .then(() => {
+      }).then(() => {
         setSettings({
           ...settings,
           user_persona: {
             enabled: true,
-            name,
-            character,
+            name: value.name,
+            character: value.character,
           },
         });
-      })
-      .finally(() => {
-        setIsUpdating(false);
       });
-  };
+    },
+  });
 
   return (
-    <Form
-      onSubmit={handleSubmit}
+    <form
       className="space-y-[24px]"
-      aria-disabled={isUpdating || isStoryMode}
+      onSubmit={(e) => {
+        e.preventDefault();
+        form.handleSubmit();
+      }}
     >
       {isStoryMode && (
         <div className="rounded-[12px] bg-surface-100 p-[12px] text-[0.85rem] text-surface-foreground">
-          Story mode doesn’t support My persona. Use your prompt to guide the
-          model’s behavior.
+          Story mode doesn&apos;t support My persona. Use your prompt to guide
+          the model&apos;s behavior.
         </div>
       )}
-      <Field.Root>
-        <Field.Label>Name</Field.Label>
-        <Input
-          name="name"
-          defaultValue={settings.user_persona?.name ?? ""}
-          placeholder="John"
-          autoComplete="off"
-          data-form-type="other"
-          disabled={isStoryMode}
-        />
-        <Field.Description>Your character&apos;s name.</Field.Description>
-      </Field.Root>
+      <form.Field name="name">
+        {(field) => {
+          const isInvalid =
+            field.state.meta.isTouched && !field.state.meta.isValid;
+          return (
+            <Field data-invalid={isInvalid}>
+              <FieldLabel htmlFor="name">Name</FieldLabel>
+              <Input
+                id="name"
+                name={field.name}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+                aria-invalid={isInvalid}
+                placeholder="John"
+                autoComplete="off"
+                data-form-type="other"
+                disabled={isStoryMode}
+              />
+              {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              <FieldDescription>Your character&apos;s name.</FieldDescription>
+            </Field>
+          );
+        }}
+      </form.Field>
 
-      <Field.Root>
-        <Field.Label>Character Description</Field.Label>
-        <TextareaAutosize
-          name="character"
-          minRows={3}
-          placeholder="Describe your character..."
-          defaultValue={settings.user_persona?.character ?? ""}
-          autoComplete="off"
-          data-form-type="other"
-          disabled={isStoryMode}
-        />
-        <Field.Description>
-          A description of your character. Personality, relations and
-          informations {persona.name} should know about you.
-        </Field.Description>
-      </Field.Root>
+      <form.Field name="character">
+        {(field) => {
+          const isInvalid =
+            field.state.meta.isTouched && !field.state.meta.isValid;
+          return (
+            <Field data-invalid={isInvalid}>
+              <FieldLabel htmlFor="character">Character Description</FieldLabel>
+              <Textarea
+                id="character"
+                name={field.name}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+                aria-invalid={isInvalid}
+                placeholder="Describe your character..."
+                autoComplete="off"
+                data-form-type="other"
+                disabled={isStoryMode}
+                className="min-h-[80px]"
+              />
+              {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              <FieldDescription>
+                A description of your character. Personality, relations and
+                informations {persona.name} should know about you.
+              </FieldDescription>
+            </Field>
+          );
+        }}
+      </form.Field>
 
       <ButtonGroup className="justify-end">
-        <Button
-          color="primary"
-          type="submit"
-          disabled={isUpdating || isStoryMode}
-        >
+        <Button type="submit" disabled={form.state.isSubmitting || isStoryMode}>
           Save
         </Button>
       </ButtonGroup>
-    </Form>
+    </form>
   );
 }
 
 function ChatSettingsScenario() {
   const { chatId, settings, setSettings, mode } = useChatMain();
-  const [isUpdating, setIsUpdating] = useState(false);
 
   const isStoryMode = mode === "story";
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (isUpdating || isStoryMode) return;
-    setIsUpdating(true);
+  const formSchema = z.object({
+    scenario: z.string(),
+  });
 
-    const formData = new FormData(e.currentTarget);
-    const scenario = (formData.get("scenario") as string) ?? "";
+  const form = useForm({
+    defaultValues: {
+      scenario: settings.scenario?.scenario_text ?? "",
+    },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async ({ value }) => {
+      if (isStoryMode) return;
 
-    await updateChatAction(chatId, {
-      settings: {
-        scenario: {
-          scenario_text: scenario,
+      await updateChatAction(chatId, {
+        settings: {
+          scenario: {
+            scenario_text: value.scenario,
+          },
         },
-      },
-    })
-      .then(() => {
+      }).then(() => {
         setSettings({
           ...settings,
           scenario: {
             ...settings.scenario,
-            scenario_text: scenario,
+            scenario_text: value.scenario,
           },
         });
-      })
-      .finally(() => {
-        setIsUpdating(false);
       });
-  };
+    },
+  });
 
   return (
-    <Form
-      onSubmit={handleSubmit}
+    <form
       className="space-y-[24px]"
-      aria-disabled={isUpdating || isStoryMode}
+      onSubmit={(e) => {
+        e.preventDefault();
+        form.handleSubmit();
+      }}
     >
       {isStoryMode && (
         <div className="rounded-[12px] bg-surface-100 p-[12px] text-[0.85rem] text-surface-foreground">
-          Story mode doesn’t support Scenario. Use your prompt to guide the
-          model’s behavior and context.
+          Story mode doesn&apos;t support Scenario. Use your prompt to guide the
+          model&apos;s behavior and context.
         </div>
       )}
-      <Field.Root>
-        <Field.Label>Scenario</Field.Label>
-        <TextareaAutosize
-          name="scenario"
-          minRows={3}
-          placeholder="Custom scenario for chat"
-          defaultValue={settings.scenario?.scenario_text ?? ""}
-          autoComplete="off"
-          data-form-type="other"
-          disabled={isStoryMode}
-        />
-        <Field.Description>
-          Scenario will be included inside chat instructions. It will always be
-          used to set the context of the session.
-        </Field.Description>
-      </Field.Root>
+      <form.Field name="scenario">
+        {(field) => {
+          const isInvalid =
+            field.state.meta.isTouched && !field.state.meta.isValid;
+          return (
+            <Field data-invalid={isInvalid}>
+              <FieldLabel htmlFor="scenario">Scenario</FieldLabel>
+              <Textarea
+                id="scenario"
+                name={field.name}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+                aria-invalid={isInvalid}
+                placeholder="Custom scenario for chat"
+                autoComplete="off"
+                data-form-type="other"
+                disabled={isStoryMode}
+                className="min-h-[80px]"
+              />
+              {isInvalid && <FieldError errors={field.state.meta.errors} />}
+              <FieldDescription>
+                Scenario will be included inside chat instructions. It will
+                always be used to set the context of the session.
+              </FieldDescription>
+            </Field>
+          );
+        }}
+      </form.Field>
 
       <ButtonGroup className="justify-end">
-        <Button
-          color="primary"
-          type="submit"
-          disabled={isUpdating || isStoryMode}
-        >
+        <Button type="submit" disabled={form.state.isSubmitting || isStoryMode}>
           Save
         </Button>
       </ButtonGroup>
-    </Form>
+    </form>
   );
 }
 
-
 function ChatSettingsModel() {
   const { chatId, modelId, setModelId, mode } = useChatMain();
-  const { add } = useToast();
   const [query, setQuery] = useState<string>("");
   const debouncedQuery = useDebounce(query, 300);
   const [isLoading, setIsLoading] = useState(false);
@@ -561,8 +489,7 @@ function ChatSettingsModel() {
     })
       .catch(() => {
         setModelId(oldModelId);
-        add({
-          title: "Failed switch to model",
+        toast.error("Failed switch to model", {
           description: "Try again or contact support",
         });
       })
@@ -575,11 +502,11 @@ function ChatSettingsModel() {
     <div className="flex flex-col gap-[8px] min-h-[600px]">
       <div className="flex flex-col gap-[8px]">
         <Input
-          name="query"
+          id="query"
           placeholder="Search models..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full bg-white rounded-[18px] border-0"
+          className="w-full"
         />
       </div>
       <div className="space-y-[12px]">
@@ -635,9 +562,9 @@ function ModelCard(props: {
 
           <div className="flex items-center gap-[8px] shrink-0">
             {model.isPremium && (
-              <Label color="red" size="sm">
+              <Badge variant="destructive">
                 Premium <FireIcon weight="bold" />
-              </Label>
+              </Badge>
             )}
 
             {canTogglePin && (

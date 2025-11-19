@@ -1,11 +1,18 @@
 "use client";
 
-import { Button } from "@/components/mynth-ui/base/button";
-import { PlusIcon } from "@phosphor-icons/react/dist/ssr";
+import { Button } from "@/components/ui/button";
 import { ScenariosList } from "./_components/scenarios-list";
-import { Link } from "@/components/ui/link";
+import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  TopBar,
+  TopBarSidebarTrigger,
+  TopBarTitle,
+} from "@/components/layout/top-bar";
+import { Feather, Plus } from "@untitledui/icons";
+import { Badge } from "@/components/ui/badge";
 
 type PaginatedScenariosResponse = {
   data: Array<{
@@ -24,7 +31,8 @@ export default function ScenariosPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const eventFilter = searchParams.get("event");
-  const [initialData, setInitialData] = useState<PaginatedScenariosResponse | null>(null);
+  const [initialData, setInitialData] =
+    useState<PaginatedScenariosResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -34,7 +42,9 @@ export default function ScenariosPage() {
         if (eventFilter) {
           queryParams.set("event", eventFilter);
         }
-        const response = await fetch(`/api/scenarios?${queryParams.toString()}`);
+        const response = await fetch(
+          `/api/scenarios?${queryParams.toString()}`
+        );
         const data = await response.json();
         setInitialData(data);
       } catch (error) {
@@ -59,44 +69,63 @@ export default function ScenariosPage() {
 
   if (isLoading || !initialData) {
     return (
-      <div className="w-full h-full flex items-center justify-center">
-        <p>Loading...</p>
+      <div className="w-full h-full">
+        <TopBar
+          left={<TopBarSidebarTrigger />}
+          center={
+            <TopBarTitle>
+              <Feather strokeWidth={1.5} />{" "}
+              <span className="uppercase text-[0.75rem]">Scenarios</span>
+              <Badge variant="destructive">Beta</Badge>
+            </TopBarTitle>
+          }
+          right={
+            <Button variant="ghost" size="sm" disabled>
+              <Plus />
+              <span className="hidden md:block">Create Scenario</span>
+            </Button>
+          }
+        />
+
+        <div className="px-6 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex flex-col space-y-3">
+                <Skeleton className="h-[220px] w-full rounded-xl" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="w-full h-full">
-      <div className="px-[12px] mx-auto">
-        <div className="flex items-center justify-between my-[12px]">
-          <div className="flex items-start gap-[4px]">
-            <h1 className="text-center uppercase font-onest font-[600] text-[1.1rem]">
-              Scenarios
-            </h1>
-            <p className="shrink-0 uppercase font-mono text-[0.7rem] font-bold text-black/80 bg-yellow-400/80 rounded-[6px] px-[4px] py-[1px]">
-              Beta
-            </p>
-          </div>
-
-          <Link
-            href="/scenarios/creator"
-            className="flex items-center gap-[4px]"
-          >
-            <PlusIcon />
-            Create Scenario
-          </Link>
-        </div>
-
-        <div className="mb-[12px]">
-          <Button
-            color={eventFilter === "halloween" ? "primary" : "default"}
-            onClick={toggleHalloweenFilter}
-          >
-            {eventFilter === "halloween" ? "Show All Scenarios" : "Halloween Events Only"}
+      <TopBar
+        left={<TopBarSidebarTrigger />}
+        center={
+          <TopBarTitle>
+            <Feather strokeWidth={1.5} />{" "}
+            <span className="uppercase text-[0.75rem]">Scenarios</span>
+            <Badge variant="destructive">Beta</Badge>
+          </TopBarTitle>
+        }
+        right={
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/scenarios/creator" className="flex items-center gap-1">
+              <Plus />
+              <span className="hidden md:block">Create Scenario</span>
+            </Link>
           </Button>
-        </div>
+        }
+      />
 
-        <ScenariosList initialData={initialData} eventFilter={eventFilter || undefined} />
+      <div className="px-6 py-6">
+        <ScenariosList
+          initialData={initialData}
+          eventFilter={eventFilter || undefined}
+        />
       </div>
     </div>
   );

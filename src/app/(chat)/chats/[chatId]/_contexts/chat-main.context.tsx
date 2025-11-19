@@ -6,6 +6,7 @@ import {
   useMemo,
   useState,
   useCallback,
+  useEffect,
 } from "react";
 import type { ReactNode } from "react";
 import type {
@@ -13,10 +14,13 @@ import type {
   ChatSettings,
 } from "@/schemas/backend/chats/chat.schema";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface ChatContextValue {
   chatId: string;
   mode: ChatMode;
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
   setMode: (mode: ChatMode) => void;
   settings: ChatSettings;
   modelId?: TextGenerationModelId;
@@ -63,10 +67,31 @@ export function ChatMainProvider({
 
   const [editMessageId, setEditMessageIdState] = useState<string | null>(null);
 
+  const isMobile = useIsMobile();
+  // On mobile, sidebar is hidden by default; on desktop, it's open by default
+  const [sidebarOpen, setSidebarOpenState] = useState<boolean>(() => {
+    // We can't reliably detect mobile on initial render, so default to true
+    // The mobile detection will happen client-side
+    return true;
+  });
+
+  // Initialize sidebar state based on mobile detection
+  useEffect(() => {
+    if (isMobile) {
+      setSidebarOpenState(false);
+    }
+  }, [isMobile]);
+
+  const setSidebarOpen = useCallback((open: boolean) => {
+    setSidebarOpenState(open);
+  }, []);
+
   const value = useMemo<ChatContextValue>(
     () => ({
       chatId,
       mode: modeState,
+      sidebarOpen,
+      setSidebarOpen,
       setMode,
       settings,
       modelId,
@@ -78,6 +103,8 @@ export function ChatMainProvider({
     [
       chatId,
       modeState,
+      sidebarOpen,
+      setSidebarOpen,
       setMode,
       settings,
       modelId,

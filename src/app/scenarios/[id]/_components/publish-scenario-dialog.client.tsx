@@ -1,18 +1,21 @@
 "use client";
 
-import { Button } from "@/components/mynth-ui/base/button";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogBackdrop,
-  DialogPopup,
-  DialogPortal,
+  DialogContent,
+  DialogHeader,
   DialogTitle,
-} from "@/components/mynth-ui/base/dialog";
-import { Form } from "@/components/mynth-ui/base/form";
-import { Field } from "@/components/mynth-ui/base/field";
-import { Input } from "@/components/mynth-ui/base/input";
-import { TextareaAutosize } from "@/components/mynth-ui/base/textarea";
-import { Switch } from "@/components/mynth-ui/base/switch";
+} from "@/components/ui/dialog";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { TextareaAutosize } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
@@ -20,16 +23,15 @@ import { publishScenarioFormSchema } from "@/schemas/shared";
 import {
   Popover,
   PopoverContent,
-  PopoverPopup,
-  PopoverPositioner,
   PopoverTrigger,
-} from "@/components/mynth-ui/base/popover";
+} from "@/components/ui/popover";
 import { InfoIcon } from "@phosphor-icons/react/dist/ssr";
-import { ButtonGroup } from "@/components/mynth-ui/base/button-group";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { DISCORD_INVITE_URL } from "@/lib/constants";
-import { ScrollArea } from "@/components/mynth-ui/base/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { publishScenarioAction } from "@/actions/scenarios";
-import { useToast } from "@/components/ui/toast";
+import { toast } from "sonner";
+import { useForm } from "@tanstack/react-form";
 
 export function PublishScenarioDialog() {
   const searchParams = useSearchParams();
@@ -43,17 +45,16 @@ export function PublishScenarioDialog() {
       open={Boolean(action === "publish")}
       onOpenChange={() => router.replace(`/scenarios/${params.id}`)}
     >
-      <DialogPortal>
-        <DialogBackdrop />
-        <DialogPopup className="p-0 overflow-hidden justify-center">
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
           <DialogTitle className="sr-only">Publish scenario</DialogTitle>
-          <ScrollArea>
-            <div className="py-[32px]">
-              <PublishScenarioForm scenarioId={params.id} />
-            </div>
-          </ScrollArea>
-        </DialogPopup>
-      </DialogPortal>
+        </DialogHeader>
+        <ScrollArea className="max-h-[calc(100vh-10rem)]">
+          <div className="py-4">
+            <PublishScenarioForm scenarioId={params.id} />
+          </div>
+        </ScrollArea>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -63,227 +64,238 @@ type PublishScenarioFormProps = {
 };
 
 function PublishScenarioForm(props: PublishScenarioFormProps) {
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [aiGenerate, setAiGenerate] = useState(true);
+  const [submitError, setSubmitError] = useState<string>("");
   const router = useRouter();
-  const toast = useToast();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setErrors({}); // Clear previous errors
-    setIsSubmitting(true);
+  const form = useForm({
+    defaultValues: {
+      title: "",
+      description: "",
+      anonymous: false,
+      aiGenerate: true,
+    },
+    validators: {
+      onSubmit: publishScenarioFormSchema.parse,
+    },
+    onSubmit: async ({ value }) => {
+      setSubmitError("");
 
-    try {
-      const formData = new FormData(event.currentTarget);
-
-      // Extract fields
-      const anonymous = formData.get("anonymous") === "on";
-
-      // Build validation data - only include title/description when AI generation is disabled
-      const validationData = aiGenerate
-        ? {
-            title: "",
-            description: "",
-            anonymous,
-            aiGenerate,
-          }
-        : {
-            title: (formData.get("title") as string) || "",
-            description: (formData.get("description") as string) || "",
-            anonymous,
-            aiGenerate,
-          };
-
-      const formValidation = publishScenarioFormSchema.safeParse(validationData);
-
-      // Collect validation errors
-      const validationErrors: Record<string, string> = {};
-
-      if (!formValidation.success) {
-        const flattened = z.flattenError(formValidation.error);
-        console.log(flattened);
-        const fieldErrors = flattened.fieldErrors;
-        Object.entries(fieldErrors).forEach(([field, errors]) => {
-          if (errors && errors.length > 0) {
-            validationErrors[field] = errors[0]; // Take first error message
-          }
-        });
-      }
-
-      console.log(validationErrors);
-
-      // If there are validation errors, set them and return
-      if (Object.keys(validationErrors).length > 0) {
-        setErrors(validationErrors);
-        return;
-      }
-
-      // Call server action to publish scenario
-      const result = await publishScenarioAction({
-        scenarioId: props.scenarioId,
-        title: validationData.title,
-        description: validationData.description,
-        anonymous: validationData.anonymous,
-        aiGenerate: validationData.aiGenerate,
-      });
-
-      if (result.success) {
-        // Show success toast
-        toast.add({
-          title: "Scenario publishing started",
-          description:
-            "Your scenario is being reviewed and will be published shortly.",
-          type: "success",
+      try {
+        // Call server action to publish scenario
+        const result = await publishScenarioAction({
+          scenarioId: props.scenarioId,
+          title: value.title,
+          description: value.description,
+          anonymous: value.anonymous,
+          aiGenerate: value.aiGenerate,
         });
 
-        // Close dialog and navigate back to scenario page
-        router.replace(`/scenarios/${props.scenarioId}`);
+        if (result.success) {
+          // Show success toast
+          toast.success("Scenario publishing started", {
+            description:
+              "Your scenario is being reviewed and will be published shortly.",
+          });
+
+          // Close dialog and navigate back to scenario page
+          router.replace(`/scenarios/${props.scenarioId}`);
+        } else {
+          setSubmitError("Unable to publish scenario");
+        }
+      } catch (error) {
+        // Handle server-side errors
+        if (error instanceof Error) {
+          setSubmitError(error.message);
+        } else {
+          setSubmitError("An unexpected error occurred");
+        }
       }
-    } catch (error) {
-      // Handle server-side errors
-      if (error instanceof Error) {
-        setErrors({ submit: error.message });
-      } else {
-        setErrors({ submit: "An unexpected error occurred" });
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    },
+  });
 
   return (
-    <Form
+    <form
       className="space-y-[24px] mt-[24px] max-w-[400px] mx-auto"
-      onSubmit={handleSubmit}
-      errors={errors}
-      onClearErrors={(clearedErrors) =>
-        setErrors(clearedErrors as Record<string, string>)
-      }
+      onSubmit={(e) => {
+        e.preventDefault();
+        form.handleSubmit();
+      }}
     >
-      <Field.Root name="aiGenerate">
-        <div className="flex items-center gap-[12px]">
-          <Switch.Root
-            name="aiGenerate"
-            checked={aiGenerate}
-            onCheckedChange={setAiGenerate}
-          >
-            <Switch.Thumb />
-          </Switch.Root>
-          <div className="flex flex-col gap-[4px]">
-            <Field.Label className="mb-0">
-              Generate title and description with AI
-            </Field.Label>
-            <Field.Description>
-              AI will automatically generate a title and description based on
-              your scenario content
-            </Field.Description>
-          </div>
-        </div>
-        <Field.Error />
-      </Field.Root>
+      <form.Field name="aiGenerate">
+        {(field) => {
+          const isInvalid =
+            field.state.meta.isTouched && !field.state.meta.isValid;
+          return (
+            <Field data-invalid={isInvalid}>
+              <div className="flex items-center gap-[12px]">
+                <Switch
+                  checked={field.state.value}
+                  onCheckedChange={(checked) => field.handleChange(checked)}
+                />
+                <div className="flex flex-col gap-[4px]">
+                  <FieldLabel className="mb-0">
+                    Generate title and description with AI
+                  </FieldLabel>
+                  <FieldDescription>
+                    AI will automatically generate a title and description based
+                    on your scenario content
+                  </FieldDescription>
+                </div>
+              </div>
+              {isInvalid && <FieldError errors={field.state.meta.errors} />}
+            </Field>
+          );
+        }}
+      </form.Field>
 
-      {!aiGenerate && (
-        <>
-          <Field.Root name="title">
-            <Field.Label>Title</Field.Label>
-            <Input name="title" placeholder="Adventure of..." required />
-            <Field.Error />
-            <Field.Description>Title</Field.Description>
-          </Field.Root>
+      <form.Field name="aiGenerate">
+        {(aiGenerateField) =>
+          !aiGenerateField.state.value && (
+            <>
+              <form.Field name="title">
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Title</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        placeholder="Adventure of..."
+                        autoComplete="off"
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                      <FieldDescription>Title</FieldDescription>
+                    </Field>
+                  );
+                }}
+              </form.Field>
 
-          <Field.Root name="description">
-            <Field.Label>Description</Field.Label>
-            <TextareaAutosize
-              minRows={2}
-              maxRows={4}
-              name="description"
-              placeholder="A thrilling adventure where..."
-              required
-            />
-            <Field.Error />
-            <Field.Description>
-              Description of scenario, should be catchy and describe scenario
-              summary. 1-3 sentences.
-            </Field.Description>
-          </Field.Root>
-        </>
-      )}
+              <form.Field name="description">
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Description</FieldLabel>
+                      <TextareaAutosize
+                        id={field.name}
+                        minRows={2}
+                        maxRows={4}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        placeholder="A thrilling adventure where..."
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                      <FieldDescription>
+                        Description of scenario, should be catchy and describe
+                        scenario summary. 1-3 sentences.
+                      </FieldDescription>
+                    </Field>
+                  );
+                }}
+              </form.Field>
+            </>
+          )
+        }
+      </form.Field>
 
-      <Field.Root name="anonymous">
-        <div className="flex items-center gap-[12px]">
-          <Switch.Root name="anonymous">
-            <Switch.Thumb />
-          </Switch.Root>
-          <div className="flex flex-col gap-[4px]">
-            <Field.Label className="mb-0">Publish anonymously</Field.Label>
-            <Field.Description>
-              In anonymous mode, your name and profile won't be displayed
-              publicly. You will still be able to manage scenario.
-            </Field.Description>
-          </div>
-        </div>
-        <Field.Error />
-      </Field.Root>
+      <form.Field name="anonymous">
+        {(field) => {
+          const isInvalid =
+            field.state.meta.isTouched && !field.state.meta.isValid;
+          return (
+            <Field data-invalid={isInvalid}>
+              <div className="flex items-center gap-[12px]">
+                <Switch
+                  checked={field.state.value}
+                  onCheckedChange={(checked) => field.handleChange(checked)}
+                />
+                <div className="flex flex-col gap-[4px]">
+                  <FieldLabel className="mb-0">Publish anonymously</FieldLabel>
+                  <FieldDescription>
+                    In anonymous mode, your name and profile won&apos;t be
+                    displayed publicly. You will still be able to manage
+                    scenario.
+                  </FieldDescription>
+                </div>
+              </div>
+              {isInvalid && <FieldError errors={field.state.meta.errors} />}
+            </Field>
+          );
+        }}
+      </form.Field>
 
       <div className="space-y-[12px] pt-[12px]">
-        {errors.submit && (
+        {submitError && (
           <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-[12px] p-[12px]">
-            {errors.submit}
+            {submitError}
           </div>
         )}
 
         <ButtonGroup className="justify-end">
           <PublishInfo />
-          <Button type="submit" color="primary" disabled={isSubmitting}>
-            {isSubmitting ? "Publishing..." : "Publish Scenario"}
+          <Button type="submit" disabled={form.state.isSubmitting}>
+            {form.state.isSubmitting ? "Publishing..." : "Publish Scenario"}
           </Button>
         </ButtonGroup>
       </div>
-    </Form>
+    </form>
   );
 }
 
 function PublishInfo() {
   return (
     <Popover modal={false}>
-      <PopoverTrigger nativeButton render={<Button size="icon" />}>
-        <InfoIcon />
+      <PopoverTrigger asChild>
+        <Button size="icon">
+          <InfoIcon />
+        </Button>
       </PopoverTrigger>
-      <PopoverPositioner side="top">
-        <PopoverPopup className="max-w-[420px]">
-          <PopoverContent>
-            <h3 className="text-[1.05rem] font-[500] font-onest">
-              Publishing scenario
-            </h3>
+      <PopoverContent side="top" className="max-w-[420px]">
+        <div className="space-y-2">
+          <h3 className="text-[1.05rem] font-[500] font-onest">
+            Publishing scenario
+          </h3>
 
-            <p>
-              After you submit the scenario to publish, we will perform an
-              automated AI review of scenario content to make sure the content
-              is appropraite. This process may take few minutes, before the
-              scenario is published.
-              <br />
-              <br /> Scenario might not be published if it has inappropriate
-              content.
-              <br />
-              <br /> Scenario background image will be automatically created
-              with AI. For now this is only option available, but we plan more
-              customization in future.
-              <br />
-              <br />
-              In case of any issue, please report them on our Discord:{" "}
-              <a
-                href={DISCORD_INVITE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-purple-500 hover:text-purple-600"
-              >
-                Discord
-              </a>
-            </p>
-          </PopoverContent>
-        </PopoverPopup>
-      </PopoverPositioner>
+          <p className="text-sm">
+            After you submit the scenario to publish, we will perform an
+            automated AI review of scenario content to make sure the content is
+            appropraite. This process may take few minutes, before the scenario
+            is published.
+            <br />
+            <br /> Scenario might not be published if it has inappropriate
+            content.
+            <br />
+            <br /> Scenario background image will be automatically created with
+            AI. For now this is only option available, but we plan more
+            customization in future.
+            <br />
+            <br />
+            In case of any issue, please report them on our Discord:{" "}
+            <a
+              href={DISCORD_INVITE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-500 hover:text-purple-600"
+            >
+              Discord
+            </a>
+          </p>
+        </div>
+      </PopoverContent>
     </Popover>
   );
 }

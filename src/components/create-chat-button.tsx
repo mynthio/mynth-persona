@@ -1,8 +1,8 @@
 "use client";
 
 import { createChatAction } from "@/actions/create-chat.action";
-import { Button } from "./mynth-ui/base/button";
-import { useToast } from "./ui/toast";
+import { Button } from "./ui/button";
+import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserChatsMutation } from "@/app/_queries/use-user-chats.query";
@@ -18,7 +18,6 @@ export function CreateChatButton({
 }: CreateChatButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const mutate = useUserChatsMutation();
-  const { promise } = useToast();
   const { push } = useRouter();
 
   return (
@@ -33,7 +32,7 @@ export function CreateChatButton({
             path: typeof window !== "undefined" ? window.location.pathname : undefined,
           });
         } catch {}
-        promise(
+        toast.promise(
           createChatAction(personaId)
             .catch((error) => {
               if (error.message === "NEXT_REDIRECT") {

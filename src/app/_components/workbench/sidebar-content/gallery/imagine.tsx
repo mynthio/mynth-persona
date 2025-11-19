@@ -11,6 +11,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Item,
+  ItemContent,
+  ItemTitle,
+  ItemActions,
+} from "@/components/ui/item";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { usePersonaGenerationStore } from "@/stores/persona-generation.store";
@@ -18,9 +30,9 @@ import { ImageStyle } from "@/types/image-generation/image-style.type";
 import { ShotType } from "@/types/image-generation/shot-type.type";
 import { ImageModelId, IMAGE_MODELS } from "@/config/shared/image-models";
 import { useState } from "react";
-import { useToast } from "@/components/ui/toast";
+import { toast } from "sonner";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Check } from "lucide-react";
 
 type GenerationOptions = {
   modelId: ImageModelId;
@@ -35,9 +47,6 @@ export default function Imagine() {
   const personaGenerationStore = usePersonaGenerationStore();
   const [isLoading, setIsLoading] = useState(false);
   const [, setWorkbenchMode] = useWorkbenchMode();
-
-  // Plan-based access and rate limiting handled server-side
-  const toast = useToast();
 
   const [options, setOptions] = useState<GenerationOptions>({
     modelId: "black-forest-labs/flux-dev",
@@ -61,28 +70,21 @@ export default function Imagine() {
       });
 
       if (!result.success) {
-        // Handle error from server action
         const { code, message } = result.error;
 
         if (code === "CONCURRENT_LIMIT_EXCEEDED") {
-          toast.add({
-            title: "Concurrent generation limit reached",
+          toast.error("Concurrent generation limit reached", {
             description:
               "You've reached the limit of concurrent generations. Upgrade your plan for more.",
-            type: "error",
           });
         } else if (code === "RATE_LIMIT_EXCEEDED") {
-          toast.add({
-            title: "Rate limit exceeded",
+          toast.error("Rate limit exceeded", {
             description:
               "You've reached your image generation limit. Please try again later.",
-            type: "error",
           });
         } else {
-          toast.add({
-            title: "Failed to generate image",
+          toast.error("Failed to generate image", {
             description: message,
-            type: "error",
           });
         }
         return;
@@ -90,7 +92,6 @@ export default function Imagine() {
 
       const { taskId: runId, publicAccessToken } = result.data;
 
-      // Use action method to avoid stale state issues
       personaGenerationStore.addImageGenerationRun(runId, {
         runId,
         publicAccessToken,
@@ -98,16 +99,12 @@ export default function Imagine() {
         startedAt: Date.now(),
       });
 
-      // Ensure main content is the Gallery so the in-progress tile is visible
       setWorkbenchMode("gallery");
     } catch (error) {
-      // Handle unexpected errors (network issues, etc.)
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-      toast.add({
-        title: "Failed to generate image",
+      toast.error("Failed to generate image", {
         description: errorMessage,
-        type: "error",
       });
     } finally {
       setIsLoading(false);
@@ -117,135 +114,157 @@ export default function Imagine() {
   return (
     <div className="flex flex-col h-full max-h-full overflow-hidden">
       <ScrollArea className="h-full min-h-0 w-full min-w-0 max-w-full overflow-x-hidden">
-        <div className="min-h-0 mt-auto h-full overflow-y-auto overflow-x-hidden flex flex-col justify-start gap-4 px-4 pt-0 pb-3">
-          <Section title="Model">
-            <TooltipProvider>
-              <div className="space-y-2">
+        <div className="min-h-0 mt-auto h-full overflow-y-auto overflow-x-hidden flex flex-col justify-start gap-6 px-4 pt-0 pb-3">
+          {/* Model Selection */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm uppercase tracking-wide">
+                Model
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <TooltipProvider>
                 {Object.values(IMAGE_MODELS).map((model) => {
                   const isPremium = model.cost > 1;
                   const selected = options.modelId === model.id;
                   return (
-                    <div
+                    <Item
                       key={model.id}
+                      variant="outline"
+                      size="sm"
+                      className={cn(
+                        "cursor-pointer transition-all",
+                        selected && "ring-2 ring-primary ring-offset-1"
+                      )}
                       onClick={() =>
                         setOptions({
                           ...options,
                           modelId: model.id,
                         })
                       }
-                      className={cn(
-                        "group relative flex items-center justify-between gap-3 rounded-lg p-3 cursor-pointer transition-all",
-                        "border border-zinc-200/60 bg-white/70 dark:bg-zinc-900/50 backdrop-blur-sm",
-                        "hover:shadow-md",
-                        selected && "ring-2 ring-primary/80 ring-offset-1"
-                      )}
                     >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-[13px] font-medium truncate">
+                      <ItemContent>
+                        <ItemTitle className="flex items-center gap-2">
                           {model.displayName}
-                        </span>
-                        {isPremium && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-700 px-1.5 py-0.5 text-[10px] font-medium">
-                                <Sparkles className="w-3 h-3" /> Premium
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p className="text-xs max-w-[220px]">
-                                Higher quality output. Uses more of your daily
-                                limit.
-                              </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
-                      </div>
-                      <div
-                        className={cn(
-                          "relative flex items-center justify-center w-4 h-4 rounded-full border transition-all",
-                          selected
-                            ? "border-primary bg-primary"
-                            : "border-zinc-300 bg-white"
-                        )}
-                      >
+                          {isPremium && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-700 px-1.5 py-0.5 text-[10px] font-medium">
+                                  <Sparkles className="w-3 h-3" /> Premium
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="text-xs max-w-[220px]">
+                                  Higher quality output. Uses more of your daily
+                                  limit.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                        </ItemTitle>
+                      </ItemContent>
+                      <ItemActions>
                         <div
                           className={cn(
-                            "w-2 h-2 rounded-full transition-opacity",
+                            "relative flex items-center justify-center w-5 h-5 rounded-full border-2 transition-all",
                             selected
-                              ? "opacity-100 bg-white"
-                              : "opacity-0 bg-transparent"
+                              ? "border-primary bg-primary"
+                              : "border-muted-foreground/30"
                           )}
-                        />
-                      </div>
-                    </div>
+                        >
+                          {selected && (
+                            <Check className="w-3 h-3 text-primary-foreground" />
+                          )}
+                        </div>
+                      </ItemActions>
+                    </Item>
                   );
                 })}
-              </div>
-            </TooltipProvider>
-          </Section>
+              </TooltipProvider>
+            </CardContent>
+          </Card>
 
-          <Section title="Style">
-            <div className="grid grid-cols-4 gap-2">
-              {(["auto", "realistic", "anime", "cinematic"] as const).map(
-                (style) => (
-                  <StyleCard
-                    key={style}
-                    style={style}
-                    selected={options.style === style}
-                    onClick={() => setOptions({ ...options, style })}
+          {/* Style Selection */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm uppercase tracking-wide">
+                Style
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-4 gap-2">
+                {(["auto", "realistic", "anime", "cinematic"] as const).map(
+                  (style) => (
+                    <StyleCard
+                      key={style}
+                      style={style}
+                      selected={options.style === style}
+                      onClick={() => setOptions({ ...options, style })}
+                    />
+                  )
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Shot Type Selection */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm uppercase tracking-wide">
+                Shot Type
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-3">
+                {(["full-body", "portrait"] as const).map((shotType) => (
+                  <ShotTypeCard
+                    key={shotType}
+                    shotType={shotType}
+                    selected={options.shotType === shotType}
+                    onClick={() => setOptions({ ...options, shotType })}
                   />
-                )
-              )}
-            </div>
-          </Section>
-
-          <Section title="Shot type">
-            <div className="grid grid-cols-2 gap-2">
-              {(["full-body", "portrait"] as const).map((shotType) => (
-                <ShotTypeCard
-                  key={shotType}
-                  shotType={shotType}
-                  selected={options.shotType === shotType}
-                  onClick={() => setOptions({ ...options, shotType })}
-                />
-              ))}
-            </div>
-          </Section>
-
-          <div className="rounded-xl border border-zinc-200/60 bg-white/70 dark:bg-zinc-900/50 backdrop-blur-sm p-3 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <Label htmlFor="user-note" className="text-[13px] font-semibold">
-                Additional notes
-              </Label>
-              <div className="text-[11px] text-zinc-500">
-                {options.userNote.length}/500
+                ))}
               </div>
-            </div>
-            <Textarea
-              id="user-note"
-              placeholder="e.g. Professional headshot, soft light, natural background"
-              value={options.userNote}
-              onChange={(e) =>
-                setOptions({
-                  ...options,
-                  userNote: e.target.value.slice(0, 500),
-                })
-              }
-              className="min-h-[84px] resize-none text-sm border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:border-0"
-              maxLength={500}
-            />
-          </div>
+            </CardContent>
+          </Card>
+
+          {/* Additional Notes */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm uppercase tracking-wide">
+                Additional Notes
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+                <span>Optional details for the generation</span>
+                <span>{options.userNote.length}/500</span>
+              </div>
+              <Textarea
+                placeholder="e.g. Professional headshot, soft light, natural background"
+                value={options.userNote}
+                onChange={(e) =>
+                  setOptions({
+                    ...options,
+                    userNote: e.target.value.slice(0, 500),
+                  })
+                }
+                className="min-h-[84px] resize-none"
+                maxLength={500}
+              />
+            </CardContent>
+          </Card>
         </div>
       </ScrollArea>
 
-      <div className="shrink-0  dark:bg-zinc-900/50 backdrop-blur-sm px-2 pb-2">
-        <div className="flex items-center justify-end gap-2 bg-white rounded-md p-2">
+      {/* Action Buttons - Sticky Footer */}
+      <div className="shrink-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3">
+        <div className="flex items-center justify-end gap-2">
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             disabled={isLoading}
             onClick={() => {
-              // Reset to defaults
               setOptions({
                 modelId: "black-forest-labs/flux-dev",
                 style: "auto",
@@ -260,25 +279,7 @@ export default function Imagine() {
             {isLoading ? "Generating..." : "Generate"}
           </Button>
         </div>
-        {/* Plan-based access and rate limiting enforced server-side */}
       </div>
-    </div>
-  );
-}
-
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-zinc-200/60 bg-white/70 dark:bg-zinc-900/50 backdrop-blur-sm p-3 shadow-sm">
-      <h3 className="text-[12px] font-semibold text-zinc-900/90 mb-2 tracking-wide uppercase">
-        {title}
-      </h3>
-      {children}
     </div>
   );
 }
@@ -310,16 +311,17 @@ function StyleCard({
   };
 
   return (
-    <div
+    <button
       onClick={onClick}
       className={cn(
-        "group relative cursor-pointer rounded-lg p-1.5 overflow-hidden",
-        "border border-zinc-200/60 bg-white/60 dark:bg-zinc-900/40 backdrop-blur-sm",
-        "hover:shadow-md transition-all",
-        selected && "ring-2 ring-primary/80 ring-offset-1"
+        "relative cursor-pointer rounded-lg p-1 overflow-hidden transition-all",
+        "border-2",
+        selected
+          ? "border-primary ring-2 ring-primary/20"
+          : "border-border hover:border-primary/50"
       )}
     >
-      <div className="aspect-square rounded-md mb-1 overflow-hidden relative">
+      <div className="aspect-square rounded-md overflow-hidden relative">
         {styleImages[style] ? (
           <img
             src={styleImages[style]!}
@@ -327,20 +329,17 @@ function StyleCard({
             className="w-full h-full object-cover"
           />
         ) : null}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
-        <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full border border-white/70 bg-black/30 backdrop-blur-sm grid place-items-center">
-          <div
-            className={cn(
-              "w-2 h-2 rounded-full",
-              selected ? "bg-white" : "bg-white/30"
-            )}
-          />
-        </div>
-        <div className="absolute bottom-1.5 left-1.5 text-white text-[11px] font-medium px-1.5 py-0.5 rounded-md bg-black/40 backdrop-blur-sm">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        {selected && (
+          <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary grid place-items-center">
+            <Check className="w-3 h-3 text-primary-foreground" />
+          </div>
+        )}
+        <div className="absolute bottom-1.5 left-1.5 text-white text-[11px] font-semibold px-2 py-1 rounded-md bg-black/50 backdrop-blur-sm">
           {styleLabels[style]}
         </div>
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -366,34 +365,32 @@ function ShotTypeCard({
   };
 
   return (
-    <div
+    <button
       onClick={onClick}
       className={cn(
-        "group relative cursor-pointer rounded-lg p-1.5 overflow-hidden",
-        "border border-zinc-200/60 bg-white/60 dark:bg-zinc-900/40 backdrop-blur-sm",
-        "hover:shadow-md transition-all",
-        selected && "ring-2 ring-primary/80 ring-offset-1"
+        "relative cursor-pointer rounded-lg p-1.5 overflow-hidden transition-all",
+        "border-2",
+        selected
+          ? "border-primary ring-2 ring-primary/20"
+          : "border-border hover:border-primary/50"
       )}
     >
-      <div className="aspect-3/4 rounded-md overflow-hidden relative">
+      <div className="aspect-[3/4] rounded-md overflow-hidden relative">
         <img
           src={images[shotType]}
           alt={`${labels[shotType]} example`}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
-        <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full border border-white/70 bg-black/30 backdrop-blur-sm grid place-items-center">
-          <div
-            className={cn(
-              "w-2 h-2 rounded-full",
-              selected ? "bg-white" : "bg-white/30"
-            )}
-          />
-        </div>
-        <div className="absolute bottom-1.5 left-1.5 text-white text-[11px] font-medium px-1.5 py-0.5 rounded-md bg-black/40 backdrop-blur-sm">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        {selected && (
+          <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary grid place-items-center">
+            <Check className="w-3 h-3 text-primary-foreground" />
+          </div>
+        )}
+        <div className="absolute bottom-1.5 left-1.5 text-white text-[11px] font-semibold px-2 py-1 rounded-md bg-black/50 backdrop-blur-sm">
           {labels[shotType]}
         </div>
       </div>
-    </div>
+    </button>
   );
 }

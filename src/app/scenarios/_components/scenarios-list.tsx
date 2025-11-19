@@ -1,7 +1,8 @@
 "use client";
 
-import { Button } from "@/components/mynth-ui/base/button";
-import { Link } from "@/components/ui/link";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   GlobeIcon,
   LockIcon,
@@ -10,6 +11,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import useSWR from "swr";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 type Scenario = {
   id: string;
@@ -87,65 +89,75 @@ export function ScenariosList({ initialData, eventFilter }: ScenariosListProps) 
   };
 
   return (
-    <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-[6px]">
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {scenarios.map((scenario) => (
           <ScenarioCard key={scenario.id} scenario={scenario} />
         ))}
       </div>
 
       {(hasPrevious || hasMore) && (
-        <div className="flex items-center justify-center gap-[8px] mt-[24px]">
+        <div className="flex items-center justify-center gap-2">
           <Button
-            color="default"
+            variant="outline"
+            size="sm"
             onClick={handlePrevious}
             disabled={!hasPrevious || isLoading}
           >
-            <CaretLeftIcon />
+            <CaretLeftIcon className="mr-2 h-4 w-4" />
             Previous
           </Button>
           <Button
-            color="default"
+            variant="outline"
+            size="sm"
             onClick={handleNext}
             disabled={!hasMore || isLoading}
           >
             Next
-            <CaretRightIcon />
+            <CaretRightIcon className="ml-2 h-4 w-4" />
           </Button>
         </div>
       )}
-    </>
+    </div>
   );
 }
 
 function ScenarioCard({ scenario }: { scenario: Scenario }) {
   return (
-    <div className="relative text-primary-foreground flex justify-between flex-col w-full overflow-hidden z-0 rounded-[12px] border-[3px] border-surface-foreground/25 h-[220px] bg-linear-to-tr from-primary to-primary/80">
-      <div className="flex flex-wrap gap-[4px] px-[24px] py-[12px]">
-        <div className="cursor-default pointer-events-none flex items-center gap-[4px] text-[0.80rem] bg-primary/50 backdrop-blur-[3px] rounded-[9px] h-[28px] px-[12px] text-primary-foreground/80">
-          {scenario.visibility === "public" ? <GlobeIcon /> : <LockIcon />}
-          {scenario.visibility === "public" ? "Public" : "Private"}
-        </div>
-      </div>
-      <div className="max-w-11/12 px-[24px] py-[12px]">
-        <Link
-          href={`/scenarios/${scenario.id}`}
-          className="font-onest text-balance text-[1.5rem] leading-tight text-primary-foreground/90 font-[300]"
-        >
-          {scenario.title}
-        </Link>
-      </div>
+    <Link href={`/scenarios/${scenario.id}`} className="block group">
+      <Card className="relative h-[220px] overflow-hidden border-2 transition-all hover:border-primary/50 hover:shadow-lg p-0">
+        {scenario.backgroundImageUrl && (
+          <>
+            <div className="absolute inset-0 z-0">
+              <img
+                src={scenario.backgroundImageUrl}
+                alt={scenario.title}
+                className="w-full h-full object-cover object-center transition-transform group-hover:scale-105 duration-300"
+              />
+            </div>
+            <div className="absolute inset-0 z-10 bg-gradient-to-tr from-background/95 via-background/80 to-background/60" />
+          </>
+        )}
 
-      {scenario.backgroundImageUrl && (
-        <>
-          <div className="absolute left-0 top-0 w-full h-full bg-linear-to-tr from-primary via-primary/80 to-primary/10 -z-10" />
-          <img
-            src={scenario.backgroundImageUrl}
-            alt={scenario.title}
-            className="absolute left-0 top-0 w-full h-full object-cover object-center -z-20"
-          />
-        </>
-      )}
-    </div>
+        <div className="relative z-20 h-full flex flex-col justify-between p-6">
+          <div className="flex items-center gap-2">
+            <Badge variant={scenario.visibility === "public" ? "secondary" : "outline"} className="gap-1.5">
+              {scenario.visibility === "public" ? (
+                <GlobeIcon className="h-3 w-3" />
+              ) : (
+                <LockIcon className="h-3 w-3" />
+              )}
+              {scenario.visibility === "public" ? "Public" : "Private"}
+            </Badge>
+          </div>
+
+          <div>
+            <h3 className="text-2xl font-light leading-tight tracking-tight line-clamp-2">
+              {scenario.title}
+            </h3>
+          </div>
+        </div>
+      </Card>
+    </Link>
   );
 }

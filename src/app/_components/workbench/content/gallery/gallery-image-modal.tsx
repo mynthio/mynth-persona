@@ -12,7 +12,7 @@ import { SpinnerGap } from "@phosphor-icons/react/dist/ssr";
 import { setPersonaProfileImage } from "@/actions/set-persona-profile-image.action";
 
 import { useMemo, useState } from "react";
-import { useToast } from "@/components/ui/toast";
+import { toast } from "sonner";
 import { fetcher } from "@/lib/fetcher";
 
 export default function GalleryImageModal() {
@@ -20,8 +20,6 @@ export default function GalleryImageModal() {
   const params = useParams<{ personaId: string }>();
   const personaId = params.personaId;
   const isOpen = Boolean(imageId);
-
-  const toast = useToast();
 
   const { data, isLoading } = useSWR(
     isOpen && imageId ? `/api/images/${imageId}` : null,
@@ -50,14 +48,12 @@ export default function GalleryImageModal() {
     setIsSettingProfileImage(true);
     try {
       await setPersonaProfileImage(imageId);
-      toast.add({
-        title: "Success",
+      toast.success("Success", {
         description: "Profile image updated",
       });
       if (personaId) mutate(`/api/personas/${personaId}`);
     } catch (error) {
-      toast.add({
-        title: "Error",
+      toast.error("Error", {
         description:
           error instanceof Error
             ? error.message

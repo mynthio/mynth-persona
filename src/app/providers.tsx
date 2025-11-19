@@ -3,24 +3,33 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import { SWRConfig } from "swr";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
-import { ToastProvider } from "@/components/ui/toast";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 import { Suspense } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
-      <SWRConfig
-        value={{
-          revalidateOnFocus: false,
-          revalidateOnReconnect: false,
-        }}
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
       >
-        <Suspense>
-          <NuqsAdapter>
-            <ToastProvider>{children}</ToastProvider>
-          </NuqsAdapter>
-        </Suspense>
-      </SWRConfig>
+        <SWRConfig
+          value={{
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+          }}
+        >
+          <Suspense>
+            <NuqsAdapter>
+              {children}
+              <Toaster />
+            </NuqsAdapter>
+          </Suspense>
+        </SWRConfig>
+      </ThemeProvider>
     </ClerkProvider>
   );
 }

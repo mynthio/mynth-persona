@@ -4,8 +4,7 @@ import { PublicPersonaListItem } from "@/schemas/shared/persona-public.schema";
 import { getImageUrl, getVideoUrl } from "@/lib/utils";
 import { Masonry, useInfiniteLoader } from "masonic";
 import { useCallback, useMemo, useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { useSidebar } from "@/components/ui/sidebar";
+
 import {
   BirdIcon,
   CircleNotchIcon,
@@ -24,7 +23,9 @@ import { useLocalStorage } from "@uidotdev/usehooks";
 import useSWRInfinite from "swr/infinite";
 import { fetcher } from "@/lib/fetcher";
 import { Menu } from "@base-ui-components/react/menu";
-import { Button } from "@/components/mynth-ui/base/button";
+import { Button } from "@/components/ui/button";
+import { Link } from "@/components/ui/link";
+import { ProgressiveBlur } from "@/components/ui/progressive-blur";
 
 export default function PublicPersonas() {
   const [includeNsfw, setIncludeNsfw] = useLocalStorage("show-nsfw", false);
@@ -133,66 +134,6 @@ export default function PublicPersonas() {
 
   return (
     <div className="p-2 px-6">
-      <div className="flex items-center justify-end gap-3 px-[24px] mb-[12px] z-50 relative">
-        <Menu.Root>
-          <Menu.Trigger render={<Button variant="outline" />}>
-            filters
-            <FadersHorizontalIcon />
-          </Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner className="outline-none z-[100]" sideOffset={8}>
-              <Menu.Popup className="z-50 w-[124px] p-[4px] origin-[var(--transform-origin)] rounded-[16px] bg-[canvas] text-gray-900 shadow-lg shadow-surface-foreground/30 outline-1 outline-gray-200 transition-[transform,scale,opacity] data-[ending-style]:scale-90 data-[ending-style]:opacity-0 data-[starting-style]:scale-90 data-[starting-style]:opacity-0 dark:shadow-none dark:-outline-offset-1 dark:outline-gray-300">
-                <div className="px-[12px] py-[6px] text-xs font-medium text-surface-foreground/60 capitalize">
-                  mature content
-                </div>
-                <Menu.Item
-                  onClick={() => setIncludeNsfw(false)}
-                  className="flex cursor-default w-full
-                   items-center justify-between gap-[6px]
-                h-[36px] px-[12px]
-                rounded-[12px]
-                text-sm leading-4 
-                outline-none 
-                select-none 
-                transition-colors
-                duration-200
-                text-surface-foreground/80
-                
-                data-[highlighted]:text-surface-foreground
-                
-                data-[highlighted]:bg-surface-foreground/10
-                "
-                >
-                  Off
-                  <EyeClosedIcon />
-                </Menu.Item>
-                <Menu.Item
-                  onClick={() => setIncludeNsfw(true)}
-                  className="flex cursor-default w-full
-                   items-center justify-between gap-[6px]
-                h-[36px] px-[12px]
-                rounded-[12px]
-                text-sm leading-4 
-                outline-none 
-                select-none 
-                transition-colors
-                duration-200
-                text-surface-foreground/80
-                
-                data-[highlighted]:text-surface-foreground
-                
-                data-[highlighted]:bg-surface-foreground/10
-                "
-                >
-                  On
-                  <EyeIcon />
-                </Menu.Item>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>
-      </div>
-
       <Masonry<PublicPersonaListItem>
         key={includeNsfw ? "nsfw-on" : "nsfw-off"}
         items={items}
@@ -335,7 +276,7 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
     if (!hasVideo || !videoRef.current) return;
     // Replay on hover; make it visible again
     videoRef.current.currentTime = 0;
-    videoRef.current.play().catch(() => {});
+    videoRef.current.play().catch(() => { });
   }, [hasVideo]);
 
   return (
@@ -370,15 +311,12 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
         </div>
       </div>
 
-      <div className="pointer-events-none z-10 bg-gradient-to-t from-background via-background to-background/0 pt-[48px] pb-[32px] px-[24px]">
-        <div className="text-foreground/80 font-[600] font-onest text-[1.66rem] leading-[1.52rem]">
+      <div className="pointer-events-none z-10 pt-[48px] pb-[32px] px-[24px]">
+        <div className="text-white/90 font-[600] font-onest text-[1.66rem] leading-[1.52rem]">
           {persona.publicName}
         </div>
-        {/* <div className="text-white/80 text-[11px] md:text-xs">
-          {persona.ageBucket}
-        </div> */}
 
-        <div className="text-foreground/70 text-[0.93rem] leading-[0.935rem] mt-[6px]">
+        <div className="text-white/70 text-balance text-[0.93rem] leading-[0.935rem] mt-[6px]">
           {persona.headline}
         </div>
       </div>
@@ -396,9 +334,8 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
       {hasVideo && videoUrl ? (
         <video
           ref={videoRef}
-          className={`w-full h-full absolute top-0 left-0 right-0 bottom-0 object-cover transition-opacity duration-200 ${
-            isVideoVisible ? "opacity-100" : "opacity-0"
-          }`}
+          className={`w-full h-full absolute top-0 left-0 right-0 bottom-0 object-cover transition-opacity duration-200 ${isVideoVisible ? "opacity-100" : "opacity-0"
+            }`}
           src={videoUrl}
           poster={getImageUrl(persona.profileImageIdMedia)}
           muted
@@ -409,6 +346,8 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
           crossOrigin="anonymous"
         />
       ) : null}
+
+      <div className="w-full h-[300px] bg-linear-to-t from-black to-black/0 absolute bottom-0 left-0" />
     </Link>
   );
 }

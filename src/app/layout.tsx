@@ -1,26 +1,21 @@
 import type { Metadata } from "next";
-import { Inter, Onest, Space_Mono } from "next/font/google";
+import { Inter, Montserrat } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppRail } from "@/components/app-rail";
 import { cookies } from "next/headers";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const onest = Onest({
-  variable: "--font-onest",
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
-});
-
-const spaceMono = Space_Mono({
-  variable: "--font-space-mono",
-  subsets: ["latin"],
-  weight: ["400", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -129,22 +124,24 @@ export default async function RootLayout({
   const defaultOpen = sidebarCookieValue === "true";
 
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" suppressHydrationWarning>
+      <head>
+        <script
+          async
+          crossOrigin="anonymous"
+          src="https://tweakcn.com/live-preview.min.js"
+        />
+      </head>
       <body
-        className={`${inter.variable} ${onest.variable} ${spaceMono.variable} antialiased h-full text-foreground`}
+        className={`${inter.variable} ${montserrat.variable} font-sans antialiased h-full z-0 relative`}
       >
         <Providers>
-          <SidebarProvider defaultOpen={defaultOpen} className="min-h-full">
-            <AppRail />
-
+          <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
 
-            <div className="p-[8px] md:pl-0 min-h-full w-full flex flex-col md:block">
-              <main className="h-full w-full min-w-0 min-h-0 self-center bg-surface border-[2.5px] border-black/70 text-surface-foreground rounded-[18px] relative">
-                {children}
-              </main>
-              <div className="md:hidden shrink-0 h-[79px]" />
-            </div>
+            <main className="h-full w-full min-w-0 min-h-0 relative rounded-xl bg-background">
+              {children}
+            </main>
           </SidebarProvider>
         </Providers>
       </body>

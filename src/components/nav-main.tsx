@@ -13,8 +13,16 @@ import {
   HeartRounded,
   Hearts,
   PlusCircle,
+  Users03,
+  Image02,
 } from "@untitledui/icons";
 import { Link } from "./ui/link";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { Button } from "@/components/ui/button";
 
 export function NavMain() {
   return (
@@ -43,12 +51,53 @@ export function NavMain() {
       <SidebarGroup>
         <SidebarGroupLabel>Your Prsna</SidebarGroupLabel>
 
-        <SidebarMenuItem>
-          <SidebarMenuButton size="lg" asChild>
-            <Link href="/library">
-              <Hearts strokeWidth={1.5} /> <span>Library</span>
-            </Link>
-          </SidebarMenuButton>
+        <SidebarMenuItem className="list-none">
+          <HoverCard openDelay={0} closeDelay={0}>
+            <HoverCardTrigger asChild>
+              <SidebarMenuButton size="lg" asChild>
+                <Link href="/library">
+                  <Hearts strokeWidth={1.5} /> <span>Library</span>
+                </Link>
+              </SidebarMenuButton>
+            </HoverCardTrigger>
+            <HoverCardContent side="right" align="start" className="w-48 p-1">
+              <div className="flex flex-col gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="justify-start gap-2 font-normal"
+                  asChild
+                >
+                  <Link href="/library/personas">
+                    <Users03 className="size-4" strokeWidth={1.5} />
+                    <span>Personas</span>
+                  </Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="justify-start gap-2 font-normal"
+                  asChild
+                >
+                  <Link href="/library/scenarios">
+                    <Feather className="size-4" strokeWidth={1.5} />
+                    <span>Scenarios</span>
+                  </Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="justify-start gap-2 font-normal"
+                  asChild
+                >
+                  <Link href="/library/images">
+                    <Image02 className="size-4" strokeWidth={1.5} />
+                    <span>Images</span>
+                  </Link>
+                </Button>
+              </div>
+            </HoverCardContent>
+          </HoverCard>
         </SidebarMenuItem>
       </SidebarGroup>
     </>

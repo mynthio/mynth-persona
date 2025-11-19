@@ -12,7 +12,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/mynth-ui/base/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { PersonaData } from "@/schemas";
 import { useSidebar } from "@/components/ui/sidebar";
 

@@ -13,7 +13,14 @@ function TopBarSection({
   className?: string;
 }) {
   return (
-    <div className={cn("w-auto flex items-center", className)}>{children}</div>
+    <div
+      className={cn(
+        "w-auto max-w-full overflow-hidden flex items-center",
+        className
+      )}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -27,7 +34,7 @@ function TopBarSectionContent({
   return (
     <div
       className={cn(
-        "h-10 rounded-lg flex items-center gap-2 w-auto bg-background min-w-0 supports-backdrop-filter:bg-background/40 supports-backdrop-filter:backdrop-blur-lg",
+        "h-10 rounded-lg max-w-full overflow-hidden [&>svg]:size-4 flex items-center gap-2 w-auto bg-background min-w-0 supports-backdrop-filter:bg-background/40 supports-backdrop-filter:backdrop-blur-lg",
         className
       )}
     >
@@ -47,18 +54,19 @@ const TopBar = React.forwardRef<HTMLDivElement, TopBarProps>(
     <div
       ref={ref}
       className={cn(
-        "w-full text-foreground/90 grid h-18 grid-cols-[1fr_auto_1fr] items-center px-6 sticky top-0 z-10",
+        "w-full text-foreground/90 grid gap-2 font-montserrat h-18 items-center px-6 sticky top-0 z-10",
+        center ? "grid-cols-[1fr_auto_1fr]" : "flex justify-between",
         className
       )}
       {...props}
     >
-      <TopBarSection>
+      <TopBarSection className="shrink-0">
         <TopBarSectionContent>{left}</TopBarSectionContent>
       </TopBarSection>
       <TopBarSection>
         <TopBarSectionContent className="px-2">{center}</TopBarSectionContent>
       </TopBarSection>
-      <TopBarSection className="justify-self-end">
+      <TopBarSection className="justify-self-end shrink-0">
         <TopBarSectionContent>{right}</TopBarSectionContent>
       </TopBarSection>
     </div>
@@ -82,9 +90,9 @@ function TopBarSidebarTrigger() {
 
 function TopBarTitle({ children }: { children: React.ReactNode }) {
   return (
-    <span className="flex items-center text-sm gap-1.5 cursor-default pointer-events-none select-none [&>svg]:size-3.5">
+    <div className="flex items-center text-sm gap-1.5 cursor-default select-none [&>svg]:size-3.5 truncate overflow-hidden max-w-full">
       {children}
-    </span>
+    </div>
   );
 }
 

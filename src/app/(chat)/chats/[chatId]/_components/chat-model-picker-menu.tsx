@@ -2,17 +2,21 @@
 
 import { useState, useMemo } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
-import {
-  Menu,
-  MenuTrigger,
-  MenuPositioner,
-  MenuPopup,
-  MenuItem,
-  MenuSeparator,
-} from "@/components/mynth-ui/base/menu";
-import { Input } from "@/components/mynth-ui/base/input";
-import { Label } from "@/components/mynth-ui/base/label";
 import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command";
 import { chatConfig } from "@/config/shared/chat/chat-models.config";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
@@ -24,6 +28,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 import { usePinnedModels } from "../_hooks/use-pinned-models.hook";
+import { Diamond01, Lightning01, Pin01, X } from "@untitledui/icons";
 
 interface ChatModelPickerMenuProps {
   currentModelId: TextGenerationModelId;
@@ -36,6 +41,7 @@ export function ChatModelPickerMenu({
   onModelChange,
   onOpenSettings,
 }: ChatModelPickerMenuProps) {
+  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 300);
   const { pinnedModelIds, isPinned, canPin, togglePin } = usePinnedModels();
@@ -77,113 +83,99 @@ export function ChatModelPickerMenu({
   const currentModel = textGenerationModels[currentModelId];
 
   return (
-    <Menu>
-      <MenuTrigger
-        nativeButton
-        render={
-          <Button
-            size="sm"
-            className="leading-none max-w-[180px] truncate"
-            aria-label="Select AI model for role-play"
-          />
-        }
-      >
-        <span className="truncate">{currentModel?.displayName}</span>
-      </MenuTrigger>
-      <MenuPositioner>
-        <MenuPopup
-          className={cn(
-            "w-[340px] max-h-[500px] flex flex-col p-0 overflow-hidden rounded-[24px]"
-          )}
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          aria-label="Select AI model for role-play"
         >
-          {/* <SearchInput value={query} onChange={setQuery} /> */}
+          <span className="truncate">{currentModel?.displayName}</span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[360px] p-0 max-h-[500px]" align="start">
+        <Command>
+          <CommandInput placeholder="Search models..." />
 
-          <div className="flex-1 overflow-y-auto px-[4px] pb-[4px]">
+          <CommandList>
             {hasPinnedModels && (
               <>
-                <SectionHeader title="Pinned" />
-                {pinnedModels.map((model) => (
-                  <ModelRow
-                    key={model.modelId}
-                    model={model}
-                    selected={model.modelId === currentModelId}
-                    isPinned={true}
-                    canPin={true}
-                    onSelect={(id) => onModelChange(id)}
-                    onTogglePin={() => togglePin(model.modelId)}
-                  />
-                ))}
-                <MenuSeparator />
+                <CommandGroup heading="Pinned">
+                  {pinnedModels.map((model) => (
+                    <ModelRow
+                      key={model.modelId}
+                      model={model}
+                      selected={model.modelId === currentModelId}
+                      isPinned={true}
+                      canPin={true}
+                      onSelect={(id) => {
+                        onModelChange(id);
+                        setOpen(false);
+                      }}
+                      onTogglePin={() => togglePin(model.modelId)}
+                    />
+                  ))}
+                </CommandGroup>
+                <CommandSeparator />
               </>
             )}
 
             {!hasPinnedModels && (
               <>
-                <EmptyHint text="Pin your favorite models (up to 5)" />
-                <MenuSeparator />
+                <CommandGroup heading="Pinned">
+                  <CommandItem disabled>
+                    Pin your favorite models (up to 5)
+                  </CommandItem>
+                </CommandGroup>
+                <CommandSeparator />
               </>
             )}
 
             {unpinnedModels.length > 0 ? (
-              unpinnedModels.map((model) => (
-                <ModelRow
-                  key={model.modelId}
-                  model={model}
-                  selected={model.modelId === currentModelId}
-                  isPinned={isPinned(model.modelId)}
-                  canPin={canPin()}
-                  onSelect={(id) => onModelChange(id)}
-                  onTogglePin={() => togglePin(model.modelId)}
-                />
-              ))
+              <CommandGroup>
+                {unpinnedModels.map((model) => (
+                  <ModelRow
+                    key={model.modelId}
+                    model={model}
+                    selected={model.modelId === currentModelId}
+                    isPinned={isPinned(model.modelId)}
+                    canPin={canPin()}
+                    onSelect={(id) => {
+                      onModelChange(id);
+                      setOpen(false);
+                    }}
+                    onTogglePin={() => togglePin(model.modelId)}
+                  />
+                ))}
+              </CommandGroup>
             ) : (
-              <div className="px-[12px] py-[24px] text-center">
-                <p className="text-[0.9rem] text-surface-foreground/50">
-                  No models found
-                </p>
-              </div>
+              <CommandEmpty>No models found</CommandEmpty>
             )}
-          </div>
+          </CommandList>
+        </Command>
 
-          <div className="border-t border-surface-200 p-[8px]">
-            <Button
-              size="sm"
-              onClick={onOpenSettings}
-              className="w-full justify-start text-[0.9rem] h-[36px] rounded-[12px]"
-            >
-              <GearIcon className="w-[16px] h-[16px] mr-[8px]" />
-              More model info
-            </Button>
-          </div>
-        </MenuPopup>
-      </MenuPositioner>
-    </Menu>
-  );
-}
-
-function SearchInput({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (val: string) => void;
-}) {
-  return (
-    <div className="p-[12px] pb-[8px]">
-      <Input
-        name="model-search"
-        placeholder="Search models..."
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-white rounded-[15px] border-0 h-[38px]"
-      />
-    </div>
+        {/* <div className="border-t border-surface-200 p-[8px]">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              onOpenSettings();
+              setOpen(false);
+            }}
+            className="w-full justify-start text-[0.9rem] h-[36px] rounded-[12px]"
+          >
+            <GearIcon className="w-[16px] h-[16px] mr-[8px]" />
+            More model info
+          </Button>
+        </div> */}
+      </PopoverContent>
+    </Popover>
   );
 }
 
 function SectionHeader({ title }: { title: string }) {
   return (
-    <div className="px-[12px] py-[6px]">
+    <div>
       <span className="text-[0.75rem] font-medium text-surface-foreground/50 uppercase tracking-wide">
         {title}
       </span>
@@ -222,52 +214,30 @@ function ModelRow({
 }) {
   const showPinButton = isPinned || canPin;
   return (
-    <MenuItem
-      className={cn(
-        "group w-full flex flex-row items-center gap-[8px] px-[12px]",
-        {
-          "bg-surface/80": selected,
-        }
-      )}
-      onClick={() => onSelect(model.modelId as TextGenerationModelId)}
+    <CommandItem
+      onSelect={() => onSelect(model.modelId as TextGenerationModelId)}
     >
-      <div className="flex w-full gap-[4px] truncate">
-        <span className="font-onest text-[0.95rem] truncate">
-          {model.displayName}
-        </span>
-
-        {model.isPremium && <PremiumBadge />}
-      </div>
+      {model.isPremium ? (
+        <Diamond01 strokeWidth={1.5} />
+      ) : (
+        <Lightning01 className="opacity-0" strokeWidth={1.5} />
+      )}
+      <span className="truncate w-full">{model.displayName}</span>
 
       {showPinButton && (
-        <button
+        <Button
           onClick={(e) => {
             e.stopPropagation();
             onTogglePin();
           }}
-          className={cn(
-            "flex items-center justify-center w-[24px] h-[24px] rounded-[8px] transition-all duration-150 shrink-0",
-            "hover:bg-surface-200/50 active:scale-95",
-            "opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100",
-            {
-              "opacity-100": isPinned,
-            }
-          )}
+          size="icon-sm"
+          variant={isPinned ? "outline" : "ghost"}
+          className="size-6 rounded-sm [&>svg]:size-2"
           aria-label={isPinned ? "Unpin model" : "Pin model"}
         >
-          {isPinned ? (
-            <PushPinIcon
-              weight="fill"
-              className="w-[14px] h-[14px] text-violet-600"
-            />
-          ) : (
-            <PushPinSimpleSlashIcon
-              weight="regular"
-              className="w-[14px] h-[14px] text-surface-foreground/40"
-            />
-          )}
-        </button>
+          {isPinned ? <X strokeWidth={1.5} /> : <Pin01 strokeWidth={1.5} />}
+        </Button>
       )}
-    </MenuItem>
+    </CommandItem>
   );
 }

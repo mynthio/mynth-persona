@@ -16,7 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { Input } from "./mynth-ui/base/input";
+import { Input } from "./ui/input";
 import {
   useState,
   useEffect,
@@ -30,7 +30,9 @@ import { cn, getImageUrl } from "@/lib/utils";
 import { useDebounce } from "@uidotdev/usehooks";
 import { fetcher } from "@/lib/fetcher";
 import useInfiniteScroll from "react-infinite-scroll-hook";
-import { ScrollArea } from "./mynth-ui/base/scroll-area";
+import { ScrollArea } from "./ui/scroll-area";
+import { Checkbox } from "./ui/checkbox";
+import { Label } from "./ui/label";
 
 const MAX_PERSONAS = 250;
 
@@ -174,9 +176,13 @@ export function PersonaSelectorTrigger({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild={asChild}>
-        {asChild && children ? children : <Button>{children || "Select Persona"}</Button>}
+        {asChild && children ? (
+          children
+        ) : (
+          <Button>{children || "Select Persona"}</Button>
+        )}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl h-[600px] max-h-[calc(100vh-3rem)]">
+      <DialogContent className="sm:max-w-2xl">
         <PersonaSelectorContent />
       </DialogContent>
     </Dialog>
@@ -331,136 +337,131 @@ function PersonaSelectorContent() {
 
   return (
     <>
-      <DialogHeader>
+      <DialogHeader className="mt-6">
+        <Input
+          className="w-full"
+          placeholder="Search personas..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <div className="flex items-center justify-between gap-2 mt-4 px-2">
+          <div className="flex items-start gap-3">
+            <Checkbox
+              id="filterType"
+              checked={filterType === "mine"}
+              onCheckedChange={(checked) => {
+                if (checked) {
+                  setFilterType("mine");
+                } else {
+                  setFilterType("all");
+                }
+              }}
+            />
+            <Label htmlFor="filterType">My library</Label>
+          </div>
+
+          {multiple && selectedPersonas.length > 0 && (
+            <span className="text-sm text-muted-foreground">
+              {selectedPersonas.length} selected
+            </span>
+          )}
+        </div>
+
         <DialogTitle className="sr-only">Select Persona</DialogTitle>
       </DialogHeader>
 
-      <div className="w-full h-full flex flex-col">
-        {/* Search and filter section */}
-        <div className="px-[24px] py-[12px] space-y-[12px]">
-          <Input
-            className="w-full"
-            placeholder="Search personas..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <div className="flex items-center justify-between">
-            <ButtonGroup>
-              <Button
-                variant={filterType === "mine" ? "outline" : "default"}
-                onClick={() =>
-                  setFilterType(filterType === "mine" ? "all" : "mine")
-                }
-              >
-                {filterType === "mine" ? <CheckSquareIcon /> : <SquareIcon />}
-                My library
-              </Button>
-            </ButtonGroup>
+      <ScrollArea className="h-[50vh] w-full">
+        {isLoading && allPersonas.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+            Loading personas...
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center h-full text-sm text-destructive">
+            Failed to load personas
+          </div>
+        ) : allPersonas.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+            No personas found
+          </div>
+        ) : (
+          <div className="space-y-1 p-2">
+            {allPersonas.map((persona) => {
+              const isSelected = selectedPersonas.some(
+                (p) => p.id === persona.id
+              );
+              return (
+                <button
+                  key={persona.id}
+                  onClick={() => handleSelect(persona)}
+                  className={cn(
+                    "w-full flex items-center py-[12px] rounded-[12px] px-[24px] gap-[12px] transition-colors",
+                    isSelected && "bg-surface-100"
+                  )}
+                >
+                  <div className="shrink-0 size-[32px] rounded-[12px] overflow-hidden bg-surface-100 flex items-center justify-center">
+                    {persona.profileImageIdMedia ? (
+                      <img
+                        src={getImageUrl(persona.profileImageIdMedia, "thumb")}
+                        alt={getPersonaDisplayName(persona)}
+                        width={48}
+                        height={48}
+                        className="object-cover"
+                      />
+                    ) : (
+                      <UserIcon className="text-surface-foreground/50" />
+                    )}
+                  </div>
 
-            {multiple && selectedPersonas.length > 0 && (
-              <span className="text-sm text-muted-foreground">
-                {selectedPersonas.length} selected
-              </span>
+                  <div className="flex-1 text-left min-w-0">
+                    <div className="font-medium text-sm truncate">
+                      {getPersonaDisplayName(persona)}
+                    </div>
+                    <div className="text-xs text-muted-foreground flex items-center gap-2">
+                      {persona.visibility === "public" && (
+                        <>
+                          <GlobeSimpleIcon className="text-blue-500" />
+                          <span>•</span>
+                        </>
+                      )}
+                      <span>{AGE_BUCKET_LABELS[persona.ageBucket]}</span>
+                      <span>•</span>
+                      <span>{GENDER_LABELS[persona.gender]}</span>
+                    </div>
+                  </div>
+
+                  {isSelected && (
+                    <CheckSquareIcon className="shrink-0 text-primary" />
+                  )}
+                </button>
+              );
+            })}
+
+            {hasMore && (
+              <div
+                ref={sentryRef}
+                className="flex items-center justify-center py-4 text-sm text-muted-foreground"
+              >
+                {isLoadingMore ? "Loading more..." : ""}
+              </div>
+            )}
+
+            {allPersonas.length >= MAX_PERSONAS && (
+              <div className="flex items-center justify-center py-4 text-sm text-muted-foreground">
+                Showing first {MAX_PERSONAS} personas
+              </div>
             )}
           </div>
-        </div>
-
-        <ScrollArea className="flex-1 min-h-0 overflow-y-auto">
-          {isLoading && allPersonas.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
-              Loading personas...
-            </div>
-          ) : error ? (
-            <div className="flex items-center justify-center h-full text-sm text-destructive">
-              Failed to load personas
-            </div>
-          ) : allPersonas.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
-              No personas found
-            </div>
-          ) : (
-            <div className="space-y-1 p-2">
-              {allPersonas.map((persona) => {
-                const isSelected = selectedPersonas.some(
-                  (p) => p.id === persona.id
-                );
-                return (
-                  <button
-                    key={persona.id}
-                    onClick={() => handleSelect(persona)}
-                    className={cn(
-                      "w-full flex items-center py-[12px] rounded-[12px] px-[24px] gap-[12px] transition-colors",
-                      isSelected && "bg-surface-100"
-                    )}
-                  >
-                    <div className="shrink-0 size-[32px] rounded-[12px] overflow-hidden bg-surface-100 flex items-center justify-center">
-                      {persona.profileImageIdMedia ? (
-                        <img
-                          src={getImageUrl(
-                            persona.profileImageIdMedia,
-                            "thumb"
-                          )}
-                          alt={getPersonaDisplayName(persona)}
-                          width={48}
-                          height={48}
-                          className="object-cover"
-                        />
-                      ) : (
-                        <UserIcon className="text-surface-foreground/50" />
-                      )}
-                    </div>
-
-                    <div className="flex-1 text-left min-w-0">
-                      <div className="font-medium text-sm truncate">
-                        {getPersonaDisplayName(persona)}
-                      </div>
-                      <div className="text-xs text-muted-foreground flex items-center gap-2">
-                        {persona.visibility === "public" && (
-                          <>
-                            <GlobeSimpleIcon className="text-blue-500" />
-                            <span>•</span>
-                          </>
-                        )}
-                        <span>{AGE_BUCKET_LABELS[persona.ageBucket]}</span>
-                        <span>•</span>
-                        <span>{GENDER_LABELS[persona.gender]}</span>
-                      </div>
-                    </div>
-
-                    {isSelected && (
-                      <CheckSquareIcon className="shrink-0 text-primary" />
-                    )}
-                  </button>
-                );
-              })}
-
-              {hasMore && (
-                <div
-                  ref={sentryRef}
-                  className="flex items-center justify-center py-4 text-sm text-muted-foreground"
-                >
-                  {isLoadingMore ? "Loading more..." : ""}
-                </div>
-              )}
-
-              {allPersonas.length >= MAX_PERSONAS && (
-                <div className="flex items-center justify-center py-4 text-sm text-muted-foreground">
-                  Showing first {MAX_PERSONAS} personas
-                </div>
-              )}
-            </div>
-          )}
-        </ScrollArea>
-
-        {/* Footer with done button for multiple select */}
-        {multiple && (
-          <div className="px-[24px] py-[12px] border-t border-surface-200">
-            <Button onClick={handleDone} className="w-full">
-              Done
-            </Button>
-          </div>
         )}
-      </div>
+      </ScrollArea>
+
+      {/* Footer with done button for multiple select */}
+      {multiple && (
+        <div className="px-[24px] py-[12px] border-t border-surface-200">
+          <Button onClick={handleDone} className="w-full">
+            Done
+          </Button>
+        </div>
+      )}
     </>
   );
 }

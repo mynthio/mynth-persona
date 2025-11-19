@@ -87,9 +87,9 @@ export const imageRateLimitGuard = async (
   }
 
   // Skip rate limiting in non-production environments
-  // if (process.env.NODE_ENV !== "production") {
-  //   return { success: true };
-  // }
+  if (process.env.NODE_ENV !== "production") {
+    return { success: true };
+  }
 
   try {
     await rateLimiter.consume(identifier, cost);

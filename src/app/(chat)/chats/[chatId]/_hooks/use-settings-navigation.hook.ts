@@ -9,8 +9,7 @@ export type SettingsNav =
   | "settings"
   | "model"
   | "user"
-  | "scenario"
-  | "images";
+  | "scenario";
 
 const DEFAULT_OPEN_VALUE: SettingsNav = "_";
 

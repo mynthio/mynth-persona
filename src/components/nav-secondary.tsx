@@ -53,7 +53,7 @@ export function NavSecondary(props: React.ComponentProps<typeof SidebarGroup>) {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      X (Twitter)
+                      X
                     </a>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>

@@ -1,53 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface GradientColors {
-  dark: {
-    border: string;
-    overlay: string;
-    accent: string;
-    text: string;
-    glow: string;
-    textGlow: string;
-    hover: string;
-  };
-  light: {
-    border: string;
-    base: string;
-    overlay: string;
-    accent: string;
-    text: string;
-    glow: string;
-    hover: string;
-  };
-}
-
 interface GradientButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
   className?: string;
 }
-
-const colors: GradientColors = {
-  dark: {
-    border: "from-[#6B46C1] via-[#0C1F21] to-[#553C9A]",
-    overlay: "from-[#7E22CE]/40 via-[#0C1F21] to-[#6B46C1]/30",
-    accent: "from-[#E9D8FD]/10 via-[#0C1F21] to-[#44337A]/50",
-    text: "from-[#E9D8FD] to-[#D6BCFA]",
-    glow: "rgba(159,122,234,0.1)",
-    textGlow: "rgba(159,122,234,0.4)",
-    hover: "from-[#44337A]/20 via-[#B794F4]/10 to-[#44337A]/20",
-  },
-  light: {
-    border: "from-purple-400 via-purple-300 to-purple-200",
-    base: "from-purple-50 via-purple-50/80 to-purple-50/90",
-    overlay: "from-purple-300/30 via-purple-200/20 to-purple-400/20",
-    accent: "from-purple-400/20 via-purple-300/10 to-purple-200/30",
-    text: "from-purple-700 to-purple-600",
-    glow: "rgba(159,122,234,0.2)",
-    hover: "from-purple-300/30 via-purple-200/20 to-purple-300/30",
-  },
-};
 
 export default function GradientButton({
   children,
@@ -55,88 +13,42 @@ export default function GradientButton({
   ...props
 }: GradientButtonProps) {
   return (
-    <div className="group inline-block">
+    <div className="group/gradientbutton inline-block">
       <Button
         variant="ghost"
         className={cn(
-          "relative h-10 px-4 rounded-md overflow-hidden transition-all duration-500",
+          "relative h-9 px-4 rounded-md overflow-hidden transition-all duration-500",
           className
         )}
         {...props}
       >
-        <div
-          className={cn(
-            "absolute inset-0 rounded-md p-[2px] bg-linear-to-b",
-            "dark:bg-none",
-            colors.light.border,
-            colors.dark.border
-          )}
-        >
-          <div
-            className={cn(
-              "absolute inset-0 rounded-md opacity-90",
-              "bg-white/80",
-              "dark:bg-[#0C1F21]"
-            )}
-          />
+        {/* Border gradient layer */}
+        <div className="absolute inset-0 rounded-md p-[2px] bg-linear-to-b from-primary/60 via-border to-primary/40 dark:from-secondary/50 dark:via-card dark:to-primary/30">
+          <div className="absolute inset-0 rounded-md bg-card/90 dark:bg-card/95" />
         </div>
 
-        <div
-          className={cn(
-            "absolute inset-[2px] rounded-md opacity-95",
-            "bg-white/80",
-            "dark:bg-[#0C1F21]"
-          )}
-        />
+        {/* Base background */}
+        <div className="absolute inset-[2px] rounded-md bg-card/95 dark:bg-card" />
 
-        <div
-          className={cn(
-            "absolute inset-[2px] bg-linear-to-r rounded-md opacity-90",
-            colors.light.base,
-            "dark:from-[#0C1F21] dark:via-[#0C1F21] dark:to-[#0C1F21]"
-          )}
-        />
-        <div
-          className={cn(
-            "absolute inset-[2px] bg-linear-to-b rounded-md opacity-80",
-            colors.light.overlay,
-            colors.dark.overlay
-          )}
-        />
-        <div
-          className={cn(
-            "absolute inset-[2px] bg-linear-to-br rounded-md",
-            colors.light.accent,
-            colors.dark.accent
-          )}
-        />
+        {/* Light mode subtle gradient */}
+        <div className="absolute inset-[2px] bg-linear-to-r rounded-md opacity-90 from-accent/10 via-card/80 to-accent/5 dark:from-card dark:via-card dark:to-card" />
 
-        <div
-          className={cn(
-            "absolute inset-[2px] rounded-md",
-            `shadow-[inset_0_0_10px_${colors.light.glow}]`,
-            `dark:shadow-[inset_0_0_10px_${colors.dark.glow}]`
-          )}
-        />
+        {/* Overlay gradient for depth */}
+        <div className="absolute inset-[2px] bg-linear-to-b rounded-md opacity-80 from-primary/10 via-transparent to-secondary/5 dark:from-secondary/20 dark:via-card dark:to-primary/10" />
 
-        <div
-          className={cn(
-            "relative flex items-center justify-center gap-2 text-[0.87rem] bg-linear-to-b bg-clip-text text-transparent tracking-tighter",
-            colors.light.text,
-            colors.dark.text,
-            `dark:drop-shadow-[0_0_12px_${colors.dark.textGlow}]`
-          )}
-        >
+        {/* Accent highlight */}
+        <div className="absolute inset-[2px] bg-linear-to-br rounded-md from-primary/5 via-transparent to-accent/10 dark:from-accent/5 dark:via-card dark:to-secondary/20" />
+
+        {/* Subtle inner glow */}
+        <div className="absolute inset-[2px] rounded-md shadow-[inset_0_0_10px_rgba(0,0,0,0.02)] dark:shadow-[inset_0_0_10px_rgba(255,255,255,0.03)]" />
+
+        {/* Text content with gradient */}
+        <div className="relative flex items-center justify-center gap-2 text-[0.87rem] font-montserrat font-normal bg-linear-to-b from-primary/70 to-primary/50 bg-clip-text text-transparent tracking-tight dark:from-primary-foreground/70 dark:to-secondary-foreground/50">
           {children}
         </div>
 
-        <div
-          className={cn(
-            "absolute inset-[2px] opacity-0 transition-opacity duration-300 bg-linear-to-r hover:opacity-100 rounded-md",
-            colors.light.hover,
-            colors.dark.hover
-          )}
-        />
+        {/* Hover overlay */}
+        <div className="absolute inset-[2px] opacity-0 transition-opacity duration-300 group-hover/gradientbutton:opacity-100 bg-linear-to-r rounded-md from-primary/10 via-accent/5 to-primary/10 dark:from-secondary/10 dark:via-ring/5 dark:to-secondary/10" />
       </Button>
     </div>
   );

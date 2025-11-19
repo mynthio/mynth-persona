@@ -2,7 +2,7 @@
 
 import { createChatWithScenarioAction } from "@/actions/create-chat-with-scenario.action";
 import { Button } from "./ui/button";
-import { useToast } from "./ui/toast";
+import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserChatsMutation } from "@/app/_queries/use-user-chats.query";
@@ -20,7 +20,6 @@ export function CreateChatWithScenarioButton({
 }: CreateChatWithScenarioButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const mutate = useUserChatsMutation();
-  const { promise } = useToast();
   const { push } = useRouter();
 
   return (
@@ -40,7 +39,7 @@ export function CreateChatWithScenarioButton({
             personaId,
           });
         } catch {}
-        promise(
+        toast.promise(
           createChatWithScenarioAction({ personaId, scenarioId })
             .catch((error) => {
               if (error.message === "NEXT_REDIRECT") {

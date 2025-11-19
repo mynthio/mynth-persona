@@ -11,6 +11,8 @@ import { PersonaActions } from "./_components/persona-actions";
 import { Suspense } from "react";
 import { PersonaScenarios } from "./_components/persona-scenarios";
 import { BirdIcon } from "@phosphor-icons/react/dist/ssr";
+import { TopBar, TopBarSidebarTrigger } from "@/components/layout/top-bar";
+import { Badge } from "@/components/ui/badge";
 
 // Helper functions
 const getPersonaImageUrl = (profileImageIdMedia?: string | null) =>
@@ -120,57 +122,61 @@ export default async function PersonaPublicPage({
   const data = persona.publicVersion!.data as PersonaData;
   const displayName = getDisplayName(persona.publicName, data);
   return (
-    <div className="relative overflow-clip rounded-[15px] h-full p-[12px]">
-      {/* Banner */}
-      <PersonaBanner
-        profileImageIdMedia={persona.profileImageIdMedia}
-        fallbackGradient={DEFAULT_GRADIENT_BACKGROUND}
-      />
+    <div className="w-full h-full pb-16">
+      {/* Top Bar */}
+      <TopBar left={<TopBarSidebarTrigger />} />
 
-      {/* Status Badge */}
-      <div className="absolute top-[24px] left-[24px] z-10">
-        <div className="flex items-center gap-[4px] text-[0.80rem] bg-blue-800/50 backdrop-blur-[3px] rounded-[9px] h-[28px] px-[12px] text-primary-foreground/80">
-          {persona.status === "community" && <BirdIcon />}
-          {persona.status}
+      {/* Banner Section */}
+      <div className="w-[calc(100%-24px)] px-4 max-w-[960px] mx-auto min-h-[400px] z-0 relative flex flex-col justify-end overflow-hidden">
+        {/* Banner Background */}
+        <div className="absolute inset-0 z-0 h-56 overflow-hidden rounded-3xl">
+          <PersonaBanner
+            profileImageIdMedia={persona.profileImageIdMedia}
+            fallbackGradient={DEFAULT_GRADIENT_BACKGROUND}
+          />
+        </div>
+
+        {/* Status Badge */}
+        <div className="absolute top-4 left-4 z-10">
+          <Badge variant="secondary" className="backdrop-blur-sm">
+            {persona.status === "community" && <BirdIcon weight="fill" />}
+            {persona.status}
+          </Badge>
+        </div>
+
+        {/* Profile Content */}
+        <div className="w-full flex gap-3 md:gap-6 relative z-10 pb-6">
+          <div className="w-[140px] md:w-[200px] shrink-0">
+            <div className="rounded-2xl md:rounded-3xl w-full aspect-square p-1 flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20">
+              <img
+                src={getPersonaImageUrl(persona.profileImageIdMedia)}
+                alt={displayName}
+                draggable={false}
+                className="w-full h-full object-cover object-top rounded-xl md:rounded-2xl select-none"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col justify-end w-full min-w-0">
+            <h1 className="text-2xl md:text-4xl font-onest font-semibold text-white leading-tight drop-shadow-lg">
+              {displayName}
+            </h1>
+            <p className="text-sm md:text-base text-white/90 md:max-w-[480px] mt-1 drop-shadow">
+              {persona.headline}
+            </p>
+            <div className="mt-4">
+              <PersonaActions
+                personaId={persona.id}
+                displayName={displayName}
+                data={data}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="h-[140px] md:h-[120px]" />
-
-      <div className="w-full flex gap-[6px] md:gap-[12px] max-w-[960px] mx-auto relative">
-        <div className="w-[120px] md:w-[260px] shrink-0">
-          <div
-            className="
-          rounded-[24px] md:rounded-[64px]
-          w-full aspect-square p-[4px] flex items-center justify-center bg-surface/30 backdrop-blur-[4px]"
-          >
-            <img
-              src={getPersonaImageUrl(persona.profileImageIdMedia)}
-              alt={displayName}
-              draggable={false}
-              className="w-full h-full object-cover object-top rounded-[20px] md:rounded-[60px] select-none"
-            />
-          </div>
-        </div>
-
-        <div className="mt-[40px] md:mt-[110px] w-full">
-          <h1 className="text-[1.3rem] md:text-[2.4rem] font-onest font-[600] text-surface-foreground leading-tight">
-            {displayName}
-          </h1>
-          <p className="text-[0.75rem] md:text-[0.9rem] text-surface-foreground/80 md:max-w-[360px]">
-            {persona.headline}
-          </p>
-          <div className="mt-[12px]">
-            <PersonaActions
-              personaId={persona.id}
-              displayName={displayName}
-              data={data}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-[960px] mx-auto   mt-[24px]">
+      {/* Scenarios Section */}
+      <div className="max-w-[960px] mx-auto mt-6 px-4">
         <Suspense>
           <PersonaScenarios personaId={persona.id} />
         </Suspense>

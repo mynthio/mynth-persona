@@ -23,16 +23,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useSidebar } from "@/components/ui/sidebar";
 
 import {
-  ArrowLeftIcon,
-  FeatherIcon,
   FireIcon,
-  GearSixIcon,
-  ImageSquareIcon,
   PushPinIcon,
   PushPinSimpleSlashIcon,
-  RobotIcon,
-  UserSquareIcon,
-  XIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
@@ -47,7 +40,7 @@ import { updateChatAction } from "@/actions/update-chat.action";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { CreateChatButton } from "@/components/create-chat-button";
 import { DeleteChat } from "./delete-chat";
-import { ScrollArea } from "@/components/mynth-ui/base/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useDebounce } from "@uidotdev/usehooks";
 import { chatConfig } from "@/config/shared/chat/chat-models.config";
 import {
@@ -55,10 +48,9 @@ import {
   TextGenerationModelId,
   textGenerationModels,
 } from "@/config/shared/models/text-generation-models.config";
-import { useToast } from "@/components/ui/toast";
+import { toast } from "sonner";
 import { filter, map, pipe, toArray } from "@fxts/core";
-import { Label } from "@/components/mynth-ui/base/label";
-import { ChatSettingsImages } from "./chat-settings-images";
+import { Badge } from "@/components/ui/badge";
 import { usePinnedModels } from "../_hooks/use-pinned-models.hook";
 
 type ChatSettingsProps = {
@@ -93,7 +85,6 @@ function ChatSettingsDesktop(props: ChatSettingsDesktopProps) {
           <DialogTitle>Settings</DialogTitle>
         </DialogHeader>
         <div className="flex gap-[18px] h-full overflow-hidden">
-          {/* <ChatSettingsMenu /> */}
           <ScrollArea className="h-full w-full">
             <ChatSettingsContent />
             <div className="h-[24px]"></div>
@@ -109,8 +100,7 @@ type ChatSettingsMobileProps = {
 };
 
 function ChatSettingsMobile(props: ChatSettingsMobileProps) {
-  const { areSettingsOpen, closeSettings, current, navigateSettings } =
-    useSettingsNavigation();
+  const { areSettingsOpen, closeSettings } = useSettingsNavigation();
 
   return (
     <Sheet
@@ -122,30 +112,14 @@ function ChatSettingsMobile(props: ChatSettingsMobileProps) {
         <SheetHeader>
           <SheetTitle className="sr-only">Chat Settings</SheetTitle>
         </SheetHeader>
-        {current === "_" ? (
-          <div className="mt-[4px] min-h-[240px] px-[8px]">
-            <ChatSettingsMenu />
-          </div>
-        ) : (
-          <div className="relative w-full h-full min-h-0">
-            <div className="absolute top-[16px] left-[12px] z-10">
-              <Button
-                onClick={() => navigateSettings("_")}
-                className="bg-surface-100/50 backdrop-blur-[8px]"
-              >
-                <ArrowLeftIcon />
-                Settings Menu
-              </Button>
+        <div className="relative w-full h-full min-h-0">
+          <ScrollArea className="h-full w-full">
+            <div className="px-[24px] pt-[24px]">
+              <ChatSettingsContent />
             </div>
-            <ScrollArea className="h-full w-full">
-              <div className="h-[80px]" />
-              <div className="px-[24px]">
-                <ChatSettingsContent />
-              </div>
-              <div className="h-[200px]" />
-            </ScrollArea>
-          </div>
-        )}
+            <div className="h-[200px]" />
+          </ScrollArea>
+        </div>
       </SheetContent>
     </Sheet>
   );
@@ -162,8 +136,6 @@ function ChatSettingsContent() {
         return <ChatSettingsUser />;
       case "scenario":
         return <ChatSettingsScenario />;
-      case "images":
-        return <ChatSettingsImages />;
       default:
         return <ChatSettingsHome />;
     }
@@ -184,75 +156,6 @@ function ChatSettingsContent() {
         </motion.div>
       </AnimatePresence>
     </div>
-  );
-}
-
-function ChatSettingsMenu() {
-  const { areSettingsOpen, closeSettings, navigateSettings, current } =
-    useSettingsNavigation();
-
-  return (
-    <div className="flex flex-col justify-start gap-[1px] shrink-0 grow-0 md:w-[220px] px-[24px] md:px-[0px] py-[24px] md:py-0">
-      <MenuButton
-        onClick={() => navigateSettings("settings")}
-        isActive={current === "settings"}
-      >
-        <GearSixIcon />
-        Chat
-      </MenuButton>
-      <MenuButton
-        onClick={() => navigateSettings("model")}
-        isActive={current === "model"}
-      >
-        <RobotIcon />
-        Model
-      </MenuButton>
-      <MenuButton
-        onClick={() => navigateSettings("user")}
-        isActive={current === "user"}
-      >
-        <UserSquareIcon />
-        My persona
-      </MenuButton>
-      <MenuButton
-        onClick={() => navigateSettings("scenario")}
-        isActive={current === "scenario"}
-      >
-        <FeatherIcon />
-        Scenario
-      </MenuButton>
-      <MenuButton
-        onClick={() => navigateSettings("images")}
-        isActive={current === "images"}
-      >
-        <ImageSquareIcon />
-        Images
-      </MenuButton>
-
-      <MenuButton className="text-red-500 md:hidden" onClick={closeSettings}>
-        <XIcon /> Close
-      </MenuButton>
-    </div>
-  );
-}
-
-function MenuButton(props: {
-  children: React.ReactNode;
-  className?: string;
-  onClick?: () => void;
-  isActive?: boolean;
-}) {
-  return (
-    <button
-      className={cn(
-        "flex justify-start items-center gap-[6px] h-[60px] md:h-[46px] w-full px-[12px] text-surface-foreground hover:bg-surface-100 rounded-[18px] md:rounded-[16px] transition-all duration-100",
-        props.isActive && "bg-surface-100/50",
-        props.className
-      )}
-      onClick={props.onClick}
-    >
-      {props.children}
-    </button>
   );
 }
 
@@ -525,7 +428,6 @@ function ChatSettingsScenario() {
 
 function ChatSettingsModel() {
   const { chatId, modelId, setModelId, mode } = useChatMain();
-  const { add } = useToast();
   const [query, setQuery] = useState<string>("");
   const debouncedQuery = useDebounce(query, 300);
   const [isLoading, setIsLoading] = useState(false);
@@ -587,8 +489,7 @@ function ChatSettingsModel() {
     })
       .catch(() => {
         setModelId(oldModelId);
-        add({
-          title: "Failed switch to model",
+        toast.error("Failed switch to model", {
           description: "Try again or contact support",
         });
       })
@@ -661,9 +562,9 @@ function ModelCard(props: {
 
           <div className="flex items-center gap-[8px] shrink-0">
             {model.isPremium && (
-              <Label color="red" size="sm">
+              <Badge variant="destructive">
                 Premium <FireIcon weight="bold" />
-              </Label>
+              </Badge>
             )}
 
             {canTogglePin && (

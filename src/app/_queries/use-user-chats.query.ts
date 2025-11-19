@@ -16,28 +16,32 @@ export const useUserChatsQuery = (
     q?: string;
     cursorUpdatedAt?: string | null;
     cursorId?: string | null;
-  },
+  } | null,
   config?: SWRConfiguration
 ) => {
-  const search = new URLSearchParams();
+  // If params is explicitly null, disable fetching
+  // Otherwise, build the query string and key
+  let key: string | null = null;
 
-  if (params?.q) search.set("q", params.q);
-  if (params?.cursorUpdatedAt && params.cursorId) {
-    search.set("cursorUpdatedAt", params.cursorUpdatedAt);
-    search.set("cursorId", params.cursorId);
+  if (params !== null) {
+    const search = new URLSearchParams();
+
+    if (params?.q) search.set("q", params.q);
+    if (params?.cursorUpdatedAt && params.cursorId) {
+      search.set("cursorUpdatedAt", params.cursorUpdatedAt);
+      search.set("cursorId", params.cursorId);
+    }
+
+    const qs = search.toString();
+    // Include query params in the key so different searches are cached separately
+    key = qs ? `/api/chats?${qs}` : "/api/chats";
   }
 
-  const qs = search.toString();
-
-  return useSWR<UserChatsResponse>(
-    "/api/chats",
-    (key) => fetcher(`${key}${qs ? `?${qs}` : ""}`),
-    {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      ...config,
-    }
-  );
+  return useSWR<UserChatsResponse>(key, fetcher, {
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    ...config,
+  });
 };
 
 export const useUserChatsMutation = () => {

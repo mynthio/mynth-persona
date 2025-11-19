@@ -45,14 +45,14 @@ function FormSection({
 }) {
   return (
     <div>
-      <div className="flex items-center gap-[18px]">
+      <div className="flex items-center gap-2 sm:gap-[18px]">
         <span className="text-[0.85rem] font-mono shrink-0 truncate text-surface-foreground/50 uppercase">
           {title}
         </span>
         <hr className="border-0 bg-surface-foreground/5 h-[2px] w-full" />
       </div>
 
-      <div className="mt-[24px] flex flex-col gap-[12px]">{children}</div>
+      <div className="mt-4 sm:mt-6 flex flex-col gap-3 sm:gap-[12px]">{children}</div>
     </div>
   );
 }
@@ -210,23 +210,23 @@ export default function ScenarioCreatorForm() {
 
   return (
     <form
-      className="space-y-[48px]"
+      className="space-y-6 sm:space-y-12"
       onSubmit={(e) => {
         e.preventDefault();
         form.handleSubmit();
       }}
     >
-      <Alert>
-        <Info className="size-4" />
-        <AlertTitle>Template Variables</AlertTitle>
-        <AlertDescription>
+      <Alert className="text-sm sm:text-base">
+        <Info className="size-4 shrink-0" />
+        <AlertTitle className="text-sm sm:text-base">Template Variables</AlertTitle>
+        <AlertDescription className="text-xs sm:text-sm">
           <p>
             You can use the following template variables in any field of your
             scenario:
           </p>
-          <ul className="list-disc list-inside space-y-1">
+          <ul className="list-disc list-inside space-y-1 mt-2">
             <li>
-              <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-xs">
+              <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-xs break-all">
                 {"{"}
                 {"{"}persona.1.name{"}"}
                 {"}"}
@@ -234,7 +234,7 @@ export default function ScenarioCreatorForm() {
               - References the persona name
             </li>
             <li>
-              <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-xs">
+              <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-xs break-all">
                 {"{"}
                 {"{"}user.name{"}"}
                 {"}"}
@@ -245,7 +245,7 @@ export default function ScenarioCreatorForm() {
           <p className="text-xs mt-2">
             Note: We currently support single persona chats, but group chats are
             planned soon. That is why we use{" "}
-            <code className="bg-muted px-1.5 py-0.5 rounded font-mono">
+            <code className="bg-muted px-1.5 py-0.5 rounded font-mono break-all">
               persona.1
             </code>{" "}
             format.
@@ -274,7 +274,7 @@ export default function ScenarioCreatorForm() {
                     className="min-h-[120px]"
                   />
                   {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                  <ButtonGroup className="mt-[12px]">
+                  <ButtonGroup className="mt-3 sm:mt-[12px]">
                     <Button
                       size="sm"
                       variant="outline"
@@ -337,9 +337,9 @@ export default function ScenarioCreatorForm() {
                       return (
                         <div
                           key={persona.id}
-                          className="w-full flex items-center gap-[9px] bg-white border-2 border-surface-100 rounded-[18px] p-[6px]"
+                          className="w-full flex items-center gap-2 sm:gap-[9px] bg-white border-2 border-surface-100 rounded-[18px] p-1.5 sm:p-[6px]"
                         >
-                          <div className="shrink-0 size-[32px] rounded-[12px] overflow-hidden bg-surface-100 flex items-center justify-center">
+                          <div className="shrink-0 size-7 sm:size-8 rounded-[12px] overflow-hidden bg-surface-100 flex items-center justify-center">
                             {persona.profileImageIdMedia ? (
                               <img
                                 src={getImageUrl(
@@ -357,7 +357,7 @@ export default function ScenarioCreatorForm() {
                               <UserIcon className="text-surface-foreground/50 size-[14px]" />
                             )}
                           </div>
-                          <span className="text-sm font-medium truncate w-full">
+                          <span className="text-xs sm:text-sm font-medium truncate flex-1 min-w-0">
                             {persona.publicName || persona.title}
                           </span>
                           <ButtonGroup className="shrink-0">
@@ -464,17 +464,17 @@ export default function ScenarioCreatorForm() {
         <FormSection title="Advanced">
           <Field>
             <FieldLabel>Starting Messages</FieldLabel>
-            <FieldDescription className="mb-[12px]">
+            <FieldDescription className="mb-3 sm:mb-[12px]">
               Optional. An initial conversation to set the tone. This helps the
               AI understand the format and style of messages, and gives both the
               AI and user a starting point.
             </FieldDescription>
 
-            <div className="space-y-[12px] w-full">
+            <div className="space-y-3 sm:space-y-[12px] w-full">
               {startingMessages.map((message, index) => (
-                <div key={index} className="space-y-[4px]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium capitalize">
+                <div key={index} className="space-y-1 sm:space-y-[4px]">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs sm:text-sm font-medium capitalize">
                       {message.role}
                     </span>
                     {startingMessages.length > 1 && (
@@ -514,7 +514,7 @@ export default function ScenarioCreatorForm() {
                 </div>
               ))}
 
-              <ButtonGroup>
+              <ButtonGroup className="flex-col sm:flex-row">
                 <Button
                   size="sm"
                   variant="outline"
@@ -660,9 +660,9 @@ export default function ScenarioCreatorForm() {
           </form.Field>
         </FormSection>
 
-        <div className="pt-[24px] space-y-[12px]">
+        <div className="pt-4 sm:pt-6 space-y-3 sm:space-y-[12px]">
           {submitError && (
-            <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-[12px] p-[12px]">
+            <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-[12px] p-3 sm:p-[12px]">
               {submitError}
             </div>
           )}

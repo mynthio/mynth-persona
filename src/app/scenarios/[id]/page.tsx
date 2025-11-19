@@ -1,18 +1,17 @@
 import { Response } from "@/components/ai-elements/response";
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
-import { Label } from "@/components/mynth-ui/base/label";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import {
-  Menu,
-  MenuItem,
-  MenuPopup,
-  MenuPositioner,
-  MenuTrigger,
-} from "@/components/mynth-ui/base/menu";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { db } from "@/db/drizzle";
-import { scenarios } from "@/db/schema";
 import { getImageUrl } from "@/lib/utils";
-import { CreateScenarioPayload, ScenarioContent } from "@/schemas";
+import { ScenarioContent } from "@/schemas";
 import { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
 import { auth } from "@clerk/nextjs/server";
 import Form from "next/form";
@@ -22,11 +21,16 @@ import {
   GlobeIcon,
   LockIcon,
   PencilIcon,
-  StarIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { notFound } from "next/navigation";
 import { PublishScenarioDialog } from "./_components/publish-scenario-dialog.client";
 import { CreateChatWithScenarioButton } from "@/components/create-chat-with-scenario-button";
+import {
+  TopBar,
+  TopBarSidebarTrigger,
+  TopBarTitle,
+} from "@/components/layout/top-bar";
+import { Feather, Menu05 } from "@untitledui/icons";
 
 export default async function ScenarioPage({
   params,
@@ -87,26 +91,79 @@ export default async function ScenarioPage({
 
   return (
     <>
-      <div className="w-full h-full pb-[60px]">
-        <div className="w-full h-[40vh] z-0 relative flex flex-col justify-end items-center py-[8px] bg-gradient-to-tr from-purple-950 to-pink-800 overflow-hidden rounded-t-[14px]">
-          <div className="flex flex-wrap gap-[2px] z-10 justify-start max-w-[720px] mx-auto w-full">
-            <div className="cursor-default pointer-events-none flex items-center gap-[4px] text-[0.80rem] bg-primary/50 backdrop-blur-[3px] rounded-[9px] h-[28px] px-[12px] text-primary-foreground/80">
-              {scenario.visibility === "public" ? <GlobeIcon /> : <LockIcon />}
-              {scenario.visibility === "public" ? "Public" : "Private"}
-            </div>
+      <div className="w-full h-full pb-16">
+        <TopBar
+          left={<TopBarSidebarTrigger />}
+          center={
+            <>
+              <Feather strokeWidth={1.5} />
+            </>
+          }
+          right={
+            <>
+              {scenario.creatorId === userId && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" variant="ghost">
+                      <Menu05 strokeWidth={1.5} />
+                      Manage
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {scenario.visibility === "public" ? (
+                      <DropdownMenuItem>
+                        <LockIcon />
+                        Unpublish
+                      </DropdownMenuItem>
+                    ) : (
+                      <Form action={""}>
+                        <input type="hidden" name="action" value="publish" />
+                        <DropdownMenuItem asChild>
+                          <button type="submit" className="w-full">
+                            <GlobeIcon />
+                            Publish
+                          </button>
+                        </DropdownMenuItem>
+                      </Form>
+                    )}
+                    <DropdownMenuItem>
+                      <PencilIcon />
+                      Edit
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </>
+          }
+        />
 
-            <div className="flex items-center gap-[4px] text-[0.80rem] bg-blue-800/50 backdrop-blur-[3px] rounded-[9px] h-[28px] px-[12px] text-primary-foreground/80">
-              {scenario.status === "community" && <BirdIcon />}
-              {scenario.status}
-            </div>
+        {/* Hero Section with Background Image */}
+        <div className="w-[calc(100%-24px)] px-4 max-w-[960px] mx-auto h-[40vh] z-0 relative flex flex-col justify-end items-center py-4 bg-gradient-to-tr from-purple-950 to-pink-800 overflow-hidden rounded-xl">
+          <div className="flex flex-wrap gap-2 z-10 justify-start max-w-[720px] mx-auto w-full">
+            <Badge variant="secondary" className="backdrop-blur-sm">
+              {scenario.visibility === "public" ? (
+                <GlobeIcon weight="fill" />
+              ) : (
+                <LockIcon weight="fill" />
+              )}
+              {scenario.visibility === "public" ? "Public" : "Private"}
+            </Badge>
+
+            {scenario.status && (
+              <Badge variant="secondary" className="backdrop-blur-sm">
+                {scenario.status === "community" && <BirdIcon weight="fill" />}
+                {scenario.status}
+              </Badge>
+            )}
 
             {scenario.tags?.map((tag) => (
-              <div
+              <Badge
                 key={tag}
-                className="flex items-center gap-[4px] text-[0.80rem] bg-primary/50 backdrop-blur-[3px] rounded-[9px] h-[28px] px-[12px] text-primary-foreground/80"
+                variant="outline"
+                className="backdrop-blur-sm bg-white/10 border-white/20 text-white"
               >
                 {tag}
-              </div>
+              </Badge>
             ))}
           </div>
           {scenario.backgroundImageUrl && (
@@ -118,218 +175,196 @@ export default async function ScenarioPage({
           )}
         </div>
 
-        <div className="max-w-[720px] mx-auto mt-[16px] px-[12px]">
-          <div className="flex justify-between items-start">
-            <div className="">
-              <h1 className="font-onest text-[1.6rem] font-[600] leading-tight">
+        <div className="max-w-[720px] mx-auto mt-6 px-4 space-y-8">
+          {/* Header Section */}
+          <div className="flex justify-between items-start gap-4">
+            <div className="flex-1 min-w-0">
+              <h1 className="font-onest text-3xl font-semibold leading-tight">
                 {scenario.title}
               </h1>
-              <div>
-                <p className="font-mono text-surface-foreground/60 text-[0.90rem]">
-                  by {scenario.creator?.username ?? "Anonymous"}
-                </p>
-              </div>
-            </div>
-
-            <ButtonGroup>
-              {/* <Button size="sm" color="primary">
-              Chat
-            </Button> */}
-
-              {scenario.creatorId === userId && (
-                <Menu modal={false}>
-                  <MenuTrigger
-                    render={
-                      <Button
-                        className="bg-surface-100"
-                        size="sm"
-                        variant="outline"
-                      />
-                    }
-                  >
-                    <DotsThreeVerticalIcon weight="bold" />
-                    Manage
-                  </MenuTrigger>
-
-                  <MenuPositioner>
-                    <MenuPopup>
-                      {scenario.visibility === "public" ? (
-                        <MenuItem icon={<LockIcon />}>Unpublish</MenuItem>
-                      ) : (
-                        <Form action={""}>
-                          <input type="hidden" name="action" value="publish" />
-                          <MenuItem
-                            nativeButton
-                            render={<button type="submit" />}
-                            icon={<GlobeIcon />}
-                          >
-                            Publish
-                          </MenuItem>
-                        </Form>
-                      )}
-                      <MenuItem icon={<PencilIcon />}>Edit</MenuItem>
-                    </MenuPopup>
-                  </MenuPositioner>
-                </Menu>
-              )}
-            </ButtonGroup>
-          </div>
-
-          {scenario.description && (
-            <div className="mt-[24px]">
-              <p className="text-[0.95rem] text-surface-foreground/80">
-                {scenario.description}
+              <p className="font-mono text-muted-foreground text-sm mt-1">
+                by {scenario.creator?.username ?? "Anonymous"}
               </p>
             </div>
+          </div>
+
+          {/* Description */}
+          {scenario.description && (
+            <p className="text-base text-muted-foreground">
+              {scenario.description}
+            </p>
           )}
 
-          <div className="flex items-center gap-[18px] mt-[24px]">
-            <span className="text-[0.85rem] font-mono shrink-0 truncate text-surface-foreground/50 uppercase">
-              Personas
-            </span>
-            <hr className="border-0 bg-surface-foreground/5 h-[2px] w-full" />
-          </div>
+          {/* Personas Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <h2 className="text-sm font-mono uppercase text-muted-foreground tracking-wider">
+                Personas
+              </h2>
+              <Separator className="flex-1" />
+            </div>
 
-          <div className="flex flex-col gap-[12px] mt-[24px]">
-            {scenario.scenarioPersonas
-              .sort((a, b) => a.roleType.localeCompare(b.roleType))
-              .map((scenarioPersona) => (
-                <div
-                  key={scenarioPersona.personaId}
-                  className="flex items-center gap-[12px]"
-                >
-                  <div className="size-[48px] shrink-0 aspect-square rounded-[12px] overflow-hidden relative bg-gradient-to-br from-purple-950 to-pink-800 z-0">
-                    {scenarioPersona.persona.profileImageIdMedia && (
-                      <img
-                        src={getImageUrl(
-                          scenarioPersona.persona.profileImageIdMedia
+            <div className="grid gap-3">
+              {scenario.scenarioPersonas
+                .sort((a, b) => a.roleType.localeCompare(b.roleType))
+                .map((scenarioPersona) => (
+                  <Card key={scenarioPersona.personaId} className="p-4">
+                    <div className="flex items-center gap-4">
+                      <div className="size-12 shrink-0 rounded-lg overflow-hidden relative bg-gradient-to-br from-purple-950 to-pink-800">
+                        {scenarioPersona.persona.profileImageIdMedia && (
+                          <img
+                            src={getImageUrl(
+                              scenarioPersona.persona.profileImageIdMedia
+                            )}
+                            alt={scenarioPersona.persona.title ?? ""}
+                            className="absolute top-0 left-0 w-full h-full object-cover object-top"
+                          />
                         )}
-                        alt={scenarioPersona.persona.title ?? ""}
-                        className="absolute top-0 left-0 w-full h-full object-cover object-top -z-10"
-                      />
-                    )}
-                  </div>
+                      </div>
 
-                  <div className="flex flex-col w-full">
-                    <p className="text-[0.75rem] font-mono uppercase text-surface-foreground/50">
-                      {scenarioPersona.roleType === "primary"
-                        ? "Made for Persona"
-                        : scenarioPersona.roleType}
-                    </p>
-                    <div className="truncate text-[1.1rem] font-onest">
-                      {scenarioPersona.persona.publicName ??
-                        scenarioPersona.persona.title}
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <p className="text-xs font-mono uppercase text-muted-foreground">
+                          {scenarioPersona.roleType === "primary"
+                            ? "Made for Persona"
+                            : scenarioPersona.roleType}
+                        </p>
+                        <h3 className="truncate text-lg font-onest font-medium">
+                          {scenarioPersona.persona.publicName ??
+                            scenarioPersona.persona.title}
+                        </h3>
+                      </div>
+
+                      <CreateChatWithScenarioButton
+                        personaId={scenarioPersona.personaId}
+                        scenarioId={scenario.id}
+                        size="sm"
+                      >
+                        Launch
+                      </CreateChatWithScenarioButton>
                     </div>
-                  </div>
+                  </Card>
+                ))}
+            </div>
+          </div>
 
-                  <div className="shrink-0">
-                    <CreateChatWithScenarioButton
-                      personaId={scenarioPersona.personaId}
-                      scenarioId={scenario.id}
-                      size="sm"
-                    >
-                      Launch scenario
-                    </CreateChatWithScenarioButton>
-                  </div>
+          {/* Scenario Content */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <h2 className="text-sm font-mono uppercase text-muted-foreground tracking-wider">
+                Scenario
+              </h2>
+              <Separator className="flex-1" />
+            </div>
+            <Card>
+              <CardContent className="prose prose-sm dark:prose-invert max-w-none">
+                <Response>{scenario.content.scenario_text}</Response>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* User Character */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <h2 className="text-sm font-mono uppercase text-muted-foreground tracking-wider">
+                User Character
+              </h2>
+              <Separator className="flex-1" />
+            </div>
+            <Card>
+              <CardContent className="space-y-3">
+                <h3 className="text-xl font-onest font-medium">
+                  {scenario.content.suggested_user_name}
+                </h3>
+                <div className="prose prose-sm dark:prose-invert max-w-none">
+                  <Response>{scenario.content.user_persona_text}</Response>
                 </div>
-              ))}
+              </CardContent>
+            </Card>
           </div>
 
-          <div className="flex items-center gap-[18px] mt-[24px]">
-            <span className="text-[0.85rem] font-mono shrink-0 truncate text-surface-foreground/50 uppercase">
-              Scenario
-            </span>
-            <hr className="border-0 bg-surface-foreground/5 h-[2px] w-full" />
-          </div>
-
-          <div className="mt-[24px]">
-            <Response>{scenario.content.scenario_text}</Response>
-          </div>
-
-          <div className="flex items-center gap-[18px] mt-[24px]">
-            <span className="text-[0.85rem] font-mono shrink-0 truncate text-surface-foreground/50 uppercase">
-              User Character
-            </span>
-            <hr className="border-0 bg-surface-foreground/5 h-[2px] w-full" />
-          </div>
-
-          <div className="mt-[24px]">
-            <p className="text-[1.2rem] font-onest mb-[12px]">
-              {scenario.content.suggested_user_name}
-            </p>
-            <Response>{scenario.content.user_persona_text}</Response>
-          </div>
-
+          {/* Starting Messages */}
           {scenario.content.starting_messages &&
             scenario.content.starting_messages.length > 0 && (
-              <>
-                <div className="flex items-center gap-[18px] mt-[24px]">
-                  <span className="text-[0.85rem] font-mono shrink-0 truncate text-surface-foreground/50 uppercase">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-sm font-mono uppercase text-muted-foreground tracking-wider">
                     Starting Messages
-                  </span>
-                  <hr className="border-0 bg-surface-foreground/5 h-[2px] w-full" />
+                  </h2>
+                  <Separator className="flex-1" />
                 </div>
-                <div className="mt-[24px] flex flex-col gap-[12px]">
+                <div className="space-y-3">
                   {scenario.content.starting_messages.map((message, i) => (
                     <div className="flex justify-start" key={i}>
-                      <div className="bg-surface-100 rounded-[18px] px-[24px] py-[12px] w-auto min-w-0 max-w-[80%]">
-                        <Response>{message.text}</Response>
-                      </div>
+                      <Card className="max-w-[85%] rounded-2xl">
+                        <CardContent className="prose prose-sm dark:prose-invert max-w-none">
+                          <Response>{message.text}</Response>
+                        </CardContent>
+                      </Card>
                     </div>
                   ))}
                 </div>
-              </>
+              </div>
             )}
 
+          {/* Style Guidelines */}
           {scenario.content.style_guidelines && (
-            <>
-              <div className="flex items-center gap-[18px] mt-[24px]">
-                <span className="text-[0.85rem] font-mono shrink-0 truncate text-surface-foreground/50 uppercase">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <h2 className="text-sm font-mono uppercase text-muted-foreground tracking-wider">
                   Style Guidelines
-                </span>
-                <hr className="border-0 bg-surface-foreground/5 h-[2px] w-full" />
+                </h2>
+                <Separator className="flex-1" />
               </div>
-              <div className="mt-[24px]">
-                <Response>{scenario.content.style_guidelines}</Response>
-              </div>
-            </>
+              <Card>
+                <CardContent className="prose prose-sm dark:prose-invert max-w-none">
+                  <Response>{scenario.content.style_guidelines}</Response>
+                </CardContent>
+              </Card>
+            </div>
           )}
 
+          {/* System Prompt Override */}
           {scenario.content.system_prompt_override && (
-            <>
-              <div className="flex items-center gap-[18px] mt-[24px]">
-                <span className="text-[0.85rem] font-mono shrink-0 truncate text-surface-foreground/50 uppercase">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <h2 className="text-sm font-mono uppercase text-muted-foreground tracking-wider">
                   System Prompt Override
-                </span>
-                <hr className="border-0 bg-surface-foreground/5 h-[2px] w-full" />
+                </h2>
+                <Separator className="flex-1" />
               </div>
-              <div className="mt-[24px]">
-                <Response>{scenario.content.system_prompt_override}</Response>
-              </div>
-            </>
+              <Card>
+                <CardContent className="prose prose-sm dark:prose-invert max-w-none">
+                  <Response>{scenario.content.system_prompt_override}</Response>
+                </CardContent>
+              </Card>
+            </div>
           )}
 
+          {/* Suggested Models */}
           {scenario.suggestedAiModels &&
             scenario.suggestedAiModels.length > 0 && (
-              <>
-                <div className="flex items-center gap-[18px] mt-[24px]">
-                  <span className="text-[0.85rem] font-mono shrink-0 truncate text-surface-foreground/50 uppercase">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-sm font-mono uppercase text-muted-foreground tracking-wider">
                     Suggested Models
-                  </span>
-                  <hr className="border-0 bg-surface-foreground/5 h-[2px] w-full" />
+                  </h2>
+                  <Separator className="flex-1" />
                 </div>
-                <ul className="mt-[24px] flex flex-col gap-[2px]">
-                  {scenario.suggestedAiModels.map((model, i) => (
-                    <li className="flex justify-start" key={i}>
-                      {model}
-                    </li>
-                  ))}
-                </ul>
-              </>
+                <Card>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {scenario.suggestedAiModels.map((model, i) => (
+                        <li key={i} className="flex items-center gap-2">
+                          <Badge variant="outline">{model}</Badge>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
             )}
         </div>
       </div>
-      {/* <div className="h-[300px]" /> */}
       <PublishScenarioDialog />
     </>
   );

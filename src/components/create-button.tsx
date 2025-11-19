@@ -17,12 +17,16 @@ import {
   Image01,
 } from "@untitledui/icons";
 
-export function CreateButton() {
+export function CreateButton({ className }: { className?: string }) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild className={className}>
         <GradientButton>
-          Create <Plus className="text-white/80" />
+          Create{" "}
+          <Plus
+            strokeWidth={1}
+            className="text-primary/60 dark:text-primary-foreground/60"
+          />
         </GradientButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-48">

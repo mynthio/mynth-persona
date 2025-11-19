@@ -1,49 +1,21 @@
 import type { Metadata } from "next";
-import {
-  Geist,
-  Inter,
-  Montserrat,
-  Onest,
-  Poppins,
-  Space_Mono,
-} from "next/font/google";
+import { Inter, Montserrat } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppRail } from "@/components/app-rail";
 import { cookies } from "next/headers";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
-});
-
-const onest = Onest({
-  variable: "--font-onest",
-  subsets: ["latin"],
-});
-
-const spaceMono = Space_Mono({
-  variable: "--font-space-mono",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
-
-const geist = Geist({
-  variable: "--font-geist",
-  subsets: ["latin"],
-});
-
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -161,7 +133,7 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${onest.variable} ${spaceMono.variable} ${geist.variable} ${poppins.variable} ${montserrat.variable} antialiased h-full z-0 relative`}
+        className={`${inter.variable} ${montserrat.variable} font-sans antialiased h-full z-0 relative`}
       >
         <Providers>
           <SidebarProvider defaultOpen={defaultOpen}>

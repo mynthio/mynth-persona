@@ -4,9 +4,16 @@ import { useMemo, useState } from "react";
 import { getMediaImageUrl } from "@/lib/utils";
 import { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 import type { ChatImageGenerationRun } from "@/stores/chat-image-generation.store";
-import { MiniWaveLoader } from "@/components/ui/mini-wave-loader";
+import { Spinner } from "@/components/ui/spinner";
 import { ImageBrokenIcon } from "@phosphor-icons/react/dist/ssr";
 import { getImageGenerationErrorMessage } from "@/lib/image-generation-errors";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { ImageX } from "@untitledui/icons";
 
 type ChatMessageImagesProps = {
   media?: NonNullable<PersonaUIMessage["metadata"]>["media"];
@@ -38,7 +45,7 @@ export function ChatMessageImages({
 
   return (
     <>
-      <div className="grid gap-[4px] mt-3 grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+      <div className="grid gap-2 mt-4 grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {images?.map((img) => (
           <button
             key={img.id}
@@ -48,7 +55,7 @@ export function ChatMessageImages({
                 alt: "Message image",
               })
             }
-            className="relative w-full aspect-square rounded-lg overflow-hidden bg-surface-secondary hover:opacity-90 transition-opacity"
+            className="relative w-full aspect-square rounded-xl overflow-hidden bg-muted"
           >
             <img
               src={getMediaImageUrl(img.id, "thumb")}
@@ -76,7 +83,7 @@ export function ChatMessageImages({
                 onClick={() =>
                   setLightboxImage({ src: imageUrl, alt: "Generated image" })
                 }
-                className="relative w-full aspect-square rounded-lg overflow-hidden bg-surface-secondary hover:opacity-90 transition-opacity"
+                className="relative w-full aspect-square rounded-xl overflow-hidden bg-muted"
               >
                 <img
                   src={imageUrl}
@@ -90,52 +97,48 @@ export function ChatMessageImages({
           return (
             <div
               key={run.runId}
-              className="relative w-full aspect-square rounded-lg overflow-hidden bg-surface-secondary"
+              className="relative w-full aspect-square rounded-2xl overflow-hidden bg-linear-to-t from-muted to-muted/60"
             >
               <div className="absolute inset-0 flex items-center justify-center">
                 {isFailed ? (
-                  <div className="flex flex-col items-center gap-2 text-red-400">
-                    <ImageBrokenIcon size={28} weight="duotone" />
-                    <div className="text-xs">{getImageGenerationErrorMessage(run.errorCode)}</div>
+                  <div className="flex flex-col items-center gap-2 text-destructive p-4 text-center">
+                    <ImageX strokeWidth={1.5} />
+                    <div className="text-xs font-medium">
+                      {getImageGenerationErrorMessage(run.errorCode)}
+                    </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center gap-2">
-                    <MiniWaveLoader size="md" aria-label="Generating image" />
-                    <div className="text-xs text-muted-foreground">
-                      Generating image…
-                    </div>
+                  <div className="flex flex-col items-center gap-3">
+                    <Spinner />
                   </div>
                 )}
               </div>
-              <div className="w-full h-full bg-zinc-100 dark:bg-zinc-900" />
             </div>
           );
         })}
       </div>
 
-      {lightboxImage && (
-        <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
-          onClick={() => setLightboxImage(null)}
+      <Dialog
+        open={!!lightboxImage}
+        onOpenChange={(open) => !open && setLightboxImage(null)}
+      >
+        <DialogContent
+          className="max-w-[95vw] max-h-[95vh] p-0 border-0 bg-transparent"
+          showCloseButton={false}
         >
-          <div className="relative max-w-[90vw] max-h-[90vh]">
-            <img
-              src={lightboxImage.src}
-              alt={lightboxImage.alt}
-              width={1024}
-              height={1024}
-              className="object-contain max-w-full max-h-[90vh]"
-              onClick={(e) => e.stopPropagation()}
-            />
+          <DialogTitle className="sr-only">Image viewer</DialogTitle>
+          <div className="relative w-full h-full flex items-center justify-center">
+            {lightboxImage && (
+              <img
+                src={lightboxImage.src}
+                alt={lightboxImage.alt}
+                className="max-w-full max-h-[95vh] object-contain rounded-lg"
+                onClick={() => setLightboxImage(null)}
+              />
+            )}
           </div>
-          <button
-            onClick={() => setLightboxImage(null)}
-            className="absolute top-4 right-4 text-white text-2xl hover:opacity-70"
-          >
-            ×
-          </button>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

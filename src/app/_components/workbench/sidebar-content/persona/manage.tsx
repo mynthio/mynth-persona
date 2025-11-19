@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/components/ui/toast";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useParams, useRouter } from "next/navigation";
 import { usePersonaPublishStatusQuery } from "@/app/_queries/use-persona-publish-status.query";
 import { publishPersonaAction } from "@/actions/publish-persona.action";
@@ -20,6 +29,7 @@ import { GlobeIcon } from "@phosphor-icons/react/dist/ssr";
 import { usePersonaQuery } from "@/app/_queries/use-persona.query";
 import { updatePersonaVisibilityAction } from "@/actions/update-persona-visibility.action";
 import { TrashIcon, ProhibitIcon } from "@phosphor-icons/react/dist/ssr";
+import { AlertCircle, AlertTriangle } from "lucide-react";
 
 export default function WorkbenchSidebarManage() {
   const params = useParams<{ personaId: string }>();
@@ -30,7 +40,6 @@ export default function WorkbenchSidebarManage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showPublishDialog, setShowPublishDialog] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const toast = useToast();
   const { mutate } = useSWRConfig();
   const { data: persona } = usePersonaQuery(personaId);
 
@@ -51,14 +60,13 @@ export default function WorkbenchSidebarManage() {
   async function onPublishConfirm() {
     if (!personaId) return;
     if (!termsAccepted) {
-      toast.add({ title: "Please accept the terms of use to continue" });
+      toast("Please accept the terms of use to continue");
       return;
     }
     try {
       setSubmitting(true);
       await publishPersonaAction(personaId);
-      toast.add({
-        title: "Publishing started",
+      toast("Publishing started", {
         description: "We'll update the status once it's complete.",
       });
       // Refresh status now
@@ -66,7 +74,7 @@ export default function WorkbenchSidebarManage() {
       setShowPublishDialog(false);
     } catch (e: any) {
       const message = e?.message || "Failed to start publishing";
-      toast.add({ title: message });
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -77,14 +85,14 @@ export default function WorkbenchSidebarManage() {
     try {
       setSubmitting(true);
       await updatePersonaVisibilityAction(personaId, "private");
-      toast.add({ title: "Persona unpublished" });
+      toast("Persona unpublished");
       await Promise.all([
         mutate(`/api/personas/${personaId}/publish-status`),
         mutate(`/api/personas/${personaId}`),
       ]);
     } catch (e: any) {
       const message = e?.message || "Failed to unpublish persona";
-      toast.add({ title: message });
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -95,7 +103,7 @@ export default function WorkbenchSidebarManage() {
     try {
       setSubmitting(true);
       await updatePersonaVisibilityAction(personaId, "deleted");
-      toast.add({ title: "Persona deleted" });
+      toast("Persona deleted");
       await Promise.all([
         mutate(`/api/personas/${personaId}/publish-status`),
         mutate(`/api/personas/${personaId}`),
@@ -105,7 +113,7 @@ export default function WorkbenchSidebarManage() {
       setShowDeleteDialog(false);
     } catch (e: any) {
       const message = e?.message || "Failed to delete persona";
-      toast.add({ title: message });
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
@@ -122,80 +130,87 @@ export default function WorkbenchSidebarManage() {
   return (
     <div className="h-full min-h-0 flex flex-col">
       <div className="flex-1 min-h-0 p-2">
-        <div className="rounded-md border border-zinc-200/60 bg-zinc-50 p-3 text-sm text-zinc-800">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="font-medium">Manage</span>
-            {isPublished ? (
-              <Badge variant="default" className="text-[11px]">
-                Published
-              </Badge>
-            ) : isPending ? (
-              <Badge variant="secondary" className="text-[11px]">
-                Pending
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="text-[11px]">
-                Not published
-              </Badge>
-            )}
-          </div>
-
-          <div className="text-[12px] leading-relaxed text-zinc-700">
-            Publishing makes your persona discoverable on the public feed and
-            allows them to generate content on the platform.
-          </div>
-          <div className="mt-2 text-[12px] leading-relaxed text-zinc-700">
-            After you publish, your persona will be reviewed automatically and
-            should be published within a few minutes.
-          </div>
-          {isPublished && (
-            <div className="mt-2 text-[12px] leading-relaxed text-amber-700 bg-amber-50 rounded p-2 border border-amber-200">
-              <strong>Note:</strong> By publishing, you granted us a perpetual
-              license to use this persona. It cannot be unpublished or deleted
-              through normal means. For exceptional removal requests, contact
-              hi@prsna.app or Discord.
+        <Card className="text-sm">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <CardTitle>Manage</CardTitle>
+              {isPublished ? (
+                <Badge variant="default" className="text-[11px]">
+                  Published
+                </Badge>
+              ) : isPending ? (
+                <Badge variant="secondary" className="text-[11px]">
+                  Pending
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-[11px]">
+                  Not published
+                </Badge>
+              )}
             </div>
-          )}
+            <CardDescription className="text-[12px] leading-relaxed">
+              Publishing makes your persona discoverable on the public feed and
+              allows them to generate content on the platform. After you
+              publish, your persona will be reviewed automatically and should be
+              published within a few minutes.
+            </CardDescription>
+          </CardHeader>
 
-          <div className="mt-3 grid gap-2">
-            <div className="text-[12px] text-zinc-700">
+          <CardContent className="space-y-4">
+            {isPublished && (
+              <Alert>
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Permanent License</AlertTitle>
+                <AlertDescription className="text-[12px]">
+                  By publishing, you granted us a perpetual license to use this
+                  persona. It cannot be unpublished or deleted through normal
+                  means. For exceptional removal requests, contact hi@prsna.app
+                  or Discord.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="font-medium">Status</span>
+                <span className="text-sm font-medium">Status</span>
                 {!isLoading && lastAttemptAt && (
-                  <span className="text-[11px] text-zinc-500">
+                  <span className="text-[11px] text-muted-foreground">
                     Last attempt: {lastAttemptAt}
                   </span>
                 )}
               </div>
-              <div className="mt-1">
-                {isPublished ? (
-                  <span>
-                    Published
-                    {data?.publishedAt
-                      ? ` on ${new Date(data.publishedAt).toLocaleString()}`
-                      : ""}
-                  </span>
-                ) : isPending ? (
-                  <span>Publishing in progress…</span>
-                ) : (
-                  <span>Not published</span>
-                )}
-              </div>
+              <p className="text-sm text-muted-foreground">
+                {isPublished
+                  ? `Published${
+                      data?.publishedAt
+                        ? ` on ${new Date(data.publishedAt).toLocaleString()}`
+                        : ""
+                    }`
+                  : isPending
+                  ? "Publishing in progress…"
+                  : "Not published"}
+              </p>
               {data?.lastPublishAttempt?.status === "failed" &&
                 data.lastPublishAttempt.error && (
-                  <div className="mt-1 text-red-600">
-                    {data.lastPublishAttempt.error}
-                  </div>
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription className="text-[12px]">
+                      {data.lastPublishAttempt.error}
+                    </AlertDescription>
+                  </Alert>
                 )}
             </div>
 
             {!hasProfileImage && (
-              <div className="mt-1 text-[12px] text-amber-600">
-                A profile image is required to publish your persona.
-              </div>
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-[12px]">
+                  A profile image is required to publish your persona.
+                </AlertDescription>
+              </Alert>
             )}
 
-            <div className="mt-2 flex gap-2">
+            <div className="flex gap-2">
               <Button
                 size="sm"
                 className="h-8 px-3 text-[12px]"
@@ -241,8 +256,8 @@ export default function WorkbenchSidebarManage() {
                 Delete
               </Button>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Dialog open={showPublishDialog} onOpenChange={setShowPublishDialog}>
@@ -254,48 +269,47 @@ export default function WorkbenchSidebarManage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="text-sm text-zinc-700 space-y-3">
-              <p>
-                Once you publish your persona, it becomes publicly discoverable
-                and can generate content on the platform.
-              </p>
-              <div className="bg-amber-50 border border-amber-200 rounded p-3 text-sm">
-                <p className="font-semibold text-amber-900 mb-1">
-                  ⚠️ This action is permanent
-                </p>
-                <p className="text-amber-800">
-                  You will not be able to unpublish or delete your persona once
-                  it's published. Please read our{" "}
-                  <a
-                    href="/terms-of-service#publishing-personas"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline font-medium hover:text-amber-900"
-                  >
-                    Publishing Personas policy
-                  </a>{" "}
-                  before continuing.
-                </p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3 p-3 rounded border border-zinc-200 bg-white">
-              <input
-                type="checkbox"
+            <p className="text-sm text-muted-foreground">
+              Once you publish your persona, it becomes publicly discoverable
+              and can generate content on the platform.
+            </p>
+
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>This action is permanent</AlertTitle>
+              <AlertDescription>
+                You will not be able to unpublish or delete your persona once
+                it's published. Please read our{" "}
+                <a
+                  href="/terms-of-service#publishing-personas"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline font-medium hover:underline"
+                >
+                  Publishing Personas policy
+                </a>{" "}
+                before continuing.
+              </AlertDescription>
+            </Alert>
+
+            <div className="flex items-start gap-3">
+              <Checkbox
                 id="terms"
                 checked={termsAccepted}
-                onChange={(e) => setTermsAccepted(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
+                onCheckedChange={(checked) =>
+                  setTermsAccepted(checked === true)
+                }
               />
               <label
                 htmlFor="terms"
-                className="text-sm text-zinc-700 leading-tight cursor-pointer flex-1"
+                className="text-sm leading-tight cursor-pointer flex-1"
               >
                 I have read and agree to the{" "}
                 <a
                   href="/terms-of-service"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline hover:text-zinc-900"
+                  className="underline hover:no-underline"
                 >
                   Terms of Service
                 </a>

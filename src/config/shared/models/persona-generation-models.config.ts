@@ -42,14 +42,14 @@ export const personaGenerationModels: PersonaGenerationModel[] = [
     priority: 0.3,
   },
   {
-    id: "inclusionai/ling-1t",
-    displayName: "LING 1T",
-    priority: 0.5,
-  },
-  {
     id: "openai/gpt-5-mini",
     displayName: "GPT-5 Mini",
     priority: 0.4,
+  },
+  {
+    id: "z-ai/glm-4.6",
+    displayName: "GLM 4.6",
+    priority: 0.1,
   },
   {
     id: "inception/mercury",

@@ -62,10 +62,10 @@ function PersonasFilters() {
       <DropdownMenuContent>
         <DropdownMenuLabel>Mature Content</DropdownMenuLabel>
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => setIncludeNsfw(false)}>
+          <DropdownMenuItem onClick={() => setIncludeNsfw(true)}>
             Show
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setIncludeNsfw(true)}>
+          <DropdownMenuItem onClick={() => setIncludeNsfw(false)}>
             Hide
           </DropdownMenuItem>
         </DropdownMenuGroup>

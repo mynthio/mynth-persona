@@ -71,10 +71,7 @@ export function ChatModelPickerMenu({
   }, [allModels, pinnedModelIds]);
 
   const unpinnedModels = useMemo(
-    () =>
-      allModels
-        .filter((m) => !pinnedModelIds.includes(m.modelId))
-        .sort((a, b) => a.displayName.localeCompare(b.displayName)),
+    () => allModels.filter((m) => !pinnedModelIds.includes(m.modelId)),
     [allModels, pinnedModelIds]
   );
 

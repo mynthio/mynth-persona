@@ -11,63 +11,66 @@ export type ChatConfig = {
 };
 
 export const DEFAULT_CHAT_MODEL: TextGenerationModelId =
-  "nousresearch/hermes-4-70b";
+  "nousresearch/hermes-4-70b:eco";
 
 export const chatConfig: ChatConfig = {
   models: [
     {
-      modelId: "nousresearch/hermes-4-70b",
+      modelId: "nousresearch/hermes-4-70b:eco",
     },
     {
-      modelId: "nousresearch/hermes-3-llama-3.1-405b",
+      modelId: "nousresearch/hermes-4-70b:standard",
     },
     {
-      modelId: "nousresearch/hermes-3-llama-3.1-70b",
+      modelId: "nousresearch/hermes-3-llama-3.1-405b:premium",
     },
     {
-      modelId: "cognitivecomputations/dolphin-mistral-24b-venice-edition",
+      modelId: "nousresearch/hermes-3-llama-3.1-70b:standard",
     },
     {
-      modelId: "raifle/sorcererlm-8x22b",
+      modelId: "cognitivecomputations/dolphin-mistral-24b-venice-edition:standard",
     },
     {
-      modelId: "thedrummer/cydonia-24b-v4.1",
+      modelId: "raifle/sorcererlm-8x22b:premium",
     },
     {
-      modelId: "deepcogito/cogito-v2-preview-llama-405b",
+      modelId: "thedrummer/cydonia-24b-v4.1:standard",
     },
     {
-      modelId: "x-ai/grok-3",
+      modelId: "deepcogito/cogito-v2-preview-llama-405b:premium",
     },
     {
-      modelId: "x-ai/grok-4-fast",
+      modelId: "x-ai/grok-3:premium",
     },
     {
-      modelId: "aion-labs/aion-rp-llama-3.1-8b",
+      modelId: "x-ai/grok-4-fast:standard",
     },
     {
-      modelId: "meta-llama/llama-3.3-70b-instruct",
+      modelId: "aion-labs/aion-rp-llama-3.1-8b:standard",
     },
     {
-      modelId: "deepseek/deepseek-chat-v3.1",
+      modelId: "meta-llama/llama-3.3-70b-instruct:standard",
     },
     {
-      modelId: "tngtech/deepseek-r1t2-chimera",
+      modelId: "deepseek/deepseek-chat-v3.1:standard",
     },
     {
-      modelId: "anthropic/claude-haiku-4.5",
+      modelId: "tngtech/deepseek-r1t2-chimera:standard",
     },
     {
-      modelId: "z-ai/glm-4.5-air",
+      modelId: "anthropic/claude-haiku-4.5:premium",
     },
     {
-      modelId: "meituan/longcat-flash-chat",
+      modelId: "z-ai/glm-4.5-air:standard",
     },
     {
-      modelId: "openai/gpt-oss-20b",
+      modelId: "meituan/longcat-flash-chat:standard",
     },
     {
-      modelId: "nvidia/nemotron-nano-9b-v2",
+      modelId: "openai/gpt-oss-20b:standard",
+    },
+    {
+      modelId: "nvidia/nemotron-nano-9b-v2:standard",
     },
   ],
 };

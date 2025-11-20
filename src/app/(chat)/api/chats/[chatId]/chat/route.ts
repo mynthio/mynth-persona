@@ -34,7 +34,7 @@ import { replacePlaceholders } from "@/lib/replace-placeholders";
 import { kv } from "@vercel/kv";
 import ms from "ms";
 import { getUserPlan } from "@/services/auth/user-plan.service";
-import { CHAT_RATE_LIMITS, rateLimitGuard } from "@/lib/rate-limit";
+import { CHAT_RATE_LIMITS, rateLimitGuard, EcoChatRateLimit } from "@/lib/rate-limit";
 import { PlanId } from "@/config/shared/plans";
 
 export const maxDuration = 45;
@@ -175,11 +175,12 @@ export async function POST(
     textGenerationModels[chatSettings.model ?? DEFAULT_CHAT_MODEL];
   if (!textGenerationModel) throw new Error("Model not supported");
 
-  const isPremiumModel = textGenerationModel.isPremium;
+  const modelTier = textGenerationModel.tier;
 
   const planId = await getUserPlan();
 
-  if (isPremiumModel && planId === "free") {
+  // Block free users from premium models
+  if (modelTier === "premium" && planId === "free") {
     return new Response(
       JSON.stringify({
         error: "premium_model_not_available" as const,
@@ -190,8 +191,17 @@ export async function POST(
     );
   }
 
-  const rateLimitter =
-    CHAT_RATE_LIMITS[planId as PlanId][isPremiumModel ? "premium" : "standard"];
+  // Select rate limiter based on tier
+  let rateLimitter;
+  if (modelTier === "eco") {
+    // Eco tier uses global rate limiter
+    rateLimitter = EcoChatRateLimit;
+  } else if (modelTier === "premium") {
+    rateLimitter = CHAT_RATE_LIMITS[planId as PlanId]["premium"];
+  } else {
+    // standard, free, cheap tiers use standard rate limiter
+    rateLimitter = CHAT_RATE_LIMITS[planId as PlanId]["standard"];
+  }
 
   if (!rateLimitter) {
     throw new Error("Something went wrong.");
@@ -261,11 +271,11 @@ export async function POST(
   const openrouter = getOpenRouter();
   const model = openrouter(
     textGenerationModel.isFreeVersionAvailable
-      ? `${textGenerationModel.modelId}:free`
-      : textGenerationModel.modelId,
+      ? `${textGenerationModel.openRouterModelId}:free`
+      : textGenerationModel.openRouterModelId,
     {
       models: textGenerationModel.isFreeVersionAvailable
-        ? [textGenerationModel.modelId]
+        ? [textGenerationModel.openRouterModelId]
         : undefined,
       extraBody: {
         transforms: ["middle-out"],

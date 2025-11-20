@@ -52,6 +52,7 @@ import { toast } from "sonner";
 import { filter, map, pipe, toArray } from "@fxts/core";
 import { Badge } from "@/components/ui/badge";
 import { usePinnedModels } from "../_hooks/use-pinned-models.hook";
+import { Gift02 } from "@untitledui/icons";
 
 type ChatSettingsProps = {
   defaultOpen: boolean;
@@ -455,7 +456,7 @@ function ChatSettingsModel() {
           return false;
         }
 
-        if (showFreeOnly && model.isPremium) {
+        if (showFreeOnly && model.tier === "premium") {
           return false;
         }
 
@@ -561,9 +562,14 @@ function ModelCard(props: {
           </div>
 
           <div className="flex items-center gap-[8px] shrink-0">
-            {model.isPremium && (
+            {model.tier === "premium" && (
               <Badge variant="destructive">
                 Premium <FireIcon weight="bold" />
+              </Badge>
+            )}
+            {model.tier === "eco" && (
+              <Badge variant="default" className="bg-emerald-500 text-white hover:bg-emerald-600">
+                Eco <Gift02 strokeWidth={2} className="w-4 h-4" />
               </Badge>
             )}
 

@@ -28,7 +28,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 import { usePinnedModels } from "../_hooks/use-pinned-models.hook";
-import { ChevronUp, Diamond01, Lightning01, Pin01, X } from "@untitledui/icons";
+import { ChevronUp, Diamond01, Gift02, Lightning01, Pin01, X } from "@untitledui/icons";
 
 interface ChatModelPickerMenuProps {
   currentModelId: TextGenerationModelId;
@@ -89,7 +89,10 @@ export function ChatModelPickerMenu({
           className="rounded-3xl"
         >
           <ChevronUp strokeWidth={1} />
-          <span className="truncate">{currentModel?.displayName}</span>
+          <span className="truncate">
+            {currentModel?.displayName}
+            {currentModel?.tier === "eco" && " (Eco)"}
+          </span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[360px] p-0 max-h-[500px]" align="start">
@@ -212,16 +215,29 @@ function ModelRow({
   onTogglePin: () => void;
 }) {
   const showPinButton = isPinned || canPin;
+
+  // Render tier icon based on model tier
+  const renderTierIcon = () => {
+    if (model.tier === "premium") {
+      return <Diamond01 strokeWidth={1.5} className="text-rose-500" />;
+    } else if (model.tier === "eco") {
+      return <Gift02 strokeWidth={1.5} className="text-emerald-500" />;
+    } else {
+      // standard, free, cheap tiers use hidden lightning icon for alignment
+      return <Lightning01 className="opacity-0" strokeWidth={1.5} />;
+    }
+  };
+
   return (
     <CommandItem
+      value={model.modelId}
       onSelect={() => onSelect(model.modelId as TextGenerationModelId)}
     >
-      {model.isPremium ? (
-        <Diamond01 strokeWidth={1.5} />
-      ) : (
-        <Lightning01 className="opacity-0" strokeWidth={1.5} />
-      )}
-      <span className="truncate w-full">{model.displayName}</span>
+      {renderTierIcon()}
+      <span className="truncate w-full">
+        {model.displayName}
+        {model.tier === "eco" && " (Eco)"}
+      </span>
 
       {showPinButton && (
         <Button

@@ -1,5 +1,5 @@
 export type PlanId = "free" | "spark" | "flame" | "blaze";
-export type ModelTier = "free" | "cheap" | "premium";
+export type ModelTier = "eco" | "free" | "cheap" | "standard" | "premium";
 export type ActionType = "chat" | "image";
 
 // Map Clerk Billing plan slugs (Stripe price/product names in Clerk) to internal PlanId

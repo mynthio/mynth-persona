@@ -33,6 +33,15 @@ export const ScenarioPublishRateLimit = new Ratelimit({
   onError: () => ({ success: false, limit: 0, remaining: 0, reset: 0 }),
 });
 
+// Global eco tier rate limiter - shared across all plans
+export const EcoChatRateLimit = new Ratelimit({
+  rootKey: ROOT_KEY,
+  namespace: "chat.models.eco",
+  limit: 100,
+  duration: "2h",
+  onError: () => ({ success: false, limit: 0, remaining: 0, reset: 0 }),
+});
+
 const FreeChatRateLimitStandardModels = new Ratelimit({
   rootKey: ROOT_KEY,
   namespace: "chat.plan.free.models.standard",

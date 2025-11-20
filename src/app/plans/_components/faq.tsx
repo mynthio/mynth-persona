@@ -26,6 +26,46 @@ const FAQ_ITEMS: FaqItem[] = [
     ),
   },
   {
+    question: "What are Eco models?",
+    answer: (
+      <>
+        <p>
+          Eco models are budget-friendly chat models available to everyone,
+          regardless of your plan! They're marked with a green gift icon 🎁 in
+          the model picker.
+        </p>
+        <p className="mt-2">
+          <strong>Key features:</strong>
+        </p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li>
+            <strong>Universal access:</strong> Same 100 messages per 2 hours
+            limit for all users (Free, Spark, Flame, and Blaze)
+          </li>
+          <li>
+            <strong>Great quality:</strong> Currently featuring Hermes 4 70B - a
+            powerful model perfect for creative roleplay
+          </li>
+          <li>
+            <strong>Generous limits:</strong> Almost 1 message per minute, ideal
+            for casual chatting
+          </li>
+        </ul>
+        <p className="mt-2">
+          Eco models are perfect if you want consistent, high-quality roleplay
+          without worrying about plan restrictions. They're our way of making
+          sure everyone can enjoy great conversations! 💚
+        </p>
+        <p className="mt-2">
+          <strong>Important:</strong> Eco models can be changed, enabled, or
+          disabled at any time based on availability and costs. They may also be
+          less stable than standard models. For guaranteed access and stability,
+          we recommend using standard or premium models included in paid plans.
+        </p>
+      </>
+    ),
+  },
+  {
     question: "Which plan is best for me?",
     answer: (
       <p>

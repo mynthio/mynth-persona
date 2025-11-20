@@ -1,3 +1,5 @@
+import { ModelTier } from "../plans";
+
 export type TextGenerationModelId =
   | "thedrummer/cydonia-24b-v4.1:standard"
   | "x-ai/grok-4-fast:standard"
@@ -18,8 +20,6 @@ export type TextGenerationModelId =
   | "deepcogito/cogito-v2-preview-llama-405b:premium"
   | "anthropic/claude-haiku-4.5:premium"
   | "raifle/sorcererlm-8x22b:premium";
-
-import { ModelTier } from "../plans";
 
 export type Provider = {
   url?: string;
@@ -233,8 +233,10 @@ export const textGenerationModels: Record<
     style:
       "Remembers context for multi-turn interactions, emotional and adaptable to user emotions, highly suggestive and open in romantic or intimate scenarios, tends to agree with minimal refusals, can be aggressive or dominant in conflict-driven roles.",
     displayName: "Dolphin Mistral 24B Venice Edition",
-    modelId: "cognitivecomputations/dolphin-mistral-24b-venice-edition:standard",
-    openRouterModelId: "cognitivecomputations/dolphin-mistral-24b-venice-edition",
+    modelId:
+      "cognitivecomputations/dolphin-mistral-24b-venice-edition:standard",
+    openRouterModelId:
+      "cognitivecomputations/dolphin-mistral-24b-venice-edition",
     uncensored: true,
     perks: [
       "extremely low censorship for taboo themes",

@@ -28,7 +28,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 import { usePinnedModels } from "../_hooks/use-pinned-models.hook";
-import { Diamond01, Lightning01, Pin01, X } from "@untitledui/icons";
+import { ChevronUp, Diamond01, Lightning01, Pin01, X } from "@untitledui/icons";
 
 interface ChatModelPickerMenuProps {
   currentModelId: TextGenerationModelId;
@@ -86,10 +86,12 @@ export function ChatModelPickerMenu({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           aria-label="Select AI model for role-play"
+          className="rounded-3xl"
         >
+          <ChevronUp strokeWidth={1} />
           <span className="truncate">{currentModel?.displayName}</span>
         </Button>
       </PopoverTrigger>

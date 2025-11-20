@@ -28,7 +28,7 @@ import {
   InputGroupAddon,
   InputGroupButton,
 } from "@/components/ui/input-group";
-import { Send01 } from "@untitledui/icons";
+import { ArrowUp, Send01 } from "@untitledui/icons";
 
 type ChatProps = {
   chat: { id: string; mode: ChatMode };
@@ -151,9 +151,9 @@ function ChatPrompt(props: ChatPromptProps) {
   };
 
   return (
-    <div className="sticky bottom-4 grid w-full max-w-xl gap-6 z-10 mt-auto">
+    <div className="sticky bottom-4 mb-4 grid w-full max-w-xl gap-6 z-10 mt-auto">
       <form onSubmit={handleSubmit} className="w-full">
-        <InputGroup className="dark:bg-input/30 backdrop-blur-3xl rounded-3xl">
+        <InputGroup className="dark:bg-input/30 backdrop-blur-3xl rounded-4xl">
           <TextareaAutosize
             ref={textareaRef}
             data-slot="input-group-control"
@@ -168,13 +168,14 @@ function ChatPrompt(props: ChatPromptProps) {
               }
             }}
           />
-          <InputGroupAddon align="block-end" className="items-end">
+
+          <InputGroupAddon align="block-end" className="items-end p-2">
             <ChatModelSelector />
 
             {status === "streaming" || status === "submitted" ? (
               <InputGroupButton
                 variant="default"
-                className="ml-auto size-9 rounded-xl"
+                className="ml-auto size-9 rounded-3xl"
                 onClick={stop}
                 type="button"
               >
@@ -183,11 +184,11 @@ function ChatPrompt(props: ChatPromptProps) {
               </InputGroupButton>
             ) : (
               <InputGroupButton
-                variant="default"
-                className="ml-auto size-9 rounded-xl"
+                variant="ghost"
+                className="ml-auto size-11 rounded-3xl bg-radial-[at_25%_25%] from-secondary/20 to-secondary/35 to-90% border-accent text-accent-foreground/90"
                 type="submit"
               >
-                <Send01 strokeWidth={1.5} />
+                <ArrowUp strokeWidth={1.5} />
                 <span className="sr-only">Send</span>
               </InputGroupButton>
             )}

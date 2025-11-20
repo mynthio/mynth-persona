@@ -11,7 +11,7 @@ export type ChatConfig = {
 };
 
 export const DEFAULT_CHAT_MODEL: TextGenerationModelId =
-  "aion-labs/aion-rp-llama-3.1-8b";
+  "nousresearch/hermes-4-70b";
 
 export const chatConfig: ChatConfig = {
   models: [

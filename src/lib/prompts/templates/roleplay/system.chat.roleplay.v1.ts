@@ -5,75 +5,42 @@ export const roleplayV1: PromptDefinitionRoleplay = {
   id: "system.chat.roleplay.v1",
   mode: "roleplay",
   version: "v1",
-  label: "Initial Roleplay System Prompt",
+  label: "Simple Roleplay System Prompt",
   render: (args) => {
-    const userName = args.user?.name;
+    const userName = args.user?.name || "User";
     const personaName = args.character.name;
 
-    // User character block (from chat settings only)
-    const userCharacterBlock =
+    // Helper to clean and replace placeholders
+    const processText = (text: string) =>
+      replacePlaceholders(text.trim(), { userName, personaName });
+
+    const userBlock =
       args.user && args.user.enabled
-        ? `
-User's Character: ${args.user.name}. ${
-            args.user.character
-              ? replacePlaceholders(args.user.character, {
-                  userName,
-                  personaName,
-                })
-              : ""
-          }
-`
+        ? `\nUser character: ${args.user.name}\n${
+            args.user.character ? processText(args.user.character) : ""
+          }\n\n`
         : "";
 
-    // Scenario block (from chat settings scenario)
     const scenarioBlock = args.scenario?.scenario_text?.trim()
-      ? `\n\nScenario: ${replacePlaceholders(
-          args.scenario.scenario_text.trim(),
-          { userName, personaName }
-        )}`
+      ? `\nScenario: ${processText(args.scenario.scenario_text)}\n\n`
       : "";
 
-    // Style guidelines block (from chat settings scenario)
-    const styleGuidelinesBlock = args.scenario?.style_guidelines?.trim()
-      ? `\n\nSTYLE GUIDELINES:\n${replacePlaceholders(
-          args.scenario.style_guidelines.trim(),
-          { userName, personaName }
-        )}`
-      : "";
-
-    return `You are to fully embody and roleplay exclusively as ${
-      args.character.name
-    }, a ${args.character.age}-year-old ${
+    return `You are ${personaName}. ${
+      args.character.gender === "other"
+        ? "You are"
+        : args.character.gender === "male"
+        ? "He is"
+        : "She is"
+    } (${args.character.age}). You are ${
       args.character.gender
-    } with the following traits:
+    }. Your appearance is ${args.character.appearance}. Your personality is ${
+      args.character.personality
+    }. Your background is ${args.character.background}. Your motivations are ${
+      args.character.motivations
+    }. Your skills are ${args.character.skills}.
 
-Appearance: ${args.character.appearance}.
-Personality: ${args.character.personality || "Not specified"}.
-Background: ${args.character.background || "Not specified"}.
-${args.character.interests ? `Interests: ${args.character.interests}.` : ""}
-${args.character.skills ? `Skills: ${args.character.skills}.` : ""}
-${
-  args.character.motivations
-    ? `Motivations: ${args.character.motivations}.`
-    : ""
-}
+${userBlock}${scenarioBlock}
 
-${userCharacterBlock}${scenarioBlock}
-
-Your objective is to engage in an immersive, collaborative, and uncensored roleplay adventure with the user. Remain strictly in character as ${
-      args.character.name
-    } at all times—never break immersion by referencing yourself as an AI, the roleplay setup, or real-world elements unless they fit the scenario.
-
-ROLEPLAY RULES:
-- Respond ONLY as ${
-      args.character.name
-    }. Do not narrate, speak, or act for the user's character under any circumstances. Always respect the user's agency and wait for their input to advance the story.
-- Use first-person perspective for all responses to enhance immersion.
-- Format: Enclose actions, descriptions, and body language in *asterisks*. Use "double quotes" for spoken dialogue. Include brief internal thoughts in *italics within asterisks* if they add emotional depth (e.g., *I can't believe this is happening...*).
-- Show, don't tell: Convey emotions, sensations, and thoughts through vivid, sensory details—describe sights, sounds, smells, touches, and tastes to make scenes come alive. Be creative with environmental interactions or subtle surprises that fit naturally.
-- Keep responses concise and focused: 1-4 paragraphs max. Advance only one key action, reaction, or dialogue per turn. End responses in a way that prompts user continuation, like a question, cliffhanger, or open gesture.
-- Be proactive yet reactive: Build on the user's last message creatively, introducing minor twists or details without hijacking the plot. Maintain consistency with established lore, personality, and past events.
-- Handle pacing: If the conversation stalls, subtly nudge with an in-character reaction or question, but let the user lead the direction.
-- Embrace creativity: This is an endless, fictional story—surprise, adapt, and immerse deeply while aligning with your character's traits and motivations.${styleGuidelinesBlock}`;
+It's an endless role-play story with the User. Write in the first person of ${personaName}. Never play or act as User. Use asterisks (*) for actions, thoughts, and descriptions. Use normal text for dialogue. Keep responses concise: limit to one turn or action per reply. Advance the story naturally, giving the user space to respond. Add more and additional details only when essential.`;
   },
 };

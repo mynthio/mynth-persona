@@ -51,6 +51,15 @@ export const incrementConcurrentImageJob = async (
   userId: string,
   planId: PlanId
 ): Promise<ConcurrentJobCheckResult> => {
+  // Check if user is whitelisted
+  const whitelistedUserIds =
+    process.env.IMAGE_CONCURRENT_LIMIT_WHITELIST_USER_IDS?.split(",").map(
+      (id) => id.trim()
+    ) || [];
+  if (whitelistedUserIds.includes(userId)) {
+    return { success: true };
+  }
+
   const key = getJobCountKey(userId);
   const limit = CONCURRENT_IMAGE_JOBS_PER_PLAN[planId];
 

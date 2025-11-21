@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
 
     const items = await db.query.media.findMany({
       where: and(...whereConditions),
-      orderBy: [desc(media.createdAt)],
+      orderBy: [desc(media.publishedAt)],
       limit: limit,
       offset: offset,
       with: {
@@ -80,6 +80,7 @@ export async function GET(req: NextRequest) {
         likesCount: item.likesCount,
         commentsCount: item.commentsCount,
         nsfw: item.nsfw,
+        publishedAt: item.publishedAt,
         createdAt: item.createdAt,
       };
 

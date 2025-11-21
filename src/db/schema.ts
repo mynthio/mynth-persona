@@ -361,6 +361,7 @@ export const media = pgTable(
       .notNull()
       .default(false),
     tags: text("tags").array(),
+    publishedAt: timestamp("published_at").defaultNow().notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (t) => [
@@ -373,6 +374,7 @@ export const media = pgTable(
     index("media_votes_up_idx").on(t.votesUp),
     index("media_votes_down_idx").on(t.votesDown),
     index("media_rating_average_percentage_idx").on(t.ratingAveragePercentage),
+    index("media_published_at_idx").on(t.publishedAt),
     check(
       "media_rating_average_percentage_check",
       sql`${t.ratingAveragePercentage} >= 0 AND ${t.ratingAveragePercentage} <= 100`

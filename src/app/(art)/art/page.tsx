@@ -10,8 +10,18 @@ import { ArtFilters } from "../_components/art-filters";
 import { Suspense } from "react";
 
 export const metadata = {
-  title: "Art Gallery | Mynth Persona",
-  description: "Explore community generated art.",
+  title: "Art Gallery | Persona | prsna.app",
+  description:
+    "Explore community generated art on Persona. All the content is generated on our platform.",
+  keywords: [
+    "Art Gallery",
+    "Persona",
+    "prsna.app",
+    "community generated art",
+    "art generation",
+    "art creation",
+    "art community",
+  ],
 };
 
 export default function ArtPage() {

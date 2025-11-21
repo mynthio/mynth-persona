@@ -30,7 +30,7 @@ import { DownloadIcon } from "@phosphor-icons/react/dist/ssr";
 import { ExternalLink } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { Spinner } from "@/components/ui/spinner";
-import Link from "next/link";
+
 import { cn } from "@/lib/utils";
 import { Download02, Download04, User03, X, Trash01 } from "@untitledui/icons";
 import { useForm } from "@tanstack/react-form";
@@ -56,6 +56,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import posthog from "posthog-js";
+import { Link } from "@/components/ui/link";
 
 export function MediaDialog() {
   const [imageId, setImageId] = useImageId();
@@ -206,18 +207,15 @@ function Comments({ mediaId }: { mediaId: string }) {
         toast.success("Comment deleted successfully");
 
         // Mutate locally without refetch
-        mutate(
-          (currentData?: any) => {
-            if (!currentData?.comments) return currentData;
-            return {
-              ...currentData,
-              comments: currentData.comments.filter(
-                (comment: any) => comment.id !== commentId
-              ),
-            };
-          },
-          false
-        );
+        mutate((currentData?: any) => {
+          if (!currentData?.comments) return currentData;
+          return {
+            ...currentData,
+            comments: currentData.comments.filter(
+              (comment: any) => comment.id !== commentId
+            ),
+          };
+        }, false);
       } else {
         toast.error(result.error || "Failed to delete comment");
       }
@@ -286,16 +284,13 @@ function Comments({ mediaId }: { mediaId: string }) {
           form.reset();
 
           // Mutate locally without refetch
-          mutate(
-            (currentData?: any) => {
-              if (!result.comment) return currentData;
-              return {
-                ...currentData,
-                comments: [...(currentData?.comments || []), result.comment],
-              };
-            },
-            false
-          );
+          mutate((currentData?: any) => {
+            if (!result.comment) return currentData;
+            return {
+              ...currentData,
+              comments: [...(currentData?.comments || []), result.comment],
+            };
+          }, false);
         } else {
           toast.error(result.error || "Failed to post comment");
         }
@@ -351,10 +346,12 @@ function Comments({ mediaId }: { mediaId: string }) {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Delete comment?</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Delete comment?
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action cannot be undone. This will permanently
-                                delete your comment.
+                                This action cannot be undone. This will
+                                permanently delete your comment.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>

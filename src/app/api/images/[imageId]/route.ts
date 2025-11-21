@@ -1,7 +1,7 @@
 import { db } from "@/db/drizzle";
 import { media, mediaGenerations } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -19,7 +19,7 @@ export async function GET(
 
     // Get media with its generation details
     const mediaData = await db.query.media.findFirst({
-      where: eq(media.id, imageId),
+      where: and(eq(media.id, imageId), eq(media.userId, userId)),
       with: {
         persona: {
           columns: {
@@ -36,15 +36,13 @@ export async function GET(
       return NextResponse.json({ error: "Image not found" }, { status: 404 });
     }
 
-    // Check if user owns the persona that the image belongs to
-    if (mediaData.persona.userId !== userId) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
     const response = {
       id: mediaData.id,
       personaId: mediaData.personaId,
       createdAt: mediaData.createdAt,
+      tags: mediaData.tags,
+      nsfw: mediaData.nsfw,
+      visibility: mediaData.visibility,
       persona: {
         id: mediaData.persona.id,
         title: mediaData.persona.title,

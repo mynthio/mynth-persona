@@ -35,8 +35,8 @@ export function CreateChatWithScenarioButton({
               typeof window !== "undefined"
                 ? window.location.pathname
                 : undefined,
-            scenarioId,
-            personaId,
+            scenario_id: scenarioId,
+            persona_id: personaId,
           });
         } catch {}
         toast.promise(
@@ -48,6 +48,12 @@ export function CreateChatWithScenarioButton({
               throw error;
             })
             .then((createdChat: any) => {
+              try {
+                posthog.capture("chat_created", {
+                  origin: "persona_scenario",
+                  has_scenario: true,
+                });
+              } catch {}
               mutate((state) =>
                 state
                   ? { ...state, data: [createdChat, ...state.data] }

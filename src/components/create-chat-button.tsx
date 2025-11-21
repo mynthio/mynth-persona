@@ -29,7 +29,11 @@ export function CreateChatButton({
         setIsLoading(true);
         try {
           posthog.capture("create_chat_clicked", {
-            path: typeof window !== "undefined" ? window.location.pathname : undefined,
+            path:
+              typeof window !== "undefined"
+                ? window.location.pathname
+                : undefined,
+            persona_id: personaId,
           });
         } catch {}
         toast.promise(
@@ -41,6 +45,12 @@ export function CreateChatButton({
               throw error;
             })
             .then((createdChat: any) => {
+              try {
+                posthog.capture("chat_created", {
+                  origin: "persona_creator_footer",
+                  has_scenario: false,
+                });
+              } catch {}
               mutate((state) =>
                 state
                   ? { ...state, data: [createdChat, ...state.data] }

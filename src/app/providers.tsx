@@ -25,7 +25,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <Suspense>
             <NuqsAdapter>
               {children}
-              <Toaster />
+              <Toaster position="top-center" />
             </NuqsAdapter>
           </Suspense>
         </SWRConfig>

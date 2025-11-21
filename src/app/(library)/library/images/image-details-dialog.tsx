@@ -20,11 +20,28 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Download02, Download04, User03 } from "@untitledui/icons";
 
-export function ImageDetailsDialog() {
+import {
+  publishMediaAction,
+  unpublishMediaAction,
+} from "@/app/(art)/_actions/actions";
+import { toast } from "sonner";
+import { useState } from "react";
+import { ShareNetwork } from "@phosphor-icons/react/dist/ssr";
+import { PublishDialog } from "./publish-dialog";
+import { EyeSlash } from "@phosphor-icons/react/dist/ssr";
+
+export function ImageDetailsDialog({
+  hidePublish = false,
+}: {
+  hidePublish?: boolean;
+}) {
   const [imageId, setImageId] = useImageId();
   const isOpen = Boolean(imageId);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [isUnpublishing, setIsUnpublishing] = useState(false);
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
 
-  const { data, isLoading } = useSWR(
+  const { data, isLoading, mutate } = useSWR(
     isOpen && imageId ? `/api/images/${imageId}` : null,
     fetcher
   );
@@ -42,6 +59,50 @@ export function ImageDetailsDialog() {
     link.href = getImageUrl(imageId, "full");
     link.download = `${data?.persona?.title ?? "image"}.webp`;
     link.click();
+  };
+
+  const handlePublish = async (isAnonymous: boolean) => {
+    if (!imageId) return;
+
+    setIsPublishing(true);
+    try {
+      const result = await publishMediaAction({
+        mediaId: imageId,
+        isCreatorAnonymous: isAnonymous,
+      });
+      if (result.success) {
+        toast.success("Image published successfully!");
+        setPublishDialogOpen(false);
+        mutate(); // Refresh data to show published status if we add UI for it
+      } else {
+        toast.error(result.error || "Failed to publish image");
+      }
+    } catch (error) {
+      toast.error("An error occurred");
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  const handleUnpublish = async () => {
+    if (!imageId) return;
+
+    setIsUnpublishing(true);
+    try {
+      const result = await unpublishMediaAction({
+        mediaId: imageId,
+      });
+      if (result.success) {
+        toast.success("Image unpublished successfully!");
+        mutate(); // Refresh data to show unpublished status
+      } else {
+        toast.error(result.error || "Failed to unpublish image");
+      }
+    } catch (error) {
+      toast.error("An error occurred");
+    } finally {
+      setIsUnpublishing(false);
+    }
   };
 
   const ActionButtons = ({
@@ -103,6 +164,13 @@ export function ImageDetailsDialog() {
 
   if (!isOpen) return null;
 
+  // Check if already published (assuming data includes media info, if not we might need to update the fetcher or API)
+  // The current /api/images/:id endpoint returns image details. We need to ensure it returns visibility.
+  // Let's assume for now we can check data.visibility or similar if available, or just show the button and let server handle validation.
+  // Better to show status if published.
+
+  const isPublished = data?.visibility === "public";
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogOverlay className="bg-background/70 backdrop-blur-[2px]" />
@@ -126,7 +194,37 @@ export function ImageDetailsDialog() {
                   />
 
                   {/* Overlay Actions */}
-                  <div className="absolute top-3 right-3 z-20">
+                  <div className="absolute top-3 right-3 z-20 flex gap-2">
+                    {!hidePublish &&
+                      (isPublished ? (
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={handleUnpublish}
+                          disabled={isUnpublishing}
+                          title="Unpublish from Art Gallery"
+                        >
+                          {isUnpublishing ? (
+                            <Spinner className="size-4" />
+                          ) : (
+                            <EyeSlash className="size-5" />
+                          )}
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setPublishDialogOpen(true)}
+                          disabled={isPublishing}
+                          title="Publish to Art Gallery"
+                        >
+                          {isPublishing ? (
+                            <Spinner className="size-4" />
+                          ) : (
+                            <ShareNetwork className="size-5" />
+                          )}
+                        </Button>
+                      ))}
                     <Button
                       variant="outline"
                       size="icon"
@@ -172,6 +270,37 @@ export function ImageDetailsDialog() {
                       </Link>
                     </Button>
                   )}
+
+                  {!hidePublish &&
+                    (isPublished ? (
+                      <Button
+                        variant="outline"
+                        className="w-full col-span-2"
+                        onClick={handleUnpublish}
+                        disabled={isUnpublishing}
+                      >
+                        {isUnpublishing ? (
+                          <Spinner className="mr-2 size-4" />
+                        ) : (
+                          <EyeSlash className="mr-2 size-4" />
+                        )}
+                        Unpublish from Art Gallery
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="default"
+                        className="w-full col-span-2"
+                        onClick={() => setPublishDialogOpen(true)}
+                        disabled={isPublishing}
+                      >
+                        {isPublishing ? (
+                          <Spinner className="mr-2 size-4" />
+                        ) : (
+                          <ShareNetwork className="mr-2 size-4" />
+                        )}
+                        Publish to Art Gallery
+                      </Button>
+                    ))}
                 </div>
 
                 {data?.generation && (
@@ -217,6 +346,24 @@ export function ImageDetailsDialog() {
                         </div>
                       </div>
                     )}
+
+                    {data.tags && data.tags.length > 0 && (
+                      <div className="space-y-1">
+                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          Tags
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          {data.tags.map((tag: string) => (
+                            <span
+                              key={tag}
+                              className="px-2 py-1 rounded-md bg-muted/50 border border-border/50 text-xs text-muted-foreground"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -224,6 +371,13 @@ export function ImageDetailsDialog() {
           </TabsContent>
         </Tabs>
       </DialogContent>
+
+      <PublishDialog
+        open={publishDialogOpen}
+        onOpenChange={setPublishDialogOpen}
+        onPublish={handlePublish}
+        isPublishing={isPublishing}
+      />
     </Dialog>
   );
 }

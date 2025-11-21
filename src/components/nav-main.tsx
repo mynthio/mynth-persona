@@ -15,6 +15,7 @@ import {
   PlusCircle,
   Users03,
   Image02,
+  Brush01,
 } from "@untitledui/icons";
 import { Link } from "./ui/link";
 import {
@@ -34,6 +35,14 @@ export function NavMain() {
               <Link href="/">
                 <GlobeSlated01 strokeWidth={1.5} />
                 <span>Explore</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <Link href="/art">
+                <Brush01 strokeWidth={1.5} /> <span>Art</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

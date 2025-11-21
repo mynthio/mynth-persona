@@ -360,6 +360,7 @@ export const media = pgTable(
     isCreatorAnonymous: boolean("is_creator_anonymous")
       .notNull()
       .default(false),
+    tags: text("tags").array(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (t) => [
@@ -521,7 +522,6 @@ export const scenarioPersonas = pgTable(
     index("scenario_personas_role_type_idx").on(t.roleType),
   ]
 );
-
 
 // Ratings table - user ratings for scenarios
 export const ratings = pgTable(
@@ -844,7 +844,6 @@ export const scenarioPersonasRelations = relations(
     }),
   })
 );
-
 
 export const ratingsRelations = relations(ratings, ({ one }) => ({
   scenario: one(scenarios, {

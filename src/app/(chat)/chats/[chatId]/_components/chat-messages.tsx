@@ -553,7 +553,7 @@ function ChatMessagePart(props: ChatMessagePartProps) {
   switch (props.part.type) {
     case "text":
       return (
-        <Response className="prose dark:prose-invert prose-lg">
+        <Response className="prose dark:prose-invert prose-lg dark:[&_em]:text-violet-300 [&_em]:text-violet-700">
           {props.part.text}
         </Response>
       );

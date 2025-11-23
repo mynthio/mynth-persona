@@ -28,13 +28,17 @@ export const chatConfig: ChatConfig = {
       modelId: "nousresearch/hermes-3-llama-3.1-70b:standard",
     },
     {
-      modelId: "cognitivecomputations/dolphin-mistral-24b-venice-edition:standard",
+      modelId:
+        "cognitivecomputations/dolphin-mistral-24b-venice-edition:standard",
     },
     {
       modelId: "raifle/sorcererlm-8x22b:premium",
     },
     {
       modelId: "thedrummer/cydonia-24b-v4.1:standard",
+    },
+    {
+      modelId: "thedrummer/skyfall-36b-v2:standard",
     },
     {
       modelId: "deepcogito/cogito-v2-preview-llama-405b:premium",

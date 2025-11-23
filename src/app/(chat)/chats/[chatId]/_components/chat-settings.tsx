@@ -49,7 +49,6 @@ import {
   textGenerationModels,
 } from "@/config/shared/models/text-generation-models.config";
 import { toast } from "sonner";
-import { filter, map, pipe, toArray } from "@fxts/core";
 import { Badge } from "@/components/ui/badge";
 import { usePinnedModels } from "../_hooks/use-pinned-models.hook";
 import { Gift02 } from "@untitledui/icons";
@@ -439,13 +438,12 @@ function ChatSettingsModel() {
   const models = useMemo(() => {
     const normalizedQuery = debouncedQuery.trim().toLowerCase();
 
-    return pipe(
-      chatConfig.models,
-      map(({ modelId }) => textGenerationModels[modelId]),
-      filter((model): model is TextGenerationModelConfig =>
+    return chatConfig.models
+      .map(({ modelId }) => textGenerationModels[modelId])
+      .filter((model): model is TextGenerationModelConfig =>
         Boolean(model && model.enabled)
-      ),
-      filter((model) => {
+      )
+      .filter((model) => {
         const matchesQuery =
           normalizedQuery.length === 0 ||
           model.displayName.toLowerCase().includes(normalizedQuery) ||
@@ -471,9 +469,7 @@ function ChatSettingsModel() {
         }
 
         return true;
-      }),
-      toArray
-    );
+      });
   }, [debouncedQuery, mode, showFreeOnly, showVeniceOnly]);
 
   const handleModelChange = async (selectedModelId: TextGenerationModelId) => {
@@ -568,7 +564,10 @@ function ModelCard(props: {
               </Badge>
             )}
             {model.tier === "eco" && (
-              <Badge variant="default" className="bg-emerald-500 text-white hover:bg-emerald-600">
+              <Badge
+                variant="default"
+                className="bg-emerald-500 text-white hover:bg-emerald-600"
+              >
                 Eco <Gift02 strokeWidth={2} className="w-4 h-4" />
               </Badge>
             )}

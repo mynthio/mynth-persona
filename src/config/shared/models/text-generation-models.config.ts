@@ -19,7 +19,8 @@ export type TextGenerationModelId =
   | "tngtech/deepseek-r1t2-chimera:standard"
   | "deepcogito/cogito-v2-preview-llama-405b:premium"
   | "anthropic/claude-haiku-4.5:premium"
-  | "raifle/sorcererlm-8x22b:premium";
+  | "raifle/sorcererlm-8x22b:premium"
+  | "thedrummer/skyfall-36b-v2:standard";
 
 export type Provider = {
   url?: string;
@@ -588,6 +589,28 @@ export const textGenerationModels: Record<
       storesMessages: "yes",
       additionalNotes:
         "Built on WizardLM-2-8x22B with 141B parameters. Optimized for roleplay via LoRA training. Recommended settings: Temperature 1, MinP 0.05. Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request.",
+    },
+  },
+  "thedrummer/skyfall-36b-v2:standard": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    description: "",
+    style: "",
+    displayName: "Skyfall 36B v2",
+    modelId: "thedrummer/skyfall-36b-v2:standard",
+    openRouterModelId: "thedrummer/skyfall-36b-v2",
+    uncensored: true,
+    perks: [],
+    tags: [],
+    tier: "standard",
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "no",
+      storesMessages: "no",
+      additionalNotes:
+        "Aggregates models from various sources; may track usage stats but does not store personal data or messages.",
     },
   },
 };

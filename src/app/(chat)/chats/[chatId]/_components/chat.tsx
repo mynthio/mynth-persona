@@ -8,6 +8,7 @@ import {
   useChatStatus,
 } from "@ai-sdk-tools/store";
 import { DefaultChatTransport } from "ai";
+
 import { FormEvent, useRef, useState } from "react";
 
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
@@ -29,6 +30,12 @@ import {
   InputGroupButton,
 } from "@/components/ui/input-group";
 import { ArrowUp, Send01 } from "@untitledui/icons";
+import { DramaIcon, User } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type ChatProps = {
   chat: { id: string; mode: ChatMode };
@@ -84,6 +91,7 @@ export default function Chat(props: ChatProps) {
         shouldScrollRef={shouldScrollRef}
       />
       <ChatPrompt
+        chatId={props.chat.id}
         messagesContainerRef={messagesContainerRef}
         shouldScrollRef={shouldScrollRef}
         setShouldScroll={setShouldScroll}
@@ -93,6 +101,7 @@ export default function Chat(props: ChatProps) {
 }
 
 type ChatPromptProps = {
+  chatId: string;
   messagesContainerRef: React.RefObject<HTMLDivElement>;
   shouldScrollRef: React.MutableRefObject<boolean>;
   setShouldScroll: (value: boolean) => void;
@@ -100,6 +109,7 @@ type ChatPromptProps = {
 
 function ChatPrompt(props: ChatPromptProps) {
   const [text, setText] = useState<string>("");
+  const [isImpersonating, setIsImpersonating] = useState(false);
 
   const { sendMessage, regenerate, stop } = useChatActions();
   const status = useChatStatus();
@@ -150,6 +160,53 @@ function ChatPrompt(props: ChatPromptProps) {
     event.currentTarget.reset();
   };
 
+  const handleImpersonate = async () => {
+    if (isImpersonating) return;
+
+    const parentId = messages.at(-1)?.id ?? null;
+    setIsImpersonating(true);
+
+    try {
+      const response = await fetch(`/api/chats/${props.chatId}/impersonate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          // The API only cares about parentId; event is ignored but kept
+          // for consistency with other chat payloads.
+          event: "send",
+          parentId,
+        }),
+      });
+
+      if (!response.ok || !response.body) {
+        // Optionally surface an error toast here if desired.
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      let done = false;
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+
+        if (value) {
+          const chunk = decoder.decode(value, { stream: !done });
+          // Keep React state as the single source of truth for the textarea.
+          setText((prev) => prev + chunk);
+        }
+      }
+    } catch (error) {
+      // Swallow for now or plug into your logger / toast system.
+      console.error("Impersonation request failed", error);
+    } finally {
+      setIsImpersonating(false);
+    }
+  };
+
   return (
     <div className="sticky bottom-4 mb-4 grid w-full max-w-xl gap-6 z-10 mt-auto">
       <form onSubmit={handleSubmit} className="w-full">
@@ -172,26 +229,45 @@ function ChatPrompt(props: ChatPromptProps) {
           <InputGroupAddon align="block-end" className="items-end p-2">
             <ChatModelSelector />
 
-            {status === "streaming" || status === "submitted" ? (
-              <InputGroupButton
-                variant="default"
-                className="ml-auto size-9 rounded-3xl"
-                onClick={stop}
-                type="button"
-              >
-                <StopIcon weight="fill" className="size-4" />
-                <span className="sr-only">Stop generation</span>
-              </InputGroupButton>
-            ) : (
-              <InputGroupButton
-                variant="ghost"
-                className="ml-auto size-11 rounded-3xl bg-radial-[at_25%_25%] from-secondary/20 to-secondary/35 to-90% border-accent text-accent-foreground/90"
-                type="submit"
-              >
-                <ArrowUp strokeWidth={1.5} />
-                <span className="sr-only">Send</span>
-              </InputGroupButton>
-            )}
+            <div className="flex items-center gap-2 ml-auto">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <InputGroupButton
+                    variant="ghost"
+                    size="icon-xs"
+                    type="button"
+                    onClick={handleImpersonate}
+                    disabled={isImpersonating}
+                  >
+                    <DramaIcon
+                      className={isImpersonating ? "animate-pulse" : ""}
+                    />
+                  </InputGroupButton>
+                </TooltipTrigger>
+                <TooltipContent>Impersonate User</TooltipContent>
+              </Tooltip>
+
+              {status === "streaming" || status === "submitted" ? (
+                <InputGroupButton
+                  variant="default"
+                  className="size-9 rounded-3xl"
+                  onClick={stop}
+                  type="button"
+                >
+                  <StopIcon weight="fill" className="size-4" />
+                  <span className="sr-only">Stop generation</span>
+                </InputGroupButton>
+              ) : (
+                <InputGroupButton
+                  variant="ghost"
+                  className="ml-2 size-10 rounded-3xl bg-radial-[at_25%_25%] from-secondary/20 to-secondary/35 to-90% border-accent text-accent-foreground/90"
+                  type="submit"
+                >
+                  <ArrowUp strokeWidth={1.5} />
+                  <span className="sr-only">Send</span>
+                </InputGroupButton>
+              )}
+            </div>
           </InputGroupAddon>
         </InputGroup>
       </form>

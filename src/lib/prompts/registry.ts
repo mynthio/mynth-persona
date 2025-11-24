@@ -1,5 +1,6 @@
 // src/lib/prompts/registry.ts
 import { roleplayV1 } from "./templates/roleplay/system.chat.roleplay.v1";
+import { impersonateV1 } from "./templates/roleplay/system.chat.impersonate.v1";
 import { storyV1 } from "./templates/story/system.chat.story.v1";
 import { personaGenerateV1 } from "./templates/persona/system.persona.generate.v1";
 import { personaGenerateThinkingV1 } from "./templates/persona/system.persona.generate.thinking.v1";
@@ -18,6 +19,7 @@ import {
   PromptUseCase,
   PromptDefinitionRoleplay,
   PromptDefinitionStory,
+  PromptDefinitionImpersonate,
   PromptDefinitionPersonaGenerate,
   PromptDefinitionPersonaGenerateThinking,
   PromptDefinitionPersonaExtract,
@@ -37,6 +39,7 @@ import {
 const PROMPTS = {
   [storyV1.id]: storyV1,
   [roleplayV1.id]: roleplayV1,
+  [impersonateV1.id]: impersonateV1,
   [personaGenerateV1.id]: personaGenerateV1,
   [personaGenerateThinkingV1.id]: personaGenerateThinkingV1,
   [personaExtractV1.id]: personaExtractV1,
@@ -66,6 +69,7 @@ export const DEFAULT_SYSTEM_PROMPTS_BY_USE_CASE: DefaultSystemPromptMapByUseCase
     chat: {
       roleplay: roleplayV1.id,
       story: storyV1.id,
+      impersonate: impersonateV1.id,
     },
     persona: {
       generate: personaGenerateV1.id,
@@ -99,7 +103,10 @@ export function getPromptDefinitionById(id: PromptId): PromptDefinition {
 export function getDefaultSystemPromptDefinitionForMode(
   useCase: "chat",
   mode: ChatPromptMode
-): PromptDefinitionRoleplay | PromptDefinitionStory;
+):
+  | PromptDefinitionRoleplay
+  | PromptDefinitionStory
+  | PromptDefinitionImpersonate;
 export function getDefaultSystemPromptDefinitionForMode(
   useCase: "persona",
   mode: "generate"
@@ -157,7 +164,10 @@ export function getDefaultUserPromptDefinitionForMode(
 export function getDefaultPromptDefinitionForMode(
   useCase: "chat",
   mode: ChatPromptMode
-): PromptDefinitionRoleplay | PromptDefinitionStory;
+):
+  | PromptDefinitionRoleplay
+  | PromptDefinitionStory
+  | PromptDefinitionImpersonate;
 export function getDefaultPromptDefinitionForMode(
   useCase: "persona",
   mode: "generate"
@@ -182,4 +192,4 @@ export function getDefaultPromptDefinitionForMode(
 }
 
 // Export specific prompts for direct access
-export { personaGenerateThinkingV1, personaExtractV1 };
+export { personaGenerateThinkingV1, personaExtractV1, impersonateV1 };

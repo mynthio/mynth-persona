@@ -11,7 +11,7 @@ import { ImageStyle } from "@/types/image-generation/image-style.type";
 export type PromptKind = "system" | "prompt";
 
 // Separate modes for chats and personas
-export type ChatPromptMode = "roleplay" | "story";
+export type ChatPromptMode = "roleplay" | "story" | "impersonate";
 export type PersonaPromptMode = "generate" | "enhance" | "publish";
 export type ImagePromptMode = "persona"; // image prompts (extendable)
 export type PromptUseCase = "chat" | "persona" | "image";
@@ -87,6 +87,12 @@ export interface PromptDefinitionStory extends PromptDefinitionBase {
   render: PromptDefinitionRenderFunction<StoryRenderArgs>;
 }
 
+export interface PromptDefinitionImpersonate extends PromptDefinitionBase {
+  id: SystemPromptIdForChat<"impersonate">;
+  mode: "impersonate";
+  render: PromptDefinitionRenderFunction<RoleplayRenderArgs>;
+}
+
 // Persona system prompt definitions
 export interface PromptDefinitionPersonaGenerate extends PromptDefinitionBase {
   id: SystemPromptIdForPersona<"generate">;
@@ -94,7 +100,8 @@ export interface PromptDefinitionPersonaGenerate extends PromptDefinitionBase {
   render: () => string;
 }
 
-export interface PromptDefinitionPersonaGenerateThinking extends PromptDefinitionBase {
+export interface PromptDefinitionPersonaGenerateThinking
+  extends PromptDefinitionBase {
   id: SystemPromptIdForPersonaGenerateThinking;
   mode: "generate-thinking";
   render: () => string;
@@ -161,6 +168,7 @@ export interface PromptDefinitionPromptImagePersona
 export type PromptDefinition =
   | PromptDefinitionRoleplay
   | PromptDefinitionStory
+  | PromptDefinitionImpersonate
   | PromptDefinitionPersonaGenerate
   | PromptDefinitionPersonaGenerateThinking
   | PromptDefinitionPersonaExtract

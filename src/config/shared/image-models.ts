@@ -15,6 +15,16 @@ export const IMAGE_MODELS = {
     supportsReferenceImages: false,
     imagesPerGeneration: 1,
   },
+  "black-forest-labs/flux-2-dev": {
+    id: "black-forest-labs/flux-2-dev" as const,
+    displayName: "FLUX.2 [dev]",
+    cost: 1,
+    width: 768,
+    height: 1344,
+    supportsReferenceImages: true,
+    imagesPerGeneration: 1,
+    new: true,
+  },
   "black-forest-labs/flux-krea-dev": {
     id: "black-forest-labs/flux-krea-dev" as const,
     displayName: "FLUX.1 Krea [dev]",
@@ -23,16 +33,6 @@ export const IMAGE_MODELS = {
     height: 1344,
     supportsReferenceImages: false,
     imagesPerGeneration: 1,
-  },
-  "black-forest-labs/flux-2-dev": {
-    id: "black-forest-labs/flux-2-dev" as const,
-    displayName: "FLUX.2 [dev]",
-    cost: 1,
-    width: 768,
-    height: 1344,
-    supportsReferenceImages: false,
-    imagesPerGeneration: 1,
-    new: true,
   },
   "qwen/qwen-image": {
     id: "qwen/qwen-image" as const,

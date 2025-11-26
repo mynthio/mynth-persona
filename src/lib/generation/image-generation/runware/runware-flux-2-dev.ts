@@ -28,4 +28,3 @@ export class RunwareFlux2Dev extends RunwareImageGenerationBase {
     return { steps: 35 };
   }
 }
-

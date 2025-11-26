@@ -115,7 +115,7 @@ export function MediaDialog() {
 
         {data && (
           <div className="flex flex-col lg:grid lg:grid-cols-3 lg:h-full w-full">
-            <div className="shrink-0 h-[45vh] lg:h-full lg:col-span-2 w-full relative backdrop-grayscale-100 backdrop-blur-[2px]">
+            <div className="shrink-0 h-[70vh] lg:h-full lg:col-span-2 w-full relative backdrop-grayscale-100 backdrop-blur-[2px]">
               <img
                 loading="lazy"
                 alt="Generated image"
@@ -127,7 +127,7 @@ export function MediaDialog() {
               </DialogClose> */}
             </div>
 
-            <div className="bg-popover p-2 lg:flex-1 lg:min-h-0 lg:h-full flex flex-col gap-4 lg:overflow-hidden">
+            <div className="bg-popover p-2 min-h-[30vh] lg:flex-1 lg:min-h-0 lg:h-full flex flex-col gap-4 lg:overflow-hidden">
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <Avatar>

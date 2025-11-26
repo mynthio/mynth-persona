@@ -138,9 +138,9 @@ export default function PublicPersonas() {
         key={includeNsfw ? "nsfw-on" : "nsfw-off"}
         items={items}
         columnGutter={16}
-        columnWidth={320}
+        columnWidth={240}
         overscanBy={2}
-        maxColumnCount={4}
+        maxColumnCount={5}
         itemKey={(item) => item.id}
         render={({ data: persona }) => <Tile persona={persona} />}
         onRender={maybeLoadMore}
@@ -276,7 +276,7 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
     if (!hasVideo || !videoRef.current) return;
     // Replay on hover; make it visible again
     videoRef.current.currentTime = 0;
-    videoRef.current.play().catch(() => { });
+    videoRef.current.play().catch(() => {});
   }, [hasVideo]);
 
   return (
@@ -334,8 +334,9 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
       {hasVideo && videoUrl ? (
         <video
           ref={videoRef}
-          className={`w-full h-full absolute top-0 left-0 right-0 bottom-0 object-cover transition-opacity duration-200 ${isVideoVisible ? "opacity-100" : "opacity-0"
-            }`}
+          className={`w-full h-full absolute top-0 left-0 right-0 bottom-0 object-cover transition-opacity duration-200 ${
+            isVideoVisible ? "opacity-100" : "opacity-0"
+          }`}
           src={videoUrl}
           poster={getImageUrl(persona.profileImageIdMedia)}
           muted

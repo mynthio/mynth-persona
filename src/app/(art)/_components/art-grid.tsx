@@ -35,15 +35,30 @@ type ArtPage = {
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
+// Params that affect art grid fetching
+const ART_FILTER_PARAMS = ["tags", "nsfw"] as const;
+
 export function ArtGrid() {
   const [, setImageId] = useImageId();
   const searchParams = useSearchParams();
+
+  // Only include params that actually affect the art query
+  const filterParamsString = useMemo(() => {
+    const params = new URLSearchParams();
+    for (const key of ART_FILTER_PARAMS) {
+      const values = searchParams.getAll(key);
+      for (const value of values) {
+        params.append(key, value);
+      }
+    }
+    return params.toString();
+  }, [searchParams]);
 
   const getKey = useCallback(
     (pageIndex: number, previousPageData: ArtPage | null) => {
       if (previousPageData && !previousPageData.items.length) return null;
 
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(filterParamsString);
 
       if (pageIndex === 0) {
         params.set("cursor", "0");
@@ -54,7 +69,7 @@ export function ArtGrid() {
 
       return `/api/art?${params.toString()}`;
     },
-    [searchParams]
+    [filterParamsString]
   );
 
   const { data, error, size, setSize, isValidating, isLoading } =
@@ -89,23 +104,24 @@ export function ArtGrid() {
   }
 
   return (
-    <div className="w-full p-4">
+    <div className="w-full">
       {items.length > 0 ? (
         <Masonry
-          key={searchParams.toString()}
+          key={filterParamsString}
           items={items}
-          columnGutter={16}
-          columnWidth={250}
+          columnGutter={0}
+          columnWidth={160}
+          maxColumnCount={6}
           overscanBy={5}
           render={({ data: item }: { data: ArtItem }) => (
             <div
-              className="relative group overflow-hidden rounded-xl bg-muted/20 cursor-pointer break-inside-avoid mb-4"
+              className="relative group overflow-hidden rounded-none bg-muted/20 cursor-pointer break-inside-avoid"
               onClick={() => setImageId(item.id)}
             >
               <img
                 src={getImageUrl(item.id, "full")}
                 alt={item.tags?.[0] || "Art image"}
-                className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-auto object-cover object-top transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">

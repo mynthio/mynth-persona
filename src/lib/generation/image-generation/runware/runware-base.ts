@@ -173,7 +173,9 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
         height,
         numberResults: options?.numberResults ?? this.getNumberResults(),
         includeCost: true,
-        referenceImages: options?.referenceImages ?? undefined,
+        inputs: options?.referenceImages
+          ? { referenceImages: options.referenceImages }
+          : undefined,
         ...requestConfig,
       });
 
@@ -237,7 +239,9 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
         height,
         numberResults,
         includeCost: true,
-        referenceImages: options?.referenceImages ?? undefined,
+        inputs: options?.referenceImages
+          ? { referenceImages: options.referenceImages }
+          : undefined,
         ...requestConfig,
       });
 

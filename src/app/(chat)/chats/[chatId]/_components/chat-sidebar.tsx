@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import { generateChatSceneImage } from "@/actions/generate-chat-scene-image";
-import { IMAGE_MODELS, type ImageModelId } from "@/config/shared/image-models";
+import { IMAGE_MODELS, type ImageModelId, isModelBeta, isModelNew } from "@/config/shared/image-models";
 import { useChatImageGenerationStore } from "@/stores/chat-image-generation.store";
 import { ChatSettingsSceneImageInProgress } from "./chat-settings-scene-image-in-progress";
 import { updateChatAction } from "@/actions/update-chat.action";
@@ -45,6 +45,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -368,7 +369,7 @@ function Content() {
                       disabled={isGenerating || !!activeRun}
                     >
                       <div className="flex flex-col gap-0.5">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-xs font-medium">
                             {model.displayName}
                           </span>
@@ -378,6 +379,22 @@ function Content() {
                               className="text-amber-400"
                               size={14}
                             />
+                          )}
+                          {isModelNew(model.id) && (
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] px-1.5 py-0.5 h-auto border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-300"
+                            >
+                              New
+                            </Badge>
+                          )}
+                          {isModelBeta(model.id) && (
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] px-1.5 py-0.5 h-auto border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                            >
+                              Beta
+                            </Badge>
                           )}
                         </div>
                         <span className="text-[0.7rem] text-muted-foreground">

@@ -16,8 +16,14 @@ import { PlanId } from "@/config/shared/plans";
 import {
   IMAGE_GENERATIONS_RATE_LIMITERS,
   imageRateLimitGuard,
+  BetaModelPersonaImageGenerationsRateLimit,
 } from "@/lib/rate-limit-image";
-import { ImageModelId, getModelCost } from "@/config/shared/image-models";
+import {
+  ImageModelId,
+  getModelCost,
+  getImagesPerGeneration,
+  isModelBeta,
+} from "@/config/shared/image-models";
 import { incrementConcurrentImageJob } from "@/lib/concurrent-image-jobs";
 import { ActionResult } from "@/types/action-result.type";
 
@@ -33,6 +39,7 @@ type GeneratePersonaImageResult = {
   taskId: string;
   publicAccessToken: string;
   cost: number;
+  expectedImageCount: number;
 };
 
 export const generatePersonaImage = async (
@@ -71,7 +78,10 @@ export const generatePersonaImage = async (
   // Calculate cost based on model
   const cost = getModelCost(settings.modelId);
 
-  const rateLimiter = IMAGE_GENERATIONS_RATE_LIMITERS[planId as PlanId];
+  // Use beta rate limiter if model is beta, otherwise use plan-based rate limiter
+  const rateLimiter = isModelBeta(settings.modelId)
+    ? BetaModelPersonaImageGenerationsRateLimit
+    : IMAGE_GENERATIONS_RATE_LIMITERS[planId as PlanId];
 
   const rateLimitResult = await imageRateLimitGuard(rateLimiter, userId, cost);
   if (!rateLimitResult.success) {
@@ -137,12 +147,15 @@ export const generatePersonaImage = async (
     }
   );
 
+  const expectedImageCount = getImagesPerGeneration(settings.modelId);
+
   return {
     success: true,
     data: {
       taskId: taskHandle.id,
       publicAccessToken: taskHandle.publicAccessToken,
       cost,
+      expectedImageCount,
     },
   };
 };

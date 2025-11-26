@@ -29,6 +29,36 @@ const parseRunOutput = (
   }
 
   const maybeOutput = output as Record<string, unknown>;
+
+  // Check for new multi-image format
+  if (
+    Array.isArray(maybeOutput.images) &&
+    maybeOutput.images.length > 0
+  ) {
+    const images = maybeOutput.images
+      .filter(
+        (img: unknown) =>
+          img &&
+          typeof img === "object" &&
+          typeof (img as Record<string, unknown>).imageUrl === "string" &&
+          typeof (img as Record<string, unknown>).mediaId === "string"
+      )
+      .map((img: unknown) => ({
+        imageUrl: (img as Record<string, unknown>).imageUrl as string,
+        mediaId: (img as Record<string, unknown>).mediaId as string,
+      }));
+
+    if (images.length > 0) {
+      return {
+        images,
+        // Keep first image in legacy fields for backwards compatibility
+        imageUrl: images[0].imageUrl,
+        mediaId: images[0].mediaId,
+      };
+    }
+  }
+
+  // Fallback to legacy single-image format
   const imageUrl =
     typeof maybeOutput.imageUrl === "string" ? maybeOutput.imageUrl : undefined;
   const mediaId =

@@ -37,6 +37,7 @@ import { cn, getImageUrl } from "@/lib/utils";
 import { ApiChatMessagesResponse } from "@/app/(chat)/api/chats/[chatId]/messages/route";
 import { Link } from "@/components/ui/link";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,6 +59,8 @@ import {
 } from "@/actions/generate-message-image";
 import {
   IMAGE_MODELS,
+  isModelBeta,
+  isModelNew,
   ImageModelId,
   supportsReferenceImages,
 } from "@/config/shared/image-models";
@@ -322,8 +325,19 @@ function ChatMessage(props: ChatMessageProps) {
     if (!messageMediaIds) return;
 
     inProgressRuns.forEach((run) => {
-      const mediaId = run.output?.mediaId;
+      // Check multi-image format first
+      if (run.output?.images && run.output.images.length > 0) {
+        const anyMediaIdInMessage = run.output.images.some((img) =>
+          messageMediaIds.has(img.mediaId)
+        );
+        if (anyMediaIdInMessage) {
+          removeImageGenerationRun(run.runId);
+        }
+        return;
+      }
 
+      // Fallback to legacy single-image format
+      const mediaId = run.output?.mediaId;
       if (mediaId && messageMediaIds.has(mediaId)) {
         removeImageGenerationRun(run.runId);
       }
@@ -839,6 +853,7 @@ function ChatMessageGenerateImageButton(
         chatId: chatId,
         startedAt: Date.now(),
         modelId,
+        expectedImageCount: result.data.expectedImageCount,
         status: "PENDING",
       });
     } catch (error) {
@@ -883,7 +898,25 @@ function ChatMessageGenerateImageButton(
                 disabled={isGenerating}
               >
                 <div className="flex items-center w-full justify-between gap-1">
-                  {model.displayName}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {model.displayName}
+                    {isModelNew(model.id) && (
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] px-1.5 py-0.5 h-auto border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-300"
+                      >
+                        New
+                      </Badge>
+                    )}
+                    {isModelBeta(model.id) && (
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] px-1.5 py-0.5 h-auto border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                      >
+                        Beta
+                      </Badge>
+                    )}
+                  </div>
                   {model.cost > 1 && (
                     <span className="text-yellow-800 bg-yellow-200 p-1 text-xs rounded">
                       <SparkleIcon size={12} />
@@ -905,7 +938,17 @@ function ChatMessageGenerateImageButton(
             disabled={isGenerating}
           >
             <div className="flex items-center w-full justify-between gap-1">
-              {model.displayName}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {model.displayName}
+                {isModelBeta(model.id) && (
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] px-1.5 py-0.5 h-auto border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                  >
+                    Beta
+                  </Badge>
+                )}
+              </div>
               {model.cost > 1 && (
                 <span className="text-yellow-800 bg-yellow-200 p-1 text-xs rounded">
                   <SparkleIcon size={12} />

@@ -3,6 +3,23 @@ export type ImageGenerationResult = {
   revisedPrompt?: string;
 };
 
+export type MultiImageGenerationResult = {
+  images: ImageGenerationResult[];
+  /** Number of images that failed to generate */
+  failedCount: number;
+};
+
+export type GenerateOptions = {
+  width?: number;
+  height?: number;
+  userId?: string;
+  loras?: string[];
+  referenceImages?: string[];
+  negativePrompt?: string;
+  /** Number of images to generate. Defaults to 1. */
+  numberResults?: number;
+};
+
 export abstract class ImageGenerationBase {
   /**
    * Universal model identifier (e.g., "black-forest-labs/flux-dev")
@@ -43,14 +60,20 @@ export abstract class ImageGenerationBase {
     return this.DISPLAY_NAME;
   }
 
+  /**
+   * Generate a single image (legacy method for backwards compatibility)
+   */
   abstract generate(
     prompt: string,
-    options?: {
-      width?: number;
-      height?: number;
-      userId?: string;
-      loras?: string[];
-      referenceImages?: string[];
-    }
+    options?: GenerateOptions
   ): Promise<ImageGenerationResult>;
+
+  /**
+   * Generate multiple images in a single request
+   * Returns all successful images plus count of failures
+   */
+  abstract generateMultiple(
+    prompt: string,
+    options?: GenerateOptions
+  ): Promise<MultiImageGenerationResult>;
 }

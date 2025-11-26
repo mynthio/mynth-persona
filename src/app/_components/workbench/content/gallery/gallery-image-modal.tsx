@@ -14,6 +14,10 @@ import { setPersonaProfileImage } from "@/actions/set-persona-profile-image.acti
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { fetcher } from "@/lib/fetcher";
+import {
+  getModelDisplayName,
+  getModelDimensions,
+} from "@/config/shared/image-models";
 
 export default function GalleryImageModal() {
   const [imageId, setImageId] = useImageId();
@@ -103,7 +107,7 @@ export default function GalleryImageModal() {
               <div className="flex items-center justify-between gap-3">
                 <div className="text-sm text-muted-foreground">
                   {data?.generation?.tokensCost != null ? (
-                    <span>{data.generation.tokensCost} tokens</span>
+                    <span>{data.generation.tokensCost} credits</span>
                   ) : (
                     <span>&nbsp;</span>
                   )}
@@ -140,9 +144,22 @@ export default function GalleryImageModal() {
                     {data.generation.aiModel && (
                       <>
                         <div className="text-muted-foreground">Model</div>
-                        <div>{data.generation.aiModel}</div>
+                        <div>{getModelDisplayName(data.generation.aiModel)}</div>
                       </>
                     )}
+                    {(() => {
+                      const dimensions = getModelDimensions(
+                        data.generation.aiModel
+                      );
+                      return dimensions ? (
+                        <>
+                          <div className="text-muted-foreground">Dimensions</div>
+                          <div>
+                            {dimensions.width} × {dimensions.height} px
+                          </div>
+                        </>
+                      ) : null;
+                    })()}
                     {data.generation.settings?.style && (
                       <>
                         <div className="text-muted-foreground">Style</div>
@@ -167,13 +184,13 @@ export default function GalleryImageModal() {
                         </div>
                       </>
                     )}
-                    {typeof data.generation.settings?.nsfw === "boolean" && (
+                    {data.visibility === "public" && data.nsfw && data.nsfw !== "sfw" && (
                       <>
                         <div className="text-muted-foreground">
-                          Mature Content
+                          Content Rating
                         </div>
-                        <div>
-                          {data.generation.settings.nsfw ? "Yes" : "No"}
+                        <div className="capitalize">
+                          {data.nsfw === "suggestive" ? "Suggestive" : data.nsfw === "explicit" ? "Explicit" : data.nsfw}
                         </div>
                       </>
                     )}

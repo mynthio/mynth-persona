@@ -16,6 +16,7 @@ import {
 import {
   ImageModelId,
   getModelCost,
+  getImagesPerGeneration,
   IMAGE_MODELS,
   supportsReferenceImages,
   DEFAULT_IMAGE_MODEL_ID,
@@ -35,6 +36,7 @@ type GenerateMessageImageResult = {
   runId: string;
   publicAccessToken: string;
   cost: number;
+  expectedImageCount: number;
 };
 
 export const generateMessageImage = async (
@@ -177,12 +179,15 @@ export const generateMessageImage = async (
     }
   );
 
+  const expectedImageCount = getImagesPerGeneration(modelId);
+
   return {
     success: true,
     data: {
       runId: taskHandle.id,
       publicAccessToken: taskHandle.publicAccessToken,
       cost,
+      expectedImageCount,
     },
   };
 };

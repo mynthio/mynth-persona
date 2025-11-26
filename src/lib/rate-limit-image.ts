@@ -55,6 +55,14 @@ export const BetaMessageImageGenerationsRateLimit = new RateLimiterRedis({
   duration: ms("1 day") / 1000, // Convert ms to seconds
 });
 
+// Beta model rate limiter for persona image generation: 20 per 2 hours
+export const BetaModelPersonaImageGenerationsRateLimit = new RateLimiterRedis({
+  storeClient: redisClient,
+  keyPrefix: "rate-limit:beta:persona-image",
+  points: 20,
+  duration: ms("2 hours") / 1000, // Convert ms to seconds
+});
+
 export const IMAGE_GENERATIONS_RATE_LIMITERS: Record<PlanId, RateLimiterRedis> =
   {
     free: FreeImageGenerationsRateLimit,

@@ -8,23 +8,26 @@ import { RunwareGeminiFlash } from "./runware/runware-gemini-flash";
 import { RunwareImagen4 } from "./runware/runware-imagen-4";
 import { RunwareGPTImage1 } from "./runware/runware-gpt-image-1";
 import { RunwareQwenImage } from "./runware/runware-qwen-image";
+import { RunwareBismuthIllustriousMixV5 } from "./runware/runware-bismuth-illustrious-mix-v5";
+import { RunwareFlux2Dev } from "./runware/runware-flux-2-dev";
+import { RunwareFlux2Pro } from "./runware/runware-flux-2-pro";
 import { logger } from "@/lib/logger";
 
 // Simple model class mapping
-const MODEL_CLASS_MAP: Record<
-  ImageModelId,
-  new () => ImageGenerationBase
-> = {
+const MODEL_CLASS_MAP: Record<ImageModelId, new () => ImageGenerationBase> = {
   // Cost 1 - Grouped by provider
   "black-forest-labs/flux-dev": RunwareFluxDev,
   "black-forest-labs/flux-krea-dev": RunwareFluxKrea,
+  "black-forest-labs/flux-2-dev": RunwareFlux2Dev,
   "google/gemini-flash-image-2.5": RunwareGeminiFlash,
   "qwen/qwen-image": RunwareQwenImage,
   "seedream/seedream-3.0": RunwareSeedream3,
+  "prsna/bismuth-illustrious-mix-v5.0": RunwareBismuthIllustriousMixV5,
   // Cost 2 - Premium models
   "openai/gpt-image-1": RunwareGPTImage1,
   "google/imagen-4-preview": RunwareImagen4,
   "seedream/seedream-4.0": RunwareSeedream4,
+  "black-forest-labs/flux-2-pro": RunwareFlux2Pro,
 };
 
 export class ImageGenerationFactory {

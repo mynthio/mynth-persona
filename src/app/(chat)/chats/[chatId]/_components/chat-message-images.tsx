@@ -66,15 +66,69 @@ export function ChatMessageImages({
         ))}
 
         {inProgressRuns.map((run) => {
-          const imageUrl = run.output?.imageUrl ?? undefined;
           const status = run.status ?? "PENDING";
-          const isComplete = status === "COMPLETED" && !!imageUrl;
           const isFailed =
             status === "FAILED" ||
             status === "CANCELED" ||
             status === "CRASHED" ||
             status === "SYSTEM_FAILURE" ||
             status === "TIMED_OUT";
+
+          // Handle multi-image output (completed)
+          if (
+            run.output?.images &&
+            run.output.images.length > 0 &&
+            status === "COMPLETED"
+          ) {
+            const completedImages = run.output.images.map((img, index) => (
+              <button
+                key={`${run.runId}-${index}`}
+                onClick={() =>
+                  setLightboxImage({
+                    src: img.imageUrl,
+                    alt: "Generated image",
+                  })
+                }
+                className="relative w-full aspect-square rounded-xl overflow-hidden bg-muted"
+              >
+                <img
+                  src={img.imageUrl}
+                  alt="Generated image"
+                  className="object-cover object-top w-full h-full"
+                />
+              </button>
+            ));
+
+            // If we have fewer images than expected, render error tiles for missing ones
+            const missingCount =
+              run.expectedImageCount - run.output.images.length;
+            if (missingCount > 0) {
+              const errorTiles = Array.from({ length: missingCount }).map(
+                (_, index) => (
+                  <div
+                    key={`${run.runId}-failed-${index}`}
+                    className="relative w-full aspect-square rounded-2xl overflow-hidden bg-linear-to-t from-muted to-muted/60"
+                  >
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="flex flex-col items-center gap-2 text-destructive p-4 text-center">
+                        <ImageX strokeWidth={1.5} />
+                        <div className="text-xs font-medium">
+                          Failed to generate
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              );
+              return [...completedImages, ...errorTiles];
+            }
+
+            return completedImages;
+          }
+
+          // Fallback to legacy single-image output (completed)
+          const imageUrl = run.output?.imageUrl ?? undefined;
+          const isComplete = status === "COMPLETED" && !!imageUrl;
 
           if (isComplete && imageUrl) {
             return (
@@ -94,26 +148,29 @@ export function ChatMessageImages({
             );
           }
 
-          return (
-            <div
-              key={run.runId}
-              className="relative w-full aspect-square rounded-2xl overflow-hidden bg-linear-to-t from-muted to-muted/60"
-            >
-              <div className="absolute inset-0 flex items-center justify-center">
-                {isFailed ? (
-                  <div className="flex flex-col items-center gap-2 text-destructive p-4 text-center">
-                    <ImageX strokeWidth={1.5} />
-                    <div className="text-xs font-medium">
-                      {getImageGenerationErrorMessage(run.errorCode)}
+          // Render loading/failed tiles for each expected image
+          return Array.from({ length: run.expectedImageCount }).map(
+            (_, index) => (
+              <div
+                key={`${run.runId}-loading-${index}`}
+                className="relative w-full aspect-square rounded-2xl overflow-hidden bg-linear-to-t from-muted to-muted/60"
+              >
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {isFailed ? (
+                    <div className="flex flex-col items-center gap-2 text-destructive p-4 text-center">
+                      <ImageX strokeWidth={1.5} />
+                      <div className="text-xs font-medium">
+                        {getImageGenerationErrorMessage(run.errorCode)}
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-3">
-                    <Spinner />
-                  </div>
-                )}
+                  ) : (
+                    <div className="flex flex-col items-center gap-3">
+                      <Spinner />
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )
           );
         })}
       </div>

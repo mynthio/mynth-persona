@@ -17,22 +17,24 @@ import {
   ItemTitle,
   ItemActions,
 } from "@/components/ui/item";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { usePersonaGenerationStore } from "@/stores/persona-generation.store";
 import { ImageStyle } from "@/types/image-generation/image-style.type";
 import { ShotType } from "@/types/image-generation/shot-type.type";
-import { ImageModelId, IMAGE_MODELS } from "@/config/shared/image-models";
+import {
+  ImageModelId,
+  IMAGE_MODELS,
+  isModelBeta,
+  isModelNew,
+} from "@/config/shared/image-models";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
-import { Sparkles, Check } from "lucide-react";
+import { Check } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Diamond01 } from "@untitledui/icons";
 
 type GenerationOptions = {
   modelId: ImageModelId;
@@ -90,12 +92,17 @@ export default function Imagine() {
         return;
       }
 
-      const { taskId: runId, publicAccessToken } = result.data;
+      const {
+        taskId: runId,
+        publicAccessToken,
+        expectedImageCount,
+      } = result.data;
 
       personaGenerationStore.addImageGenerationRun(runId, {
         runId,
         publicAccessToken,
         personaId,
+        expectedImageCount,
         startedAt: Date.now(),
       });
 
@@ -122,7 +129,7 @@ export default function Imagine() {
                 Model
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-2 w-full">
               <TooltipProvider>
                 {Object.values(IMAGE_MODELS).map((model) => {
                   const isPremium = model.cost > 1;
@@ -133,7 +140,7 @@ export default function Imagine() {
                       variant="outline"
                       size="sm"
                       className={cn(
-                        "cursor-pointer transition-all",
+                        "cursor-pointer transition-all flex-nowrap w-full",
                         selected && "ring-2 ring-primary ring-offset-1"
                       )}
                       onClick={() =>
@@ -143,27 +150,67 @@ export default function Imagine() {
                         })
                       }
                     >
-                      <ItemContent>
-                        <ItemTitle className="flex items-center gap-2">
-                          {model.displayName}
-                          {isPremium && (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-700 px-1.5 py-0.5 text-[10px] font-medium">
-                                  <Sparkles className="w-3 h-3" /> Premium
-                                </span>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p className="text-xs max-w-[220px]">
-                                  Higher quality output. Uses more of your daily
-                                  limit.
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
-                          )}
+                      <ItemContent className="w-full">
+                        <ItemTitle className="flex items-center gap-2 w-full overflow-hidden">
+                          <p className="truncate w-full">{model.displayName}</p>
+
+                          <div className="flex items-center gap-0.5 shrink-0">
+                            {isPremium && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Badge
+                                    variant="outline"
+                                    className="border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300"
+                                  >
+                                    <Diamond01 strokeWidth={1.5} />
+                                  </Badge>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="text-xs max-w-[220px]">
+                                    Higher quality output. Uses more of your
+                                    daily limit.
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                            {isModelNew(model.id) && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Badge
+                                    variant="outline"
+                                    className="text-[10px] px-1.5 py-0.5 h-auto border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-300"
+                                  >
+                                    New
+                                  </Badge>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="text-xs max-w-[220px]">
+                                    This is a newly added model.
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                            {isModelBeta(model.id) && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Badge
+                                    variant="outline"
+                                    className="text-[10px] px-1.5 py-0.5 h-auto border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                                  >
+                                    Beta
+                                  </Badge>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="text-xs max-w-[220px]">
+                                    This model is in beta. Results may vary.
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                          </div>
                         </ItemTitle>
                       </ItemContent>
-                      <ItemActions>
+                      <ItemActions className="shrink-0">
                         <div
                           className={cn(
                             "relative flex items-center justify-center w-5 h-5 rounded-full border-2 transition-all",

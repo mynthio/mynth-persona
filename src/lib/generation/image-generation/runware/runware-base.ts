@@ -3,20 +3,17 @@ import { logger } from "@/lib/logger";
 import {
   ImageGenerationBase,
   ImageGenerationResult,
+  MultiImageGenerationResult,
+  GenerateOptions,
 } from "../image-generation-base";
-
-type GenerateOptions = {
-  width?: number;
-  height?: number;
-  userId?: string;
-  loras?: string[];
-  referenceImages?: string[];
-};
 
 type PerRequestConfig = {
   steps?: number;
   includeCost?: boolean;
   providerSettings?: any; // Flexible to support various providers (openai, bfl, etc)
+  CFGScale?: number;
+  clipSkip?: number;
+  scheduler?: string;
 };
 
 export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
@@ -130,6 +127,29 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
     );
   }
 
+  /**
+   * Try to fetch image buffer, return null on failure instead of throwing
+   */
+  private async fetchImageBufferFromUrlSafe(
+    imageUrl: string,
+    index: number
+  ): Promise<{ index: number; buffer: Buffer } | null> {
+    try {
+      const buffer = await this.fetchImageBufferFromUrl(imageUrl);
+      return { index, buffer };
+    } catch (error) {
+      logger.warn(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          url: imageUrl,
+          index,
+        },
+        `Failed to fetch image ${index}, continuing with others`
+      );
+      return null;
+    }
+  }
+
   private async delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
@@ -147,10 +167,11 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
       const requestConfig = this.getPerRequestConfig(options);
       const images = await client.requestImages({
         positivePrompt: prompt,
+        negativePrompt: options?.negativePrompt,
         model: this.RUNWARE_MODEL_ID,
         width,
         height,
-        numberResults: this.getNumberResults(),
+        numberResults: options?.numberResults ?? this.getNumberResults(),
         includeCost: true,
         referenceImages: options?.referenceImages ?? undefined,
         ...requestConfig,
@@ -191,6 +212,99 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
           model: this.modelId,
         },
         `Error generating image with ${this.displayName}`
+      );
+      throw error;
+    }
+  }
+
+  async generateMultiple(
+    prompt: string,
+    options?: GenerateOptions
+  ): Promise<MultiImageGenerationResult> {
+    const width = options?.width ?? this.getDefaultWidth();
+    const height = options?.height ?? this.getDefaultHeight();
+    const numberResults = options?.numberResults ?? this.getNumberResults();
+
+    try {
+      const client = this.createClient();
+
+      const requestConfig = this.getPerRequestConfig(options);
+      const images = await client.requestImages({
+        positivePrompt: prompt,
+        negativePrompt: options?.negativePrompt,
+        model: this.RUNWARE_MODEL_ID,
+        width,
+        height,
+        numberResults,
+        includeCost: true,
+        referenceImages: options?.referenceImages ?? undefined,
+        ...requestConfig,
+      });
+
+      if (!images || images.length === 0) {
+        throw new Error("No images returned from Runware SDK");
+      }
+
+      logger.info({
+        event: "image-generation-cost",
+        component: "generation:image-generation:runware",
+        ai_meta: {
+          model: this.MODEL_ID,
+          provider: "runware",
+          type: "text-to-image",
+        },
+        attributes: {
+          cost: images?.reduce((acc, image) => acc + (image.cost ?? 0), 0),
+          requestedCount: numberResults,
+          returnedCount: images.length,
+        },
+      });
+
+      // Fetch all image buffers in parallel, with graceful error handling
+      const fetchPromises = images.map((img, index) =>
+        img.imageURL
+          ? this.fetchImageBufferFromUrlSafe(img.imageURL as string, index)
+          : Promise.resolve(null)
+      );
+
+      const fetchResults = await Promise.all(fetchPromises);
+
+      // Filter out failed fetches and build results
+      const successfulImages: ImageGenerationResult[] = [];
+      let failedCount = 0;
+
+      for (const result of fetchResults) {
+        if (result) {
+          successfulImages.push({
+            image: result.buffer,
+            revisedPrompt: undefined,
+          });
+        } else {
+          failedCount++;
+        }
+      }
+
+      // If ALL images failed, throw an error
+      if (successfulImages.length === 0) {
+        throw new Error(
+          `All ${numberResults} image(s) failed to generate or fetch`
+        );
+      }
+
+      return {
+        images: successfulImages,
+        failedCount,
+      };
+    } catch (error) {
+      logger.error(
+        {
+          error: error instanceof Error ? error.message : String(error),
+          prompt,
+          options,
+          provider: this.internalId,
+          model: this.modelId,
+        },
+        `Error generating images with ${this.displayName}`
       );
       throw error;
     }

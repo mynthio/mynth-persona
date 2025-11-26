@@ -16,6 +16,7 @@ export type PersonaGenerationState = {
       runId: string;
       publicAccessToken: string;
       personaId: string;
+      expectedImageCount: number;
       startedAt?: number;
     }
   >;
@@ -42,6 +43,7 @@ export type PersonaGenerationActions = {
         runId: string;
         publicAccessToken: string;
         personaId: string;
+        expectedImageCount: number;
         startedAt?: number;
       }
     >
@@ -52,6 +54,7 @@ export type PersonaGenerationActions = {
       runId: string;
       publicAccessToken: string;
       personaId: string;
+      expectedImageCount: number;
       startedAt?: number;
     }
   ) => void;

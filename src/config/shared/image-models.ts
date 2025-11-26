@@ -13,6 +13,7 @@ export const IMAGE_MODELS = {
     width: 768,
     height: 1344,
     supportsReferenceImages: false,
+    imagesPerGeneration: 1,
   },
   "black-forest-labs/flux-krea-dev": {
     id: "black-forest-labs/flux-krea-dev" as const,
@@ -21,6 +22,17 @@ export const IMAGE_MODELS = {
     width: 768,
     height: 1344,
     supportsReferenceImages: false,
+    imagesPerGeneration: 1,
+  },
+  "black-forest-labs/flux-2-dev": {
+    id: "black-forest-labs/flux-2-dev" as const,
+    displayName: "FLUX.2 [dev]",
+    cost: 1,
+    width: 768,
+    height: 1344,
+    supportsReferenceImages: false,
+    imagesPerGeneration: 1,
+    new: true,
   },
   "qwen/qwen-image": {
     id: "qwen/qwen-image" as const,
@@ -29,6 +41,7 @@ export const IMAGE_MODELS = {
     width: 768,
     height: 1344,
     supportsReferenceImages: false,
+    imagesPerGeneration: 2,
   },
   "seedream/seedream-3.0": {
     id: "seedream/seedream-3.0" as const,
@@ -37,6 +50,18 @@ export const IMAGE_MODELS = {
     width: 720,
     height: 1280,
     supportsReferenceImages: false,
+    imagesPerGeneration: 1,
+  },
+  "prsna/bismuth-illustrious-mix-v5.0": {
+    id: "prsna/bismuth-illustrious-mix-v5.0" as const,
+    displayName: "Bismuth Illustrious Mix v5.0",
+    cost: 1,
+    width: 896,
+    height: 1152,
+    supportsReferenceImages: false,
+    imagesPerGeneration: 2,
+    beta: true,
+    new: true,
   },
   // Cost 2 - Premium models
   "google/gemini-flash-image-2.5": {
@@ -46,6 +71,7 @@ export const IMAGE_MODELS = {
     width: 768,
     height: 1344,
     supportsReferenceImages: true,
+    imagesPerGeneration: 1,
   },
   "openai/gpt-image-1": {
     id: "openai/gpt-image-1" as const,
@@ -54,6 +80,7 @@ export const IMAGE_MODELS = {
     width: 1024,
     height: 1536,
     supportsReferenceImages: false,
+    imagesPerGeneration: 1,
   },
   "google/imagen-4-preview": {
     id: "google/imagen-4-preview" as const,
@@ -62,6 +89,7 @@ export const IMAGE_MODELS = {
     width: 768,
     height: 1408,
     supportsReferenceImages: false,
+    imagesPerGeneration: 1,
   },
   "seedream/seedream-4.0": {
     id: "seedream/seedream-4.0" as const,
@@ -70,6 +98,17 @@ export const IMAGE_MODELS = {
     width: 1440,
     height: 2560,
     supportsReferenceImages: false,
+    imagesPerGeneration: 1,
+  },
+  "black-forest-labs/flux-2-pro": {
+    id: "black-forest-labs/flux-2-pro" as const,
+    displayName: "FLUX.2 [pro]",
+    cost: 2,
+    width: 768,
+    height: 1344,
+    supportsReferenceImages: false,
+    imagesPerGeneration: 1,
+    new: true,
   },
 } as const;
 
@@ -83,8 +122,45 @@ export const getModelCost = (modelId: ImageModelId): number => {
   return IMAGE_MODELS[modelId]?.cost ?? 1;
 };
 
-
 // Helper to check if model supports reference images
 export const supportsReferenceImages = (modelId: ImageModelId): boolean => {
   return IMAGE_MODELS[modelId]?.supportsReferenceImages ?? false;
+};
+
+// Helper to get number of images per generation for a model
+export const getImagesPerGeneration = (modelId: ImageModelId): number => {
+  return IMAGE_MODELS[modelId]?.imagesPerGeneration ?? 1;
+};
+
+// Helper to get model display name with fallback to model ID
+// Handles legacy/removed models by falling back to the model ID
+export const getModelDisplayName = (
+  modelId: string | null | undefined
+): string => {
+  if (!modelId) return "Unknown";
+  const model = IMAGE_MODELS[modelId as ImageModelId];
+  return model?.displayName ?? modelId;
+};
+
+// Helper to get model dimensions (width x height) with fallback
+// Returns null if model not found or dimensions not available
+export const getModelDimensions = (
+  modelId: string | null | undefined
+): { width: number; height: number } | null => {
+  if (!modelId) return null;
+  const model = IMAGE_MODELS[modelId as ImageModelId];
+  if (!model) return null;
+  return { width: model.width, height: model.height };
+};
+
+// Helper to check if model is in beta
+export const isModelBeta = (modelId: ImageModelId): boolean => {
+  const model = IMAGE_MODELS[modelId];
+  return (model && "beta" in model && model.beta === true) ?? false;
+};
+
+// Helper to check if model is new
+export const isModelNew = (modelId: ImageModelId): boolean => {
+  const model = IMAGE_MODELS[modelId];
+  return (model && "new" in model && model.new === true) ?? false;
 };

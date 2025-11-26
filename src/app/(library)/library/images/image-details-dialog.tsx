@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useImageId } from "@/hooks/use-image-id.hook";
 import { getImageUrl } from "@/lib/utils";
 import { fetcher } from "@/lib/fetcher";
@@ -19,6 +20,10 @@ import { Spinner } from "@/components/ui/spinner";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Download02, Download04, User03 } from "@untitledui/icons";
+import {
+  getModelDisplayName,
+  getModelDimensions,
+} from "@/config/shared/image-models";
 
 import {
   publishMediaAction,
@@ -176,13 +181,13 @@ export function ImageDetailsDialog({
       <DialogOverlay className="bg-background/70 backdrop-blur-[2px]" />
       <DialogContent className="max-w-4xl h-[90vh] p-0 gap-0 bg-none bg-transparent border-none overflow-hidden flex flex-col outline-none">
         <DialogTitle className="sr-only">Image Details</DialogTitle>
-        <Tabs defaultValue="image">
-          <TabsList>
+        <Tabs defaultValue="image" className="flex-1 flex flex-col min-h-0">
+          <TabsList className="shrink-0">
             <TabsTrigger value="image">Image</TabsTrigger>
             <TabsTrigger value="details">Details</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="image">
+          <TabsContent value="image" className="flex-1 min-h-0">
             <div className="relative w-full h-full flex items-center justify-center">
               {fullUrl && (
                 <>
@@ -240,133 +245,201 @@ export function ImageDetailsDialog({
 
           <TabsContent
             value="details"
-            className="bg-card rounded-3xl p-2 md:p-3"
+            className="bg-card rounded-3xl p-2 md:p-3 flex-1 min-h-0 flex flex-col overflow-hidden"
           >
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
                 <Spinner className="size-8" />
               </div>
             ) : (
-              <div className="space-y-8">
-                {/* Main Actions in Details */}
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={handleDownload}
-                    className="w-full"
-                  >
-                    <Download02 strokeWidth={1.5} />
-                    Download
-                  </Button>
-
-                  {data?.persona?.id && (
-                    <Button variant="outline" className="w-full" asChild>
-                      <Link
-                        href={`/workbench/${data.persona.id}`}
-                        title="Open in Workbench"
-                      >
-                        <User03 strokeWidth={1.5} />
-                        Go to Persona
-                      </Link>
+              <ScrollArea className="flex-1 min-h-0">
+                <div className="space-y-8 pr-4">
+                  {/* Main Actions in Details */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={handleDownload}
+                      className="w-full"
+                    >
+                      <Download02 strokeWidth={1.5} />
+                      Download
                     </Button>
-                  )}
 
-                  {!hidePublish &&
-                    (isPublished ? (
-                      <Button
-                        variant="outline"
-                        className="w-full col-span-2"
-                        onClick={handleUnpublish}
-                        disabled={isUnpublishing}
-                      >
-                        {isUnpublishing ? (
-                          <Spinner className="mr-2 size-4" />
-                        ) : (
-                          <EyeSlash className="mr-2 size-4" />
-                        )}
-                        Unpublish from Art Gallery
+                    {data?.persona?.id && (
+                      <Button variant="outline" className="w-full" asChild>
+                        <Link
+                          href={`/workbench/${data.persona.id}`}
+                          title="Open in Workbench"
+                        >
+                          <User03 strokeWidth={1.5} />
+                          Go to Persona
+                        </Link>
                       </Button>
-                    ) : (
-                      <Button
-                        variant="default"
-                        className="w-full col-span-2"
-                        onClick={() => setPublishDialogOpen(true)}
-                        disabled={isPublishing}
-                      >
-                        {isPublishing ? (
-                          <Spinner className="mr-2 size-4" />
-                        ) : (
-                          <ShareNetwork className="mr-2 size-4" />
-                        )}
-                        Publish to Art Gallery
-                      </Button>
-                    ))}
-                </div>
-
-                {data?.generation && (
-                  <div className="flex flex-col gap-2">
-                    <div className="space-y-1">
-                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        Model
-                      </span>
-                      <div className="p-3 rounded-lg bg-muted/30 border border-border/50 font-mono text-sm">
-                        {data.generation.aiModel || "Unknown"}
-                      </div>
-                    </div>
-
-                    {data.generation.settings?.style && (
-                      <div className="space-y-1">
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Style
-                        </span>
-                        <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm capitalize">
-                          {data.generation.settings.style}
-                        </div>
-                      </div>
                     )}
 
-                    {data.generation.settings?.shotType && (
-                      <div className="space-y-1">
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Shot Type
-                        </span>
-                        <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm capitalize">
-                          {data.generation.settings.shotType}
-                        </div>
-                      </div>
-                    )}
-
-                    {data.generation.settings?.userNote && (
-                      <div className="space-y-1">
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Note
-                        </span>
-                        <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm leading-relaxed">
-                          {data.generation.settings.userNote}
-                        </div>
-                      </div>
-                    )}
-
-                    {data.tags && data.tags.length > 0 && (
-                      <div className="space-y-1">
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Tags
-                        </span>
-                        <div className="flex flex-wrap gap-2">
-                          {data.tags.map((tag: string) => (
-                            <span
-                              key={tag}
-                              className="px-2 py-1 rounded-md bg-muted/50 border border-border/50 text-xs text-muted-foreground"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    {!hidePublish &&
+                      (isPublished ? (
+                        <Button
+                          variant="outline"
+                          className="w-full col-span-2"
+                          onClick={handleUnpublish}
+                          disabled={isUnpublishing}
+                        >
+                          {isUnpublishing ? (
+                            <Spinner className="mr-2 size-4" />
+                          ) : (
+                            <EyeSlash className="mr-2 size-4" />
+                          )}
+                          Unpublish from Art Gallery
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="default"
+                          className="w-full col-span-2"
+                          onClick={() => setPublishDialogOpen(true)}
+                          disabled={isPublishing}
+                        >
+                          {isPublishing ? (
+                            <Spinner className="mr-2 size-4" />
+                          ) : (
+                            <ShareNetwork className="mr-2 size-4" />
+                          )}
+                          Publish to Art Gallery
+                        </Button>
+                      ))}
                   </div>
-                )}
-              </div>
+
+                  {data?.generation && (
+                    <div className="flex flex-col gap-2">
+                      <div className="space-y-1">
+                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          Model
+                        </span>
+                        <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm">
+                          {getModelDisplayName(data.generation.aiModel)}
+                        </div>
+                      </div>
+
+                      {(() => {
+                        const dimensions = getModelDimensions(
+                          data.generation.aiModel
+                        );
+                        return dimensions ? (
+                          <div className="space-y-1">
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                              Dimensions
+                            </span>
+                            <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm">
+                              {dimensions.width} × {dimensions.height} px
+                            </div>
+                          </div>
+                        ) : null;
+                      })()}
+
+                      {data.generation.tokensCost != null && (
+                        <div className="space-y-1">
+                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            Cost
+                          </span>
+                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm">
+                            {data.generation.tokensCost} credits
+                          </div>
+                        </div>
+                      )}
+
+                      {data.generation.settings?.style && (
+                        <div className="space-y-1">
+                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            Style
+                          </span>
+                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm capitalize">
+                            {data.generation.settings.style}
+                          </div>
+                        </div>
+                      )}
+
+                      {data.generation.settings?.shotType && (
+                        <div className="space-y-1">
+                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            Shot Type
+                          </span>
+                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm capitalize">
+                            {data.generation.settings.shotType}
+                          </div>
+                        </div>
+                      )}
+
+                      {data.generation.settings?.quality && (
+                        <div className="space-y-1">
+                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            Quality
+                          </span>
+                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm capitalize">
+                            {data.generation.settings.quality}
+                          </div>
+                        </div>
+                      )}
+
+                      {isPublished && data.nsfw && data.nsfw !== "sfw" && (
+                        <div className="space-y-1">
+                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            Content Rating
+                          </span>
+                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm capitalize">
+                            {data.nsfw === "suggestive"
+                              ? "Suggestive"
+                              : data.nsfw === "explicit"
+                              ? "Explicit"
+                              : data.nsfw}
+                          </div>
+                        </div>
+                      )}
+
+                      {data.generation.createdAt && (
+                        <div className="space-y-1">
+                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            Generated
+                          </span>
+                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm">
+                            {new Date(
+                              data.generation.createdAt
+                            ).toLocaleString()}
+                          </div>
+                        </div>
+                      )}
+
+                      {data.generation.settings?.userNote && (
+                        <div className="space-y-1">
+                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            Note
+                          </span>
+                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm leading-relaxed">
+                            {data.generation.settings.userNote}
+                          </div>
+                        </div>
+                      )}
+
+                      {data.tags && data.tags.length > 0 && (
+                        <div className="space-y-1">
+                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            Tags
+                          </span>
+                          <div className="flex flex-wrap gap-2">
+                            {data.tags.map((tag: string) => (
+                              <span
+                                key={tag}
+                                className="px-2 py-1 rounded-md bg-muted/50 border border-border/50 text-xs text-muted-foreground"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
             )}
           </TabsContent>
         </Tabs>

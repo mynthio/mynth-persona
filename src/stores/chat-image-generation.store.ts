@@ -1,6 +1,14 @@
 import { create } from "zustand";
 
+export type ChatImageGenerationRunOutputImage = {
+  imageUrl: string;
+  mediaId: string;
+};
+
 export type ChatImageGenerationRunOutput = {
+  // New multi-image format
+  images?: ChatImageGenerationRunOutputImage[];
+  // Legacy single-image format (for backwards compatibility)
   imageUrl?: string | null;
   mediaId?: string | null;
 };
@@ -12,6 +20,7 @@ export type ChatImageGenerationRun = {
   chatId: string;
   startedAt: number;
   modelId: string;
+  expectedImageCount: number;
   status?: string;
   completedAt?: number;
   output?: ChatImageGenerationRunOutput;
@@ -39,10 +48,7 @@ export type ChatImageGenerationActions = {
     runs: Record<string, ChatImageGenerationRun>
   ) => void;
 
-  addImageGenerationRun: (
-    runId: string,
-    run: ChatImageGenerationRun
-  ) => void;
+  addImageGenerationRun: (runId: string, run: ChatImageGenerationRun) => void;
 
   updateImageGenerationRun: (
     runId: string,

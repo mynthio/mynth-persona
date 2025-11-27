@@ -3,9 +3,10 @@
 import "server-only";
 
 import { db } from "@/db/drizzle";
-import { messages, chats } from "@/db/schema";
+import { messages } from "@/db/schema";
+import { validateChatOwnershipCached } from "@/data/chats/get-chat.data";
 import { auth } from "@clerk/nextjs/server";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { messageIdSchema } from "@/schemas/backend/messages/message.schema";
 
 export async function deleteMessageAction(messageId: string) {
@@ -27,11 +28,8 @@ export async function deleteMessageAction(messageId: string) {
     throw new Error("Message not found");
   }
 
-  // Verify the user owns the chat
-  const chat = await db.query.chats.findFirst({
-    where: and(eq(chats.id, message.chatId), eq(chats.userId, userId)),
-    columns: { id: true },
-  });
+  // Verify the user owns the chat using cached ownership check
+  const chat = await validateChatOwnershipCached(message.chatId, userId);
 
   if (!chat) {
     throw new Error("Unauthorized");

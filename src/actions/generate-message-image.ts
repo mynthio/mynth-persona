@@ -4,8 +4,9 @@ import { auth } from "@clerk/nextjs/server";
 import "server-only";
 import { tasks } from "@trigger.dev/sdk";
 import { db } from "@/db/drizzle";
-import { chats, messages } from "@/db/schema";
+import { messages } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
+import { getChatWithSettingsCached } from "@/data/chats/get-chat.data";
 import { generateMessageImageTask } from "@/trigger/generate-message-image.task";
 import { getUserPlan } from "@/services/auth/user-plan.service";
 import { PlanId } from "@/config/shared/plans";
@@ -71,10 +72,8 @@ export const generateMessageImage = async (
     };
   }
 
-  // Verify chat ownership
-  const chat = await db.query.chats.findFirst({
-    where: and(eq(chats.id, chatId), eq(chats.userId, userId)),
-  });
+  // Verify chat ownership and get settings using cached fetch
+  const chat = await getChatWithSettingsCached(chatId, userId);
 
   if (!chat) {
     return {

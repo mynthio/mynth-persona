@@ -1,10 +1,8 @@
 import "server-only";
 
-import { db } from "@/db/drizzle";
-import { chats } from "@/db/schema";
+import { validateChatOwnershipCached } from "@/data/chats/get-chat.data";
 import { logger } from "@/lib/logger";
 import { auth } from "@clerk/nextjs/server";
-import { and, eq } from "drizzle-orm";
 import { getChatMessagesData } from "@/data/messages/get-chat-messages.data";
 import { kv } from "@vercel/kv";
 import ms from "ms";
@@ -21,11 +19,8 @@ export async function GET(
 
   const { chatId } = await params;
 
-  // Validate chat belongs to user
-  const chat = await db.query.chats.findFirst({
-    where: and(eq(chats.id, chatId), eq(chats.userId, userId)),
-    columns: { id: true },
-  });
+  // Validate chat belongs to user using cached ownership check
+  const chat = await validateChatOwnershipCached(chatId, userId);
 
   if (!chat) {
     return new Response("Chat not found", { status: 404 });

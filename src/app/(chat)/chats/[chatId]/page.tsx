@@ -1,5 +1,5 @@
 import { getChatMessagesData } from "@/data/messages/get-chat-messages.data";
-import { db } from "@/db/drizzle";
+import { getChatForPageCached } from "@/data/chats/get-chat.data";
 import { auth } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 import Chat from "./_components/chat";
@@ -32,29 +32,8 @@ export default async function ChatDetailPage({
     })
   );
 
-  const chat = await db.query.chats.findFirst({
-    where: (chatsTable, { eq, and }) =>
-      and(eq(chatsTable.id, chatId), eq(chatsTable.userId, userId)),
-    with: {
-      chatPersonas: {
-        columns: {},
-        with: {
-          persona: {
-            columns: {
-              profileImageIdMedia: true,
-            },
-          },
-          personaVersion: {
-            columns: {
-              id: true,
-              personaId: true,
-              data: true,
-            },
-          },
-        },
-      },
-    },
-  });
+  // Use cached chat fetch for page rendering - automatically invalidated via updateTag
+  const chat = await getChatForPageCached(chatId, userId);
 
   if (!chat) notFound();
 

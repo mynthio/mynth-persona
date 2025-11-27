@@ -6,6 +6,7 @@ import { nanoid } from "nanoid";
 import { z } from "zod";
 
 import logsnag from "@/lib/logsnag";
+import { revalidateCacheTag } from "./utils/revalidate-cache";
 import { ImageModelId } from "@/config/shared/image-models";
 import { ImageGenerationFactory } from "@/lib/generation/image-generation/image-generation-factory";
 import { processImage } from "@/lib/image-processing/image-processor";
@@ -210,6 +211,9 @@ export const generateChatSceneImageTask = task({
         })
         .where(eq(chats.id, chatId));
     });
+
+    // Invalidate chat cache after settings update via internal Route Handler
+    await revalidateCacheTag(`chat:${chatId}`);
 
     logger.flush();
 

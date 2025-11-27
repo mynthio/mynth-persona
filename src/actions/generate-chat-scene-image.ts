@@ -3,9 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import "server-only";
 import { tasks } from "@trigger.dev/sdk";
-import { db } from "@/db/drizzle";
-import { chats } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { validateChatOwnershipCached } from "@/data/chats/get-chat.data";
 import { generateChatSceneImageTask } from "@/trigger/generate-chat-scene-image.task";
 import { getUserPlan } from "@/services/auth/user-plan.service";
 import { PlanId } from "@/config/shared/plans";
@@ -43,10 +41,8 @@ export const generateChatSceneImage = async (
     };
   }
 
-  // Verify chat ownership
-  const chat = await db.query.chats.findFirst({
-    where: and(eq(chats.id, chatId), eq(chats.userId, userId)),
-  });
+  // Verify chat ownership using cached validation
+  const chat = await validateChatOwnershipCached(chatId, userId);
 
   if (!chat) {
     return {

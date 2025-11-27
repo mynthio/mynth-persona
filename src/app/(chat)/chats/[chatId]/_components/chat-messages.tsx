@@ -46,6 +46,18 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { deleteMessageAction } from "@/actions/delete-message.action";
 import { Textarea } from "@/components/ui/textarea";
 import { useCopyToClipboard } from "@uidotdev/usehooks";
 import { ChatMessageImages } from "./chat-message-images";
@@ -73,6 +85,7 @@ import {
   Edit04,
   Image03,
   RefreshCcw05,
+  Trash03,
 } from "@untitledui/icons";
 
 type ChatMessagesProps = {
@@ -440,6 +453,8 @@ function UserMessageMenuContent(props: ChatMessageMenuContentProps) {
         <PencilSimpleIcon className="mr-2" size={16} />
         Edit message
       </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DeleteMessageMenuItem messageId={props.message.id} />
     </>
   );
 }
@@ -461,7 +476,80 @@ function AssistantMessageMenuContent(props: ChatMessageMenuContentProps) {
         <CopyIcon className="mr-2" size={16} />
         Copy message
       </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DeleteMessageMenuItem messageId={props.message.id} />
     </>
+  );
+}
+
+type DeleteMessageMenuItemProps = {
+  messageId: string;
+};
+
+function DeleteMessageMenuItem(props: DeleteMessageMenuItemProps) {
+  const { setMessages } = useChatActions<PersonaUIMessage>();
+  const messages = useChatMessages<PersonaUIMessage>();
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
+      await deleteMessageAction(props.messageId);
+
+      // Remove the message and all its children from state
+      const messageIdsToRemove = new Set<string>();
+
+      // Helper function to collect all descendant message IDs
+      const collectDescendants = (parentId: string) => {
+        messageIdsToRemove.add(parentId);
+        messages.forEach((msg) => {
+          if (msg.metadata?.parentId === parentId) {
+            collectDescendants(msg.id);
+          }
+        });
+      };
+
+      collectDescendants(props.messageId);
+
+      // Filter out the deleted message and all its descendants
+      setMessages(messages.filter((msg) => !messageIdsToRemove.has(msg.id)));
+
+      toast.success("Message deleted");
+    } catch (error) {
+      console.error("Failed to delete message:", error);
+      toast.error("Failed to delete message");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <DropdownMenuItem
+          onSelect={(e) => e.preventDefault()}
+          disabled={isDeleting}
+        >
+          <Trash03 />
+          Delete message
+        </DropdownMenuItem>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete message?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will permanently delete this message and all reply branches
+            that follow from it. This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+            {isDeleting ? "Deleting..." : "Delete"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 

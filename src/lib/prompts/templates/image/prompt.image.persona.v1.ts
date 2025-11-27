@@ -5,8 +5,7 @@ const STYLE_TIPS = {
     "Evoke the feel of a professional photograph with lifelike details",
   anime:
     "Create in Japanese animation style with characteristic anime features",
-  cinematic:
-    "Create like a movie still with dramatic lighting and composition",
+  cinematic: "Create like a movie still with dramatic lighting and composition",
   auto: "Choose the most appropriate style based on the description",
 } as const;
 
@@ -31,9 +30,6 @@ Appearance: ${persona.appearance}
 
 Style: ${styleTip}
 Shot: ${shotTip}
-Content: ${nsfw ? "NSFW Enabled" : "NSFW Disabled"}${
-      userNote && userNote.trim() ? `\nUser note: ${userNote.trim()}` : ""
-    }
 `.trim();
 
     return body;

@@ -48,7 +48,6 @@ import {
   TextGenerationModelId,
   textGenerationModels,
 } from "@/config/shared/models/text-generation-models.config";
-import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { usePinnedModels } from "../_hooks/use-pinned-models.hook";
 import { Gift02 } from "@untitledui/icons";
@@ -427,10 +426,9 @@ function ChatSettingsScenario() {
 }
 
 function ChatSettingsModel() {
-  const { chatId, modelId, setModelId, mode } = useChatMain();
+  const { modelId, setModelId, mode } = useChatMain();
   const [query, setQuery] = useState<string>("");
   const debouncedQuery = useDebounce(query, 300);
-  const [isLoading, setIsLoading] = useState(false);
   const [showFreeOnly, setShowFreeOnly] = useState(false);
   const [showVeniceOnly, setShowVeniceOnly] = useState(false);
   const { isPinned, canPin, togglePin } = usePinnedModels();
@@ -472,27 +470,10 @@ function ChatSettingsModel() {
       });
   }, [debouncedQuery, mode, showFreeOnly, showVeniceOnly]);
 
-  const handleModelChange = async (selectedModelId: TextGenerationModelId) => {
-    if (isLoading || modelId === selectedModelId) return;
-    setIsLoading(true);
-
-    const oldModelId = modelId;
+  // Model changes are now optimistic - persisted when a message is sent
+  const handleModelChange = (selectedModelId: TextGenerationModelId) => {
+    if (modelId === selectedModelId) return;
     setModelId(selectedModelId);
-
-    await updateChatAction(chatId, {
-      settings: {
-        model: selectedModelId,
-      },
-    })
-      .catch(() => {
-        setModelId(oldModelId);
-        toast.error("Failed switch to model", {
-          description: "Try again or contact support",
-        });
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
   };
 
   return (

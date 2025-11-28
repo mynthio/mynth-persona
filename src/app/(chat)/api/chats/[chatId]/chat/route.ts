@@ -20,6 +20,7 @@ import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
 import { DEFAULT_CHAT_MODEL } from "@/config/shared/chat/chat-models.config";
 import { trackChatError } from "@/lib/logsnag";
+import { revalidateTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
 import { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
@@ -34,7 +35,11 @@ import { replacePlaceholders } from "@/lib/replace-placeholders";
 import { kv } from "@vercel/kv";
 import ms from "ms";
 import { getUserPlan } from "@/services/auth/user-plan.service";
-import { CHAT_RATE_LIMITS, rateLimitGuard, EcoChatRateLimit } from "@/lib/rate-limit";
+import {
+  CHAT_RATE_LIMITS,
+  rateLimitGuard,
+  EcoChatRateLimit,
+} from "@/lib/rate-limit";
 import { PlanId } from "@/config/shared/plans";
 
 export const maxDuration = 45;
@@ -170,9 +175,17 @@ export async function POST(
 
   /**
    * TEXT GENERATION MODEL
+   * Priority: payload.modelId → chatSettings.model → DEFAULT_CHAT_MODEL
+   * Falls back if payload model is invalid
    */
-  const textGenerationModel =
-    textGenerationModels[chatSettings.model ?? DEFAULT_CHAT_MODEL];
+  const resolvedModelId =
+    (payload.modelId && textGenerationModels[payload.modelId]
+      ? payload.modelId
+      : null) ??
+    chatSettings.model ??
+    DEFAULT_CHAT_MODEL;
+
+  const textGenerationModel = textGenerationModels[resolvedModelId];
   if (!textGenerationModel) throw new Error("Model not supported");
 
   const modelTier = textGenerationModel.tier;
@@ -436,10 +449,27 @@ export async function POST(
   });
 
   after(async () => {
+    // Always update updatedAt, and persist model if it changed
+    const shouldUpdateModel = resolvedModelId !== chatSettings.model;
+
     await db
       .update(chats)
-      .set({ updatedAt: sql`now()` })
+      .set({
+        updatedAt: sql`now()`,
+        ...(shouldUpdateModel && {
+          settings: sql`COALESCE(${
+            chats.settings
+          }, '{}'::jsonb) || ${JSON.stringify({
+            model: resolvedModelId,
+          })}::jsonb`,
+        }),
+      })
       .where(eq(chats.id, chatId));
+
+    // Invalidate chat cache if settings were updated
+    if (shouldUpdateModel) {
+      revalidateTag(`chat:${chatId}`, "max");
+    }
   });
 
   return createUIMessageStreamResponse({

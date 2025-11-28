@@ -21,9 +21,7 @@ import ChatMessages from "./chat-messages";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import { ChatModelPickerMenu } from "./chat-model-picker-menu";
-import { updateChatAction } from "@/actions/update-chat.action";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
-import { toast } from "sonner";
 import {
   InputGroup,
   InputGroupAddon,
@@ -114,6 +112,7 @@ function ChatPrompt(props: ChatPromptProps) {
   const { sendMessage, regenerate, stop } = useChatActions();
   const status = useChatStatus();
   const messages = useChatMessages();
+  const { modelId } = useChatMain();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -131,6 +130,7 @@ function ChatPrompt(props: ChatPromptProps) {
         regenerate({
           body: {
             event: "regenerate",
+            modelId,
           },
         });
       } else {
@@ -151,6 +151,7 @@ function ChatPrompt(props: ChatPromptProps) {
       {
         body: {
           event: "send",
+          modelId,
         },
       }
     );
@@ -277,30 +278,12 @@ function ChatPrompt(props: ChatPromptProps) {
 
 function ChatModelSelector() {
   const { navigateSettings } = useSettingsNavigation();
-  const { chatId, modelId, setModelId } = useChatMain();
-  const [isLoading, setIsLoading] = useState(false);
+  const { modelId, setModelId } = useChatMain();
 
-  const handleModelChange = async (selectedModelId: TextGenerationModelId) => {
-    if (isLoading || modelId === selectedModelId) return;
-    setIsLoading(true);
-
-    const oldModelId = modelId;
+  // Model changes are now optimistic - persisted when a message is sent
+  const handleModelChange = (selectedModelId: TextGenerationModelId) => {
+    if (modelId === selectedModelId) return;
     setModelId(selectedModelId);
-
-    await updateChatAction(chatId, {
-      settings: {
-        model: selectedModelId,
-      },
-    })
-      .catch(() => {
-        setModelId(oldModelId);
-        toast.error("Failed switch to model", {
-          description: "Try again or contact support",
-        });
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
   };
 
   return (

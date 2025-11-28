@@ -24,6 +24,10 @@ export const editMessagePayloadSchema = z.object({
       })
       .optional(),
   }),
+
+  // Optional model override - if provided, uses this model for generation
+  // and persists it to chat settings on completion
+  modelId: z.string().optional(),
 });
 
 export type EditMessagePayload = z.infer<typeof editMessagePayloadSchema>;

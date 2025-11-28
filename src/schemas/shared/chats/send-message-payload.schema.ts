@@ -16,6 +16,10 @@ export const sendMessagePayloadSchema = z.object({
     ),
   }),
   parentId: z.string().or(z.null()),
+
+  // Optional model override - if provided, uses this model for generation
+  // and persists it to chat settings on completion
+  modelId: z.string().optional(),
 });
 
 export type SendMessagePayload = z.infer<typeof sendMessagePayloadSchema>;

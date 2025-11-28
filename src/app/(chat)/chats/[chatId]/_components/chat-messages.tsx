@@ -102,7 +102,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
   const status = useChatStatus();
   const { setMessages, regenerate } = useChatActions<PersonaUIMessage>();
 
-  const { chatId } = useChatMain();
+  const { chatId, modelId } = useChatMain();
 
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
@@ -278,6 +278,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
                 regenerate({
                   body: {
                     event: "regenerate",
+                    modelId,
                   },
                 })
               }
@@ -560,7 +561,7 @@ type EditMessageProps = {
 };
 
 function EditMessage(props: EditMessageProps) {
-  const { setEditMessageId } = useChatMain();
+  const { setEditMessageId, modelId } = useChatMain();
   const { regenerate, setMessages } = useChatActions<PersonaUIMessage>();
   const { addMessageToBranch } = useChatBranchesContext();
   const messages = useChatMessages<PersonaUIMessage>();
@@ -599,7 +600,7 @@ function EditMessage(props: EditMessageProps) {
       messageId: editedMessage.id,
       body: {
         event: "edit_message",
-
+        modelId,
         editedMessage,
       },
     });
@@ -778,6 +779,7 @@ function ChatMessageRegenerate(props: ChatMessageRegenerateProps) {
 
   const { regenerate } = useChatActions<PersonaUIMessage>();
   const status = useChatStatus();
+  const { modelId } = useChatMain();
 
   return (
     <Button
@@ -788,6 +790,7 @@ function ChatMessageRegenerate(props: ChatMessageRegenerateProps) {
           messageId,
           body: {
             event: "regenerate",
+            modelId,
           },
         });
       }}

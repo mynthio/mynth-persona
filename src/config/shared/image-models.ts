@@ -63,6 +63,16 @@ export const IMAGE_MODELS = {
     beta: true,
     new: true,
   },
+  "imagineart/imagineart-1.5": {
+    id: "imagineart/imagineart-1.5" as const,
+    displayName: "ImagineArt 1.5",
+    cost: 1,
+    width: 1728,
+    height: 2304,
+    supportsReferenceImages: false,
+    imagesPerGeneration: 1,
+    new: true,
+  },
   // Cost 2 - Premium models
   "google/gemini-flash-image-2.5": {
     id: "google/gemini-flash-image-2.5" as const,
@@ -106,6 +116,16 @@ export const IMAGE_MODELS = {
     cost: 2,
     width: 768,
     height: 1344,
+    supportsReferenceImages: false,
+    imagesPerGeneration: 1,
+    new: true,
+  },
+  "tencent/hunyuan-image-3.0": {
+    id: "tencent/hunyuan-image-3.0" as const,
+    displayName: "HunyuanImage-3.0",
+    cost: 2,
+    width: 896,
+    height: 1152,
     supportsReferenceImages: false,
     imagesPerGeneration: 1,
     new: true,

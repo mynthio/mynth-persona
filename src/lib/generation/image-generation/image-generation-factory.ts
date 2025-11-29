@@ -11,6 +11,8 @@ import { RunwareQwenImage } from "./runware/runware-qwen-image";
 import { RunwareBismuthIllustriousMixV5 } from "./runware/runware-bismuth-illustrious-mix-v5";
 import { RunwareFlux2Dev } from "./runware/runware-flux-2-dev";
 import { RunwareFlux2Pro } from "./runware/runware-flux-2-pro";
+import { RunwareImagineArt15 } from "./runware/runware-imagineart-1.5";
+import { RunwareHunyuanImage3 } from "./runware/runware-hunyuan-image-3";
 import { logger } from "@/lib/logger";
 
 // Simple model class mapping
@@ -23,11 +25,13 @@ const MODEL_CLASS_MAP: Record<ImageModelId, new () => ImageGenerationBase> = {
   "qwen/qwen-image": RunwareQwenImage,
   "seedream/seedream-3.0": RunwareSeedream3,
   "prsna/bismuth-illustrious-mix-v5.0": RunwareBismuthIllustriousMixV5,
+  "imagineart/imagineart-1.5": RunwareImagineArt15,
   // Cost 2 - Premium models
   "openai/gpt-image-1": RunwareGPTImage1,
   "google/imagen-4-preview": RunwareImagen4,
   "seedream/seedream-4.0": RunwareSeedream4,
   "black-forest-labs/flux-2-pro": RunwareFlux2Pro,
+  "tencent/hunyuan-image-3.0": RunwareHunyuanImage3,
 };
 
 export class ImageGenerationFactory {

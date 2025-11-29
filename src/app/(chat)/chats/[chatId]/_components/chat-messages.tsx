@@ -9,15 +9,12 @@ import {
   useChatError,
   useChatMessages,
   useChatStatus,
+  useChatStore,
 } from "@ai-sdk-tools/store";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowsCounterClockwiseIcon,
   BrainIcon,
-  CaretLeftIcon,
-  CaretRightIcon,
-  CircleNotchIcon,
   CopyIcon,
   PencilSimpleIcon,
   SparkleIcon,
@@ -25,18 +22,14 @@ import {
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
-import {
-  ButtonGroup,
-  ButtonGroupSeparator,
-} from "@/components/ui/button-group";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { Response } from "@/components/ai-elements/response";
 import { nanoid } from "nanoid";
 import { useUser } from "@clerk/nextjs";
 import { useChatPersonas } from "../_contexts/chat-personas.context";
-import { cn, getImageUrl } from "@/lib/utils";
+import { getImageUrl } from "@/lib/utils";
 import { ApiChatMessagesResponse } from "@/app/(chat)/api/chats/[chatId]/messages/route";
 import { Link } from "@/components/ui/link";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -63,8 +56,6 @@ import { useCopyToClipboard } from "@uidotdev/usehooks";
 import { ChatMessageImages } from "./chat-message-images";
 import { ChatMessageImageInProgress } from "./chat-message-image-in-progress";
 import { useChatImageGenerationStore } from "@/stores/chat-image-generation.store";
-import { SWRConfig } from "swr";
-import { ImageIcon } from "@phosphor-icons/react/dist/ssr";
 import {
   generateMessageImage,
   ImageGenerationMode,
@@ -668,38 +659,32 @@ function ChatMessagePart(props: ChatMessagePartProps) {
 }
 
 function ReasoningIndicator(props: { messageId: string }) {
-  const messages = useChatMessages();
-  const status = useChatStatus();
-
-  const isActive =
-    status === "streaming" && messages.at(-1)?.id === props.messageId;
+  // Use store selector for efficient single-subscription check
+  const isActive = useChatStore((state) => {
+    const lastMessage = state.messages.at(-1);
+    return state.status === "streaming" && lastMessage?.id === props.messageId;
+  });
 
   if (!isActive) return null;
 
   return (
-    <div
-      className={cn("size-[36px] flex items-center justify-center", {
-        "animate-pulse": isActive,
-      })}
-    >
+    <div className="size-[36px] flex items-center justify-center animate-pulse">
       <BrainIcon />
     </div>
   );
 }
 
 /**
- * Custom hook to efficiently determine if a message is the last one during streaming
+ * Custom hook to efficiently determine if a message is the last one during streaming.
+ * Uses store selector for O(1) lookups and fine-grained re-renders.
  */
 function useIsLastMessageStreaming(messageId: string) {
-  const messages = useChatMessages<PersonaUIMessage>();
-  const status = useChatStatus();
-
-  return React.useMemo(() => {
+  return useChatStore((state) => {
+    const messages = state.messages;
     const isLastMessage =
       messages.length > 0 && messages[messages.length - 1]?.id === messageId;
-    const isStreaming = status === "streaming";
-    return isLastMessage && isStreaming;
-  }, [messages, messageId, status]);
+    return isLastMessage && state.status === "streaming";
+  });
 }
 
 type ChatMessageActions = {

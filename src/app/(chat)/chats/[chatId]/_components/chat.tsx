@@ -4,6 +4,7 @@ import { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.s
 import {
   useChat,
   useChatActions,
+  useChatId,
   useChatMessages,
   useChatStatus,
 } from "@ai-sdk-tools/store";
@@ -89,7 +90,6 @@ export default function Chat(props: ChatProps) {
         shouldScrollRef={shouldScrollRef}
       />
       <ChatPrompt
-        chatId={props.chat.id}
         messagesContainerRef={messagesContainerRef}
         shouldScrollRef={shouldScrollRef}
         setShouldScroll={setShouldScroll}
@@ -99,7 +99,6 @@ export default function Chat(props: ChatProps) {
 }
 
 type ChatPromptProps = {
-  chatId: string;
   messagesContainerRef: React.RefObject<HTMLDivElement>;
   shouldScrollRef: React.MutableRefObject<boolean>;
   setShouldScroll: (value: boolean) => void;
@@ -109,6 +108,7 @@ function ChatPrompt(props: ChatPromptProps) {
   const [text, setText] = useState<string>("");
   const [isImpersonating, setIsImpersonating] = useState(false);
 
+  const chatId = useChatId();
   const { sendMessage, regenerate, stop } = useChatActions();
   const status = useChatStatus();
   const messages = useChatMessages();
@@ -168,7 +168,7 @@ function ChatPrompt(props: ChatPromptProps) {
     setIsImpersonating(true);
 
     try {
-      const response = await fetch(`/api/chats/${props.chatId}/impersonate`, {
+      const response = await fetch(`/api/chats/${chatId}/impersonate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

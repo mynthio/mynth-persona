@@ -75,11 +75,7 @@ export interface PromptDefinitionBase {
 }
 
 // System prompt definitions
-export interface PromptDefinitionRoleplay extends PromptDefinitionBase {
-  id: SystemPromptIdForChat<"roleplay">;
-  mode: "roleplay";
-  render: PromptDefinitionRenderFunction<RoleplayRenderArgs>;
-}
+// Note: PromptDefinitionRoleplay has been removed - roleplay uses the simplified system at @/lib/prompts/roleplay
 
 export interface PromptDefinitionStory extends PromptDefinitionBase {
   id: SystemPromptIdForChat<"story">;
@@ -166,7 +162,6 @@ export interface PromptDefinitionPromptImagePersona
 }
 
 export type PromptDefinition =
-  | PromptDefinitionRoleplay
   | PromptDefinitionStory
   | PromptDefinitionImpersonate
   | PromptDefinitionPersonaGenerate

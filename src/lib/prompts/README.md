@@ -4,45 +4,53 @@ This directory contains the prompt system architecture for the Mynth Persona app
 
 ## Architecture Overview
 
-### Prompt Types
+### Roleplay Prompts (Simplified System)
 
-The system distinguishes between two types of prompts:
+**Roleplay prompts have been moved to a simplified system at `src/lib/prompts/roleplay/`.**
+
+The new roleplay prompt system:
+- Uses simple function exports with typed args (no IDs or versioning)
+- Supports model-specific prompts for fine-tuning per AI model
+- Ready for style variations (concise, rich, dialogue focused)
+
+See `src/lib/prompts/roleplay/index.ts` for usage:
+```typescript
+import { getSystemPromptRendererForRoleplay } from '@/lib/prompts/roleplay';
+
+// Get prompt renderer for a specific model (falls back to default)
+const renderer = getSystemPromptRendererForRoleplay(modelId, style);
+const systemPrompt = renderer({ character, user, scenario });
+```
+
+### Legacy Prompt Types
+
+The legacy system (still used for story, impersonate, image, and persona prompts) distinguishes between:
 
 - **System Prompts** (`system.*`): Templates for AI model instructions and context
 - **User Prompts** (`prompt.*`): Templates for user input construction
-
-### Prompt ID Convention
-
-All prompt IDs follow the pattern: `{kind}.{category}.{subcategory}.{version}`
-
-Examples:
-- `system.chat.roleplay.v1` - System prompt for roleplay chat
-- `system.image.persona.v1` - System prompt for persona image generation
-- `prompt.image.persona.v1` - User prompt template for persona image input
-
-### File Naming Convention
-
-Template files are named to match their prompt IDs exactly:
-- `system.chat.roleplay.v1.ts` → exports prompt with ID `system.chat.roleplay.v1`
-- `prompt.image.persona.v1.ts` → exports prompt with ID `prompt.image.persona.v1`
 
 ## Directory Structure
 
 ```
 src/lib/prompts/
-├── README.md                           # This documentation
-├── types.ts                           # Type definitions
-├── registry.ts                        # Prompt registration and defaults
-└── templates/                         # Prompt template implementations
-    ├── chat/
-    │   ├── system.chat.roleplay.v1.ts # Roleplay chat system prompt
-    │   └── system.chat.story.v1.ts    # Story chat system prompt
+├── README.md                              # This documentation
+├── types.ts                               # Type definitions
+├── registry.ts                            # Prompt registration and defaults
+├── roleplay/                              # Simplified roleplay prompt system
+│   ├── index.ts                           # Factory and exports
+│   ├── types.ts                           # RoleplayPromptArgs, styles
+│   └── default.ts                         # Default roleplay prompt
+└── templates/                             # Legacy prompt implementations
+    ├── roleplay/
+    │   └── system.chat.impersonate.v1.ts  # Impersonate mode (uses legacy system)
+    ├── story/
+    │   └── system.chat.story.v1.ts        # Story chat system prompt
     ├── image/
-    │   ├── system.image.persona.v1.ts # Image generation system prompt
-    │   └── prompt.image.persona.v1.ts # Image generation user prompt
+    │   ├── system.image.persona.v1.ts     # Image generation system prompt
+    │   └── prompt.image.persona.v1.ts     # Image generation user prompt
     └── persona/
-        ├── system.persona.generate.v1.ts # Persona generation system prompt
-        └── system.persona.enhance.v1.ts  # Persona enhancement system prompt
+        ├── system.persona.generate.v1.ts  # Persona generation system prompt
+        └── system.persona.enhance.v1.ts   # Persona enhancement system prompt
 ```
 
 ## Core Components
@@ -76,17 +84,30 @@ Each template exports a prompt definition with:
 
 ## Usage Examples
 
-### Retrieving System Prompts
+### Roleplay Prompts (New Simplified System)
+
+```typescript
+import { getSystemPromptRendererForRoleplay } from '@/lib/prompts/roleplay';
+
+// Get renderer for a specific model (optional, falls back to default)
+const renderer = getSystemPromptRendererForRoleplay(modelId);
+
+// Render the system prompt
+const systemPrompt = renderer({
+  character: roleplayData,
+  user: chatSettings.user_persona,
+  scenario: chatSettings.scenario,
+});
+```
+
+### Legacy System Prompts (Story, Impersonate, etc.)
 
 ```typescript
 import { getDefaultPromptDefinitionForMode } from '@/lib/prompts/registry'
 
-// Get default system prompt for chat roleplay
-const systemPrompt = getDefaultPromptDefinitionForMode('chat', 'roleplay')
-const rendered = systemPrompt.render({ 
-  modelName: 'gpt-4',
-  persona: personaData 
-})
+// Get default system prompt for story mode
+const systemPrompt = getDefaultPromptDefinitionForMode('chat', 'story')
+const rendered = systemPrompt.render({ character: personaData })
 ```
 
 ### Retrieving User Prompts

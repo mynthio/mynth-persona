@@ -16,6 +16,7 @@ import { eq, sql } from "drizzle-orm";
 import { chats, messages as messagesTable } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { getDefaultPromptDefinitionForMode } from "@/lib/prompts/registry";
+import { getSystemPromptRendererForRoleplay } from "@/lib/prompts/roleplay";
 import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
 import { DEFAULT_CHAT_MODEL } from "@/config/shared/chat/chat-models.config";
@@ -299,17 +300,30 @@ export async function POST(
   /**
    * SYSTEM PROMPT
    */
-  const systemPromptDefinition = getDefaultPromptDefinitionForMode(
-    "chat",
-    chat.mode
-  );
-  if (!systemPromptDefinition) throw new Error("Ups!");
+  let system: string;
 
-  const system = systemPromptDefinition.render({
-    character: roleplayData,
-    user: chatSettings.user_persona,
-    scenario: chatSettings.scenario,
-  });
+  if (chat.mode === "roleplay") {
+    // Use new simplified roleplay prompt system
+    const roleplayRenderer = getSystemPromptRendererForRoleplay(resolvedModelId);
+    system = roleplayRenderer({
+      character: roleplayData,
+      user: chatSettings.user_persona,
+      scenario: chatSettings.scenario,
+    });
+  } else {
+    // Use existing prompt system for story and impersonate modes
+    const systemPromptDefinition = getDefaultPromptDefinitionForMode(
+      "chat",
+      chat.mode
+    );
+    if (!systemPromptDefinition) throw new Error("Ups!");
+
+    system = systemPromptDefinition.render({
+      character: roleplayData,
+      user: chatSettings.user_persona,
+      scenario: chatSettings.scenario,
+    });
+  }
 
   logger.debug({ system }, "System Prompt");
 
@@ -431,7 +445,7 @@ export async function POST(
         parts: responseMessage.parts,
         role: responseMessage.role,
         metadata: {
-          systemPrompt: systemPromptDefinition.id,
+          chatMode: chat.mode,
           model: textGenerationModel.modelId,
           usage: responseMessage.metadata?.usage,
         },
@@ -439,7 +453,7 @@ export async function POST(
 
       logger.debug(
         {
-          systemPromptId: systemPromptDefinition.id,
+          chatMode: chat.mode,
           model: model.modelId,
           provider: model.provider,
         },

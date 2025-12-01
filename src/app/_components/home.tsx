@@ -19,6 +19,7 @@ import { useLocalStorage } from "@uidotdev/usehooks";
 import { GlobeSlated01, GlobeSlated02, Sliders04 } from "@untitledui/icons";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
+import { HeroCarousel } from "./hero-carousel";
 
 const PublicPersonas = dynamic(() => import("./public-personas"), {
   ssr: false,
@@ -43,6 +44,8 @@ export default function Home() {
         }
         right={<PersonasFilters />}
       />
+      <HeroCarousel />
+      <div className="h-4" />
       <PublicPersonas />
     </Suspense>
   );

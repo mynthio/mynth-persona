@@ -1,5 +1,5 @@
 // src/lib/prompts/registry.ts
-import { roleplayV1 } from "./templates/roleplay/system.chat.roleplay.v1";
+// Note: Roleplay prompts have been moved to the simplified system at @/lib/prompts/roleplay
 import { impersonateV1 } from "./templates/roleplay/system.chat.impersonate.v1";
 import { storyV1 } from "./templates/story/system.chat.story.v1";
 import { personaGenerateV1 } from "./templates/persona/system.persona.generate.v1";
@@ -17,7 +17,6 @@ import {
   ChatPromptMode,
   PersonaPromptMode,
   PromptUseCase,
-  PromptDefinitionRoleplay,
   PromptDefinitionStory,
   PromptDefinitionImpersonate,
   PromptDefinitionPersonaGenerate,
@@ -38,7 +37,6 @@ import {
 
 const PROMPTS = {
   [storyV1.id]: storyV1,
-  [roleplayV1.id]: roleplayV1,
   [impersonateV1.id]: impersonateV1,
   [personaGenerateV1.id]: personaGenerateV1,
   [personaGenerateThinkingV1.id]: personaGenerateThinkingV1,
@@ -52,8 +50,9 @@ const PROMPTS = {
 } as const satisfies Partial<Record<PromptId, PromptDefinition>>;
 
 // Separate defaults: system vs user prompts
+// Note: Roleplay prompts are now handled by the simplified system at @/lib/prompts/roleplay
 export type DefaultSystemPromptMapByUseCase = {
-  chat: Record<ChatPromptMode, SystemPromptIdForChat>;
+  chat: Partial<Record<ChatPromptMode, SystemPromptIdForChat>>;
   persona: Record<PersonaPromptMode, SystemPromptIdForPersona>;
   image: Record<"persona", SystemPromptIdForImage>;
 };
@@ -67,7 +66,7 @@ export type DefaultUserPromptMapByUseCase = {
 export const DEFAULT_SYSTEM_PROMPTS_BY_USE_CASE: DefaultSystemPromptMapByUseCase =
   {
     chat: {
-      roleplay: roleplayV1.id,
+      // Note: roleplay uses the new simplified system at @/lib/prompts/roleplay
       story: storyV1.id,
       impersonate: impersonateV1.id,
     },
@@ -99,14 +98,14 @@ export function getPromptDefinitionById(id: PromptId): PromptDefinition {
   return prompt;
 }
 
+// Chat modes that still use the legacy prompt system (roleplay uses the new simplified system)
+export type LegacyChatPromptMode = "story" | "impersonate";
+
 // System defaults (new explicit API)
 export function getDefaultSystemPromptDefinitionForMode(
   useCase: "chat",
-  mode: ChatPromptMode
-):
-  | PromptDefinitionRoleplay
-  | PromptDefinitionStory
-  | PromptDefinitionImpersonate;
+  mode: LegacyChatPromptMode
+): PromptDefinitionStory | PromptDefinitionImpersonate;
 export function getDefaultSystemPromptDefinitionForMode(
   useCase: "persona",
   mode: "generate"
@@ -125,7 +124,7 @@ export function getDefaultSystemPromptDefinitionForMode(
 ): PromptDefinitionImagePersona;
 export function getDefaultSystemPromptDefinitionForMode(
   useCase: PromptUseCase,
-  mode: ChatPromptMode | PersonaPromptMode | "persona"
+  mode: LegacyChatPromptMode | PersonaPromptMode | "persona"
 ): PromptDefinition {
   const defaultPromptId = (
     DEFAULT_SYSTEM_PROMPTS_BY_USE_CASE[useCase] as Record<string, PromptId>
@@ -147,7 +146,7 @@ export function getDefaultUserPromptDefinitionForMode(
 ): PromptDefinitionPromptImagePersona;
 export function getDefaultUserPromptDefinitionForMode(
   useCase: PromptUseCase,
-  mode: ChatPromptMode | PersonaPromptMode | "persona"
+  mode: LegacyChatPromptMode | PersonaPromptMode | "persona"
 ): PromptDefinition {
   const defaults = DEFAULT_PROMPTS_BY_USE_CASE[useCase] as Record<
     string,
@@ -161,13 +160,11 @@ export function getDefaultUserPromptDefinitionForMode(
 }
 
 // Backward-compatible default getter (returns SYSTEM defaults)
+// Note: For roleplay mode, use @/lib/prompts/roleplay instead
 export function getDefaultPromptDefinitionForMode(
   useCase: "chat",
-  mode: ChatPromptMode
-):
-  | PromptDefinitionRoleplay
-  | PromptDefinitionStory
-  | PromptDefinitionImpersonate;
+  mode: LegacyChatPromptMode
+): PromptDefinitionStory | PromptDefinitionImpersonate;
 export function getDefaultPromptDefinitionForMode(
   useCase: "persona",
   mode: "generate"
@@ -186,7 +183,7 @@ export function getDefaultPromptDefinitionForMode(
 ): PromptDefinitionImagePersona;
 export function getDefaultPromptDefinitionForMode(
   useCase: PromptUseCase,
-  mode: ChatPromptMode | PersonaPromptMode | "persona"
+  mode: LegacyChatPromptMode | PersonaPromptMode | "persona"
 ): PromptDefinition {
   return getDefaultSystemPromptDefinitionForMode(useCase as any, mode as any);
 }

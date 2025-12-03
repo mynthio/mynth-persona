@@ -17,7 +17,7 @@ import { DownloadIcon } from "@phosphor-icons/react/dist/ssr";
 import { ExternalLink } from "lucide-react";
 import { useMemo } from "react";
 import { Spinner } from "@/components/ui/spinner";
-import Link from "next/link";
+import { Link } from "@/components/ui/link";
 import { cn } from "@/lib/utils";
 import { Download02, Download04, User03 } from "@untitledui/icons";
 import {

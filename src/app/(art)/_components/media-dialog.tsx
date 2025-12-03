@@ -27,12 +27,19 @@ import { fetcher } from "@/lib/fetcher";
 import useSWR from "swr";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { DownloadIcon } from "@phosphor-icons/react/dist/ssr";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Cpu } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { Spinner } from "@/components/ui/spinner";
 
 import { cn } from "@/lib/utils";
-import { Download02, Download04, User03, X, Trash01 } from "@untitledui/icons";
+import {
+  Download02,
+  Download04,
+  User03,
+  X,
+  Trash01,
+  CpuChip02,
+} from "@untitledui/icons";
 import { useForm } from "@tanstack/react-form";
 import { useAuth } from "@clerk/nextjs";
 import { z } from "zod";
@@ -57,6 +64,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import posthog from "posthog-js";
 import { Link } from "@/components/ui/link";
+import { getModelDisplayName } from "@/config/shared/image-models";
 
 export function MediaDialog() {
   const [imageId, setImageId] = useImageId();
@@ -161,6 +169,18 @@ export function MediaDialog() {
                       </Link>
                     </span>
                   </div>
+                </div>
+              )}
+
+              {data.generation?.aiModel && (
+                <div>
+                  <Badge
+                    variant="secondary"
+                    className="gap-1.5 py-1 px-2 font-normal text-muted-foreground bg-muted/50 border-border/50 border hover:bg-muted/50"
+                  >
+                    <CpuChip02 strokeWidth={1.5} />
+                    {getModelDisplayName(data.generation.aiModel)}
+                  </Badge>
                 </div>
               )}
 

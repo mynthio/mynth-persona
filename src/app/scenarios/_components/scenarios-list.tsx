@@ -11,7 +11,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import useSWR from "swr";
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { Link } from "@/components/ui/link";
 
 type Scenario = {
   id: string;

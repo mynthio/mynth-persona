@@ -1,6 +1,6 @@
 "use client";
 
-import { Masonry } from "masonic";
+import { SimpleMasonry } from "./simple-masonry";
 import useSWRInfinite from "swr/infinite";
 import { useMemo, useCallback } from "react";
 import { Spinner } from "@/components/ui/spinner";
@@ -106,14 +106,13 @@ export function ArtGrid() {
   return (
     <div className="w-full">
       {items.length > 0 ? (
-        <Masonry
+        <SimpleMasonry
           key={filterParamsString}
           items={items}
-          columnGutter={0}
+          gap={0}
           columnWidth={160}
           maxColumnCount={6}
-          overscanBy={5}
-          render={({ data: item }: { data: ArtItem }) => (
+          render={(item: ArtItem) => (
             <div
               className="relative group overflow-hidden rounded-none bg-muted/20 cursor-pointer break-inside-avoid"
               onClick={() => setImageId(item.id)}

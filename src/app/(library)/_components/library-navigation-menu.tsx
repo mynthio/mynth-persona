@@ -1,10 +1,11 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import { Feather, Image02, Users03 } from "@untitledui/icons";
 import { memo, type ReactNode } from "react";
+import { Link } from "@/components/ui/link";
 
 type NavigationItem = {
   href: string;

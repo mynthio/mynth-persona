@@ -19,7 +19,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { Link } from "@/components/ui/link";
 import { Buffer } from "buffer";
 import { Image02 } from "@untitledui/icons";
 import { ImageDetailsDialog } from "./image-details-dialog";

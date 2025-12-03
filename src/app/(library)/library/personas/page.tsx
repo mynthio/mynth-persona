@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/empty";
 import { Button } from "@/components/ui/button";
 import { UserIcon } from "@phosphor-icons/react/dist/ssr";
-import Link from "next/link";
+import { Link } from "@/components/ui/link";
 import { ChevronRightIcon, Search } from "lucide-react";
 import { Buffer } from "buffer";
 import {

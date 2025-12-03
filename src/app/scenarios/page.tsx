@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { ScenariosList } from "./_components/scenarios-list";
 import { Skeleton } from "@/components/ui/skeleton";
-import Link from "next/link";
+import { Link } from "@/components/ui/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {

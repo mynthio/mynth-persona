@@ -72,6 +72,7 @@ export async function GET(
         id: mediaData.generation.id,
         status: mediaData.generation.status,
         cost: mediaData.generation.cost,
+        aiModel: (mediaData.generation.metadata as any)?.aiModel || null,
         createdAt: mediaData.generation.createdAt,
         completedAt: mediaData.generation.completedAt,
       };

@@ -20,6 +20,8 @@ import {
   X_PROFILE_URL,
   GITHUB_REPO_URL,
 } from "@/lib/constants";
+import { CreditCard01 } from "@untitledui/icons";
+import { Link } from "@/components/ui/link";
 import { DiscordLogoIcon } from "@phosphor-icons/react/dist/ssr";
 import { IconDots } from "@tabler/icons-react";
 
@@ -77,6 +79,14 @@ export function NavSecondary(props: React.ComponentProps<typeof SidebarGroup>) {
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link href="/plans">
+                <CreditCard01 strokeWidth={1.5} />
+                <span>Pricing</span>
+              </Link>
+            </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>

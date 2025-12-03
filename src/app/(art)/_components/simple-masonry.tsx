@@ -36,7 +36,7 @@ export function SimpleMasonry<T>({
       if (maxColumnCount) {
         newColumns = Math.min(newColumns, maxColumnCount);
       }
-      
+
       setColumns(newColumns);
     };
 
@@ -75,4 +75,3 @@ export function SimpleMasonry<T>({
     </div>
   );
 }
-

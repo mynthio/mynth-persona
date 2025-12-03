@@ -104,17 +104,17 @@ export function ArtGrid() {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full z-0">
       {items.length > 0 ? (
         <SimpleMasonry
           key={filterParamsString}
           items={items}
-          gap={0}
+          gap={4}
           columnWidth={160}
           maxColumnCount={6}
           render={(item: ArtItem) => (
             <div
-              className="relative group overflow-hidden rounded-none bg-muted/20 cursor-pointer break-inside-avoid"
+              className="relative z-0 group overflow-hidden rounded-[4px] bg-muted/20 cursor-pointer break-inside-avoid"
               onClick={() => setImageId(item.id)}
             >
               <img
@@ -123,7 +123,7 @@ export function ArtGrid() {
                 className="w-full h-auto object-cover object-top transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"
               />
-              <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
+              <div className="absolute z-0 inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
                 {item.user && (
                   <div className="text-white/80 text-xs truncate">
                     by {item.user.displayName || item.user.username || "User"}

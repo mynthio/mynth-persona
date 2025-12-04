@@ -43,10 +43,12 @@ export async function GET(
       tags: mediaData.tags,
       nsfw: mediaData.nsfw,
       visibility: mediaData.visibility,
-      persona: {
-        id: mediaData.persona.id,
-        title: mediaData.persona.title,
-      },
+      persona: mediaData.persona
+        ? {
+            id: mediaData.persona.id,
+            title: mediaData.persona.title,
+          }
+        : null,
       generation: mediaData.generation
         ? {
             id: mediaData.generation.id,

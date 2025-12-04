@@ -157,7 +157,7 @@ async function getImages(
   return {
     data: pageRows.map((row) => ({
       id: row.id,
-      title: row.persona.title,
+      title: row.persona?.title ?? null,
     })),
     nextCursor,
     hasMore,

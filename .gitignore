@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -42,3 +43,6 @@ next-env.d.ts
 
 .trigger
 .env.local
+
+# local trigger tasks (for local tests and experiments, not included in open-source repo)
+src/trigger/local/

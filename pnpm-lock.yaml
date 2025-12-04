@@ -25,8 +25,8 @@ importers:
         specifier: ^1.3.1
         version: 1.3.1
       '@base-ui-components/react':
-        specifier: 1.0.0-beta.7
-        version: 1.0.0-beta.7(@types/react@19.2.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        specifier: 1.0.0-rc.0
+        version: 1.0.0-rc.0(@types/react@19.2.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@clerk/nextjs':
         specifier: ^6.35.6
         version: 6.35.6(next@16.0.7(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.1(react@19.2.1))(react@19.2.1))(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -46,8 +46,8 @@ importers:
         specifier: 16.0.7
         version: 16.0.7(@mdx-js/loader@3.1.1)(@mdx-js/react@3.1.1(@types/react@19.2.2)(react@19.2.1))
       '@openrouter/ai-sdk-provider':
-        specifier: ^1.3.0
-        version: 1.3.0(ai@5.0.106(zod@4.1.13))(zod@4.1.13)
+        specifier: ^1.4.0
+        version: 1.4.0(ai@5.0.106(zod@4.1.13))(zod@4.1.13)
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
@@ -133,8 +133,8 @@ importers:
         specifier: ^2.4.1
         version: 2.4.1(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@unkey/ratelimit':
-        specifier: ^2.1.3
-        version: 2.1.3
+        specifier: ^2.1.4
+        version: 2.1.4
       '@untitledui/icons':
         specifier: ^0.0.19
         version: 0.0.19(react@19.2.1)
@@ -142,8 +142,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       '@xyflow/react':
-        specifier: ^12.9.3
-        version: 12.9.3(@types/react@19.2.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+        specifier: ^12.10.0
+        version: 12.10.0(@types/react@19.2.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       ai:
         specifier: ^5.0.106
         version: 5.0.106(zod@4.1.13)
@@ -169,11 +169,11 @@ importers:
         specifier: ^17.2.3
         version: 17.2.3
       drizzle-orm:
-        specifier: ^0.44.7
-        version: 0.44.7(@neondatabase/serverless@1.0.2)(@opentelemetry/api@1.9.0)(@types/pg@8.15.6)(@upstash/redis@1.35.4)(pg@8.16.3)
+        specifier: ^0.45.0
+        version: 0.45.0(@neondatabase/serverless@1.0.2)(@opentelemetry/api@1.9.0)(@types/pg@8.15.6)(@upstash/redis@1.35.4)(pg@8.16.3)
       drizzle-zod:
         specifier: ^0.8.3
-        version: 0.8.3(drizzle-orm@0.44.7(@neondatabase/serverless@1.0.2)(@opentelemetry/api@1.9.0)(@types/pg@8.15.6)(@upstash/redis@1.35.4)(pg@8.16.3))(zod@4.1.13)
+        version: 0.8.3(drizzle-orm@0.45.0(@neondatabase/serverless@1.0.2)(@opentelemetry/api@1.9.0)(@types/pg@8.15.6)(@upstash/redis@1.35.4)(pg@8.16.3))(zod@4.1.13)
       effect:
         specifier: ^3.19.8
         version: 3.19.8
@@ -214,8 +214,8 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0
       posthog-js:
-        specifier: 1.300.0
-        version: 1.300.0
+        specifier: 1.301.2
+        version: 1.301.2
       rate-limiter-flexible:
         specifier: ^9.0.0
         version: 9.0.0
@@ -308,8 +308,8 @@ importers:
         specifier: ^9.2.1
         version: 9.2.1
       drizzle-kit:
-        specifier: ^0.31.7
-        version: 0.31.7
+        specifier: ^0.31.8
+        version: 0.31.8
       eslint:
         specifier: ^9.39.1
         version: 9.39.1(jiti@2.6.1)
@@ -535,8 +535,8 @@ packages:
     resolution: {integrity: sha512-qQ5m48eI/MFLQ5PxQj4PFaprjyCTLI37ElWMmNs0K8Lk3dVeOdNpB3ks8jc7yM5CDmVC73eMVk/trk3fgmrUpA==}
     engines: {node: '>=6.9.0'}
 
-  '@base-ui-components/react@1.0.0-beta.7':
-    resolution: {integrity: sha512-jZoU6ZzPPDhiP62ToFpIZVkLDzYleL8NJhiw4Dm9Q+N7Q+/rOW+N6YN0URuQ9zMdcl8jvIks/8iY1cyD/VC87A==}
+  '@base-ui-components/react@1.0.0-rc.0':
+    resolution: {integrity: sha512-9lhUFbJcbXvc9KulLev1WTFxS/alJRBWDH/ibKSQaNvmDwMFS2gKp1sTeeldYSfKuS/KC1w2MZutc0wHu2hRHQ==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@types/react': 19.2.2
@@ -546,8 +546,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@base-ui-components/utils@0.2.1':
-    resolution: {integrity: sha512-6D3PNibMXWPxiXCW/aMTclTypNG/QPCUc5vwGS6yKIcoYGDmjLiG3VyJ7hlGAnXiMGJMWH2TVl335N+zkRAKZQ==}
+  '@base-ui-components/utils@0.2.2':
+    resolution: {integrity: sha512-rNJCD6TFy3OSRDKVHJDzLpxO3esTV1/drRtWNUpe7rCpPN9HZVHUCuP+6rdDYDGWfXnQHbqi05xOyRP2iZAlkw==}
     peerDependencies:
       '@types/react': 19.2.2
       react: ^17 || ^18 || ^19
@@ -1534,8 +1534,8 @@ packages:
   '@open-draft/until@2.1.0':
     resolution: {integrity: sha512-U69T3ItWHvLwGg5eJ0n3I62nWuE6ilHlmz7zM0npLBRvPRd7e6NYmg54vvRtP5mZG7kZqZCFVdsTWo7BPtBujg==}
 
-  '@openrouter/ai-sdk-provider@1.3.0':
-    resolution: {integrity: sha512-l19chPX+YzD28IpmMMN3K2mYOInJtbWDLSjwSW4Ryhqnk37D3NW+0lUVjotlOI0+0QajoNfI3ubc3UVpSSU5oA==}
+  '@openrouter/ai-sdk-provider@1.4.0':
+    resolution: {integrity: sha512-stHEs7iw8Igvl3dJ7Pv0kuYhSLEKep6MENnUkRZl+eXubHyAhX2HMKYY6SGQ1CgjfZUSZlWwi82jBpK0rI85KQ==}
     engines: {node: '>=18'}
     peerDependencies:
       ai: ^5.0.0
@@ -1638,8 +1638,8 @@ packages:
   '@pinojs/redact@0.4.0':
     resolution: {integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==}
 
-  '@posthog/core@1.7.0':
-    resolution: {integrity: sha512-d6ZV4grpzeH/6/LP8quMVpSjY1puRkrqfwcPvGRKUAX7tb7YHyp/zMiTDuJmOFbpUxAMBXH5nDwcPiyCY2WGzA==}
+  '@posthog/core@1.7.1':
+    resolution: {integrity: sha512-kjK0eFMIpKo9GXIbts8VtAknsoZ18oZorANdtuTj1CbgS28t4ZVq//HAWhnxEuXRTrtkd+SUJ6Ux3j2Af8NCuA==}
 
   '@prisma/config@6.19.0':
     resolution: {integrity: sha512-zwCayme+NzI/WfrvFEtkFhhOaZb/hI+X8TTjzjJ252VbPxAl2hWHK5NMczmnG9sXck2lsXrxIZuK524E25UNmg==}
@@ -2729,17 +2729,11 @@ packages:
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
 
-  '@unkey/api@2.0.3':
-    resolution: {integrity: sha512-ru+I//qmSTBcZUTV43Pb4LF3JWLgcvXe8/MQKQZV2tA5Ypw61rFwIiOzNM1qKjB4erunFuv7I86/MTCdqfb0eA==}
-    hasBin: true
-    peerDependencies:
-      '@modelcontextprotocol/sdk': '>=1.5.0 <1.10.0'
-    peerDependenciesMeta:
-      '@modelcontextprotocol/sdk':
-        optional: true
+  '@unkey/api@2.2.0':
+    resolution: {integrity: sha512-XoFWPbZnyos04u+qQTAT+lHymRTNidMK64QywZaWNKbJmorPDd/jZlyKZvL+LNxxBlFXcHOHFtPHPk90wWmcvg==}
 
-  '@unkey/ratelimit@2.1.3':
-    resolution: {integrity: sha512-wvEGQVVSm/31wma8IRyT0T4KcutdvzBYGBcU919q1ep8FOLkF9PUHZC34aylu6cblUPfniGjDaSMrx1IiqtH/A==}
+  '@unkey/ratelimit@2.1.4':
+    resolution: {integrity: sha512-2YNVUChD0JBZe+dxi5FTLBBSZrAeg3uvqiJ3kHrwlsty5EITYIhjKujhFu/MJW2JmDm6j9yvtYcAZ+cxQ1hiqg==}
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':
     resolution: {integrity: sha512-ppLRUgHVaGRWUx0R0Ut06Mjo9gBaBkg3v/8AxusGLhsIotbBLuRk51rAzqLC8gq6NyyAojEXglNjzf6R948DNw==}
@@ -2852,14 +2846,14 @@ packages:
     resolution: {integrity: sha512-fnYhv671l+eTTp48gB4zEsTW/YtRgRPnkI2nT7x6qw5rkI1Lq2hTmQIpHPgyThI0znLK+vX2n9XxKdXZ7BUbbw==}
     engines: {node: '>= 20'}
 
-  '@xyflow/react@12.9.3':
-    resolution: {integrity: sha512-PSWoJ8vHiEqSIkLIkge+0eiHWiw4C6dyFDA03VKWJkqbU4A13VlDIVwKqf/Znuysn2GQw/zA61zpHE4rGgax7Q==}
+  '@xyflow/react@12.10.0':
+    resolution: {integrity: sha512-eOtz3whDMWrB4KWVatIBrKuxECHqip6PfA8fTpaS2RUGVpiEAe+nqDKsLqkViVWxDGreq0lWX71Xth/SPAzXiw==}
     peerDependencies:
       react: '>=17'
       react-dom: '>=17'
 
-  '@xyflow/system@0.0.73':
-    resolution: {integrity: sha512-C2ymH2V4mYDkdVSiRx0D7R0s3dvfXiupVBcko6tXP5K4tVdSBMo22/e3V9yRNdn+2HQFv44RFKzwOyCcUUDAVQ==}
+  '@xyflow/system@0.0.74':
+    resolution: {integrity: sha512-7v7B/PkiVrkdZzSbL+inGAo6tkR/WQHHG0/jhSvLQToCsfa8YubOGmBYd1s08tpKpihdHDZFwzQZeR69QSBb4Q==}
 
   abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
@@ -3579,12 +3573,12 @@ packages:
     resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
     engines: {node: '>=12'}
 
-  drizzle-kit@0.31.7:
-    resolution: {integrity: sha512-hOzRGSdyKIU4FcTSFYGKdXEjFsncVwHZ43gY3WU5Bz9j5Iadp6Rh6hxLSQ1IWXpKLBKt/d5y1cpSPcV+FcoQ1A==}
+  drizzle-kit@0.31.8:
+    resolution: {integrity: sha512-O9EC/miwdnRDY10qRxM8P3Pg8hXe3LyU4ZipReKOgTwn4OqANmftj8XJz1UPUAS6NMHf0E2htjsbQujUTkncCg==}
     hasBin: true
 
-  drizzle-orm@0.44.7:
-    resolution: {integrity: sha512-quIpnYznjU9lHshEOAYLoZ9s3jweleHlZIAWR/jX9gAWNg/JhQ1wj0KGRf7/Zm+obRrYd9GjPVJg790QY9N5AQ==}
+  drizzle-orm@0.45.0:
+    resolution: {integrity: sha512-lyd9VRk3SXKRjV/gQckQzmJgkoYMvVG3A2JAV0vh3L+Lwk+v9+rK5Gj0H22y+ZBmxsrRBgJ5/RbQCN7DWd1dtQ==}
     peerDependencies:
       '@aws-sdk/client-rds-data': '>=3'
       '@cloudflare/workers-types': '>=4'
@@ -5506,8 +5500,8 @@ packages:
     resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
     engines: {node: '>=0.10.0'}
 
-  posthog-js@1.300.0:
-    resolution: {integrity: sha512-FpeD4pkpg9i/3F5xpeX+CZeq3R3BaLyFDkzb4sOjpUIW1AAVuOEqPTxnWIess6C3pOw1u3mowq0WSeh1PmrqfA==}
+  posthog-js@1.301.2:
+    resolution: {integrity: sha512-LgGDXXjsG5UzsfdhACP87zkfHSV7Uf2egSAmtHnszEX6s/qCiP0xMop2ujPX5PJj4gOd+XXVsBfr/D3lYu3vuA==}
 
   preact@10.28.0:
     resolution: {integrity: sha512-rytDAoiXr3+t6OIP3WGlDd0ouCUG1iCWzkcY3++Nreuoi17y6T5i/zRhe6uYfoVcxq6YU+sBtJouuRDsq8vvqA==}
@@ -6904,10 +6898,10 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.28.5
 
-  '@base-ui-components/react@1.0.0-beta.7(@types/react@19.2.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
+  '@base-ui-components/react@1.0.0-rc.0(@types/react@19.2.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
     dependencies:
       '@babel/runtime': 7.28.4
-      '@base-ui-components/utils': 0.2.1(@types/react@19.2.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
+      '@base-ui-components/utils': 0.2.2(@types/react@19.2.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@floating-ui/react-dom': 2.1.6(react-dom@19.2.1(react@19.2.1))(react@19.2.1)
       '@floating-ui/utils': 0.2.10
       react: 19.2.1
@@ -6918,7 +6912,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.2
 
-  '@base-ui-components/utils@0.2.1(@types/react@19.2.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
+  '@base-ui-components/utils@0.2.2(@types/react@19.2.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@floating-ui/utils': 0.2.10
@@ -7678,7 +7672,7 @@ snapshots:
 
   '@open-draft/until@2.1.0': {}
 
-  '@openrouter/ai-sdk-provider@1.3.0(ai@5.0.106(zod@4.1.13))(zod@4.1.13)':
+  '@openrouter/ai-sdk-provider@1.4.0(ai@5.0.106(zod@4.1.13))(zod@4.1.13)':
     dependencies:
       '@openrouter/sdk': 0.1.27
       ai: 5.0.106(zod@4.1.13)
@@ -7789,7 +7783,7 @@ snapshots:
 
   '@pinojs/redact@0.4.0': {}
 
-  '@posthog/core@1.7.0':
+  '@posthog/core@1.7.1':
     dependencies:
       cross-spawn: 7.0.6
 
@@ -9006,15 +9000,13 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@unkey/api@2.0.3':
+  '@unkey/api@2.2.0':
     dependencies:
-      zod: 3.25.76
+      zod: 4.1.13
 
-  '@unkey/ratelimit@2.1.3':
+  '@unkey/ratelimit@2.1.4':
     dependencies:
-      '@unkey/api': 2.0.3
-    transitivePeerDependencies:
-      - '@modelcontextprotocol/sdk'
+      '@unkey/api': 2.2.0
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':
     optional: true
@@ -9089,9 +9081,9 @@ snapshots:
 
   '@vercel/oidc@3.0.5': {}
 
-  '@xyflow/react@12.9.3(@types/react@19.2.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
+  '@xyflow/react@12.10.0(@types/react@19.2.2)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)':
     dependencies:
-      '@xyflow/system': 0.0.73
+      '@xyflow/system': 0.0.74
       classcat: 5.0.5
       react: 19.2.1
       react-dom: 19.2.1(react@19.2.1)
@@ -9100,7 +9092,7 @@ snapshots:
       - '@types/react'
       - immer
 
-  '@xyflow/system@0.0.73':
+  '@xyflow/system@0.0.74':
     dependencies:
       '@types/d3-drag': 3.0.7
       '@types/d3-interpolate': 3.0.4
@@ -9826,7 +9818,7 @@ snapshots:
 
   dotenv@17.2.3: {}
 
-  drizzle-kit@0.31.7:
+  drizzle-kit@0.31.8:
     dependencies:
       '@drizzle-team/brocli': 0.10.2
       '@esbuild-kit/esm-loader': 2.6.5
@@ -9835,7 +9827,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.44.7(@neondatabase/serverless@1.0.2)(@opentelemetry/api@1.9.0)(@types/pg@8.15.6)(@upstash/redis@1.35.4)(pg@8.16.3):
+  drizzle-orm@0.45.0(@neondatabase/serverless@1.0.2)(@opentelemetry/api@1.9.0)(@types/pg@8.15.6)(@upstash/redis@1.35.4)(pg@8.16.3):
     optionalDependencies:
       '@neondatabase/serverless': 1.0.2
       '@opentelemetry/api': 1.9.0
@@ -9843,9 +9835,9 @@ snapshots:
       '@upstash/redis': 1.35.4
       pg: 8.16.3
 
-  drizzle-zod@0.8.3(drizzle-orm@0.44.7(@neondatabase/serverless@1.0.2)(@opentelemetry/api@1.9.0)(@types/pg@8.15.6)(@upstash/redis@1.35.4)(pg@8.16.3))(zod@4.1.13):
+  drizzle-zod@0.8.3(drizzle-orm@0.45.0(@neondatabase/serverless@1.0.2)(@opentelemetry/api@1.9.0)(@types/pg@8.15.6)(@upstash/redis@1.35.4)(pg@8.16.3))(zod@4.1.13):
     dependencies:
-      drizzle-orm: 0.44.7(@neondatabase/serverless@1.0.2)(@opentelemetry/api@1.9.0)(@types/pg@8.15.6)(@upstash/redis@1.35.4)(pg@8.16.3)
+      drizzle-orm: 0.45.0(@neondatabase/serverless@1.0.2)(@opentelemetry/api@1.9.0)(@types/pg@8.15.6)(@upstash/redis@1.35.4)(pg@8.16.3)
       zod: 4.1.13
 
   dunder-proto@1.0.1:
@@ -12300,9 +12292,9 @@ snapshots:
     dependencies:
       xtend: 4.0.2
 
-  posthog-js@1.300.0:
+  posthog-js@1.301.2:
     dependencies:
-      '@posthog/core': 1.7.0
+      '@posthog/core': 1.7.1
       core-js: 3.47.0
       fflate: 0.4.8
       preact: 10.28.0

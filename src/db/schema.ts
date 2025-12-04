@@ -332,9 +332,9 @@ export const media = pgTable(
   "media",
   {
     id: text("id").primaryKey(),
-    personaId: text("persona_id")
-      .notNull()
-      .references((): AnyPgColumn => personas.id, { onDelete: "cascade" }),
+    personaId: text("persona_id").references((): AnyPgColumn => personas.id, {
+      onDelete: "set null",
+    }),
     userId: varchar("user_id", { length: 255 })
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),

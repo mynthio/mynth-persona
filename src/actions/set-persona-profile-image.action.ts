@@ -49,6 +49,11 @@ export async function setPersonaProfileImage(mediaId: string) {
     throw new Error("Media not found");
   }
 
+  // Can only set profile image for media that belongs to a persona
+  if (!mediaWithPersona.persona || !mediaWithPersona.personaId) {
+    throw new Error("This media is not associated with a persona");
+  }
+
   if (mediaWithPersona.persona.userId !== userId) {
     throw new Error("Unauthorized");
   }

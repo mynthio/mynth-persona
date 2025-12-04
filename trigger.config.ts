@@ -35,5 +35,5 @@ export default defineConfig({
       additionalPackages({ packages: ["sharp"] }),
     ],
   },
-  dirs: ["./src/trigger"],
+  dirs: ["./src/trigger", "./src/trigger/local"],
 });

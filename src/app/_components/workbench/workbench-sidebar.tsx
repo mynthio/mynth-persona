@@ -26,8 +26,8 @@ const workbenchModeToSidebarComponent: Record<string, React.ComponentType> = {
 };
 
 export default function WorkbenchSidebar() {
-  // Use Tailwind's xl breakpoint (1280px) as the cutoff for switching to the mobile overlay
-  const isMobile = useMediaQuery("(max-width: 1279px)");
+  // Use Tailwind's md breakpoint (768px) as the cutoff for switching to the mobile overlay
+  const isMobile = useMediaQuery("(max-width: 767px)");
   const [isMobilePanelOpen, setIsMobilePanelOpen] = useState(false);
   const [workbenchMode] = useWorkbenchMode();
 
@@ -41,13 +41,13 @@ export default function WorkbenchSidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <div className="w-[420px] shrink-0 grow-0 p-4 fixed  right-[9px] top-[9px] min-h-0 h-auto bottom-[9px] hidden xl:block">
+      <div className="w-[420px] shrink-0 grow-0 p-4 fixed  right-[9px] top-[9px] min-h-0 h-auto bottom-[9px] hidden md:block">
         <Content />
       </div>
 
       {/* Mobile creator button */}
       {isMobile && !isMobilePanelOpen && (
-        <div className="xl:hidden fixed bottom-[90px] left-1/2 -translate-x-1/2 z-40 max-w-full px-4">
+        <div className="md:hidden fixed bottom-[90px] left-1/2 -translate-x-1/2 z-40 max-w-full px-4">
           <button
             onClick={openMobilePanel}
             className="inline-flex items-center justify-center gap-2 w-56 h-12 rounded-full bg-sidebar text-sidebar-foreground text-sm font-medium px-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40 transition-transform hover:scale-[1.02] active:scale-[0.99]"
@@ -60,7 +60,7 @@ export default function WorkbenchSidebar() {
 
       {/* Mobile full-screen overlay panel */}
       {isMobile && isMobilePanelOpen && (
-        <div className="xl:hidden fixed inset-0 z-50">
+        <div className="md:hidden fixed inset-0 z-50">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/50"

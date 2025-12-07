@@ -1,4 +1,5 @@
 import { renderDefaultRoleplayPrompt } from "./default";
+import { renderHermesRoleplayPrompt } from "./hermes";
 import type {
   ModelId,
   RoleplayPromptArgs,
@@ -14,6 +15,8 @@ export type { RoleplayPromptArgs, RoleplayPromptStyle, RoleplayPromptRenderer };
  * Add model-specific prompts here as needed.
  */
 const promptsByModel: Partial<Record<string, RoleplayPromptRenderer>> = {
+  "nousresearch/hermes-4-70b:standard": renderHermesRoleplayPrompt,
+  "nousresearch/hermes-4-70b:eco": renderHermesRoleplayPrompt,
   // Example: Add model-specific prompts here
   // "anthropic/claude-haiku-4.5:premium": renderClaudeRoleplayPrompt,
 };
@@ -22,7 +25,9 @@ const promptsByModel: Partial<Record<string, RoleplayPromptRenderer>> = {
  * Style-specific prompt renderers (future use).
  * Key is the style name.
  */
-const promptsByStyle: Partial<Record<RoleplayPromptStyle, RoleplayPromptRenderer>> = {
+const promptsByStyle: Partial<
+  Record<RoleplayPromptStyle, RoleplayPromptRenderer>
+> = {
   default: renderDefaultRoleplayPrompt,
   // Future: Add style variations here
   // concise: renderConciseRoleplayPrompt,
@@ -34,10 +39,11 @@ const promptsByStyle: Partial<Record<RoleplayPromptStyle, RoleplayPromptRenderer
  * Model + style specific overrides (future use).
  * Key format: "modelId:style"
  */
-const promptsByModelAndStyle: Partial<Record<string, RoleplayPromptRenderer>> = {
-  // Example: Model-specific style overrides
-  // "anthropic/claude-haiku-4.5:premium:concise": renderClaudeConcisePrompt,
-};
+const promptsByModelAndStyle: Partial<Record<string, RoleplayPromptRenderer>> =
+  {
+    // Example: Model-specific style overrides
+    // "anthropic/claude-haiku-4.5:premium:concise": renderClaudeConcisePrompt,
+  };
 
 /**
  * Get the system prompt renderer for roleplay.
@@ -104,5 +110,4 @@ export function renderRoleplaySystemPrompt(
 }
 
 // Re-export the default renderer for direct access if needed
-export { renderDefaultRoleplayPrompt };
-
+export { renderDefaultRoleplayPrompt, renderHermesRoleplayPrompt };

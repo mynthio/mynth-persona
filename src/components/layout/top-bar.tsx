@@ -54,7 +54,7 @@ const TopBar = React.forwardRef<HTMLDivElement, TopBarProps>(
     <div
       ref={ref}
       className={cn(
-        "w-full text-foreground/90 grid gap-2 font-montserrat h-18 items-center px-6 sticky top-0 z-20",
+        "w-full text-foreground/90 grid gap-2 font-montserrat h-18 items-center px-2 sticky top-0 z-20",
         center ? "grid-cols-[1fr_auto_1fr]" : "flex justify-between",
         className
       )}

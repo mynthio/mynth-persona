@@ -139,7 +139,7 @@ export default async function RootLayout({
           <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />
 
-            <main className="h-full w-full min-w-0 min-h-0 relative rounded-xl bg-background">
+            <main className="relative flex h-full w-full flex-col">
               {children}
             </main>
           </SidebarProvider>

@@ -58,7 +58,7 @@ export default async function ChatDetailPage({
   const hasNoMessages = initialMessages.messages.length === 0;
 
   return (
-    <div className="w-full h-full mx-auto flex flex-col">
+    <>
       <Provider initialMessages={initialMessages.messages}>
         <ChatMainProvider
           initialSettings={chat.settings as ChatSettingsSchema}
@@ -76,10 +76,12 @@ export default async function ChatDetailPage({
               branches={branches}
               activeBranch={leafId}
             >
-              <div className="flex">
-                <div className="flex flex-col w-full">
+              <div className="flex h-full items-start w-full">
+                <div className="flex flex-col items-start w-full h-full min-h-screen [&>*:nth-child(2)]:h-full [&>*:nth-child(2)]:flex-1">
                   <ChatTopBar className="shrink-0" />
+
                   {hasNoMessages && <ChatIntro />}
+
                   <Chat
                     chat={chat}
                     initialMessages={initialMessages.messages}
@@ -93,6 +95,6 @@ export default async function ChatDetailPage({
           </ChatPersonasProvider>
         </ChatMainProvider>
       </Provider>
-    </div>
+    </>
   );
 }

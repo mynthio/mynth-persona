@@ -20,15 +20,11 @@ import {
 import { chatConfig } from "@/config/shared/chat/chat-models.config";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
-import {
-  FireIcon,
-  PushPinIcon,
-  PushPinSimpleSlashIcon,
-  GearIcon,
-} from "@phosphor-icons/react/dist/ssr";
+import { FireIcon, GearIcon } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 import { usePinnedModels } from "../_hooks/use-pinned-models.hook";
-import { ChevronUp, Diamond01, Gift02, Lightning01, Pin01, X } from "@untitledui/icons";
+import { ChevronUp, Diamond01, Gift02, Lightning01 } from "@untitledui/icons";
+import { PinModelButton } from "./pin-model-button";
 
 interface ChatModelPickerMenuProps {
   currentModelId: TextGenerationModelId;
@@ -86,7 +82,7 @@ export function ChatModelPickerMenu({
           variant="ghost"
           size="sm"
           aria-label="Select AI model for role-play"
-          className="rounded-3xl"
+          className="rounded-3xl truncate shrink"
         >
           <ChevronUp strokeWidth={1} />
           <span className="truncate">
@@ -108,13 +104,10 @@ export function ChatModelPickerMenu({
                       key={model.modelId}
                       model={model}
                       selected={model.modelId === currentModelId}
-                      isPinned={true}
-                      canPin={true}
                       onSelect={(id) => {
                         onModelChange(id);
                         setOpen(false);
                       }}
-                      onTogglePin={() => togglePin(model.modelId)}
                     />
                   ))}
                 </CommandGroup>
@@ -140,13 +133,10 @@ export function ChatModelPickerMenu({
                     key={model.modelId}
                     model={model}
                     selected={model.modelId === currentModelId}
-                    isPinned={isPinned(model.modelId)}
-                    canPin={canPin()}
                     onSelect={(id) => {
                       onModelChange(id);
                       setOpen(false);
                     }}
-                    onTogglePin={() => togglePin(model.modelId)}
                   />
                 ))}
               </CommandGroup>
@@ -155,21 +145,6 @@ export function ChatModelPickerMenu({
             )}
           </CommandList>
         </Command>
-
-        {/* <div className="border-t border-surface-200 p-[8px]">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              onOpenSettings();
-              setOpen(false);
-            }}
-            className="w-full justify-start text-[0.9rem] h-[36px] rounded-[12px]"
-          >
-            <GearIcon className="w-[16px] h-[16px] mr-[8px]" />
-            More model info
-          </Button>
-        </div> */}
       </PopoverContent>
     </Popover>
   );
@@ -202,20 +177,12 @@ function PremiumBadge() {
 function ModelRow({
   model,
   selected,
-  isPinned,
-  canPin,
   onSelect,
-  onTogglePin,
 }: {
   model: any;
   selected: boolean;
-  isPinned: boolean;
-  canPin: boolean;
   onSelect: (id: TextGenerationModelId) => void;
-  onTogglePin: () => void;
 }) {
-  const showPinButton = isPinned || canPin;
-
   // Render tier icon based on model tier
   const renderTierIcon = () => {
     if (model.tier === "premium") {
@@ -239,20 +206,7 @@ function ModelRow({
         {model.tier === "eco" && " (Eco)"}
       </span>
 
-      {showPinButton && (
-        <Button
-          onClick={(e) => {
-            e.stopPropagation();
-            onTogglePin();
-          }}
-          size="icon-sm"
-          variant={isPinned ? "outline" : "ghost"}
-          className="size-6 rounded-sm [&>svg]:size-2"
-          aria-label={isPinned ? "Unpin model" : "Pin model"}
-        >
-          {isPinned ? <X strokeWidth={1.5} /> : <Pin01 strokeWidth={1.5} />}
-        </Button>
-      )}
+      <PinModelButton modelId={model.modelId} />
     </CommandItem>
   );
 }

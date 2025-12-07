@@ -27,7 +27,12 @@ import {
 } from "@/components/ui/tooltip";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import { generateChatSceneImage } from "@/actions/generate-chat-scene-image";
-import { IMAGE_MODELS, type ImageModelId, isModelBeta, isModelNew } from "@/config/shared/image-models";
+import {
+  IMAGE_MODELS,
+  type ImageModelId,
+  isModelBeta,
+  isModelNew,
+} from "@/config/shared/image-models";
 import { useChatImageGenerationStore } from "@/stores/chat-image-generation.store";
 import { ChatSettingsSceneImageInProgress } from "./chat-settings-scene-image-in-progress";
 import { updateChatAction } from "@/actions/update-chat.action";

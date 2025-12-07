@@ -11,6 +11,7 @@ import {
 import { DefaultChatTransport } from "ai";
 
 import { FormEvent, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import TextareaAutosize from "react-textarea-autosize";
@@ -21,8 +22,15 @@ import { nanoid } from "nanoid";
 import ChatMessages from "./chat-messages";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
-import { ChatModelPickerMenu } from "./chat-model-picker-menu";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
+
+const ChatModelPickerMenu = dynamic(
+  () =>
+    import("./chat-model-picker-menu").then((mod) => ({
+      default: mod.ChatModelPickerMenu,
+    })),
+  { ssr: false }
+);
 import {
   InputGroup,
   InputGroupAddon,
@@ -84,7 +92,7 @@ export default function Chat(props: ChatProps) {
   });
 
   return (
-    <div className="w-full flex flex-col justify-center items-center h-full mx-auto px-[12px] md:px-0 mt-auto relative z-0">
+    <div className="w-full flex flex-col shrink-0 min-w-0 min-h-0 items-center px-[12px] md:px-0 relative z-0">
       <ChatMessages
         containerRef={messagesContainerRef}
         shouldScrollRef={shouldScrollRef}
@@ -209,9 +217,9 @@ function ChatPrompt(props: ChatPromptProps) {
   };
 
   return (
-    <div className="sticky bottom-4 mb-4 grid w-full max-w-xl gap-6 z-10 mt-auto">
-      <form onSubmit={handleSubmit} className="w-full">
-        <InputGroup className="dark:bg-input/30 backdrop-blur-3xl rounded-4xl">
+    <div className="sticky bottom-4 mb-4 grid w-full max-w-xl gap-6 z-10 mt-auto shrink-0 h-auto">
+      <form onSubmit={handleSubmit} className="w-full min-w-0 shrink-0">
+        <InputGroup className="dark:bg-input/30 backdrop-blur-3xl rounded-4xl w-full min-w-0">
           <TextareaAutosize
             ref={textareaRef}
             data-slot="input-group-control"
@@ -227,7 +235,10 @@ function ChatPrompt(props: ChatPromptProps) {
             }}
           />
 
-          <InputGroupAddon align="block-end" className="items-end p-2">
+          <InputGroupAddon
+            align="block-end"
+            className="items-center p-2 w-full min-w-0"
+          >
             <ChatModelSelector />
 
             <div className="flex items-center gap-2 ml-auto">

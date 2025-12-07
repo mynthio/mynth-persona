@@ -24,11 +24,10 @@ import { useSidebar } from "@/components/ui/sidebar";
 
 import {
   FireIcon,
-  PushPinIcon,
-  PushPinSimpleSlashIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "motion/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -49,8 +48,12 @@ import {
   textGenerationModels,
 } from "@/config/shared/models/text-generation-models.config";
 import { Badge } from "@/components/ui/badge";
-import { usePinnedModels } from "../_hooks/use-pinned-models.hook";
 import { Gift02 } from "@untitledui/icons";
+
+const PinModelButton = dynamic(
+  () => import("./pin-model-button").then((mod) => ({ default: mod.PinModelButton })),
+  { ssr: false }
+);
 
 type ChatSettingsProps = {
   defaultOpen: boolean;
@@ -431,7 +434,6 @@ function ChatSettingsModel() {
   const debouncedQuery = useDebounce(query, 300);
   const [showFreeOnly, setShowFreeOnly] = useState(false);
   const [showVeniceOnly, setShowVeniceOnly] = useState(false);
-  const { isPinned, canPin, togglePin } = usePinnedModels();
 
   const models = useMemo(() => {
     const normalizedQuery = debouncedQuery.trim().toLowerCase();
@@ -496,9 +498,6 @@ function ChatSettingsModel() {
             }
             key={model.modelId}
             model={textGenerationModels[model.modelId]}
-            isPinned={isPinned(model.modelId)}
-            canPin={canPin()}
-            onTogglePin={() => togglePin(model.modelId)}
           />
         ))}
       </div>
@@ -510,12 +509,8 @@ function ModelCard(props: {
   isSelected: boolean;
   onSelect: () => void;
   model: TextGenerationModelConfig;
-  isPinned: boolean;
-  canPin: boolean;
-  onTogglePin: () => void;
 }) {
-  const { isSelected, onSelect, model, isPinned, canPin, onTogglePin } = props;
-  const canTogglePin = isPinned || canPin;
+  const { isSelected, onSelect, model } = props;
 
   return (
     <div
@@ -553,35 +548,7 @@ function ModelCard(props: {
               </Badge>
             )}
 
-            {canTogglePin && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onTogglePin();
-                }}
-                className={cn(
-                  "flex items-center justify-center w-[32px] h-[32px] rounded-[10px] transition-all duration-150",
-                  "hover:bg-surface-200/50 active:scale-95",
-                  "opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100",
-                  {
-                    "opacity-100": isPinned,
-                  }
-                )}
-                aria-label={isPinned ? "Unpin model" : "Pin model"}
-              >
-                {isPinned ? (
-                  <PushPinIcon
-                    weight="fill"
-                    className="w-[16px] h-[16px] text-blue-600"
-                  />
-                ) : (
-                  <PushPinSimpleSlashIcon
-                    weight="regular"
-                    className="w-[16px] h-[16px] text-surface-foreground/40"
-                  />
-                )}
-              </button>
-            )}
+            <PinModelButton modelId={model.modelId} variant="card" />
           </div>
         </div>
       </div>

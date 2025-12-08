@@ -73,6 +73,26 @@ export const IMAGE_MODELS = {
     imagesPerGeneration: 1,
     new: true,
   },
+  "z-image/z-image-turbo": {
+    id: "z-image/z-image-turbo" as const,
+    displayName: "Z-Image-Turbo",
+    cost: 1,
+    width: 768,
+    height: 1344,
+    supportsReferenceImages: false,
+    imagesPerGeneration: 2,
+    new: true,
+  },
+  "prunaai/p-image": {
+    id: "prunaai/p-image" as const,
+    displayName: "P-Image",
+    cost: 1,
+    width: 768,
+    height: 1376,
+    supportsReferenceImages: false,
+    imagesPerGeneration: 1,
+    new: true,
+  },
   // Cost 2 - Premium models
   "google/gemini-flash-image-2.5": {
     id: "google/gemini-flash-image-2.5" as const,
@@ -109,6 +129,16 @@ export const IMAGE_MODELS = {
     height: 2560,
     supportsReferenceImages: false,
     imagesPerGeneration: 1,
+  },
+  "seedream/seedream-4.5": {
+    id: "seedream/seedream-4.5" as const,
+    displayName: "SeeDream 4.5",
+    cost: 2,
+    width: 1440,
+    height: 2560,
+    supportsReferenceImages: false,
+    imagesPerGeneration: 1,
+    new: true,
   },
   "black-forest-labs/flux-2-pro": {
     id: "black-forest-labs/flux-2-pro" as const,

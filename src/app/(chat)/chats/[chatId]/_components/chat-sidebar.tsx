@@ -65,6 +65,7 @@ import {
 import { deleteChatAction } from "@/actions/delete-chat.action";
 import { useSWRConfig } from "swr";
 import { useRouter } from "next/navigation";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const SIDEBAR_WIDTH = "18rem";
 
@@ -512,9 +513,9 @@ export function ChatSidebar({ className }: { className?: string }) {
   return (
     <div
       style={{ width: SIDEBAR_WIDTH } as React.CSSProperties}
-      className={cn("sticky top-0 h-full p-4", className)}
+      className={cn("sticky top-0 h-screen p-4", className)}
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 h-full overflow-y-auto">
         <PersonaImage />
         <Content />
       </div>

@@ -147,6 +147,8 @@ export async function POST(
   const { chatId } = await ctx.params;
   const payload = await req.json().then(messageEventPayloadSchema.parseAsync);
 
+  console.log({ payload });
+
   /**
    * FETCH CHAT
    */
@@ -304,7 +306,8 @@ export async function POST(
 
   if (chat.mode === "roleplay") {
     // Use new simplified roleplay prompt system
-    const roleplayRenderer = getSystemPromptRendererForRoleplay(resolvedModelId);
+    const roleplayRenderer =
+      getSystemPromptRendererForRoleplay(resolvedModelId);
     system = roleplayRenderer({
       character: roleplayData,
       user: chatSettings.user_persona,
@@ -330,20 +333,24 @@ export async function POST(
   /**
    * MESSAGES
    * For root assistant message regeneration, we don't include a user message
-   * (messagesHistory is empty and we're regenerating from system prompt only)
+   * (messagesHistory is empty AND no user message in payload - regenerating from system prompt only)
    */
   const isRootAssistantRegeneration =
-    payload.event === "regenerate" && messagesHistory.length === 0;
+    payload.event === "regenerate" &&
+    messagesHistory.length === 0 &&
+    !payload.message;
 
-  const messages =
-    isRootAssistantRegeneration || !payload.message
-      ? ([
-          {
-            role: "system",
-            content: "Please start the story as character",
-          },
-        ] as ModelMessage[])
-      : convertToModelMessages([...messagesHistory, payload.message]);
+  const messages = isRootAssistantRegeneration
+    ? ([
+        {
+          role: "system",
+          content: "Please start the story as character",
+        },
+      ] as ModelMessage[])
+    : convertToModelMessages([
+        ...messagesHistory,
+        ...(payload.message ? [payload.message] : []),
+      ]);
 
   /**
    * STREAM

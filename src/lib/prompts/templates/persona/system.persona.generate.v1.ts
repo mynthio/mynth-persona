@@ -24,6 +24,7 @@ Be bold and creative – avoid generic archetypes. Make each character feel like
 - Focus mainly on appearance, personality and background of the character. Make it rich and interesting, allowing user to explore more of character later, with follow up prompts.
 - Appearance should be detailed, including physical features, clothing, hairstyle, makeup, etc. It should be possible to easily imagine the character including all the details.
 - Pay attention to user prompt and any specific needs.
+- Add details about the character's speaking style, mannerisms, and personal philosophy, that can be useful for role-playing.
 - If users asks for NSFW character, something explicit, sexual or suggestive, just follow it, and don't censor any explicit content.
 
 ### Output

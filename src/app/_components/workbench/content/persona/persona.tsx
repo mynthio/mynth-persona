@@ -79,6 +79,12 @@ function Persona() {
         <PersonaDetailSection title="Appearance" content={data.appearance} />
         <PersonaDetailSection title="Personality" content={data.personality} />
         <PersonaDetailSection title="Background" content={data.background} />
+        {data.speakingStyle && (
+          <PersonaDetailSection
+            title="Speaking Style"
+            content={data.speakingStyle}
+          />
+        )}
         {data.occupation && (
           <PersonaDetailSection title="Occupation" content={data.occupation} />
         )}

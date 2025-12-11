@@ -123,6 +123,15 @@ function BioContent({ data }: { data: PersonaData }) {
         </p>
       </BioSection>
 
+      {/* Speaking Style */}
+      {data.speakingStyle && (
+        <BioSection title="Speaking Style">
+          <p className="text-surface-foreground/90 leading-relaxed whitespace-pre-wrap">
+            {data.speakingStyle}
+          </p>
+        </BioSection>
+      )}
+
       {/* Extensions */}
       {data.extensions && Object.keys(data.extensions).length > 0 && (
         <div className="space-y-[16px]">

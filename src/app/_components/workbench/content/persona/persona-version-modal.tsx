@@ -50,6 +50,8 @@ export default function PersonaVersionModal() {
       { label: "Personality", value: d.personality },
       { label: "Background", value: d.background },
     ];
+    if (d.speakingStyle)
+      dataFields.push({ label: "Speaking Style", value: d.speakingStyle });
     if (d.occupation)
       dataFields.push({ label: "Occupation", value: d.occupation });
     if (d.extensions) {

@@ -609,6 +609,14 @@ function PersonaStreamingResult({
         />
       )}
 
+      {persona?.speakingStyle && (
+        <Section
+          title="speakingStyle"
+          content={persona.speakingStyle}
+          personaId={object?.personaId}
+        />
+      )}
+
       {persona?.occupation && (
         <Section
           title="occupation"

@@ -31,6 +31,11 @@ export const creatorPersonaGenerateSchema = z.object({
     .string()
     .describe("Character's personality and behavioral traits."),
   background: z.string().describe("Character's background and history."),
+  speakingStyle: z
+    .string()
+    .describe(
+      "Character's speaking style, mannerisms, and communication patterns."
+    ),
   occupation: z
     .string()
     .nullable()

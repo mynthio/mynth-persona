@@ -31,6 +31,7 @@ export function transformCreatorPersonaGenerateToPersonaData(
     appearance: input.appearance,
     personality: input.personality,
     background: input.background,
+    speakingStyle: input.speakingStyle ?? undefined,
     occupation: input.occupation ?? undefined,
     extensions: formatExtensionKeys(input.extensions ?? undefined),
   });

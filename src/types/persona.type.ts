@@ -22,6 +22,10 @@ export const personaDataSchema = z.object({
   summary: z
     .string()
     .describe("1-2 sentences capturing essence, vibe, and scene ideas"),
+  speakingStyle: z
+    .string()
+    .optional()
+    .describe("Speaking style, mannerisms, and communication patterns"),
   occupation: z
     .string()
     .optional()
@@ -36,7 +40,9 @@ export const personaDataSchema = z.object({
 
 export type PersonaData = z.infer<typeof personaDataSchema>;
 
-export const basePersonaVersionSchema = createSelectSchema(personaVersions) as unknown as z.ZodType<any>;
+export const basePersonaVersionSchema = createSelectSchema(
+  personaVersions
+) as unknown as z.ZodType<any>;
 
 // Fix the type intersection issue by excluding 'data' from base schema and adding it back with proper type
 export type PersonaVersion = Omit<
@@ -46,7 +52,9 @@ export type PersonaVersion = Omit<
   data: PersonaData;
 };
 
-export const basePersonaSchema = createSelectSchema(personas) as unknown as z.ZodType<any>;
+export const basePersonaSchema = createSelectSchema(
+  personas
+) as unknown as z.ZodType<any>;
 
 export type Persona = z.output<typeof basePersonaSchema>;
 

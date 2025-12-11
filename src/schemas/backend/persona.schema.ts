@@ -26,6 +26,10 @@ export const personaDataSchema = z.object({
   summary: z
     .string()
     .describe("1-2 sentences capturing essence, vibe, and scene ideas"),
+  speakingStyle: z
+    .string()
+    .optional()
+    .describe("Speaking style, mannerisms, and communication patterns"),
   occupation: z
     .string()
     .optional()

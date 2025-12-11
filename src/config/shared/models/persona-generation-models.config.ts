@@ -49,12 +49,32 @@ export const personaGenerationModels: PersonaGenerationModel[] = [
   {
     id: "z-ai/glm-4.6",
     displayName: "GLM 4.6",
-    priority: 0.1,
+    priority: 0.2,
   },
   {
     id: "inception/mercury",
     displayName: "Mercury",
-    priority: 0.5,
+    priority: 0.2,
+  },
+  {
+    id: "amazon/nova-2-lite-v1",
+    displayName: "Nova 2 Lite",
+    priority: 0.0,
+  },
+  {
+    id: "nex-agi/deepseek-v3.1-nex-n1:free",
+    displayName: "DeepSeek V3.1 Nex N1",
+    priority: 0.0,
+  },
+  {
+    id: "tngtech/tng-r1t-chimera",
+    displayName: "TNG R1T Chimera",
+    priority: 0.0,
+  },
+  {
+    id: "google/gemini-3-pro-preview",
+    displayName: "Gemini 3 Pro Preview",
+    priority: 0.0,
   },
 ];
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useRef, useState } from "react";
 
 type ActiveStream = "persona" | `section__${string}`;
 
@@ -10,6 +10,10 @@ export type GenerationContextValue = {
   activeStream: ActiveStream | null;
 
   setActiveStream: (id: ActiveStream | null) => void;
+
+  resetGeneration: () => void;
+
+  registerResetCallback: (callback: () => void) => void;
 };
 
 // Context to share generation state across sections and footer within the Home tree
@@ -24,14 +28,35 @@ export function GenerationContextProvider({
   children: React.ReactNode;
 }) {
   const [activeStream, setActiveStream] = useState<ActiveStream | null>(null);
+  const resetCallbackRef = useRef<(() => void) | null>(null);
 
   const isGenerating = useMemo(() => {
     return activeStream !== null;
   }, [activeStream]);
 
+  const registerResetCallback = useMemo(
+    () => (callback: () => void) => {
+      resetCallbackRef.current = callback;
+    },
+    []
+  );
+
+  const resetGeneration = useMemo(
+    () => () => {
+      resetCallbackRef.current?.();
+    },
+    []
+  );
+
   return (
     <GenerationContext.Provider
-      value={{ isGenerating, activeStream, setActiveStream }}
+      value={{
+        isGenerating,
+        activeStream,
+        setActiveStream,
+        resetGeneration,
+        registerResetCallback,
+      }}
     >
       {children}
     </GenerationContext.Provider>

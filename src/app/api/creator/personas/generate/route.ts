@@ -161,8 +161,6 @@ export async function POST(req: Request) {
           controller.enqueue(new TextEncoder().encode(escapedChunk));
         }
 
-        controller.enqueue(new TextEncoder().encode('","persona":'));
-
         // Log Phase 1 usage
         const thinkingResponse = await thinkingResult.response;
         const thinkingUsage = await thinkingResult.usage;
@@ -184,10 +182,19 @@ export async function POST(req: Request) {
           abortSignal: AbortSignal.timeout(ms("80s")),
         });
 
+        let thinkingStopSent = false;
+
         // Stream persona object to client
         let personaDataJson = "";
         for await (const chunk of extractionResult.textStream) {
           personaDataJson += chunk;
+
+          if (!thinkingStopSent) {
+            controller.enqueue(
+              new TextEncoder().encode('","isThinking":false,"persona":')
+            );
+            thinkingStopSent = true;
+          }
           controller.enqueue(new TextEncoder().encode(chunk));
         }
 

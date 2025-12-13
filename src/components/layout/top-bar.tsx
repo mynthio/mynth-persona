@@ -64,7 +64,9 @@ const TopBar = React.forwardRef<HTMLDivElement, TopBarProps>(
         <TopBarSectionContent>{left}</TopBarSectionContent>
       </TopBarSection>
       <TopBarSection>
-        <TopBarSectionContent className="px-2">{center}</TopBarSectionContent>
+        {center && (
+          <TopBarSectionContent className="px-2">{center}</TopBarSectionContent>
+        )}
       </TopBarSection>
       <TopBarSection className="justify-self-end shrink-0">
         <TopBarSectionContent>{right}</TopBarSectionContent>

@@ -21,7 +21,7 @@ import {
 
 import { PublicPersonaVersion } from "@/schemas/shared";
 import usePersonaGenerationStore from "@/stores/persona-generation.store";
-import { CoinsIcon, SpinnerIcon } from "@phosphor-icons/react/dist/ssr";
+import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr";
 import { useEffect, useRef } from "react";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 import { useParams, useRouter, useSearchParams } from "next/navigation";

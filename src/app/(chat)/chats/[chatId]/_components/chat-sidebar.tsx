@@ -424,6 +424,18 @@ function Content() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full"
+                onClick={handleSetToProfileImage}
+                disabled={
+                  !persona?.profileImageIdMedia || isGenerating || !!activeRun
+                }
+              >
+                Use persona profile image
+              </Button>
             </div>
 
             <div className="pt-4 border-t border-border/40">

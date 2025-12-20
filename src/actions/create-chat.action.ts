@@ -3,12 +3,12 @@
 import "server-only";
 
 import { logger } from "@/lib/logger";
-import { generateRoleplaySummary } from "@/services/persona/roleplay-summary.service";
+import { generateRoleplaySummaryV2 } from "@/services/persona/roleplay-summary.service";
 import { db } from "@/db/drizzle";
 import { auth } from "@clerk/nextjs/server";
 import { notFound, redirect } from "next/navigation";
 import { PersonaData, PersonaVersionRoleplayData } from "@/schemas";
-import { updatePersonaVersionRoleplayData } from "@/services/persona/update-roleplay-data.service";
+import { updatePersonaVersionRoleplayDataV2 } from "@/services/persona/update-roleplay-data.service";
 import { DEFAULT_CHAT_MODEL } from "@/config/shared/chat/chat-models.config";
 import { nanoid } from "nanoid";
 import { chatPersonas, chats } from "@/db/schema";
@@ -83,14 +83,16 @@ export const createChatAction = async (personaId: string) => {
       {
         personaId: version.id,
       },
-      "Missing Persona Roleplay Data. Generating and Updating."
+      "Missing Persona Roleplay Data. Generating and Updating with V2."
     );
 
-    const { summary } = await generateRoleplaySummary(version.data);
-    await updatePersonaVersionRoleplayData({
+    const { summary: summaryV2 } = await generateRoleplaySummaryV2(
+      version.data
+    );
+    await updatePersonaVersionRoleplayDataV2({
       personaVersionId: version.id,
       personaData: version.data,
-      summary,
+      summaryV2,
     });
   } else {
     logger.debug({ rolePlayData });

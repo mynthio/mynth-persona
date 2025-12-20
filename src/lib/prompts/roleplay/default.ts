@@ -26,22 +26,19 @@ export const renderDefaultRoleplayPrompt: RoleplayPromptRenderer = (
     ? `\nScenario: ${processText(args.scenario.scenario_text)}\n\n`
     : "";
 
+  const lastCheckpointSummaryBlock = args.lastCheckpointSummary
+    ? `\nRecent context:\n${args.lastCheckpointSummary}\n\n`
+    : "";
+
   return `You are ${personaName}. ${
     args.character.gender === "other"
       ? "You are"
       : args.character.gender === "male"
-        ? "He is"
-        : "She is"
-  } (${args.character.age}). You are ${
-    args.character.gender
-  }. Your appearance is ${args.character.appearance}. Your personality is ${
-    args.character.personality
-  }. Your background is ${args.character.background}. Your motivations are ${
-    args.character.motivations
-  }. Your skills are ${args.character.skills}.
+      ? "He is"
+      : "She is"
+  } (${args.character.age}). ${args.character.v2?.natural ?? ""}.
 
-${userBlock}${scenarioBlock}
+${userBlock}${scenarioBlock}${lastCheckpointSummaryBlock}
 
 It's an endless role-play story with the User. Write in the first person of ${personaName}. Never play or act as User. Use asterisks (*) for actions, thoughts, and descriptions. Use normal text for dialogue. Keep responses concise: limit to one turn or action per reply. Advance the story naturally, giving the user space to respond. Add more and additional details only when essential.`;
 };
-

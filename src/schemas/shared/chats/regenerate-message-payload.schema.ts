@@ -10,7 +10,7 @@ export const regenerateMessagePayloadSchema = z.object({
   message: z
     .object({
       id: messageIdSchema,
-      role: z.literal("user"),
+      role: z.enum(["user", "system"]),
       parts: z.array(
         z.object({
           type: z.literal("text"),

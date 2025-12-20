@@ -12,6 +12,7 @@ export type RoleplayPromptArgs = {
   character: PersonaVersionRoleplayData;
   user?: ChatSettingsUserPersona | null;
   scenario?: ChatSettingsScenario | null;
+  lastCheckpointSummary?: string | null;
 };
 
 /**
@@ -32,4 +33,3 @@ export type RoleplayPromptRenderer = (args: RoleplayPromptArgs) => string;
  * Model ID type for prompt lookup
  */
 export type ModelId = TextGenerationModelId | string;
-

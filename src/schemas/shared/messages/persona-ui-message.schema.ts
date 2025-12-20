@@ -20,6 +20,14 @@ export const personaUIMessageMetadataSchema = z.object({
     outputTokens: z.number().optional(),
     totalTokens: z.number().optional(),
   }),
+
+  checkpoint: z
+    .object({
+      content: z.string().optional().nullable(),
+      parentCheckpointMessageId: z.string().optional().nullable(),
+      createdAt: z.date(),
+    })
+    .optional(),
 });
 
 export type PersonaUIMessageMetadata = z.infer<

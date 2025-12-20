@@ -16,6 +16,12 @@ export const DEFAULT_CHAT_MODEL: TextGenerationModelId =
 export const chatConfig: ChatConfig = {
   models: [
     {
+      modelId: "deepseek/deepseek-v3.2:eco",
+    },
+    {
+      modelId: "deepseek/deepseek-v3.2:standard",
+    },
+    {
       modelId: "nousresearch/hermes-4-70b:eco",
     },
     {
@@ -47,19 +53,22 @@ export const chatConfig: ChatConfig = {
       modelId: "x-ai/grok-3:premium",
     },
     {
+      modelId: "google/gemini-3-pro-preview:premium",
+    },
+    {
       modelId: "x-ai/grok-4-fast:standard",
+    },
+    {
+      modelId: "google/gemini-2.5-flash-preview-09-2025:standard",
+    },
+    {
+      modelId: "google/gemini-3-flash-preview:standard",
     },
     {
       modelId: "aion-labs/aion-rp-llama-3.1-8b:standard",
     },
     {
       modelId: "meta-llama/llama-3.3-70b-instruct:standard",
-    },
-    {
-      modelId: "deepseek/deepseek-chat-v3.1:standard",
-    },
-    {
-      modelId: "tngtech/deepseek-r1t2-chimera:standard",
     },
     {
       modelId: "anthropic/claude-haiku-4.5:premium",

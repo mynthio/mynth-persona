@@ -43,6 +43,17 @@ export const IMAGE_MODELS = {
     supportsReferenceImages: false,
     imagesPerGeneration: 2,
   },
+  "qwen/qwen-image-edit-plus": {
+    id: "qwen/qwen-image-edit-plus" as const,
+    displayName: "Qwen Image Edit Plus",
+    cost: 1,
+    width: 768,
+    height: 1344,
+    supportsReferenceImages: true,
+    imagesPerGeneration: 1,
+    new: true,
+    editOnly: true,
+  },
   "seedream/seedream-3.0": {
     id: "seedream/seedream-3.0" as const,
     displayName: "SeeDream 3.0",
@@ -160,6 +171,17 @@ export const IMAGE_MODELS = {
     imagesPerGeneration: 1,
     new: true,
   },
+  "sourceful/riverflow-2-fast": {
+    id: "sourceful/riverflow-2-fast" as const,
+    displayName: "Riverflow 2 Fast",
+    cost: 2,
+    width: 720,
+    height: 1280,
+    supportsReferenceImages: true,
+    imagesPerGeneration: 1,
+    new: true,
+    editOnly: true,
+  },
 } as const;
 
 export type ImageModelId = keyof typeof IMAGE_MODELS;
@@ -213,4 +235,17 @@ export const isModelBeta = (modelId: ImageModelId): boolean => {
 export const isModelNew = (modelId: ImageModelId): boolean => {
   const model = IMAGE_MODELS[modelId];
   return (model && "new" in model && model.new === true) ?? false;
+};
+
+// Helper to check if model is edit-only (requires reference images)
+export const isModelEditOnly = (modelId: ImageModelId): boolean => {
+  const model = IMAGE_MODELS[modelId];
+  return (model && "editOnly" in model && model.editOnly === true) ?? false;
+};
+
+// Helper to get models available for image generation (excludes edit-only models)
+export const getGenerationModels = () => {
+  return Object.values(IMAGE_MODELS).filter(
+    (model) => !("editOnly" in model && model.editOnly === true)
+  );
 };

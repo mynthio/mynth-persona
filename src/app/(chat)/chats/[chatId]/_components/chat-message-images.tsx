@@ -13,7 +13,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ImageX } from "@untitledui/icons";
+import { ImageX, Image03 } from "@untitledui/icons";
+import { Button } from "@/components/ui/button";
+import { updateChatAction } from "@/actions/update-chat.action";
+import { useChatMain } from "../_contexts/chat-main.context";
+import { toast } from "sonner";
 
 type ChatMessageImagesProps = {
   media?: NonNullable<PersonaUIMessage["metadata"]>["media"];
@@ -23,15 +27,18 @@ type ChatMessageImagesProps = {
 type LightboxImage = {
   src: string;
   alt: string;
+  mediaId?: string;
 };
 
 export function ChatMessageImages({
   media,
   inProgressRuns = [],
 }: ChatMessageImagesProps) {
+  const { chatId, settings, setSettings } = useChatMain();
   const [lightboxImage, setLightboxImage] = useState<LightboxImage | null>(
     null
   );
+  const [isSettingSceneImage, setIsSettingSceneImage] = useState(false);
 
   const images = useMemo(
     () => media?.filter((m) => m.type === "image") ?? [],
@@ -40,6 +47,36 @@ export function ChatMessageImages({
 
   const hasRuns = inProgressRuns.length > 0;
   const hasMedia = images.length > 0;
+
+  const handleSetAsSceneImage = async () => {
+    if (!lightboxImage?.mediaId) return;
+
+    setIsSettingSceneImage(true);
+    try {
+      await updateChatAction(chatId, {
+        settings: {
+          sceneImageMediaId: lightboxImage.mediaId,
+        },
+      });
+
+      // Update local settings state
+      setSettings({
+        ...settings,
+        sceneImageMediaId: lightboxImage.mediaId,
+      });
+
+      toast.success("Scene image updated", {
+        description: "This image is now set as the scene image for this chat.",
+      });
+    } catch (error) {
+      console.error("Failed to set scene image:", error);
+      toast.error("Failed to set scene image", {
+        description: "An error occurred while updating the scene image.",
+      });
+    } finally {
+      setIsSettingSceneImage(false);
+    }
+  };
 
   if (!hasMedia && !hasRuns) return null;
 
@@ -53,6 +90,7 @@ export function ChatMessageImages({
               setLightboxImage({
                 src: getMediaImageUrl(img.id, "full"),
                 alt: "Message image",
+                mediaId: img.id,
               })
             }
             className="relative w-full aspect-square rounded-xl overflow-hidden bg-muted"
@@ -87,6 +125,7 @@ export function ChatMessageImages({
                   setLightboxImage({
                     src: img.imageUrl,
                     alt: "Generated image",
+                    mediaId: img.mediaId,
                   })
                 }
                 className="relative w-full aspect-square rounded-xl overflow-hidden bg-muted"
@@ -128,6 +167,7 @@ export function ChatMessageImages({
 
           // Fallback to legacy single-image output (completed)
           const imageUrl = run.output?.imageUrl ?? undefined;
+          const mediaId = run.output?.mediaId ?? undefined;
           const isComplete = status === "COMPLETED" && !!imageUrl;
 
           if (isComplete && imageUrl) {
@@ -135,7 +175,11 @@ export function ChatMessageImages({
               <button
                 key={run.runId}
                 onClick={() =>
-                  setLightboxImage({ src: imageUrl, alt: "Generated image" })
+                  setLightboxImage({
+                    src: imageUrl,
+                    alt: "Generated image",
+                    mediaId: mediaId,
+                  })
                 }
                 className="relative w-full aspect-square rounded-xl overflow-hidden bg-muted"
               >
@@ -186,12 +230,26 @@ export function ChatMessageImages({
           <DialogTitle className="sr-only">Image viewer</DialogTitle>
           <div className="relative w-full h-full flex items-center justify-center">
             {lightboxImage && (
-              <img
-                src={lightboxImage.src}
-                alt={lightboxImage.alt}
-                className="max-w-full max-h-[95vh] object-contain rounded-lg"
-                onClick={() => setLightboxImage(null)}
-              />
+              <>
+                <img
+                  src={lightboxImage.src}
+                  alt={lightboxImage.alt}
+                  className="max-w-full max-h-[95vh] object-contain rounded-lg"
+                  onClick={() => setLightboxImage(null)}
+                />
+                {lightboxImage.mediaId && (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="absolute bottom-4 right-4 gap-2 shadow-lg backdrop-blur-sm bg-background/80 hover:bg-background/90"
+                    onClick={handleSetAsSceneImage}
+                    disabled={isSettingSceneImage}
+                  >
+                    <Image03 className="size-4" strokeWidth={1.5} />
+                    {isSettingSceneImage ? "Setting..." : "Set as Scene Image"}
+                  </Button>
+                )}
+              </>
             )}
           </div>
         </DialogContent>

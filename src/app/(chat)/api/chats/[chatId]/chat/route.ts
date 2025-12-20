@@ -19,12 +19,14 @@ import { getDefaultPromptDefinitionForMode } from "@/lib/prompts/registry";
 import { getSystemPromptRendererForRoleplay } from "@/lib/prompts/roleplay";
 import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
-import { DEFAULT_CHAT_MODEL } from "@/config/shared/chat/chat-models.config";
 import { trackChatError } from "@/lib/logsnag";
 import { revalidateTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
-import { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
+import {
+  PersonaUIMessage,
+  PersonaUIMessageMetadata,
+} from "@/schemas/shared/messages/persona-ui-message.schema";
 import {
   messageEventPayloadSchema,
   PersonaVersionRoleplayData,
@@ -36,12 +38,14 @@ import { replacePlaceholders } from "@/lib/replace-placeholders";
 import { kv } from "@vercel/kv";
 import ms from "ms";
 import { getUserPlan } from "@/services/auth/user-plan.service";
+import { generateChatTitle } from "@/services/chat/generate-chat-title";
+import { generateCheckpointSummary } from "@/services/chat/generate-checkpoint-summary";
+import { extractPersonaMessageText } from "@/lib/utils";
 import {
-  CHAT_RATE_LIMITS,
-  rateLimitGuard,
-  EcoChatRateLimit,
-} from "@/lib/rate-limit";
-import { PlanId } from "@/config/shared/plans";
+  selectTextGenerationModel,
+  checkPremiumModelAccess,
+  checkChatRateLimit,
+} from "@/services/chat/chat-utils.service";
 
 export const maxDuration = 45;
 
@@ -141,13 +145,16 @@ export async function POST(
   const { userId } = await auth();
   if (!userId) notFound();
 
+  const planId = await getUserPlan();
+
   /**
    * PAYLOAD
    */
   const { chatId } = await ctx.params;
   const payload = await req.json().then(messageEventPayloadSchema.parseAsync);
+  const parentId = payload.parentId;
 
-  console.log({ payload });
+  console.log(JSON.stringify({ payload }, null, 2));
 
   /**
    * FETCH CHAT
@@ -181,66 +188,82 @@ export async function POST(
    * Priority: payload.modelId → chatSettings.model → DEFAULT_CHAT_MODEL
    * Falls back if payload model is invalid
    */
-  const resolvedModelId =
-    (payload.modelId && textGenerationModels[payload.modelId]
-      ? payload.modelId
-      : null) ??
-    chatSettings.model ??
-    DEFAULT_CHAT_MODEL;
-
-  const textGenerationModel = textGenerationModels[resolvedModelId];
-  if (!textGenerationModel) throw new Error("Model not supported");
-
-  const modelTier = textGenerationModel.tier;
-
-  const planId = await getUserPlan();
+  const { resolvedModelId, textGenerationModel, modelTier } =
+    selectTextGenerationModel(payload.modelId, chatSettings.model);
 
   // Block free users from premium models
-  if (modelTier === "premium" && planId === "free") {
-    return new Response(
-      JSON.stringify({
-        error: "premium_model_not_available" as const,
-      }),
-      {
-        status: 403,
-      }
-    );
+  const premiumAccessError = checkPremiumModelAccess(modelTier, planId);
+  if (premiumAccessError) {
+    return premiumAccessError;
   }
 
-  // Select rate limiter based on tier
-  let rateLimitter;
-  if (modelTier === "eco") {
-    // Eco tier uses global rate limiter
-    rateLimitter = EcoChatRateLimit;
-  } else if (modelTier === "premium") {
-    rateLimitter = CHAT_RATE_LIMITS[planId as PlanId]["premium"];
-  } else {
-    // standard, free, cheap tiers use standard rate limiter
-    rateLimitter = CHAT_RATE_LIMITS[planId as PlanId]["standard"];
-  }
-
-  if (!rateLimitter) {
-    throw new Error("Something went wrong.");
-  }
-
-  const rateLimitResult = await rateLimitGuard(rateLimitter, userId);
-  if (!rateLimitResult.success) {
-    return rateLimitResult.rateLimittedResponse;
+  // Check rate limits
+  const rateLimitError = await checkChatRateLimit(modelTier, planId, userId);
+  if (rateLimitError) {
+    return rateLimitError;
   }
 
   /**
    * MESSAGE HISTORY
    */
-  const leafId = payload.parentId;
-
-  const messagesHistory = leafId
+  const messagesHistory = parentId
     ? await getChatMessagesData(chatId, {
-        messageId: leafId,
-        limit: 200,
+        messageId: parentId,
+        limit: 20,
         strict: true,
       }).then((res) => res.messages)
     : [];
   const lastMessage = messagesHistory.at(-1);
+
+  const checkPoints = messagesHistory
+    .filter((message) => !!message.metadata?.checkpoint?.content)
+    .map((message) => message.metadata?.checkpoint?.content);
+
+  const [lastCheckpointContent, previousCheckpointContent] = [
+    checkPoints.at(-1),
+    checkPoints.at(-2),
+  ];
+
+  const lastCheckpointIndex = messagesHistory.findLastIndex(
+    (message) => !!message.metadata?.checkpoint
+  );
+  const previousCheckpointIndex =
+    lastCheckpointIndex > 0
+      ? messagesHistory.findLastIndex(
+          (message, i) =>
+            !!message.metadata?.checkpoint && lastCheckpointIndex !== i
+        )
+      : 0;
+
+  const messagesAfterCheckpointCount =
+    lastCheckpointIndex > 0
+      ? messagesHistory.length - lastCheckpointIndex
+      : messagesHistory.length;
+
+  const shouldGenerateCheckpoint =
+    (payload.event === "send" || payload.event === "edit_message") &&
+    messagesAfterCheckpointCount > 6;
+
+  const indexOfCheckpointToUse =
+    messagesAfterCheckpointCount > 6
+      ? lastCheckpointIndex
+      : previousCheckpointIndex;
+
+  const checkpointContentToUse = indexOfCheckpointToUse
+    ? messagesHistory.at(indexOfCheckpointToUse)?.metadata?.checkpoint?.content
+    : undefined;
+
+  logger.debug(
+    {
+      lastCheckpointIndex,
+      previousCheckpointIndex,
+      messagesAfterCheckpointCount,
+      shouldGenerateCheckpoint,
+      indexOfCheckpointToUse,
+      checkpointContentToUse,
+    },
+    "Last Checkpoint"
+  );
 
   // Validation for message events based on history
   if (payload.event === "send") {
@@ -278,6 +301,15 @@ export async function POST(
       role: "user",
       chatId,
       parentId: lastMessage?.id ?? null,
+      ...(shouldGenerateCheckpoint
+        ? {
+            metadata: {
+              checkpoint: {
+                createdAt: new Date(),
+              },
+            },
+          }
+        : {}),
     });
   }
 
@@ -302,33 +334,16 @@ export async function POST(
   /**
    * SYSTEM PROMPT
    */
-  let system: string;
 
-  if (chat.mode === "roleplay") {
-    // Use new simplified roleplay prompt system
-    const roleplayRenderer =
-      getSystemPromptRendererForRoleplay(resolvedModelId);
-    system = roleplayRenderer({
-      character: roleplayData,
-      user: chatSettings.user_persona,
-      scenario: chatSettings.scenario,
-    });
-  } else {
-    // Use existing prompt system for story and impersonate modes
-    const systemPromptDefinition = getDefaultPromptDefinitionForMode(
-      "chat",
-      chat.mode
-    );
-    if (!systemPromptDefinition) throw new Error("Ups!");
+  const roleplayRenderer = getSystemPromptRendererForRoleplay(resolvedModelId);
+  const system = roleplayRenderer({
+    character: roleplayData,
+    user: chatSettings.user_persona,
+    scenario: chatSettings.scenario,
+    lastCheckpointSummary: checkpointContentToUse,
+  });
 
-    system = systemPromptDefinition.render({
-      character: roleplayData,
-      user: chatSettings.user_persona,
-      scenario: chatSettings.scenario,
-    });
-  }
-
-  logger.debug({ system }, "System Prompt");
+  logger.debug({ system }, "📢 System Prompt 📢");
 
   /**
    * MESSAGES
@@ -340,23 +355,33 @@ export async function POST(
     messagesHistory.length === 0 &&
     !payload.message;
 
+  const messagesTillCheckpoint = messagesHistory.slice(
+    indexOfCheckpointToUse && indexOfCheckpointToUse > 0
+      ? indexOfCheckpointToUse
+      : 0
+  );
+
+  console.log(JSON.stringify({ messagesTillCheckpoint }, null, 2));
+
   const messages = isRootAssistantRegeneration
-    ? ([
+    ? [
         {
           role: "system",
-          content: "Please start the story as character",
-        },
-      ] as ModelMessage[])
+          content: `Please start the roleplay as ${personaName}`,
+        } as ModelMessage,
+      ]
     : convertToModelMessages([
-        ...messagesHistory,
+        ...messagesTillCheckpoint,
         ...(payload.message ? [payload.message] : []),
       ]);
+
+  const newMessageId = `msg_${nanoid(32)}`;
 
   /**
    * STREAM
    */
   const stream = createUIMessageStream<PersonaUIMessage>({
-    generateId: () => `msg_${nanoid(32)}`,
+    generateId: () => newMessageId,
 
     execute: async ({ writer }) => {
       // Guard to ensure single error handling per stream
@@ -426,33 +451,26 @@ export async function POST(
       writer.write({
         type: "message-metadata",
         messageMetadata: {
-          parentId: payload.message?.id ?? null,
+          parentId: lastMessage?.id ?? null,
           usage,
         },
       });
     },
     onFinish: async ({ responseMessage }) => {
-      await kv.del(`chat:${chatId}:leaf`).catch((error) => {
-        logger.error(
-          {
-            event: "kv-error",
-            component: "api:chat",
-            error: normalizeError(error),
-          },
-          "Failed to clear chat leaf in KV store"
-        );
-
-        // Let's don't break the flow just because of this
-      });
+      const cleanParts = responseMessage.parts
+        .filter((part) => part.type === "text")
+        .map((part) => ({
+          type: part.type,
+          text: (part as { text: string }).text,
+        }));
 
       await db.insert(messagesTable).values({
         id: responseMessage.id,
         chatId,
         parentId: payload.message?.id ?? null,
-        parts: responseMessage.parts,
+        parts: cleanParts,
         role: responseMessage.role,
         metadata: {
-          chatMode: chat.mode,
           model: textGenerationModel.modelId,
           usage: responseMessage.metadata?.usage,
         },
@@ -471,12 +489,80 @@ export async function POST(
 
   after(async () => {
     // Always update updatedAt, and persist model if it changed
-    const shouldUpdateModel = resolvedModelId !== chatSettings.model;
+    const shouldUpdateTitle = messagesHistory.length <= 2;
+
+    const checkpointContent = shouldGenerateCheckpoint
+      ? await generateCheckpointSummary({
+          messagesTillLastCheckpoint: messagesHistory.slice(
+            0,
+            lastCheckpointIndex
+          ),
+          lastCheckpointMessage: messagesHistory[lastCheckpointIndex],
+          userName: userName ?? "User",
+          personaName,
+        })
+      : undefined;
+
+    const checkpointMetadata: PersonaUIMessageMetadata["checkpoint"] =
+      checkpointContent
+        ? {
+            content: checkpointContent,
+            // parentCheckpointMessageId: lastMessage?.id ?? null,
+            createdAt: new Date(),
+          }
+        : undefined;
+
+    if (checkpointContent && payload.message?.id) {
+      await db
+        .update(messagesTable)
+        .set({
+          metadata: sql`coalesce(${
+            messagesTable.metadata
+          }, '{}'::jsonb) || ${JSON.stringify({
+            checkpoint: checkpointMetadata,
+          })}::jsonb`,
+        })
+        .where(eq(messagesTable.id, payload.message.id));
+    }
+
+    const newTitle = shouldUpdateTitle
+      ? await generateChatTitle(
+          [...messagesHistory, ...(payload.message ? [payload.message] : [])],
+          chatSettings.scenario?.scenario_text
+        )
+      : undefined;
+
+    const shouldUpdateModel =
+      resolvedModelId !== chatSettings.model || newTitle;
+
+    logger.debug(
+      {
+        shouldUpdateTitle,
+        newTitle,
+        shouldUpdateModel,
+        msgLength: `== ${messagesHistory.length}`,
+      },
+      "Should update title and model"
+    );
+
+    await kv.del(`chat:${chatId}:leaf`).catch((error) => {
+      logger.error(
+        {
+          event: "kv-error",
+          component: "api:chat",
+          error: normalizeError(error),
+        },
+        "Failed to clear chat leaf in KV store"
+      );
+
+      // Let's don't break the flow just because of this
+    });
 
     await db
       .update(chats)
       .set({
         updatedAt: sql`now()`,
+        ...(newTitle && { title: newTitle }),
         ...(shouldUpdateModel && {
           settings: sql`COALESCE(${
             chats.settings

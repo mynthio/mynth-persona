@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -24,7 +25,6 @@ export const getMediaImageUrl = (
 export const getVideoUrl = (mediaId: string) => {
   return `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/media/${mediaId}.webm`;
 };
-
 
 export type WeightedId = { id: string; priority: number };
 
@@ -60,4 +60,14 @@ export function pickByWeightedPriority(
   const fallbacks = picks.slice(1).filter(Boolean);
 
   return { main, fallbacks };
+}
+
+/**
+ * Extracts and joins all text parts from a PersonaUIMessage
+ */
+export function extractPersonaMessageText(message: PersonaUIMessage): string {
+  return message.parts
+    .filter((p) => p.type === "text")
+    .map((p) => p.text)
+    .join("\n\n");
 }

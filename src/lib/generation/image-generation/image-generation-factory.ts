@@ -16,6 +16,8 @@ import { RunwareImagineArt15 } from "./runware/runware-imagineart-1.5";
 import { RunwareHunyuanImage3 } from "./runware/runware-hunyuan-image-3";
 import { RunwareZImageTurbo } from "./runware/runware-z-image-turbo";
 import { RunwarePImage } from "./runware/runware-p-image";
+import { RunwareQwenImageEditPlus } from "./runware/runware-qwen-image-edit-plus";
+import { RunwareRiverflow2Fast } from "./runware/runware-riverflow-2-fast";
 import { logger } from "@/lib/logger";
 
 // Simple model class mapping
@@ -26,6 +28,7 @@ const MODEL_CLASS_MAP: Record<ImageModelId, new () => ImageGenerationBase> = {
   "black-forest-labs/flux-2-dev": RunwareFlux2Dev,
   "google/gemini-flash-image-2.5": RunwareGeminiFlash,
   "qwen/qwen-image": RunwareQwenImage,
+  "qwen/qwen-image-edit-plus": RunwareQwenImageEditPlus,
   "seedream/seedream-3.0": RunwareSeedream3,
   "prsna/bismuth-illustrious-mix-v5.0": RunwareBismuthIllustriousMixV5,
   "imagineart/imagineart-1.5": RunwareImagineArt15,
@@ -38,6 +41,7 @@ const MODEL_CLASS_MAP: Record<ImageModelId, new () => ImageGenerationBase> = {
   "seedream/seedream-4.5": RunwareSeedream45,
   "black-forest-labs/flux-2-pro": RunwareFlux2Pro,
   "tencent/hunyuan-image-3.0": RunwareHunyuanImage3,
+  "sourceful/riverflow-2-fast": RunwareRiverflow2Fast,
 };
 
 export class ImageGenerationFactory {

@@ -1,5 +1,6 @@
 import { replacePlaceholders } from "@/lib/replace-placeholders";
 import type { RoleplayPromptArgs, RoleplayPromptRenderer } from "./types";
+import { encode } from "@toon-format/toon";
 
 /**
  * Hermes-specific roleplay system prompt renderer.
@@ -65,7 +66,16 @@ export const renderHermesRoleplayPrompt: RoleplayPromptRenderer = (
     ? `\nSCENARIO:\n${processText(args.scenario.scenario_text)}\n`
     : "";
 
-  return `You are a creative AI engaged in collaborative storytelling.
+  const lastCheckpointSummaryBlock = args.lastCheckpointSummary
+    ? `\nRecent context:\n${args.lastCheckpointSummary}\n\n`
+    : "";
+
+  return `You are ${personaName}, in a never ending roleplay.
+
+${personaName}:
+${encode(args.character.v2?.structured)}
+
+${userBlock}${scenarioBlock}${lastCheckpointSummaryBlock}
 
 CORE RULES:
 - Chat exclusively as ${personaName} with creative, coherent responses
@@ -73,8 +83,9 @@ CORE RULES:
 - Focus on immediate responses and the current moment
 - Let ${userName} determine what happens next
 - Never control, narrate, or assume ${userName}'s actions
-
-CHARACTER:
-
-${characterBlock}${userBlock}${scenarioBlock}`;
+- Format: Write dialogues in double quotes, actions and other things between asterisks.`;
 };
+
+// You are ${personaName}. ${
+//   args.character.v2?.structured.gender === "male" ? "He" : "She"
+// } is ${args.character.v2?.structured.age}. ${args.character.v2?.natural}

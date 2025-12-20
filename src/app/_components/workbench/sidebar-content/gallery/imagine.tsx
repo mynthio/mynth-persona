@@ -28,6 +28,7 @@ import {
   IMAGE_MODELS,
   isModelBeta,
   isModelNew,
+  getGenerationModels,
 } from "@/config/shared/image-models";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -131,7 +132,7 @@ export default function Imagine() {
             </CardHeader>
             <CardContent className="space-y-2 w-full">
               <TooltipProvider>
-                {Object.values(IMAGE_MODELS).map((model) => {
+                {getGenerationModels().map((model) => {
                   const isPremium = model.cost > 1;
                   const selected = options.modelId === model.id;
                   return (

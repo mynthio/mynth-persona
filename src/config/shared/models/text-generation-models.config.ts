@@ -10,17 +10,20 @@ export type TextGenerationModelId =
   | "cognitivecomputations/dolphin-mistral-24b-venice-edition:standard"
   | "meta-llama/llama-3.3-70b-instruct:standard"
   | "z-ai/glm-4.5-air:standard"
-  | "deepseek/deepseek-chat-v3.1:standard"
+  | "deepseek/deepseek-v3.2:standard"
+  | "deepseek/deepseek-v3.2:eco"
   | "aion-labs/aion-rp-llama-3.1-8b:standard"
   | "openai/gpt-oss-20b:standard"
   | "meituan/longcat-flash-chat:standard"
   | "nvidia/nemotron-nano-9b-v2:standard"
   | "x-ai/grok-3:premium"
-  | "tngtech/deepseek-r1t2-chimera:standard"
   | "deepcogito/cogito-v2-preview-llama-405b:premium"
   | "anthropic/claude-haiku-4.5:premium"
   | "raifle/sorcererlm-8x22b:premium"
-  | "thedrummer/skyfall-36b-v2:standard";
+  | "thedrummer/skyfall-36b-v2:standard"
+  | "google/gemini-2.5-flash-preview-09-2025:standard"
+  | "google/gemini-3-pro-preview:premium"
+  | "google/gemini-3-flash-preview:standard";
 
 export type Provider = {
   url?: string;
@@ -313,24 +316,40 @@ export const textGenerationModels: Record<
         "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
     },
   },
-  "deepseek/deepseek-chat-v3.1:standard": {
+  "deepseek/deepseek-v3.2:standard": {
     enabled: true,
-    isFreeVersionAvailable: true,
-    description:
-      "A powerful hybrid reasoning model excelling in immersive roleplay and extended storytelling, with exceptional long-context handling and creative depth for engaging, coherent narratives.",
-    style:
-      "Maintains context exceptionally in long sessions; delivers emotional, reactive, and nuanced responses. Suggestive and adaptive in romantic or intimate scenes; follows user direction while injecting creative twists. Assertive and confrontational in tense or conflict-driven scenarios, enhancing dynamic interactions.",
-    displayName: "DeepSeek Chat v3.1",
-    modelId: "deepseek/deepseek-chat-v3.1:standard",
-    openRouterModelId: "deepseek/deepseek-chat-v3.1",
+    isFreeVersionAvailable: false,
+    description: "",
+    style: "",
+    displayName: "DeepSeek V3.2",
+    modelId: "deepseek/deepseek-v3.2:standard",
+    openRouterModelId: "deepseek/deepseek-v3.2",
     uncensored: true,
-    perks: [
-      "superior long-context retention up to 128K tokens for multi-chapter stories",
-      "creative in developing plots, challenges, and character depth",
-      "handles NSFW and edgy content with minimal filtering for unrestricted roleplay",
-    ],
+    perks: [],
     tags: [],
     tier: "standard",
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "no",
+      storesMessages: "yes",
+      additionalNotes:
+        "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
+    },
+  },
+  "deepseek/deepseek-v3.2:eco": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    description: "",
+    style: "",
+    displayName: "DeepSeek V3.2",
+    modelId: "deepseek/deepseek-v3.2:eco",
+    openRouterModelId: "deepseek/deepseek-v3.2",
+    uncensored: true,
+    perks: [],
+    tags: [],
+    tier: "eco",
     provider: {
       url: "https://openrouter.ai/",
       displayName: "OpenRouter",
@@ -496,29 +515,6 @@ export const textGenerationModels: Record<
         "Requires X Premium+ subscription ($40/month). Heavily integrated with X ecosystem. Recent controversies regarding content moderation consistency. Model described by some researchers as 'benchmaxxed' (optimized for test performance over real-world creativity).",
     },
   },
-  "tngtech/deepseek-r1t2-chimera:standard": {
-    enabled: true,
-    isFreeVersionAvailable: true,
-    description:
-      "Delivers grounded, action-driven role-play with crisp dialogues and deep emotional nuance, shining in consistent character arcs for marathon sessions but occasionally skimping on bold, charismatic sparks.",
-    style: "",
-    displayName: "Deepseek R1T2 Chimera",
-    modelId: "tngtech/deepseek-r1t2-chimera:standard",
-    openRouterModelId: "tngtech/deepseek-r1t2-chimera",
-    uncensored: true,
-    perks: [],
-    tags: ["moe", "long-context", "agentic"],
-    tier: "standard",
-    provider: {
-      url: "https://openrouter.ai/",
-      displayName: "OpenRouter",
-      privacyPolicyUrl: "https://openrouter.ai/privacy",
-      training: "yes",
-      storesMessages: "yes",
-      additionalNotes:
-        "Data provided anonymously. Provider might use prompts for training new models.",
-    },
-  },
   "deepcogito/cogito-v2-preview-llama-405b:premium": {
     enabled: true,
     isFreeVersionAvailable: false,
@@ -611,6 +607,72 @@ export const textGenerationModels: Record<
       storesMessages: "no",
       additionalNotes:
         "Aggregates models from various sources; may track usage stats but does not store personal data or messages.",
+    },
+  },
+  "google/gemini-2.5-flash-preview-09-2025:standard": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    displayName: "Gemini 2.5 Flash",
+    modelId: "google/gemini-2.5-flash-preview-09-2025:standard",
+    openRouterModelId: "google/gemini-2.5-flash-preview-09-2025",
+    uncensored: false,
+    description: "",
+    style: "",
+    perks: [],
+    tags: [],
+    tier: "standard",
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "unknown",
+      storesMessages: "yes",
+      additionalNotes:
+        "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
+    },
+  },
+  "google/gemini-3-pro-preview:premium": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    displayName: "Gemini 3 Pro",
+    modelId: "google/gemini-3-pro-preview:premium",
+    openRouterModelId: "google/gemini-3-pro-preview",
+    uncensored: false,
+    description: "",
+    style: "",
+    perks: [],
+    tags: [],
+    tier: "premium",
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "unknown",
+      storesMessages: "yes",
+      additionalNotes:
+        "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
+    },
+  },
+  "google/gemini-3-flash-preview:standard": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    displayName: "Gemini 3 Flash",
+    modelId: "google/gemini-3-flash-preview:standard",
+    openRouterModelId: "google/gemini-3-flash-preview",
+    uncensored: false,
+    description: "",
+    style: "",
+    perks: [],
+    tags: [],
+    tier: "standard",
+    provider: {
+      url: "https://openrouter.ai/",
+      displayName: "OpenRouter",
+      privacyPolicyUrl: "https://openrouter.ai/privacy",
+      training: "unknown",
+      storesMessages: "yes",
+      additionalNotes:
+        "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
     },
   },
 };

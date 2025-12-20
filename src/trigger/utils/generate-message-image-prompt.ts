@@ -5,6 +5,7 @@ import { generateObject } from "ai";
 import ms from "ms";
 import { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
+import { extractPersonaMessageText } from "@/lib/utils";
 
 type CraftImagePromptForMessagePayload = {
   messages: PersonaUIMessage[];
@@ -31,36 +32,15 @@ function getContextMessages(
   const targetIndex = messages.findIndex((m) => m.id === targetMessageId);
 
   if (targetIndex === -1) {
-    // If target not found, use last 2 messages
-    return messages.slice(-2);
+    // If target not found, use last 4 messages
+    return messages.slice(-4);
   }
 
   // Get messages up to and including target
   const messagesUpToTarget = messages.slice(0, targetIndex + 1);
 
-  // Calculate average message length
-  const avgLength =
-    messagesUpToTarget.reduce((sum, msg) => {
-      const textLength = msg.parts
-        .filter((p) => p.type === "text")
-        .reduce((acc, p) => acc + (p.text?.length || 0), 0);
-      return sum + textLength;
-    }, 0) / messagesUpToTarget.length;
-
-  // If messages are short (<200 chars avg), use last 4; otherwise last 2
-  const contextSize = avgLength < 200 ? 4 : 2;
-
-  return messagesUpToTarget.slice(-contextSize);
-}
-
-/**
- * Extracts text content from message parts
- */
-function extractMessageText(message: PersonaUIMessage): string {
-  return message.parts
-    .filter((p) => p.type === "text")
-    .map((p) => p.text)
-    .join(" ");
+  // Use last 4 messages for context
+  return messagesUpToTarget.slice(-4);
 }
 
 /**
@@ -87,12 +67,12 @@ export async function craftImagePromptForMessageCharacterMode(
   // Build conversation context
   const conversationContext = contextMessages
     .map((msg, idx) => {
-      const text = extractMessageText(msg);
+      const text = extractPersonaMessageText(msg);
       const role = msg.role === "user" ? "User" : "Character";
       const isTarget = msg.id === targetMessageId;
       return `
 ### ${role}
-      
+
 ${text}`;
     })
     .join("\n\n");
@@ -109,17 +89,19 @@ Guidelines:
 
 Start with: "Using the provided full-body reference image of the character,"
 Preserve base physical properties (facial features, hair, body proportions, skin tone).
+Do NOT add or change the visual style. Preserve the reference image's existing style exactly (e.g., if the reference is illustrated, keep it illustrated; if it's photographic, keep it photographic).
+Do NOT include style/rendering keywords like: photorealistic, realistic, anime, cinematic, 3D render, cartoon, watercolor, oil painting, etc.
 Always specify a pose and outfit, even if unchanged (default to neutral standing and reference outfit if unspecified).
 Describe changes/new elements briefly: pose/action, expression, outfit mods, lighting, background.
-Single narrative paragraph, hyper-specific, photorealistic. Use photo terms (angle, lighting, mood). Under 100 words.
+Single narrative paragraph, hyper-specific. Under 100 words.
 Output ONLY the prompt—no extras.
 
 Examples:
 
 Chat: User: "You enter the forest." Char: "I step cautiously, lantern up."
-Output: "Using the provided full-body reference image of the character, pose as stepping cautiously with arm raised holding lantern, alert expression, wearing explorer outfit. Dark misty forest background at night, lantern glow. Preserve facial features, hair, body, skin tone. Photorealistic, wide-angle, soft lighting."
+Output: "Using the provided full-body reference image of the character, pose as stepping cautiously with arm raised holding lantern, alert expression, wearing explorer outfit. Dark misty forest background at night, lantern glow. Preserve facial features, hair, body, skin tone. Do not add style; keep the reference image's style."
 Chat: Prev: "Battle on." User: "Swing sword." Char: "Leap back, panting in torn armor."
-Output: "Using the provided full-body reference image of the character, pose leaping back panting, exhausted expression, in torn armor outfit. Smoky battlefield background. Keep identical facial structure, hair, proportions, skin tone. Realistic, dynamic 3/4 view, dramatic light."
+Output: "Using the provided full-body reference image of the character, pose leaping back panting, exhausted expression, in torn armor outfit. Smoky battlefield background. Keep identical facial structure, hair, proportions, skin tone. Do not add style; keep the reference image's style."
 `.trim();
 
   const prompt = `
@@ -198,7 +180,7 @@ export async function craftImagePromptForMessageCreativeMode(
   // Build conversation context
   const conversationContext = contextMessages
     .map((msg, idx) => {
-      const text = extractMessageText(msg);
+      const text = extractPersonaMessageText(msg);
       const role = msg.role === "user" ? "User" : "Character";
       const isTarget = msg.id === targetMessageId;
       return `

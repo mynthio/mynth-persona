@@ -68,21 +68,21 @@ export async function getChatMessagesData(
     `
   );
 
-  const items: PersonaUIMessage[] = result.rows.map(
-    (r) =>
-      ({
-        id: r.id as string,
+  const items: PersonaUIMessage[] = result.rows.map((r) => {
+    const metadata = r.metadata as PersonaUIMessage["metadata"] | null;
 
-        role: r.role as PersonaUIMessage["role"],
-        parts: r.parts as PersonaUIMessage["parts"],
-
-        metadata: {
-          parentId: r.parent_id as string | null,
-          media: (r.metadata as PersonaUIMessage["metadata"] | null)?.media,
-          usage: {},
-        },
-      } satisfies PersonaUIMessage)
-  );
+    return {
+      id: r.id as string,
+      role: r.role as PersonaUIMessage["role"],
+      parts: r.parts as PersonaUIMessage["parts"],
+      metadata: {
+        parentId: r.parent_id as string | null,
+        media: metadata?.media,
+        usage: metadata?.usage ?? {},
+        checkpoint: metadata?.checkpoint,
+      },
+    } satisfies PersonaUIMessage;
+  });
 
   return { leafId, messages: items };
 }

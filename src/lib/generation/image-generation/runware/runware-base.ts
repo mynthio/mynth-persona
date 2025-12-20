@@ -55,6 +55,29 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
     return {};
   }
 
+  /**
+   * Build the reference images part of the request body
+   * Override in subclass to customize where/how reference images are included
+   *
+   * @param referenceImages - Array of reference image URLs (can be empty)
+   * @returns Object with properties to merge into the request body
+   *
+   * Default implementation puts images in inputs.referenceImages
+   * Override to put them at root level or use different structure
+   */
+  protected buildReferenceImagesRequest(
+    referenceImages: string[]
+  ): Record<string, any> {
+    if (referenceImages.length === 0) {
+      return {};
+    }
+    return {
+      inputs: {
+        referenceImages,
+      },
+    };
+  }
+
   private createClient(): RunwareClient {
     const apiKey = process.env.RUNWARE_API_KEY;
     if (!apiKey) {
@@ -165,6 +188,10 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
       const client = this.createClient();
 
       const requestConfig = this.getPerRequestConfig(options);
+      const referenceImages = options?.referenceImages ?? [];
+      const referenceImagesRequest =
+        this.buildReferenceImagesRequest(referenceImages);
+
       const images = await client.requestImages({
         positivePrompt: prompt,
         negativePrompt: options?.negativePrompt,
@@ -173,9 +200,7 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
         height,
         numberResults: options?.numberResults ?? this.getNumberResults(),
         includeCost: true,
-        inputs: options?.referenceImages
-          ? { referenceImages: options.referenceImages }
-          : undefined,
+        ...referenceImagesRequest,
         ...requestConfig,
       });
 
@@ -231,6 +256,10 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
       const client = this.createClient();
 
       const requestConfig = this.getPerRequestConfig(options);
+      const referenceImages = options?.referenceImages ?? [];
+      const referenceImagesRequest =
+        this.buildReferenceImagesRequest(referenceImages);
+
       const images = await client.requestImages({
         positivePrompt: prompt,
         negativePrompt: options?.negativePrompt,
@@ -239,9 +268,7 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
         height,
         numberResults,
         includeCost: true,
-        inputs: options?.referenceImages
-          ? { referenceImages: options.referenceImages }
-          : undefined,
+        ...referenceImagesRequest,
         ...requestConfig,
       });
 

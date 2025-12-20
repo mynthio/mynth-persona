@@ -78,6 +78,7 @@ import {
   RefreshCcw05,
   Trash03,
 } from "@untitledui/icons";
+import ShimmerText from "@/components/kokonutui/shimmer-text";
 
 type ChatMessagesProps = {
   containerRef: React.RefObject<HTMLDivElement>;
@@ -380,6 +381,15 @@ function ChatMessage(props: ChatMessageProps) {
                 inProgressRuns={inProgressRuns}
               />
 
+              {props.message.metadata?.checkpoint && (
+                <div>
+                  Checkpoint{" "}
+                  <Response>
+                    {props.message.metadata?.checkpoint?.content ?? ""}
+                  </Response>
+                </div>
+              )}
+
               {inProgressRuns.length > 0 &&
                 inProgressRuns.map((run) => (
                   <ChatMessageImageInProgress key={run.runId} run={run} />
@@ -662,14 +672,17 @@ function ReasoningIndicator(props: { messageId: string }) {
   // Use store selector for efficient single-subscription check
   const isActive = useChatStore((state) => {
     const lastMessage = state.messages.at(-1);
-    return state.status === "streaming" && lastMessage?.id === props.messageId;
+    return (
+      (state.status === "streaming" || state.status === "submitted") &&
+      lastMessage?.id === props.messageId
+    );
   });
 
   if (!isActive) return null;
 
   return (
-    <div className="size-[36px] flex items-center justify-center animate-pulse">
-      <BrainIcon />
+    <div className="flex items-center justify-center ml-2 h-8">
+      <ShimmerText text="Thinking..." />
     </div>
   );
 }

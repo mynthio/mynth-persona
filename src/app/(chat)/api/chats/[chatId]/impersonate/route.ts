@@ -254,7 +254,7 @@ export async function POST(
 
   logger.debug({ system }, "System Prompt");
 
-  const messages = convertToModelMessages([
+  const messages = await convertToModelMessages([
     ...messagesHistory.map((msg) =>
       msg.role === "user"
         ? { ...msg, role: "assistant" as const }

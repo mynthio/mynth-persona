@@ -7,6 +7,8 @@ services:
       POSTGRES_DB: postgres
     ports:
       - "5442:5432"
+    volumes:
+      - mynth_persona_postgres_data:/var/lib/postgresql/data
   pg_proxy:
     image: ghcr.io/neondatabase/wsproxy:latest
     environment:
@@ -29,3 +31,6 @@ services:
       SRH_MODE: env
       SRH_TOKEN: my-local-kv-token
       SRH_CONNECTION_STRING: "redis://redis:6379" # Using `redis` hostname since they're in the same Docker network.
+
+volumes:
+  mynth_persona_postgres_data:

@@ -370,7 +370,7 @@ export async function POST(
           content: `Please start the roleplay as ${personaName}`,
         } as ModelMessage,
       ]
-    : convertToModelMessages([
+    : await convertToModelMessages([
         ...messagesTillCheckpoint,
         ...(payload.message ? [payload.message] : []),
       ]);

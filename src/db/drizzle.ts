@@ -19,7 +19,7 @@ if (process.env.NODE_ENV === "production") {
   neonConfig.webSocketConstructor = WebSocket;
   neonConfig.poolQueryViaFetch = true;
 } else {
-  neonConfig.wsProxy = (host) => `${host}:5433/v1`;
+  neonConfig.wsProxy = (host) => `${host}:5443/v1`;
   neonConfig.useSecureWebSocket = false;
   neonConfig.pipelineTLS = false;
   neonConfig.pipelineConnect = false;

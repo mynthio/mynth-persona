@@ -105,7 +105,7 @@ export const generateMessageImageTask = task({
     const { messages: messagesData } = await getChatMessagesData(chatId, {
       messageId: messageId,
       strict: true,
-      limit: 6, // Get up to 6 messages for context
+      limit: 2,
     });
 
     // Get the appropriate model

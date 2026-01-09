@@ -8,7 +8,7 @@ import { users, userTokens } from "../src/db/schema";
 // Load environment variables
 config({ path: [".env.local", ".env"], quiet: true });
 
-neonConfig.wsProxy = (host) => `${host}:5433/v1`;
+neonConfig.wsProxy = (host) => `${host}:5443/v1`;
 neonConfig.useSecureWebSocket = false;
 neonConfig.pipelineTLS = false;
 neonConfig.pipelineConnect = false;

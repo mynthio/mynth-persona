@@ -85,5 +85,11 @@ export const chatConfig: ChatConfig = {
     {
       modelId: "nvidia/nemotron-nano-9b-v2:standard",
     },
+    {
+      modelId: "minimax/minimax-m2-her:eco",
+    },
+    {
+      modelId: "minimax/minimax-m2-her:standard",
+    },
   ],
 };

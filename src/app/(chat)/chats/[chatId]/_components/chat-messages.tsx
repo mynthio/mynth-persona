@@ -381,14 +381,14 @@ function ChatMessage(props: ChatMessageProps) {
                 inProgressRuns={inProgressRuns}
               />
 
-              {/* {props.message.metadata?.checkpoint && (
+              {props.message.metadata?.checkpoint && (
                 <div>
                   Checkpoint{" "}
                   <Response>
                     {props.message.metadata?.checkpoint?.content ?? ""}
                   </Response>
                 </div>
-              )} */}
+              )}
 
               {inProgressRuns.length > 0 &&
                 inProgressRuns.map((run) => (

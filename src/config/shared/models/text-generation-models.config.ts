@@ -23,7 +23,9 @@ export type TextGenerationModelId =
   | "thedrummer/skyfall-36b-v2:standard"
   | "google/gemini-2.5-flash-preview-09-2025:standard"
   | "google/gemini-3-pro-preview:premium"
-  | "google/gemini-3-flash-preview:standard";
+  | "google/gemini-3-flash-preview:standard"
+  | "minimax/minimax-m2-her:eco"
+  | "minimax/minimax-m2-her:standard";
 
 export type Provider = {
   url?: string;
@@ -673,6 +675,62 @@ export const textGenerationModels: Record<
       storesMessages: "yes",
       additionalNotes:
         "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
+    },
+  },
+  "minimax/minimax-m2-her:eco": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    displayName: "MiniMax M2-her",
+    modelId: "minimax/minimax-m2-her:eco",
+    openRouterModelId: "minimax/minimax-m2-her",
+    uncensored: true,
+    description:
+      "A dialogue-first model built for immersive roleplay and character-driven chat. Excels at maintaining consistent tone and personality across extended conversations, with natural flow and vivid interactions for storytelling and companion experiences.",
+    style:
+      "Maintains strong character consistency in tone and personality. Expressive and emotionally attuned in multi-turn dialogues. Naturally adaptive to scenario pacing and style cues. Ideal for companion interactions, storytelling, and conversational roleplay.",
+    perks: [
+      "dialogue-first design for natural conversations",
+      "strong character consistency across long sessions",
+      "learns from example dialogue to match style",
+    ],
+    tags: ["roleplay", "dialogue", "companion"],
+    tier: "eco",
+    provider: {
+      url: "https://www.minimax.io/",
+      displayName: "MiniMax",
+      privacyPolicyUrl: "https://www.minimax.io/privacy",
+      training: "unknown",
+      storesMessages: "unknown",
+      additionalNotes:
+        "Accessed via OpenRouter. MiniMax is a Chinese AI company known for video generation and language models.",
+    },
+  },
+  "minimax/minimax-m2-her:standard": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    displayName: "MiniMax M2-her",
+    modelId: "minimax/minimax-m2-her:standard",
+    openRouterModelId: "minimax/minimax-m2-her",
+    uncensored: true,
+    description:
+      "A dialogue-first model built for immersive roleplay and character-driven chat. Excels at maintaining consistent tone and personality across extended conversations, with natural flow and vivid interactions for storytelling and companion experiences.",
+    style:
+      "Maintains strong character consistency in tone and personality. Expressive and emotionally attuned in multi-turn dialogues. Naturally adaptive to scenario pacing and style cues. Ideal for companion interactions, storytelling, and conversational roleplay.",
+    perks: [
+      "dialogue-first design for natural conversations",
+      "strong character consistency across long sessions",
+      "learns from example dialogue to match style",
+    ],
+    tags: ["roleplay", "dialogue", "companion"],
+    tier: "standard",
+    provider: {
+      url: "https://www.minimax.io/",
+      displayName: "MiniMax",
+      privacyPolicyUrl: "https://www.minimax.io/privacy",
+      training: "unknown",
+      storesMessages: "unknown",
+      additionalNotes:
+        "Accessed via OpenRouter. MiniMax is a Chinese AI company known for video generation and language models.",
     },
   },
 };

@@ -66,6 +66,38 @@ const MODEL_TIPS_BY_BASE: Record<string, ModelTip[]> = {
       ),
     },
   ],
+  "minimax/minimax-m2-her": [
+    {
+      id: "minimax-m2-her-dialogue-first",
+      content: (
+        <>
+          M2-her is dialogue-first: it excels at natural back-and-forth
+          conversation. Keep your messages conversational and the model will
+          match your energy with expressive, in-character responses.
+        </>
+      ),
+    },
+    {
+      id: "minimax-m2-her-consistency",
+      content: (
+        <>
+          This model is designed for character consistency. Once you establish a
+          character&apos;s personality and tone, it maintains that voice
+          reliably across long conversations.
+        </>
+      ),
+    },
+    {
+      id: "minimax-m2-her-example-style",
+      content: (
+        <>
+          M2-her learns from example dialogue. Your first few exchanges set the
+          style and pacing for the whole conversation—start with the tone and
+          length you want to see continued.
+        </>
+      ),
+    },
+  ],
 };
 
 /**

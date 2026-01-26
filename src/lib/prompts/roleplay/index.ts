@@ -1,6 +1,7 @@
 import { renderDefaultRoleplayPrompt } from "./default";
 import { renderGeminiRoleplayPrompt } from "./gemini";
 import { renderHermesRoleplayPrompt } from "./hermes";
+import { renderMiniMaxRoleplayPrompt } from "./minimax";
 import type {
   ModelId,
   RoleplayPromptArgs,
@@ -19,6 +20,8 @@ const promptsByModel: Partial<Record<string, RoleplayPromptRenderer>> = {
   "nousresearch/hermes-4-70b:standard": renderHermesRoleplayPrompt,
   "nousresearch/hermes-4-70b:eco": renderHermesRoleplayPrompt,
   "google/gemini-3-flash-preview:standard": renderGeminiRoleplayPrompt,
+  "minimax/minimax-m2-her:eco": renderMiniMaxRoleplayPrompt,
+  "minimax/minimax-m2-her:standard": renderMiniMaxRoleplayPrompt,
   // Example: Add model-specific prompts here
   // "anthropic/claude-haiku-4.5:premium": renderClaudeRoleplayPrompt,
 };
@@ -112,4 +115,9 @@ export function renderRoleplaySystemPrompt(
 }
 
 // Re-export the default renderer for direct access if needed
-export { renderDefaultRoleplayPrompt, renderGeminiRoleplayPrompt, renderHermesRoleplayPrompt };
+export {
+  renderDefaultRoleplayPrompt,
+  renderGeminiRoleplayPrompt,
+  renderHermesRoleplayPrompt,
+  renderMiniMaxRoleplayPrompt,
+};

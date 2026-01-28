@@ -8,7 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { GlobeSlated01 } from "@untitledui/icons";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
-import { PersonasFilters } from "./personas-filters";
+import { PersonasFilters } from "../_components/personas-filters";
 
 function PersonasLoadingSkeleton() {
   return (
@@ -26,12 +26,12 @@ function PersonasLoadingSkeleton() {
   );
 }
 
-const PublicPersonas = dynamic(() => import("./public-personas"), {
+const PublicPersonas = dynamic(() => import("../_components/public-personas"), {
   ssr: true,
   loading: () => <PersonasLoadingSkeleton />,
 });
 
-export default function Home() {
+export default function ExplorePage() {
   return (
     <Suspense
       fallback={

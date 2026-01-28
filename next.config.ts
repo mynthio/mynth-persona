@@ -7,6 +7,15 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["pino", "@axiomhq/pino"],
 
   reactCompiler: true,
+
+  // Optimize barrel file imports for icon libraries (bundle-barrel-imports)
+  experimental: {
+    optimizePackageImports: [
+      "@phosphor-icons/react",
+      "@untitledui/icons",
+      "motion/react",
+    ],
+  },
 };
 
 const withMDX = createMDX({

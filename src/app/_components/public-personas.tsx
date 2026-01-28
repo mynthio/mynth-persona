@@ -4,13 +4,11 @@ import { PublicPersonaListItem } from "@/schemas/shared/persona-public.schema";
 import { getImageUrl, getVideoUrl } from "@/lib/utils";
 import { Masonry, useInfiniteLoader } from "masonic";
 import { useCallback, useMemo, useEffect, useRef, useState } from "react";
+import { useSharedIntersectionEffect } from "@/hooks/use-shared-intersection-observer";
 
 import {
   BirdIcon,
   CircleNotchIcon,
-  EyeClosedIcon,
-  EyeIcon,
-  FadersHorizontalIcon,
   GenderFemaleIcon,
   GenderMaleIcon,
   GenderNonbinaryIcon,
@@ -19,16 +17,13 @@ import {
   SealCheckIcon,
   SignatureIcon,
 } from "@phosphor-icons/react/dist/ssr";
-import { useLocalStorage } from "@uidotdev/usehooks";
+import { usePersistedNsfwFilter } from "@/hooks/use-persisted-query-state";
 import useSWRInfinite from "swr/infinite";
 import { fetcher } from "@/lib/fetcher";
-import { Menu } from "@base-ui-components/react/menu";
-import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
-import { ProgressiveBlur } from "@/components/ui/progressive-blur";
 
 export default function PublicPersonas() {
-  const [includeNsfw, setIncludeNsfw] = useLocalStorage("show-nsfw", false);
+  const [includeNsfw] = usePersistedNsfwFilter();
 
   // Build SWR Infinite key function (cursorPublishedAt + cursorId)
   const getKey = useCallback(
@@ -164,8 +159,23 @@ export default function PublicPersonas() {
   );
 }
 
+// Module-level cache for deterministic height calculations
+const heightCache = new Map<string, number>();
+const HEIGHT_OPTIONS = [520, 580, 620] as const;
+
+function getImageHeight(id: string): number {
+  let height = heightCache.get(id);
+  if (height === undefined) {
+    const seed = Array.from(id).reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+    height = HEIGHT_OPTIONS[seed % 3];
+    heightCache.set(id, height);
+  }
+  return height;
+}
+
 function Tile({ persona }: { persona: PublicPersonaListItem }) {
-  // Create a deterministic small height variation per persona to better visualize masonry
+  const imageHeight = getImageHeight(persona.id);
+
   const getStatusIcon = () => {
     switch (persona.status) {
       case "official":
@@ -211,11 +221,6 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
         );
     }
   };
-  const variationSeed = Array.from(persona.id).reduce(
-    (acc, ch) => acc + ch.charCodeAt(0),
-    0
-  );
-  const imageHeight = [520, 580, 620][variationSeed % 3];
 
   const hasVideo = Boolean(persona.profileSpotlightMediaId);
   const videoUrl = hasVideo
@@ -225,43 +230,18 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
   const [isVideoVisible, setVideoVisible] = useState(false);
   const [hasPlayedOnce, setHasPlayedOnce] = useState(false);
 
-  useEffect(() => {
-    if (!hasVideo || !videoRef.current) return;
-
-    const el = videoRef.current;
-    let observer: IntersectionObserver | null = null;
-
-    const tryPlay = () => {
-      if (!el) return;
-      if (hasPlayedOnce) return;
-      el.play().catch(() => {
-        // Autoplay might be blocked; we'll rely on hover
-      });
-    };
-
-    // Prefer IntersectionObserver; fallback to immediate attempt
-    if (typeof IntersectionObserver !== "undefined") {
-      observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (entry.isIntersecting) {
-              tryPlay();
-              break;
-            }
-          }
-        },
-        { threshold: 0.25 }
-      );
-      observer.observe(el);
-    } else {
-      tryPlay();
-    }
-
-    return () => {
-      if (observer && el) observer.unobserve(el);
-      observer = null;
-    };
-  }, [hasVideo, hasPlayedOnce]);
+  // Use shared observer for autoplay - triggers once when video becomes visible
+  useSharedIntersectionEffect(
+    videoRef,
+    () => {
+      if (videoRef.current && !hasPlayedOnce) {
+        videoRef.current.play().catch(() => {
+          // Autoplay might be blocked; we'll rely on hover
+        });
+      }
+    },
+    hasVideo && !hasPlayedOnce
+  );
 
   const onVideoEnded = useCallback(() => {
     setVideoVisible(false);
@@ -283,7 +263,11 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
     <Link
       href={`/personas/${persona.slug}`}
       className="rounded-[24px] overflow-hidden group relative bg-background flex flex-col justify-between hover:scale-101 transition-all duration-250 shadow-xl shadow-zinc-300/0 hover:shadow-zinc-800/10"
-      style={{ height: imageHeight }}
+      style={{
+        height: imageHeight,
+        contentVisibility: "auto",
+        containIntrinsicSize: `240px ${imageHeight}px`,
+      }}
       prefetch={false}
       onMouseEnter={onHoverReplay}
     >

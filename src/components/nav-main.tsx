@@ -16,6 +16,7 @@ import {
   Users03,
   Image02,
   Brush01,
+  Home01,
 } from "@untitledui/icons";
 import { Link } from "./ui/link";
 import {
@@ -33,6 +34,15 @@ export function NavMain() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/">
+                <Home01 strokeWidth={1.5} />
+                <span>Home</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <Link href="/explore">
                 <GlobeSlated01 strokeWidth={1.5} />
                 <span>Explore</span>
               </Link>

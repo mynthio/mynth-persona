@@ -1,9 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ArrowUp, Sparkles } from "lucide-react";
 import Form from "next/form";
-import { motion, AnimatePresence } from "motion/react";
 import { useState, useRef } from "react";
 import { Send01, Stars01 } from "@untitledui/icons";
 
@@ -13,23 +11,19 @@ export function PrsnaToolbar({ className }: { className?: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <motion.div
-      initial={{ y: 50, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 260, damping: 20 }}
+    <div
       className={cn(
-        "sticky bottom-4 w-full mx-auto max-w-2xl px-4 z-50",
+        "sticky bottom-4 w-full mx-auto max-w-2xl px-4 z-50 animate-slide-up",
         className
       )}
     >
       <div className="relative group">
         {/* Animated Glow Gradient */}
-        <motion.div
-          animate={{
-            opacity: isFocused ? 0.5 : 0,
-            scale: isFocused ? 1.02 : 0.98,
-          }}
-          className="absolute -inset-0.5 bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full blur-md transition-all duration-500 opacity-0 group-hover:opacity-20"
+        <div
+          className={cn(
+            "absolute -inset-0.5 bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full blur-md transition-all duration-500 opacity-0 group-hover:opacity-20",
+            isFocused && "opacity-50 scale-102"
+          )}
         />
 
         <Form
@@ -37,28 +31,22 @@ export function PrsnaToolbar({ className }: { className?: string }) {
           formMethod="GET"
           className="relative w-full"
         >
-          <motion.div
-            layout
-            animate={{
-              height: "auto",
-              borderColor: isFocused ? "rgba(255,255,255,0.1)" : "transparent",
-            }}
+          <div
             className={cn(
-              "relative flex items-center gap-3 p-2 pl-4 rounded-full border border-white/10 shadow-2xl backdrop-blur-xl transition-colors duration-300 ring-1 ring-white/5",
-              "bg-background/60"
+              "relative flex items-center gap-3 p-2 pl-4 rounded-full border shadow-2xl backdrop-blur-xl transition-all duration-300 ring-1 ring-white/5 bg-background/60",
+              isFocused ? "border-white/10" : "border-transparent"
             )}
           >
             {/* AI Icon */}
             <div className="relative flex items-center justify-center">
-              <motion.div
-                animate={{
-                  scale: isFocused ? 1.1 : 1,
-                }}
-                transition={{ duration: 0.5 }}
-                className="text-muted-foreground/90"
+              <div
+                className={cn(
+                  "text-muted-foreground/90 transition-transform duration-500",
+                  isFocused && "scale-110"
+                )}
               >
                 <Stars01 strokeWidth={1.5} className="size-5" />
-              </motion.div>
+              </div>
             </div>
 
             <input
@@ -75,36 +63,23 @@ export function PrsnaToolbar({ className }: { className?: string }) {
 
             {/* Submit Button */}
             <div className="flex items-center justify-center size-10">
-              <AnimatePresence mode="popLayout">
-                {value.length > 0 ? (
-                  <motion.button
-                    key="submit-btn"
-                    initial={{ scale: 0, rotate: -180 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    exit={{ scale: 0, rotate: 180 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    type="submit"
-                    className="bg-foreground text-background rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:bg-primary hover:text-primary-foreground transition-colors"
-                  >
-                    <Send01 className="size-4" strokeWidth={1.5} />
-                  </motion.button>
-                ) : (
-                  <motion.div
-                    key="placeholder-icon"
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0 }}
-                    className="text-muted-foreground/20"
-                  >
-                    <div className="w-2 h-2 rounded-full bg-current" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {value.length > 0 ? (
+                <button
+                  key="submit-btn"
+                  type="submit"
+                  className="bg-foreground text-background rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:bg-primary hover:text-primary-foreground hover:scale-110 active:scale-90 transition-all animate-pop-in"
+                >
+                  <Send01 className="size-4" strokeWidth={1.5} />
+                </button>
+              ) : (
+                <div className="text-muted-foreground/20">
+                  <div className="w-2 h-2 rounded-full bg-current" />
+                </div>
+              )}
             </div>
-          </motion.div>
+          </div>
         </Form>
       </div>
-    </motion.div>
+    </div>
   );
 }

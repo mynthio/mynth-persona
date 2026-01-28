@@ -10,6 +10,7 @@ import {
   useChatMessages,
   useChatStatus,
   useChatStore,
+  useChatStoreApi,
 } from "@ai-sdk-tools/store";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import { Button } from "@/components/ui/button";
@@ -80,6 +81,19 @@ import {
 } from "@untitledui/icons";
 import ShimmerText from "@/components/kokonutui/shimmer-text";
 
+function getErrorObject(error: string) {
+  try {
+    return JSON.parse(error);
+  } catch {
+    return { message: error };
+  }
+}
+
+const CHARACTER_MODE_MODELS = Object.values(IMAGE_MODELS).filter((model) =>
+  supportsReferenceImages(model.id),
+);
+const CREATIVE_MODE_MODELS = Object.values(IMAGE_MODELS);
+
 type ChatMessagesProps = {
   containerRef: React.RefObject<HTMLDivElement>;
   shouldScrollRef: React.MutableRefObject<boolean>;
@@ -93,6 +107,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
   const chatError = useChatError();
   const status = useChatStatus();
   const { setMessages, regenerate } = useChatActions<PersonaUIMessage>();
+  const storeApi = useChatStoreApi<PersonaUIMessage>();
 
   const { chatId, modelId } = useChatMain();
 
@@ -109,9 +124,6 @@ export default function ChatMessages(props: ChatMessagesProps) {
   // Use the passed ref or fallback to internal ref
   const containerRef = props.containerRef || internalContainerRef;
 
-  // Use messages from the store (Provider handles initial messages)
-  const displayMessages = messages;
-
   // Add bottom padding when streaming to create space for assistant response
   const isStreaming = status === "streaming" || status === "submitted";
   // Provide baseline space for sticky prompt; expand slightly while streaming
@@ -120,7 +132,8 @@ export default function ChatMessages(props: ChatMessagesProps) {
     : "128px";
 
   const loadMore = useCallback(async () => {
-    const firstMessage = messages[0];
+    const currentMessages = storeApi.getState().messages;
+    const firstMessage = currentMessages[0];
 
     if (isLoadingMore || !firstMessage || !firstMessage.metadata?.parentId)
       return;
@@ -132,13 +145,14 @@ export default function ChatMessages(props: ChatMessagesProps) {
 
     try {
       const response = await fetch(
-        `/api/chats/${chatId}/messages?message_id=${firstMessage.id}&strict=true`
+        `/api/chats/${chatId}/messages?message_id=${firstMessage.id}&strict=true`,
       );
       const json: ApiChatMessagesResponse = await response.json();
       console.log("Infinite response length", json.messages.length);
 
       const newMessages = json.messages.slice(0, -1);
-      setMessages([...newMessages, ...messages]);
+      // Read latest messages after async operation to avoid stale closure
+      setMessages([...newMessages, ...storeApi.getState().messages]);
 
       setJustPrepended(true);
     } catch (error) {
@@ -146,7 +160,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
     } finally {
       setIsLoadingMore(false);
     }
-  }, [setMessages, isLoadingMore, setIsLoadingMore, messages, chatId]);
+  }, [storeApi, setMessages, isLoadingMore, chatId, containerRef]);
 
   // Scroll to bottom on initial load (instant)
   useEffect(() => {
@@ -154,7 +168,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
     window.requestAnimationFrame(() => {
       const scrollY = Math.max(
         document.documentElement.scrollHeight,
-        document.body?.scrollHeight || 0
+        document.body?.scrollHeight || 0,
       );
       try {
         window.scrollTo({ top: scrollY, behavior: "auto" });
@@ -182,7 +196,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
         root: null,
         rootMargin: "400px 0px 0px 0px",
         threshold: 0,
-      }
+      },
     );
 
     observer.observe(sentinel);
@@ -201,15 +215,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
     }
   }, [justPrepended]);
 
-  if (displayMessages.length === 0) return null;
-
-  const getErrorObject = (error: string) => {
-    try {
-      return JSON.parse(error);
-    } catch {
-      return { message: error };
-    }
-  };
+  if (messages.length === 0) return null;
 
   return (
     <div
@@ -220,11 +226,11 @@ export default function ChatMessages(props: ChatMessagesProps) {
       {isLoadingMore && (
         <div className="text-center py-4">Loading older messages...</div>
       )}
-      {displayMessages[0]?.metadata?.parentId ? (
+      {messages[0]?.metadata?.parentId ? (
         <div ref={sentinelRef} style={{ height: "1px" }} />
       ) : null}
-      {displayMessages.map((message, messageIndex) => (
-        <ChatMessage key={message.id} message={message} index={messageIndex} />
+      {messages.map((message) => (
+        <ChatMessage key={message.id} message={message} />
       ))}
 
       {chatError && (
@@ -285,19 +291,18 @@ export default function ChatMessages(props: ChatMessagesProps) {
 }
 
 type ChatMessageProps = {
-  index: number;
   message: PersonaUIMessage;
 };
 
-function ChatMessage(props: ChatMessageProps) {
+const ChatMessage = React.memo(function ChatMessage(props: ChatMessageProps) {
   const { user } = useUser();
   const { personas } = useChatPersonas();
-  const { editMessageId, chatId } = useChatMain();
+  const { editMessageId } = useChatMain();
   const imageGenerationRuns = useChatImageGenerationStore(
-    (state) => state.imageGenerationRuns
+    (state) => state.imageGenerationRuns,
   );
   const removeImageGenerationRun = useChatImageGenerationStore(
-    (state) => state.removeImageGenerationRun
+    (state) => state.removeImageGenerationRun,
   );
 
   const avatarUrl = React.useMemo(() => {
@@ -314,7 +319,7 @@ function ChatMessage(props: ChatMessageProps) {
   // Get in-progress image generation runs for this message
   const inProgressRuns = useMemo(() => {
     return Object.values(imageGenerationRuns).filter(
-      (r) => r.messageId === props.message.id
+      (r) => r.messageId === props.message.id,
     );
   }, [imageGenerationRuns, props.message.id]);
 
@@ -334,7 +339,7 @@ function ChatMessage(props: ChatMessageProps) {
       // Check multi-image format first
       if (run.output?.images && run.output.images.length > 0) {
         const anyMediaIdInMessage = run.output.images.some((img) =>
-          messageMediaIds.has(img.mediaId)
+          messageMediaIds.has(img.mediaId),
         );
         if (anyMediaIdInMessage) {
           removeImageGenerationRun(run.runId);
@@ -370,7 +375,7 @@ function ChatMessage(props: ChatMessageProps) {
             <>
               {props.message.parts?.map((part, partIndex) => (
                 <ChatMessagePart
-                  key={partIndex}
+                  key={`${props.message.id}-${partIndex}`}
                   messageId={props.message.id}
                   part={part}
                 />
@@ -381,14 +386,14 @@ function ChatMessage(props: ChatMessageProps) {
                 inProgressRuns={inProgressRuns}
               />
 
-              {props.message.metadata?.checkpoint && (
+              {/*{props.message.metadata?.checkpoint && (
                 <div>
                   Checkpoint{" "}
                   <Response>
                     {props.message.metadata?.checkpoint?.content ?? ""}
                   </Response>
                 </div>
-              )}
+              )}*/}
 
               {inProgressRuns.length > 0 &&
                 inProgressRuns.map((run) => (
@@ -400,7 +405,10 @@ function ChatMessage(props: ChatMessageProps) {
 
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
-            <button className="rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <button
+              type="button"
+              className="rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
               <Avatar>
                 <AvatarImage src={avatarUrl ?? undefined} />
                 <AvatarFallback>
@@ -427,7 +435,7 @@ function ChatMessage(props: ChatMessageProps) {
       <ChatMessageActions message={props.message} />
     </Message>
   );
-}
+});
 
 type ChatMessageMenuContentProps = {
   message: PersonaUIMessage;
@@ -441,7 +449,7 @@ function UserMessageMenuContent(props: ChatMessageMenuContentProps) {
     copyToClipboard(
       props.message.parts
         ?.map((p) => (p.type === "text" ? p.text : ""))
-        .join("")
+        .join(""),
     );
   }, [copyToClipboard, props.message.parts]);
 
@@ -468,7 +476,7 @@ function AssistantMessageMenuContent(props: ChatMessageMenuContentProps) {
     copyToClipboard(
       props.message.parts
         ?.map((p) => (p.type === "text" ? p.text : ""))
-        .join("")
+        .join(""),
     );
   }, [copyToClipboard, props.message.parts]);
 
@@ -490,7 +498,7 @@ type DeleteMessageMenuItemProps = {
 
 function DeleteMessageMenuItem(props: DeleteMessageMenuItemProps) {
   const { setMessages } = useChatActions<PersonaUIMessage>();
-  const messages = useChatMessages<PersonaUIMessage>();
+  const storeApi = useChatStoreApi<PersonaUIMessage>();
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
@@ -498,20 +506,29 @@ function DeleteMessageMenuItem(props: DeleteMessageMenuItemProps) {
       setIsDeleting(true);
       await deleteMessageAction(props.messageId);
 
-      // Remove the message and all its children from state
+      // Read messages imperatively to avoid subscribing to every change
+      const messages = storeApi.getState().messages;
+
+      // Build parent→children index for O(n) traversal instead of O(n*m)
+      const childrenByParent = new Map<string, string[]>();
+      for (const msg of messages) {
+        const pid = msg.metadata?.parentId;
+        if (pid) {
+          const siblings = childrenByParent.get(pid);
+          if (siblings) siblings.push(msg.id);
+          else childrenByParent.set(pid, [msg.id]);
+        }
+      }
+
+      // Collect all descendant message IDs using the index
       const messageIdsToRemove = new Set<string>();
-
-      // Helper function to collect all descendant message IDs
-      const collectDescendants = (parentId: string) => {
-        messageIdsToRemove.add(parentId);
-        messages.forEach((msg) => {
-          if (msg.metadata?.parentId === parentId) {
-            collectDescendants(msg.id);
-          }
-        });
-      };
-
-      collectDescendants(props.messageId);
+      const stack = [props.messageId];
+      while (stack.length > 0) {
+        const id = stack.pop()!;
+        messageIdsToRemove.add(id);
+        const children = childrenByParent.get(id);
+        if (children) stack.push(...children);
+      }
 
       // Filter out the deleted message and all its descendants
       setMessages(messages.filter((msg) => !messageIdsToRemove.has(msg.id)));
@@ -593,8 +610,8 @@ function EditMessage(props: EditMessageProps) {
               ...stateMessage,
               ...editedMessage,
             }
-          : stateMessage
-      )
+          : stateMessage,
+      ),
     );
 
     regenerate({
@@ -718,7 +735,10 @@ function ChatMessageActions(props: ChatMessageActions) {
     <div className="flex gap-2 items-center group-[.is-user]:justify-end pointer-fine:hover:opacity-100 transition-opacity duration-250">
       {message.role === "assistant" && (
         <>
-          <ChatMessageRegenerate messageId={message.id} />
+          <ChatMessageRegenerate
+            messageId={message.id}
+            parentId={message.metadata?.parentId}
+          />
         </>
       )}
       {shouldShowLoadingIndicator ? (
@@ -770,13 +790,13 @@ function ChatMessageEditButton(props: ChatMessageEditButtonProps) {
 
 type ChatMessageRegenerateProps = {
   messageId: string;
+  parentId?: string | null;
 };
 
 function ChatMessageRegenerate(props: ChatMessageRegenerateProps) {
-  const { messageId } = props;
+  const { messageId, parentId } = props;
 
   const { regenerate } = useChatActions<PersonaUIMessage>();
-  const messages = useChatMessages<PersonaUIMessage>();
   const status = useChatStatus();
   const { modelId } = useChatMain();
   const { addMessageToBranch } = useChatBranchesContext();
@@ -788,13 +808,10 @@ function ChatMessageRegenerate(props: ChatMessageRegenerateProps) {
       onClick={() => {
         // Register the current message in branch state before it gets replaced,
         // so that both the old and new responses appear as switchable siblings.
-        const currentMessage = messages.find((m) => m.id === messageId);
-        if (currentMessage) {
-          addMessageToBranch(currentMessage.metadata?.parentId ?? null, {
-            id: messageId,
-            createdAt: new Date(Date.now() - 1000),
-          });
-        }
+        addMessageToBranch(parentId ?? null, {
+          id: messageId,
+          createdAt: new Date(Date.now() - 1000),
+        });
 
         regenerate({
           messageId,
@@ -824,7 +841,7 @@ function ChatMessageBranches(props: ChatMessageBranchesProps) {
   const branch = branches[props.parentId || ROOT_BRANCH_PARENT_ID] ?? [];
 
   const idx = branch.findIndex(
-    (branchMessage) => branchMessage.id === props.messageId
+    (branchMessage) => branchMessage.id === props.messageId,
   );
 
   const currentMessageIndex = idx > -1 ? idx : 0;
@@ -835,7 +852,7 @@ function ChatMessageBranches(props: ChatMessageBranchesProps) {
     if (newBranchId === branchId) return;
 
     const newBranchMessages = await fetch(
-      `/api/chats/${chatId}/messages?messageId=${newBranchId}`
+      `/api/chats/${chatId}/messages?messageId=${newBranchId}`,
     ).then((res) => res.json());
 
     setActiveId(newBranchMessages.leafId);
@@ -880,31 +897,19 @@ type ChatMessageGenerateImageButtonProps = {
 };
 
 function ChatMessageGenerateImageButton(
-  props: ChatMessageGenerateImageButtonProps
+  props: ChatMessageGenerateImageButtonProps,
 ) {
   const { chatId, settings } = useChatMain();
   const addImageGenerationRun = useChatImageGenerationStore(
-    (state) => state.addImageGenerationRun
+    (state) => state.addImageGenerationRun,
   );
   const [isGenerating, setIsGenerating] = useState(false);
-
-  // Get character mode models (support reference images)
-  const characterModeModels = useMemo(
-    () =>
-      Object.values(IMAGE_MODELS).filter((model) =>
-        supportsReferenceImages(model.id)
-      ),
-    []
-  );
-
-  // Get creative mode models (all models)
-  const creativeModeModels = useMemo(() => Object.values(IMAGE_MODELS), []);
 
   const hasSceneImage = !!settings.sceneImageMediaId;
 
   const handleGenerateImage = async (
     modelId: ImageModelId,
-    mode: ImageGenerationMode
+    mode: ImageGenerationMode,
   ) => {
     try {
       setIsGenerating(true);
@@ -992,7 +997,7 @@ function ChatMessageGenerateImageButton(
         {hasSceneImage && (
           <>
             <DropdownMenuLabel>Character Mode</DropdownMenuLabel>
-            {characterModeModels.map((model) => (
+            {CHARACTER_MODE_MODELS.map((model) => (
               <DropdownMenuItem
                 key={model.id}
                 onClick={() => handleGenerateImage(model.id, "character")}
@@ -1032,7 +1037,7 @@ function ChatMessageGenerateImageButton(
 
         {/* Creative Mode Section */}
         <DropdownMenuLabel>Creative Mode</DropdownMenuLabel>
-        {creativeModeModels.map((model) => (
+        {CREATIVE_MODE_MODELS.map((model) => (
           <DropdownMenuItem
             key={`creative-${model.id}`}
             onClick={() => handleGenerateImage(model.id, "creative")}

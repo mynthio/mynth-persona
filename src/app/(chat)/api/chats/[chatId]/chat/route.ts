@@ -451,7 +451,7 @@ export async function POST(
       writer.write({
         type: "message-metadata",
         messageMetadata: {
-          parentId: lastMessage?.id ?? null,
+          parentId: payload.message?.id ?? null,
           usage,
         },
       });

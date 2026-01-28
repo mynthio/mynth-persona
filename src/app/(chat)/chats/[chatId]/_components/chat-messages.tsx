@@ -776,14 +776,26 @@ function ChatMessageRegenerate(props: ChatMessageRegenerateProps) {
   const { messageId } = props;
 
   const { regenerate } = useChatActions<PersonaUIMessage>();
+  const messages = useChatMessages<PersonaUIMessage>();
   const status = useChatStatus();
   const { modelId } = useChatMain();
+  const { addMessageToBranch } = useChatBranchesContext();
 
   return (
     <Button
       variant="ghost"
       size="icon-sm"
       onClick={() => {
+        // Register the current message in branch state before it gets replaced,
+        // so that both the old and new responses appear as switchable siblings.
+        const currentMessage = messages.find((m) => m.id === messageId);
+        if (currentMessage) {
+          addMessageToBranch(currentMessage.metadata?.parentId ?? null, {
+            id: messageId,
+            createdAt: new Date(Date.now() - 1000),
+          });
+        }
+
         regenerate({
           messageId,
           body: {

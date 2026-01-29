@@ -20,8 +20,6 @@ import {
 import { chatConfig } from "@/config/shared/chat/chat-models.config";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
-import { FireIcon, GearIcon } from "@phosphor-icons/react/dist/ssr";
-import { cn } from "@/lib/utils";
 import { usePinnedModels } from "../_hooks/use-pinned-models.hook";
 import { ChevronUp, Diamond01, Gift02, Lightning01 } from "@untitledui/icons";
 import { PinModelButton } from "./pin-model-button";
@@ -82,23 +80,25 @@ export function ChatModelPickerMenu({
           variant="ghost"
           size="sm"
           aria-label="Select AI model for role-play"
-          className="rounded-3xl truncate shrink"
+          className="h-8 px-2.5 gap-1.5 rounded-lg text-muted-foreground/70 hover:text-foreground hover:bg-muted/50 dark:hover:bg-white/[0.06] transition-colors"
         >
-          <ChevronUp strokeWidth={1} />
-          <span className="truncate">
+          <ChevronUp strokeWidth={1.5} className="size-3.5 opacity-50" />
+          <span className="truncate text-xs font-medium">
             {currentModel?.displayName}
             {currentModel?.tier === "eco" && " (Eco)"}
           </span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[360px] p-0 max-h-[500px]" align="start">
-        <Command>
-          <CommandInput placeholder="Search models..." />
+      <PopoverContent className="w-[340px] p-0 max-h-[420px] rounded-xl border-border/50 dark:border-white/10 dark:bg-[#0c0c0f] overflow-hidden" align="start" sideOffset={8}>
+        <Command className="bg-transparent">
+          <div className="border-b border-border/50 dark:border-white/[0.08]">
+            <CommandInput placeholder="Search models..." className="h-10 text-sm" />
+          </div>
 
-          <CommandList>
+          <CommandList className="max-h-[340px] p-1.5">
             {hasPinnedModels && (
               <>
-                <CommandGroup heading="Pinned">
+                <CommandGroup heading="Pinned" className="[&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground/50 [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5">
                   {pinnedModels.map((model) => (
                     <ModelRow
                       key={model.modelId}
@@ -111,23 +111,23 @@ export function ChatModelPickerMenu({
                     />
                   ))}
                 </CommandGroup>
-                <CommandSeparator />
+                <CommandSeparator className="my-1.5 bg-border/50 dark:bg-white/[0.06]" />
               </>
             )}
 
             {!hasPinnedModels && (
               <>
-                <CommandGroup heading="Pinned">
-                  <CommandItem disabled>
+                <CommandGroup heading="Pinned" className="[&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground/50 [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5">
+                  <CommandItem disabled className="text-xs text-muted-foreground/50 italic">
                     Pin your favorite models (up to 5)
                   </CommandItem>
                 </CommandGroup>
-                <CommandSeparator />
+                <CommandSeparator className="my-1.5 bg-border/50 dark:bg-white/[0.06]" />
               </>
             )}
 
             {unpinnedModels.length > 0 ? (
-              <CommandGroup>
+              <CommandGroup heading="All Models" className="[&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground/50 [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5">
                 {unpinnedModels.map((model) => (
                   <ModelRow
                     key={model.modelId}
@@ -141,7 +141,7 @@ export function ChatModelPickerMenu({
                 ))}
               </CommandGroup>
             ) : (
-              <CommandEmpty>No models found</CommandEmpty>
+              <CommandEmpty className="py-8 text-center text-sm text-muted-foreground">No models found</CommandEmpty>
             )}
           </CommandList>
         </Command>
@@ -150,48 +150,21 @@ export function ChatModelPickerMenu({
   );
 }
 
-function SectionHeader({ title }: { title: string }) {
-  return (
-    <div>
-      <span className="text-[0.75rem] font-medium text-surface-foreground/50 uppercase tracking-wide">
-        {title}
-      </span>
-    </div>
-  );
-}
-
-function EmptyHint({ text }: { text: string }) {
-  return (
-    <div className="px-[12px] py-[6px] mb-[4px]">
-      <span className="text-[0.75rem] text-surface-foreground/40 italic">
-        {text}
-      </span>
-    </div>
-  );
-}
-
-function PremiumBadge() {
-  return <FireIcon className="text-rose-500 shrink-0" weight="bold" />;
-}
-
 function ModelRow({
   model,
-  selected,
   onSelect,
 }: {
   model: any;
   selected: boolean;
   onSelect: (id: TextGenerationModelId) => void;
 }) {
-  // Render tier icon based on model tier
   const renderTierIcon = () => {
     if (model.tier === "premium") {
-      return <Diamond01 strokeWidth={1.5} className="text-rose-500" />;
+      return <Diamond01 strokeWidth={1.5} className="size-3.5 text-rose-500" />;
     } else if (model.tier === "eco") {
-      return <Gift02 strokeWidth={1.5} className="text-emerald-500" />;
+      return <Gift02 strokeWidth={1.5} className="size-3.5 text-emerald-500" />;
     } else {
-      // standard, free, cheap tiers use hidden lightning icon for alignment
-      return <Lightning01 className="opacity-0" strokeWidth={1.5} />;
+      return <Lightning01 className="size-3.5 opacity-0" strokeWidth={1.5} />;
     }
   };
 
@@ -199,11 +172,14 @@ function ModelRow({
     <CommandItem
       value={model.modelId}
       onSelect={() => onSelect(model.modelId as TextGenerationModelId)}
+      className="rounded-lg px-2 py-2 text-sm gap-2.5 cursor-pointer data-[selected=true]:bg-muted/60 dark:data-[selected=true]:bg-white/[0.06]"
     >
       {renderTierIcon()}
-      <span className="truncate w-full">
+      <span className="truncate flex-1 text-[13px]">
         {model.displayName}
-        {model.tier === "eco" && " (Eco)"}
+        {model.tier === "eco" && (
+          <span className="text-emerald-500/70 ml-1 text-xs">(Eco)</span>
+        )}
       </span>
 
       <PinModelButton modelId={model.modelId} />

@@ -10,7 +10,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -20,10 +19,9 @@ import {
   X_PROFILE_URL,
   GITHUB_REPO_URL,
 } from "@/lib/constants";
-import { CreditCard01 } from "@untitledui/icons";
+import { CreditCard01, DotsHorizontal } from "@untitledui/icons";
 import { Link } from "@/components/ui/link";
 import { DiscordLogoIcon } from "@phosphor-icons/react/dist/ssr";
-import { IconDots } from "@tabler/icons-react";
 
 export function NavSecondary(props: React.ComponentProps<typeof SidebarGroup>) {
   return (
@@ -31,14 +29,30 @@ export function NavSecondary(props: React.ComponentProps<typeof SidebarGroup>) {
       <SidebarGroupContent>
         <SidebarMenu>
           <SidebarMenuItem>
+            <SidebarMenuButton asChild size="sm">
+              <Link href="/plans">
+                <CreditCard01 strokeWidth={1.5} />
+                <span>Pricing</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild size="sm">
+              <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer">
+                <DiscordLogoIcon weight="fill" />
+                <span>Discord</span>
+              </a>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton>
-                  <IconDots />
+                <SidebarMenuButton size="sm">
+                  <DotsHorizontal strokeWidth={1.5} />
                   <span>More</span>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="start" side="top">
+              <DropdownMenuContent className="w-48" align="start" side="top" sideOffset={8}>
                 <DropdownMenuGroup>
                   <DropdownMenuItem asChild>
                     <a
@@ -55,7 +69,7 @@ export function NavSecondary(props: React.ComponentProps<typeof SidebarGroup>) {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      X
+                      X (Twitter)
                     </a>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
@@ -71,30 +85,14 @@ export function NavSecondary(props: React.ComponentProps<typeof SidebarGroup>) {
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem asChild>
-                    <a href="/terms-of-service">Terms of Service</a>
+                    <Link href="/terms-of-service">Terms of Service</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <a href="/privacy-policy">Privacy Policy</a>
+                    <Link href="/privacy-policy">Privacy Policy</Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="/plans">
-                <CreditCard01 strokeWidth={1.5} />
-                <span>Pricing</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <a href={DISCORD_INVITE_URL}>
-                <DiscordLogoIcon />
-                <span>Discord</span>
-              </a>
-            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroupContent>

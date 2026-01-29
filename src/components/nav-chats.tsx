@@ -1,7 +1,6 @@
 "use client";
 
 import { Link } from "@/components/ui/link";
-import { useRouter, usePathname } from "next/navigation";
 
 import {
   SidebarGroup,
@@ -9,21 +8,16 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { useUserChatsQuery } from "@/app/_queries/use-user-chats.query";
 import { useState } from "react";
 import { MessageChatCircle, SearchMd } from "@untitledui/icons";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "./ui/input-group";
 import { ChatSearchDialog } from "./chat-search-dialog";
 import { useAuth } from "@clerk/nextjs";
+import { Button } from "./ui/button";
 
 export function NavChats() {
-  const { isMobile } = useSidebar();
-  const router = useRouter();
-  const pathname = usePathname();
-  const { data, isLoading, mutate } = useUserChatsQuery();
-  const [deletingChatId, setDeletingChatId] = useState<string | null>(null);
+  const { data, isLoading } = useUserChatsQuery();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const { isSignedIn } = useAuth();
@@ -34,24 +28,26 @@ export function NavChats() {
   return (
     <>
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-        {/* <SidebarGroupLabel>Chats</SidebarGroupLabel> */}
-        {/* <SidebarInput placeholder="Type to search..." /> */}
-        <InputGroup
-          className="h-8 cursor-pointer"
-          onClick={() => setIsSearchOpen(true)}
-        >
-          <InputGroupInput
-            className="text-xs font-light placeholder:font-light placeholder:text-xs tracking-tight h-7 py-0.5 cursor-pointer"
-            placeholder="Search chats..."
-            readOnly
-          />
-          <InputGroupAddon>
-            <SearchMd strokeWidth={1.5} className="size-3" />
-          </InputGroupAddon>
-        </InputGroup>
+        <div className="flex items-center justify-between mb-1">
+          <SidebarGroupLabel className="mb-0">Recent Chats</SidebarGroupLabel>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 opacity-60 hover:opacity-100"
+            onClick={() => setIsSearchOpen(true)}
+          >
+            <SearchMd strokeWidth={1.5} className="size-3.5" />
+            <span className="sr-only">Search chats</span>
+          </Button>
+        </div>
 
-        <SidebarMenu className="mt-2">
-          {chats.slice(0, 10).map((chat) => (
+        <SidebarMenu>
+          {chats.length === 0 && !isLoading && (
+            <p className="text-xs text-muted-foreground px-2.5 py-2">
+              No chats yet
+            </p>
+          )}
+          {chats.slice(0, 8).map((chat) => (
             <SidebarMenuItem key={chat.id}>
               <SidebarMenuButton asChild size="sm">
                 <Link href={`/chats/${chat.id}`}>

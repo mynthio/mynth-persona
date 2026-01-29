@@ -13,6 +13,7 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { CreateButton } from "@/components/create-button";
 import { Link } from "./ui/link";
@@ -20,23 +21,25 @@ import { Link } from "./ui/link";
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar
-      variant="floating"
-      className="rounded-none"
+      variant="sidebar"
       collapsible="icon"
       {...props}
     >
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <div className="w-full flex flex-row items-center group-data-[collapsible=icon]:justify-center gap-2 justify-between">
-              <Link href="/">
+            <div className="w-full flex flex-row items-center group-data-[collapsible=icon]:justify-center gap-3 justify-between">
+              <Link href="/" className="flex items-center gap-2.5 group-data-[collapsible=icon]:gap-0">
                 <img
-                  className="aspect-square size-8 rounded-md object-cover"
+                  className="aspect-square size-8 rounded-lg object-cover transition-transform hover:scale-105"
                   loading="lazy"
                   draggable={false}
                   src="https://mynth-persona-prod.b-cdn.net/static/prsna-logo.webp"
                   alt="Prsna"
                 />
+                <span className="font-semibold text-base tracking-tight group-data-[collapsible=icon]:hidden">
+                  PRSNA
+                </span>
               </Link>
 
               <CreateButton className="group-data-[collapsible=icon]:hidden" />
@@ -46,6 +49,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain />
+        <SidebarSeparator className="my-1" />
         <NavChats />
         <NavSecondary className="mt-auto" />
       </SidebarContent>

@@ -1,8 +1,13 @@
 "use client";
 
-import React, { useCallback, useMemo } from "react";
-
-import { useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useMemo,
+  useLayoutEffect,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 import {
   useChatActions,
@@ -110,6 +115,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
   const storeApi = useChatStoreApi<PersonaUIMessage>();
 
   const { chatId, modelId } = useChatMain();
+  const { scrollRestoreRef } = useChatBranchesContext();
 
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
@@ -120,6 +126,12 @@ export default function ChatMessages(props: ChatMessagesProps) {
 
   const [justPrepended, setJustPrepended] = useState(false);
   const [initialScrollDone, setInitialScrollDone] = useState(false);
+
+  // Auto-scroll tracking refs
+  const previousMessageCountRef = useRef(messages.length);
+  const userScrolledAwayRef = useRef(false);
+  const lastScrollTopRef = useRef(0);
+  const autoScrollRafRef = useRef<number | null>(null);
 
   // Use the passed ref or fallback to internal ref
   const containerRef = props.containerRef || internalContainerRef;
@@ -213,7 +225,149 @@ export default function ChatMessages(props: ChatMessagesProps) {
       window.scrollTo(0, previousScrollYRef.current + addedHeight);
       setJustPrepended(false);
     }
-  }, [justPrepended]);
+  }, [justPrepended, containerRef]);
+
+  // Scroll restoration after branch switch
+  // Uses useLayoutEffect to run before paint, ensuring no visual jump
+  useLayoutEffect(() => {
+    const restoreInfo = scrollRestoreRef.current;
+    if (!restoreInfo) return;
+
+    // Clear the ref immediately to prevent re-triggering
+    scrollRestoreRef.current = null;
+
+    const { parentId, offsetFromTop } = restoreInfo;
+
+    if (parentId) {
+      const parentElement = document.querySelector(
+        `[data-message-id="${parentId}"]`
+      );
+      if (parentElement) {
+        const rect = parentElement.getBoundingClientRect();
+        const scrollDelta = rect.top - offsetFromTop;
+        window.scrollBy({ top: scrollDelta, behavior: "smooth" });
+      }
+    }
+  }, [messages, scrollRestoreRef]);
+
+  // Detect user scrolling away during streaming to disable auto-scroll
+  useEffect(() => {
+    if (!isStreaming) {
+      // Reset when not streaming
+      userScrolledAwayRef.current = false;
+      return;
+    }
+
+    const handleScroll = () => {
+      const currentScrollTop = window.scrollY;
+      const maxScrollTop =
+        document.documentElement.scrollHeight - window.innerHeight;
+      const distanceFromBottom = maxScrollTop - currentScrollTop;
+
+      // If user scrolled up more than 150px from bottom, consider them "scrolled away"
+      if (distanceFromBottom > 150) {
+        // Check if this was an upward scroll (user action, not auto-scroll)
+        if (currentScrollTop < lastScrollTopRef.current - 10) {
+          userScrolledAwayRef.current = true;
+        }
+      } else {
+        // User is near bottom, re-enable auto-scroll
+        userScrolledAwayRef.current = false;
+      }
+
+      lastScrollTopRef.current = currentScrollTop;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isStreaming]);
+
+  // Auto-scroll when new messages are added (user sends a message)
+  useEffect(() => {
+    if (!initialScrollDone) return;
+
+    const currentCount = messages.length;
+    const previousCount = previousMessageCountRef.current;
+    previousMessageCountRef.current = currentCount;
+
+    // Check if a new message was added (not prepended/loaded more)
+    if (currentCount > previousCount && !justPrepended) {
+      // If shouldScrollRef is set (user just sent a message), scroll to show it
+      if (props.shouldScrollRef.current) {
+        props.shouldScrollRef.current = false;
+        userScrolledAwayRef.current = false;
+
+        // Get the last user message (the one just sent)
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage) {
+          // Use requestAnimationFrame to ensure DOM has updated
+          requestAnimationFrame(() => {
+            const messageElement = document.querySelector(
+              `[data-message-id="${lastMessage.id}"]`
+            );
+            if (messageElement) {
+              // Scroll so the message is visible near the top third of the viewport
+              const rect = messageElement.getBoundingClientRect();
+              const targetOffset = window.innerHeight * 0.2; // 20% from top
+              const scrollTo = window.scrollY + rect.top - targetOffset;
+
+              window.scrollTo({
+                top: Math.max(0, scrollTo),
+                behavior: "smooth",
+              });
+            }
+          });
+        }
+      }
+    }
+    // Note: We intentionally use messages.length instead of messages to avoid
+    // re-running on every streaming update. We only need to scroll when a new
+    // message is added, not when content changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages.length, initialScrollDone, justPrepended, props.shouldScrollRef]);
+
+  // Auto-scroll during streaming to keep new content visible
+  useEffect(() => {
+    if (!isStreaming) {
+      // Cancel any pending animation frame when not streaming
+      if (autoScrollRafRef.current) {
+        cancelAnimationFrame(autoScrollRafRef.current);
+        autoScrollRafRef.current = null;
+      }
+      return;
+    }
+
+    // Continuously check and scroll to bottom during streaming
+    const scrollToBottom = () => {
+      // Always schedule next frame while streaming to keep loop running
+      // (allows re-engaging scroll when user returns to bottom)
+      autoScrollRafRef.current = requestAnimationFrame(scrollToBottom);
+
+      // Skip actual scrolling if user has scrolled away
+      if (userScrolledAwayRef.current) return;
+
+      const maxScrollTop =
+        document.documentElement.scrollHeight - window.innerHeight;
+      const currentScrollTop = window.scrollY;
+
+      // Only scroll if we're not already at bottom
+      if (maxScrollTop - currentScrollTop > 5) {
+        window.scrollTo({
+          top: maxScrollTop,
+          behavior: "auto", // Use instant scroll during streaming for smooth experience
+        });
+      }
+    };
+
+    autoScrollRafRef.current = requestAnimationFrame(scrollToBottom);
+
+    return () => {
+      if (autoScrollRafRef.current) {
+        cancelAnimationFrame(autoScrollRafRef.current);
+        autoScrollRafRef.current = null;
+      }
+    };
+  }, [isStreaming]);
 
   if (messages.length === 0) return null;
 
@@ -358,6 +512,7 @@ const ChatMessage = React.memo(function ChatMessage(props: ChatMessageProps) {
   return (
     <Message
       from={props.message.role}
+      data-message-id={props.message.id}
       className={`py-6 flex-col gap-[12px] ${
         props.message.role === "user" ? "scroll-mt-[80px]" : ""
       }`}
@@ -834,7 +989,7 @@ type ChatMessageBranchesProps = {
 };
 
 function ChatMessageBranches(props: ChatMessageBranchesProps) {
-  const { branches, branchId, setActiveId } = useChatBranchesContext();
+  const { branches, branchId, setActiveId, prepareScrollRestore, setIsSwitchingBranch } = useChatBranchesContext();
   const { chatId } = useChatMain();
   const { setMessages } = useChatActions<PersonaUIMessage>();
 
@@ -851,12 +1006,21 @@ function ChatMessageBranches(props: ChatMessageBranchesProps) {
   const handleBranchChange = async (newBranchId: string) => {
     if (newBranchId === branchId) return;
 
-    const newBranchMessages = await fetch(
-      `/api/chats/${chatId}/messages?messageId=${newBranchId}`,
-    ).then((res) => res.json());
+    // Prepare scroll restoration before changing messages
+    // This captures the parent message's viewport position
+    prepareScrollRestore(props.parentId ?? null);
+    setIsSwitchingBranch(true);
 
-    setActiveId(newBranchMessages.leafId);
-    setMessages(newBranchMessages.messages);
+    try {
+      const newBranchMessages = await fetch(
+        `/api/chats/${chatId}/messages?messageId=${newBranchId}`,
+      ).then((res) => res.json());
+
+      setActiveId(newBranchMessages.leafId);
+      setMessages(newBranchMessages.messages);
+    } finally {
+      setIsSwitchingBranch(false);
+    }
   };
 
   return (

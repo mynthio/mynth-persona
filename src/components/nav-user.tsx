@@ -4,11 +4,11 @@ import {
   ChevronsUpDown,
   CreditCard,
   Flame,
-  LogIn,
   LogOut,
   Moon,
   Settings,
   Sun,
+  Monitor,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 
@@ -36,7 +36,7 @@ import { LogIn03 } from "@untitledui/icons";
 export function NavUser() {
   const { user } = useUser();
   const { isMobile } = useSidebar();
-  const { setTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
   const { sessionClaims } = useAuth();
   const { openUserProfile, signOut, openSignIn } = useClerk();
   const { push } = useRouter();
@@ -55,52 +55,56 @@ export function NavUser() {
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 size="lg"
-                className="h-12 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                className="h-12 data-[state=open]:bg-sidebar-accent/60 dark:data-[state=open]:bg-white/[0.06]"
               >
-                <Avatar className="h-8 w-8 rounded-lg">
+                <Avatar className="h-8 w-8 rounded-full ring-2 ring-sidebar-border">
                   <AvatarImage
                     src={user?.imageUrl}
                     alt={user?.username ?? "Avatar"}
                   />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-full bg-primary/10 text-primary text-xs font-medium">
+                    {user?.username?.slice(0, 2).toUpperCase() ?? "AN"}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">
                     {user?.username ?? "Anonymous"}
                   </span>
-                  <span className="truncate text-xs">{planName}</span>
+                  <span className="truncate text-xs text-muted-foreground capitalize">{planName}</span>
                 </div>
-                <ChevronsUpDown className="ml-auto size-4" />
+                <ChevronsUpDown className="ml-auto size-4 opacity-50" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-              className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+              className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-xl"
               side={isMobile ? "bottom" : "right"}
               align="end"
-              sideOffset={4}
+              sideOffset={8}
             >
               <DropdownMenuLabel className="p-0 font-normal">
-                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                  <Avatar className="size-8 rounded-lg">
+                <div className="flex items-center gap-3 px-2 py-2.5 text-left text-sm">
+                  <Avatar className="size-10 rounded-full ring-2 ring-border">
                     <AvatarImage
                       src={user?.imageUrl}
                       alt={user?.username ?? "Avatar"}
                     />
-                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                    <AvatarFallback className="rounded-full bg-primary/10 text-primary text-sm font-medium">
+                      {user?.username?.slice(0, 2).toUpperCase() ?? "AN"}
+                    </AvatarFallback>
                   </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">
+                  <div className="grid flex-1 text-left leading-tight">
+                    <span className="truncate font-semibold">
                       {user?.username ?? "Anonymous"}
                     </span>
-                    <span className="truncate text-xs">{planName}</span>
+                    <span className="truncate text-xs text-muted-foreground capitalize">{planName} plan</span>
                   </div>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem onClick={() => push("/plans")}>
-                  <Flame />
-                  Plans
+                  <Flame className="text-orange-500" />
+                  Upgrade Plan
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
@@ -121,25 +125,46 @@ export function NavUser() {
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuLabel className="text-xs text-muted-foreground">
+              <DropdownMenuLabel className="text-[0.6875rem] text-muted-foreground uppercase tracking-wider font-semibold px-2">
                 Theme
               </DropdownMenuLabel>
-              <DropdownMenuGroup>
-                <DropdownMenuItem onClick={() => setTheme("light")}>
-                  <Sun />
+              <DropdownMenuGroup className="flex gap-1 px-2 pb-2">
+                <button
+                  onClick={() => setTheme("light")}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs transition-colors ${
+                    theme === "light"
+                      ? "bg-primary/10 text-primary"
+                      : "hover:bg-muted text-muted-foreground"
+                  }`}
+                >
+                  <Sun className="size-3.5" />
                   Light
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
-                  <Moon />
+                </button>
+                <button
+                  onClick={() => setTheme("dark")}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs transition-colors ${
+                    theme === "dark"
+                      ? "bg-primary/10 text-primary"
+                      : "hover:bg-muted text-muted-foreground"
+                  }`}
+                >
+                  <Moon className="size-3.5" />
                   Dark
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("system")}>
-                  <Sun className="h-4 w-4" />
-                  System
-                </DropdownMenuItem>
+                </button>
+                <button
+                  onClick={() => setTheme("system")}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs transition-colors ${
+                    theme === "system"
+                      ? "bg-primary/10 text-primary"
+                      : "hover:bg-muted text-muted-foreground"
+                  }`}
+                >
+                  <Monitor className="size-3.5" />
+                  Auto
+                </button>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => signOut()}>
+              <DropdownMenuItem onClick={() => signOut()} className="text-destructive focus:text-destructive">
                 <LogOut />
                 Sign Out
               </DropdownMenuItem>
@@ -152,14 +177,14 @@ export function NavUser() {
           <SidebarMenuButton
             size="lg"
             onClick={() => openSignIn()}
-            className="h-12"
+            className="h-12 bg-primary/5 hover:bg-primary/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06] border border-sidebar-border/50"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-accent text-sidebar-accent-foreground">
-              <LogIn03 strokeWidth={1.5} className="size-3.5" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <LogIn03 strokeWidth={2} className="size-4" />
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">Sign In</span>
-              <span className="truncate text-xs">Log in to your account</span>
+              <span className="truncate text-xs text-muted-foreground">Get started for free</span>
             </div>
           </SidebarMenuButton>
         </SidebarMenuItem>

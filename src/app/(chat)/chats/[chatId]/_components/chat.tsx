@@ -14,15 +14,15 @@ import { FormEvent, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
+import { Spinner } from "@/components/ui/spinner";
 import TextareaAutosize from "react-textarea-autosize";
-
-import { StopIcon } from "@phosphor-icons/react/dist/ssr";
 import { ChatMode } from "@/schemas/backend/chats/chat.schema";
 import { nanoid } from "nanoid";
 import ChatMessages from "./chat-messages";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
+import { cn } from "@/lib/utils";
 
 const ChatModelPickerMenu = dynamic(
   () =>
@@ -31,18 +31,14 @@ const ChatModelPickerMenu = dynamic(
     })),
   { ssr: false }
 );
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-} from "@/components/ui/input-group";
-import { ArrowUp, Send01 } from "@untitledui/icons";
-import { DramaIcon, User } from "lucide-react";
+import { ArrowUp } from "@untitledui/icons";
+import { Drama, Square } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 
 type ChatProps = {
   chat: { id: string; mode: ChatMode };
@@ -50,7 +46,7 @@ type ChatProps = {
 };
 
 export default function Chat(props: ChatProps) {
-  const { addMessageToBranch, setActiveId } = useChatBranchesContext();
+  const { addMessageToBranch, setActiveId, isSwitchingBranch } = useChatBranchesContext();
   // Use non-null assertion for ref type to satisfy downstream component prop types
   const messagesContainerRef = useRef<HTMLDivElement>(null!);
   const shouldScrollRef = useRef(false);
@@ -66,7 +62,7 @@ export default function Chat(props: ChatProps) {
     transport: new DefaultChatTransport<PersonaUIMessage>({
       api: `/api/chats/${props.chat.id}/chat`,
 
-      prepareSendMessagesRequest: ({ id, messages, body }) => {
+      prepareSendMessagesRequest: ({ messages, body }) => {
         return {
           body: {
             ...body,
@@ -97,6 +93,7 @@ export default function Chat(props: ChatProps) {
         containerRef={messagesContainerRef}
         shouldScrollRef={shouldScrollRef}
       />
+      {isSwitchingBranch && <BranchSwitchingIndicator />}
       <ChatPrompt
         messagesContainerRef={messagesContainerRef}
         shouldScrollRef={shouldScrollRef}
@@ -115,6 +112,7 @@ type ChatPromptProps = {
 function ChatPrompt(props: ChatPromptProps) {
   const [text, setText] = useState<string>("");
   const [isImpersonating, setIsImpersonating] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const chatId = useChatId();
   const { sendMessage, regenerate, stop } = useChatActions();
@@ -123,11 +121,11 @@ function ChatPrompt(props: ChatPromptProps) {
   const { modelId } = useChatMain();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isStreaming = status === "streaming" || status === "submitted";
+  const hasText = text.trim().length > 0;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const hasText = Boolean(text.trim());
 
     if (!hasText) {
       return;
@@ -182,15 +180,12 @@ function ChatPrompt(props: ChatPromptProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          // The API only cares about parentId; event is ignored but kept
-          // for consistency with other chat payloads.
           event: "send",
           parentId,
         }),
       });
 
       if (!response.ok || !response.body) {
-        // Optionally surface an error toast here if desired.
         return;
       }
 
@@ -204,12 +199,10 @@ function ChatPrompt(props: ChatPromptProps) {
 
         if (value) {
           const chunk = decoder.decode(value, { stream: !done });
-          // Keep React state as the single source of truth for the textarea.
           setText((prev) => prev + chunk);
         }
       }
     } catch (error) {
-      // Swallow for now or plug into your logger / toast system.
       console.error("Impersonation request failed", error);
     } finally {
       setIsImpersonating(false);
@@ -217,71 +210,131 @@ function ChatPrompt(props: ChatPromptProps) {
   };
 
   return (
-    <div className="sticky bottom-4 mb-4 grid w-full max-w-xl gap-6 z-10 mt-auto shrink-0 h-auto">
-      <form onSubmit={handleSubmit} className="w-full min-w-0 shrink-0">
-        <InputGroup className="dark:bg-input/30 backdrop-blur-3xl rounded-4xl w-full min-w-0">
-          <TextareaAutosize
-            ref={textareaRef}
-            data-slot="input-group-control"
-            className="flex field-sizing-content min-h-16 w-full resize-none rounded-3xl bg-transparent px-6 py-4.5 text-base transition-[color,box-shadow] outline-none text-[1.05rem]"
-            placeholder="Type your message..."
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                e.currentTarget.form?.requestSubmit();
-              }
-            }}
-          />
+    <div className="sticky bottom-0 w-full max-w-2xl z-10 mt-auto shrink-0 pb-4 pt-4">
+      <form onSubmit={handleSubmit} className="relative w-full">
+        {/* Main input container */}
+        <div
+          className={cn(
+            "relative overflow-hidden rounded-2xl transition-all duration-200",
+            "bg-card dark:bg-[#0f0f12]",
+            "border border-border/50 dark:border-white/[0.08]",
+            "shadow-lg dark:shadow-2xl dark:shadow-black/20",
+            isFocused && "border-primary/30 dark:border-white/[0.15] shadow-xl dark:shadow-primary/5"
+          )}
+        >
+          {/* Subtle gradient overlay */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary/[0.02] via-transparent to-transparent dark:from-violet-500/[0.03]" />
 
-          <InputGroupAddon
-            align="block-end"
-            className="items-center p-2 w-full min-w-0"
-          >
+          {/* Textarea */}
+          <div className="relative">
+            <TextareaAutosize
+              ref={textareaRef}
+              className={cn(
+                "w-full resize-none bg-transparent",
+                "px-4 pt-4 pb-2 text-[15px] leading-relaxed",
+                "placeholder:text-muted-foreground/50",
+                "outline-none border-none focus:ring-0",
+                "min-h-[56px] max-h-[200px]"
+              )}
+              placeholder="Write your message..."
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              spellCheck
+              autoCorrect="on"
+              autoCapitalize="sentences"
+              data-gramm="true"
+              data-gramm_editor="true"
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  e.currentTarget.form?.requestSubmit();
+                }
+              }}
+            />
+          </div>
+
+          {/* Bottom toolbar */}
+          <div className="relative flex items-center justify-between gap-2 px-3 pb-3 pt-1">
+            {/* Left side - Model selector */}
             <ChatModelSelector />
 
-            <div className="flex items-center gap-2 ml-auto">
+            {/* Right side - Actions */}
+            <div className="flex items-center gap-1.5">
+              {/* Impersonate button */}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <InputGroupButton
-                    variant="ghost"
-                    size="icon-xs"
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={handleImpersonate}
                     disabled={isImpersonating}
+                    className={cn(
+                      "h-8 w-8 p-0 rounded-lg",
+                      "text-muted-foreground/60 hover:text-foreground",
+                      "hover:bg-muted/50 dark:hover:bg-white/[0.06]",
+                      isImpersonating && "text-primary animate-pulse"
+                    )}
                   >
-                    <DramaIcon
-                      className={isImpersonating ? "animate-pulse" : ""}
-                    />
-                  </InputGroupButton>
+                    <Drama className="size-4" />
+                    <span className="sr-only">Impersonate User</span>
+                  </Button>
                 </TooltipTrigger>
-                <TooltipContent>Impersonate User</TooltipContent>
+                <TooltipContent side="top" sideOffset={8}>
+                  <p>Impersonate User</p>
+                  <p className="text-[10px] text-muted-foreground">AI writes as you</p>
+                </TooltipContent>
               </Tooltip>
 
-              {status === "streaming" || status === "submitted" ? (
-                <InputGroupButton
-                  variant="default"
-                  className="size-9 rounded-3xl"
-                  onClick={stop}
+              {/* Send / Stop button */}
+              {isStreaming ? (
+                <Button
                   type="button"
+                  onClick={stop}
+                  size="sm"
+                  className={cn(
+                    "h-9 w-9 p-0 rounded-xl",
+                    "bg-destructive/10 hover:bg-destructive/20",
+                    "text-destructive border border-destructive/20",
+                    "transition-all duration-150"
+                  )}
                 >
-                  <StopIcon weight="fill" className="size-4" />
+                  <Square className="size-4 fill-current" />
                   <span className="sr-only">Stop generation</span>
-                </InputGroupButton>
+                </Button>
               ) : (
-                <InputGroupButton
-                  variant="ghost"
-                  className="ml-2 size-10 rounded-3xl bg-radial-[at_25%_25%] from-secondary/20 to-secondary/35 to-90% border-accent text-accent-foreground/90"
+                <Button
                   type="submit"
+                  size="sm"
+                  disabled={!hasText}
+                  className={cn(
+                    "h-9 w-9 p-0 rounded-xl",
+                    "transition-all duration-150",
+                    hasText
+                      ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/25"
+                      : "bg-muted/50 dark:bg-white/[0.06] text-muted-foreground/50 cursor-not-allowed"
+                  )}
                 >
-                  <ArrowUp strokeWidth={1.5} />
-                  <span className="sr-only">Send</span>
-                </InputGroupButton>
+                  <ArrowUp className="size-4" strokeWidth={2} />
+                  <span className="sr-only">Send message</span>
+                </Button>
               )}
             </div>
-          </InputGroupAddon>
-        </InputGroup>
+          </div>
+        </div>
+
+        {/* Keyboard hint */}
+        <div className="flex items-center justify-center mt-2">
+          <p className="text-[11px] text-muted-foreground/40">
+            <kbd className="px-1 py-0.5 rounded bg-muted/30 dark:bg-white/[0.03] font-mono text-[10px]">Enter</kbd>
+            <span className="mx-1">to send</span>
+            <span className="text-muted-foreground/20 mx-1">·</span>
+            <kbd className="px-1 py-0.5 rounded bg-muted/30 dark:bg-white/[0.03] font-mono text-[10px]">Shift + Enter</kbd>
+            <span className="mx-1">for new line</span>
+          </p>
+        </div>
       </form>
     </div>
   );
@@ -291,17 +344,29 @@ function ChatModelSelector() {
   const { navigateSettings } = useSettingsNavigation();
   const { modelId, setModelId } = useChatMain();
 
-  // Model changes are now optimistic - persisted when a message is sent
   const handleModelChange = (selectedModelId: TextGenerationModelId) => {
     if (modelId === selectedModelId) return;
     setModelId(selectedModelId);
   };
 
   return (
-    <ChatModelPickerMenu
-      currentModelId={modelId!}
-      onModelChange={handleModelChange}
-      onOpenSettings={() => navigateSettings("model")}
-    />
+    <div className="flex items-center">
+      <ChatModelPickerMenu
+        currentModelId={modelId!}
+        onModelChange={handleModelChange}
+        onOpenSettings={() => navigateSettings("model")}
+      />
+    </div>
+  );
+}
+
+function BranchSwitchingIndicator() {
+  return (
+    <div className="sticky bottom-20 z-20 flex justify-center pointer-events-none">
+      <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 shadow-sm">
+        <Spinner className="size-4" />
+        <span className="text-sm text-muted-foreground">Loading branch...</span>
+      </div>
+    </div>
   );
 }

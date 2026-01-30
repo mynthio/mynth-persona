@@ -11,7 +11,7 @@ export const getOpenRouter = (): OpenRouterProvider => {
       apiKey: process.env.OPEN_ROUTER_API_KEY!,
       headers: {
         "HTTP-Referer": "https://prsna.app",
-        "X-Title": "Persona",
+        "X-Title": "PRSNA",
       },
     });
   }

@@ -91,5 +91,8 @@ export const chatConfig: ChatConfig = {
     {
       modelId: "minimax/minimax-m2-her:standard",
     },
+    {
+      modelId: "moonshotai/kimi-k2.5:standard",
+    },
   ],
 };

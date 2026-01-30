@@ -27,7 +27,7 @@ export const renderDefaultRoleplayPrompt: RoleplayPromptRenderer = (
     : "";
 
   const lastCheckpointSummaryBlock = args.lastCheckpointSummary
-    ? `\nRecent context:\n${args.lastCheckpointSummary}\n\n`
+    ? `\n[STORY STATE - Current situation summary]:\n${args.lastCheckpointSummary}\n\n[Continue from this state. Do not contradict established facts.]\n\n`
     : "";
 
   return `You are ${personaName}. ${

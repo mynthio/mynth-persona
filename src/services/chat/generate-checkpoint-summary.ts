@@ -5,45 +5,45 @@ import { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.s
 import { generateText } from "ai";
 
 export async function generateCheckpointSummary(args: {
-  messagesTillLastCheckpoint: PersonaUIMessage[];
+  messagesSinceLastCheckpoint: PersonaUIMessage[];
   lastCheckpointMessage?: PersonaUIMessage;
   userName: string;
   personaName: string;
 }): Promise<string> {
   const {
-    messagesTillLastCheckpoint,
+    messagesSinceLastCheckpoint,
     lastCheckpointMessage,
     userName,
     personaName,
   } = args;
 
-  const messagesAsText = messagesTillLastCheckpoint
+  const messagesAsText = messagesSinceLastCheckpoint
     .map(
       (message) => `[${message.role}]: ${extractPersonaMessageText(message)}`
     )
     .join("\n\n");
 
-  const previousSummary = lastCheckpointMessage
-    ? extractPersonaMessageText(lastCheckpointMessage)
-    : null;
+  const previousSummary = lastCheckpointMessage?.metadata?.checkpoint?.content;
 
-  const system = `Extract the current roleplay state as structured data. Be extremely concise.
+  const system = `Extract the current roleplay state. Be extremely concise but capture emotional dynamics.
 
 FORMAT:
-Location: [current scene location]
-Characters present: [who is in the scene]
-${personaName} state: [emotional state, goals, clothes, outfit, body, attitude toward ${userName}]
-${userName} state: [if apparent from messages]
-Recent events: [2-3 key things that happened, as brief phrases]
-Open threads: [unresolved conflicts, promises, questions]
-Important details: [names, objects, facts that must not be forgotten]
+Location: [current scene location and atmosphere]
+Characters: [who is present and their current demeanor]
+${personaName}: [emotional state, appearance, attitude toward ${userName}, current goal]
+${userName}: [emotional state, stance, what they seem to want]
+Relationship: [current dynamic - trust level, tension, affection, conflict, intimacy]
+Recent: [3-5 key events as brief phrases]
+Open threads: [unresolved situations, unanswered questions, promises made]
+Must remember: [names, objects, facts critical to story continuity]
 
 RULES:
-- Maximum 200 words total
-- Use phrases, not sentences
-- No narrative prose
-- Only include categories with actual content
-- Prioritize information needed for story continuity`;
+- Maximum 250 words total
+- Use phrases, not full sentences
+- Capture emotional subtext, not just surface events
+- Prioritize information affecting character behavior
+- Include any physical changes (injuries, clothing, location changes)
+- Only include categories with actual content`;
 
   let prompt = "";
 

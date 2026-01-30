@@ -25,7 +25,8 @@ export type TextGenerationModelId =
   | "google/gemini-3-pro-preview:premium"
   | "google/gemini-3-flash-preview:standard"
   | "minimax/minimax-m2-her:eco"
-  | "minimax/minimax-m2-her:standard";
+  | "minimax/minimax-m2-her:standard"
+  | "moonshotai/kimi-k2.5:standard";
 
 export type Provider = {
   url?: string;
@@ -731,6 +732,34 @@ export const textGenerationModels: Record<
       storesMessages: "unknown",
       additionalNotes:
         "Accessed via OpenRouter. MiniMax is a Chinese AI company known for video generation and language models.",
+    },
+  },
+  "moonshotai/kimi-k2.5:standard": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    displayName: "Kimi K2.5",
+    modelId: "moonshotai/kimi-k2.5:standard",
+    openRouterModelId: "moonshotai/kimi-k2.5",
+    uncensored: false,
+    description:
+      "A native multimodal model with strong reasoning and visual understanding. Excels at coherent, context-aware roleplay with detailed character portrayal and plot consistency across extended 256K token conversations.",
+    style:
+      "Thoughtful and deliberate with strong logical consistency. Maintains character depth through reasoning-enhanced responses. Adapts naturally to complex scenarios and multi-turn narratives. Excels at nuanced emotional portrayal and world-building.",
+    perks: [
+      "256K context for extended story sessions",
+      "reasoning-enhanced character consistency",
+      "strong multimodal understanding",
+    ],
+    tags: ["reasoning", "long-context", "multimodal"],
+    tier: "standard",
+    provider: {
+      url: "https://www.moonshot.ai/",
+      displayName: "Moonshot AI",
+      privacyPolicyUrl: "https://www.moonshot.ai/privacy",
+      training: "unknown",
+      storesMessages: "unknown",
+      additionalNotes:
+        "Accessed via OpenRouter (Together AI). Kimi K2.5 is built on the K2 base with 1T total parameters (MoE architecture).",
     },
   },
 };

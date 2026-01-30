@@ -98,6 +98,38 @@ const MODEL_TIPS_BY_BASE: Record<string, ModelTip[]> = {
       ),
     },
   ],
+  "moonshotai/kimi-k2.5": [
+    {
+      id: "kimi-k2.5-reasoning",
+      content: (
+        <>
+          Kimi K2.5 has strong reasoning capabilities that help it maintain
+          logical consistency in complex narratives. It excels at keeping track
+          of plot details and character motivations across long conversations.
+        </>
+      ),
+    },
+    {
+      id: "kimi-k2.5-simple-prompts",
+      content: (
+        <>
+          This model responds best to clear, direct instructions. Simpler
+          prompts often yield better results than overly detailed ones—let the
+          model&apos;s reasoning fill in the gaps naturally.
+        </>
+      ),
+    },
+    {
+      id: "kimi-k2.5-long-context",
+      content: (
+        <>
+          With 256K context, Kimi K2.5 can maintain story coherence across very
+          long sessions. It&apos;s particularly good at referencing earlier
+          events and maintaining continuity.
+        </>
+      ),
+    },
+  ],
 };
 
 /**

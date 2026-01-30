@@ -4,6 +4,7 @@ import { getPublicPersonas } from "./_components/landing/data";
 import { HeroSkeleton } from "./_components/landing/hero-skeleton";
 import { PersonasSkeleton } from "./_components/landing/personas-skeleton";
 import { Footer } from "./_components/landing/footer";
+import { MobileSidebarTrigger } from "./_components/landing/mobile-sidebar-trigger";
 
 // Dynamic imports for heavy client components (bundle-dynamic-imports)
 // These use motion/react which is a large bundle
@@ -104,6 +105,9 @@ async function RecentPersonas() {
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-black">
+      {/* Mobile sidebar trigger - only visible on mobile */}
+      <MobileSidebarTrigger />
+
       {/* Hero with Suspense for streaming (async-suspense-boundaries) */}
       <Suspense fallback={<HeroSkeleton />}>
         <HeroWithData />

@@ -61,6 +61,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useCopyToClipboard } from "@uidotdev/usehooks";
 import { ChatMessageImages } from "./chat-message-images";
 import { ChatMessageImageInProgress } from "./chat-message-image-in-progress";
+import { DevCheckpointViewer } from "./dev-checkpoint-viewer";
 import { useChatImageGenerationStore } from "@/stores/chat-image-generation.store";
 import {
   generateMessageImage,
@@ -541,14 +542,11 @@ const ChatMessage = React.memo(function ChatMessage(props: ChatMessageProps) {
                 inProgressRuns={inProgressRuns}
               />
 
-              {/*{props.message.metadata?.checkpoint && (
-                <div>
-                  Checkpoint{" "}
-                  <Response>
-                    {props.message.metadata?.checkpoint?.content ?? ""}
-                  </Response>
-                </div>
-              )}*/}
+              {props.message.metadata?.checkpoint && (
+                <DevCheckpointViewer
+                  checkpoint={props.message.metadata.checkpoint}
+                />
+              )}
 
               {inProgressRuns.length > 0 &&
                 inProgressRuns.map((run) => (

@@ -209,7 +209,7 @@ export async function POST(
   const messagesHistory = parentId
     ? await getChatMessagesData(chatId, {
         messageId: parentId,
-        limit: 20,
+        limit: 50,
         strict: true,
       }).then((res) => res.messages)
     : [];
@@ -242,10 +242,10 @@ export async function POST(
 
   const shouldGenerateCheckpoint =
     (payload.event === "send" || payload.event === "edit_message") &&
-    messagesAfterCheckpointCount > 6;
+    messagesAfterCheckpointCount > 24;
 
   const indexOfCheckpointToUse =
-    messagesAfterCheckpointCount > 6
+    messagesAfterCheckpointCount > 24
       ? lastCheckpointIndex
       : previousCheckpointIndex;
 
@@ -493,11 +493,16 @@ export async function POST(
 
     const checkpointContent = shouldGenerateCheckpoint
       ? await generateCheckpointSummary({
-          messagesTillLastCheckpoint: messagesHistory.slice(
-            0,
-            lastCheckpointIndex
-          ),
-          lastCheckpointMessage: messagesHistory[lastCheckpointIndex],
+          messagesSinceLastCheckpoint: [
+            ...messagesHistory.slice(
+              lastCheckpointIndex > 0 ? lastCheckpointIndex + 1 : 0
+            ),
+            ...(payload.message ? [payload.message] : []),
+          ],
+          lastCheckpointMessage:
+            lastCheckpointIndex > 0
+              ? messagesHistory[lastCheckpointIndex]
+              : undefined,
           userName: userName ?? "User",
           personaName,
         })

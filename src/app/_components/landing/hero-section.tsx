@@ -50,7 +50,7 @@ export function HeroSection({ personas }: HeroSectionProps) {
         >
           <img
             src={getImageUrl(currentPersona.profileImageIdMedia)}
-            alt=""
+            alt={`${currentPersona.publicName} - AI character portrait`}
             className="w-full h-full object-cover object-top"
           />
         </motion.div>
@@ -87,9 +87,9 @@ export function HeroSection({ personas }: HeroSectionProps) {
               )}
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tight leading-[0.95] mb-4">
+            <h2 className="text-5xl md:text-7xl font-bold text-white tracking-tight leading-[0.95] mb-4">
               {currentPersona.publicName}
-            </h1>
+            </h2>
 
             <p className="text-xl md:text-2xl text-white/70 font-light leading-relaxed mb-8 max-w-xl">
               {currentPersona.headline}

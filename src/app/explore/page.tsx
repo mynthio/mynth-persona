@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   TopBar,
   TopBarSidebarTrigger,
@@ -9,6 +10,29 @@ import { GlobeSlated01 } from "@untitledui/icons";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import { PersonasFilters } from "../_components/personas-filters";
+
+export const metadata: Metadata = {
+  title: "Explore AI Personas - Browse Characters for Roleplay Chat",
+  description:
+    "Discover thousands of AI personas for immersive roleplay chat. Browse characters by personality, genre, and style. Find your perfect AI companion or create your own.",
+  keywords: [
+    "browse AI personas",
+    "AI characters",
+    "roleplay characters",
+    "AI companions",
+    "character library",
+    "AI chat characters",
+  ],
+  openGraph: {
+    title: "Explore AI Personas - Browse Characters for Roleplay Chat",
+    description:
+      "Discover thousands of AI personas for immersive roleplay chat. Browse characters by personality, genre, and style.",
+    url: "/explore",
+  },
+  alternates: {
+    canonical: "/explore",
+  },
+};
 
 function PersonasLoadingSkeleton() {
   return (

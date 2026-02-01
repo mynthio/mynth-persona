@@ -9,19 +9,29 @@ import { MediaDialog } from "../_components/media-dialog";
 import { ArtFilters } from "../_components/art-filters";
 import { Suspense } from "react";
 
-export const metadata = {
-  title: "Art Gallery | Persona | prsna.app",
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "AI Art Gallery - Character Portraits & Generated Images",
   description:
-    "Explore community generated art on Persona. All the content is generated on our platform.",
+    "Explore stunning AI-generated character art and portraits. Browse community creations or generate your own AI character images on Persona.",
   keywords: [
-    "Art Gallery",
-    "Persona",
-    "prsna.app",
-    "community generated art",
-    "art generation",
-    "art creation",
-    "art community",
+    "AI art gallery",
+    "AI character art",
+    "AI generated portraits",
+    "character images",
+    "AI art generation",
+    "anime character art",
   ],
+  openGraph: {
+    title: "AI Art Gallery - Character Portraits & Generated Images",
+    description:
+      "Explore stunning AI-generated character art and portraits. Browse community creations or generate your own.",
+    url: "/art",
+  },
+  alternates: {
+    canonical: "/art",
+  },
 };
 
 export default function ArtPage() {

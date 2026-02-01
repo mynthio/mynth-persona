@@ -20,19 +20,24 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: {
-    default: "Persona - AI Persona Generator",
+    default: "Persona - AI Roleplay Chat & Character Generator",
     template: "%s | Persona",
   },
   description:
-    "Create and customize AI personas with advanced AI models. Generate detailed character profiles, expand their stories, and create stunning images. Start for free with daily tokens or upgrade for unlimited creativity.",
+    "Create AI personas for immersive roleplay chat. Generate detailed characters with unique personalities, chat naturally, and create stunning AI character art. Free to start.",
   keywords: [
-    "AI persona",
-    "character generator",
-    "AI models",
-    "persona creation",
-    "character development",
-    "AI chat",
-    "persona generator",
+    "AI roleplay chat",
+    "AI persona generator",
+    "roleplay AI",
+    "character AI",
+    "AI companion chat",
+    "AI character creator",
+    "immersive AI chat",
+    "AI character art",
+    "chat with AI characters",
+    "AI girlfriend",
+    "AI boyfriend",
+    "virtual companion",
   ],
   authors: [{ name: "Persona" }],
   creator: "Persona",
@@ -41,57 +46,44 @@ export const metadata: Metadata = {
 
   // Open Graph
   openGraph: {
-    title: "Persona - AI Persona Generator",
+    title: "Persona - AI Roleplay Chat & Character Generator",
     description:
-      "Create and customize AI personas with advanced AI models. Generate detailed character profiles, expand their stories, and create stunning images.",
+      "Create AI personas for immersive roleplay chat. Generate detailed characters with unique personalities, chat naturally, and create stunning AI character art.",
     url: "/",
     siteName: "Persona",
     locale: "en_US",
     type: "website",
-    // images: [
-    //   {
-    //     url: "/og-image.png",
-    //     width: 1200,
-    //     height: 630,
-    //     alt: "Persona by mynth - AI Persona Generator",
-    //   },
-    // ],
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Persona - AI Roleplay Chat & Character Generator",
+      },
+    ],
   },
 
   // Twitter
   twitter: {
     card: "summary_large_image",
-    title: "Persona - AI Persona Generator",
+    title: "Persona - AI Roleplay Chat & Character Generator",
     description:
-      "Create and customize AI personas with advanced AI models. Generate detailed character profiles, expand their stories, and create stunning images.",
+      "Create AI personas for immersive roleplay chat. Generate detailed characters with unique personalities, chat naturally, and create stunning AI character art.",
     creator: "@mynth",
-    // images: ["/twitter-image.png"],
+    images: ["/og-image.png"],
   },
 
   // Icons and manifest
-  // icons: {
-  //   icon: [
-  //     { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-  //     { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-  //     { url: "/favicon.svg", type: "image/svg+xml" },
-  //   ],
-  //   apple: [
-  //     { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-  //   ],
-  //   other: [
-  //     {
-  //       url: "/android-chrome-192x192.png",
-  //       sizes: "192x192",
-  //       type: "image/png",
-  //     },
-  //     {
-  //       url: "/android-chrome-512x512.png",
-  //       sizes: "512x512",
-  //       type: "image/png",
-  //     },
-  //   ],
-  // },
-  // manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  manifest: "/site.webmanifest",
 
   // Additional metadata
   category: "Entertainment",
@@ -105,6 +97,9 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
+  },
+  alternates: {
+    canonical: "/",
   },
   verification: {
     // Add your verification codes here when available
@@ -130,6 +125,33 @@ export default async function RootLayout({
           async
           crossOrigin="anonymous"
           src="https://tweakcn.com/live-preview.min.js"
+        />
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "Persona",
+              url: "https://prsna.app",
+              description:
+                "Create AI personas for immersive roleplay chat. Generate detailed characters with unique personalities, chat naturally, and create stunning AI character art.",
+              applicationCategory: "EntertainmentApplication",
+              operatingSystem: "Web",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "USD",
+                description: "Free tier with daily tokens",
+              },
+              creator: {
+                "@type": "Organization",
+                name: "Mynth",
+                url: "https://prsna.app",
+              },
+            }),
+          }}
         />
       </head>
       <body

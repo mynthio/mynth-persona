@@ -105,6 +105,11 @@ async function RecentPersonas() {
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-black">
+      {/* SEO H1 - visually hidden but accessible to search engines */}
+      <h1 className="sr-only">
+        AI Roleplay Chat & Character Generator - Create Your Perfect AI Companion
+      </h1>
+
       {/* Mobile sidebar trigger - only visible on mobile */}
       <MobileSidebarTrigger />
 

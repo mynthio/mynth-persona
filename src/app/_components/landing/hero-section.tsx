@@ -34,7 +34,7 @@ export function HeroSection({ personas }: HeroSectionProps) {
       <div className="absolute -bottom-40 left-[-10%] h-[520px] w-[520px] rounded-full bg-primary/10 blur-[170px]" />
       <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
 
-      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 md:px-16 pt-12 sm:pt-16 md:pt-20 pb-8 sm:pb-12 md:pb-16">
+      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 md:px-16 pt-10 sm:pt-14 md:pt-16 pb-10 sm:pb-14 md:pb-16">
         <div className="grid gap-8 sm:gap-10 lg:grid-cols-[1.05fr_1.3fr] lg:gap-16 items-start">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -100,7 +100,7 @@ export function HeroSection({ personas }: HeroSectionProps) {
             </div>
           </motion.div>
 
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 auto-rows-[minmax(220px,1fr)] sm:auto-rows-[minmax(180px,1fr)] lg:auto-rows-auto lg:grid-rows-2 h-auto lg:h-[calc(100vh-10rem)]">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 auto-rows-[minmax(240px,1fr)] sm:auto-rows-[minmax(210px,1fr)] lg:auto-rows-auto lg:grid-rows-2 h-auto lg:h-[calc(100vh-7rem)]">
             {featured.map((persona, index) => (
               <motion.div
                 key={persona.id}
@@ -120,7 +120,7 @@ export function HeroSection({ personas }: HeroSectionProps) {
                       alt={persona.publicName}
                       className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
                   </div>
 
                   <div className="absolute top-3 left-3 flex items-center gap-2">
@@ -139,17 +139,19 @@ export function HeroSection({ personas }: HeroSectionProps) {
                   </div>
 
                   <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <div className="text-lg font-semibold text-foreground">
-                      {persona.publicName}
-                    </div>
-                    <div className="mt-1 text-xs text-foreground/60 line-clamp-2">
-                      {persona.headline}
+                    <div className="flex w-full flex-col gap-1 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-white shadow-[0_12px_30px_-20px_rgba(15,23,42,0.5)] backdrop-blur-md">
+                      <div className="text-lg font-semibold tracking-tight">
+                        {persona.publicName}
+                      </div>
+                      <div className="text-xs text-white/70 line-clamp-2">
+                        {persona.headline}
+                      </div>
                     </div>
                   </div>
 
                   <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/30 to-transparent" />
-                    <div className="absolute bottom-4 left-4 text-xs font-semibold uppercase tracking-[0.2em] text-foreground/70">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+                    <div className="absolute bottom-4 left-4 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-white/80 backdrop-blur-md">
                       Open profile
                     </div>
                   </div>

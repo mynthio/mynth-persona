@@ -74,7 +74,7 @@ async function RecentPersonas() {
 // Main page component - Server Component (no "use client")
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-background">
       {/* SEO H1 - visually hidden but accessible to search engines */}
       <h1 className="sr-only">
         AI Roleplay Chat & Character Generator - Create Your Perfect AI

@@ -22,11 +22,11 @@ export function PersonasSection({
   if (!personas.length) return null;
 
   return (
-    <section className="relative overflow-hidden bg-black py-20 md:py-24 px-5 sm:px-6 md:px-16">
+    <section className="relative overflow-hidden bg-background py-20 md:py-24 px-5 sm:px-6 md:px-16">
       {/* Ambient background to match hero/models sections */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,rgba(139,92,246,0.18),transparent_55%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_85%,rgba(236,72,153,0.12),transparent_55%)]" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,rgba(124,58,237,0.16),transparent_55%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_85%,rgba(236,72,153,0.14),transparent_55%)]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
 
       <div className="relative max-w-7xl mx-auto">
         <motion.div
@@ -37,20 +37,20 @@ export function PersonasSection({
           className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12"
         >
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.2em] text-white/60">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border/50 bg-card/50 px-4 py-2 text-xs uppercase tracking-[0.2em] text-foreground/70 shadow-[0_12px_30px_-18px_rgba(124,58,237,0.35)]">
               Latest Personas
             </div>
-            <h2 className="mt-5 text-3xl sm:text-4xl md:text-5xl font-semibold text-white tracking-tight">
+            <h2 className="mt-5 text-3xl sm:text-4xl md:text-5xl font-semibold text-foreground tracking-tight">
               {title}
             </h2>
-            <p className="text-white/50 mt-3 text-sm sm:text-base max-w-xl">
+            <p className="text-muted-foreground mt-3 text-sm sm:text-base max-w-xl">
               {subtitle}
             </p>
           </div>
           {viewAllHref && (
             <Link
               href={viewAllHref}
-              className="hidden md:flex items-center gap-2 text-white/60 hover:text-white transition-colors group"
+              className="hidden md:flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
             >
               View all
               <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
@@ -68,7 +68,7 @@ export function PersonasSection({
           <div className="mt-8 text-center md:hidden">
             <Link
               href={viewAllHref}
-              className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               View all
               <ArrowRight className="size-4" />

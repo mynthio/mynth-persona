@@ -12,7 +12,7 @@ export function MobileSidebarTrigger() {
       variant="ghost"
       size="icon"
       onClick={toggleSidebar}
-      className="fixed top-4 left-4 z-50 size-10 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white hover:bg-black/70 hover:text-white md:hidden"
+      className="fixed top-4 left-4 z-50 size-10 rounded-full border border-border/60 bg-card/60 text-foreground backdrop-blur-md hover:bg-card/80 md:hidden"
       aria-label="Open menu"
       aria-expanded={openMobile}
     >

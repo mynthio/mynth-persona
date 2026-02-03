@@ -1,8 +1,6 @@
 export { HeroSection } from "./hero-section";
-export { FeatureShowcase } from "./feature-showcase";
 export { PersonaCard } from "./persona-card";
 export { PersonasSection } from "./personas-section";
-export { EcoModelsSection } from "./eco-models-section";
 export { CreateSection } from "./create-section";
 export { Footer } from "./footer";
 export { HeroSkeleton } from "./hero-skeleton";

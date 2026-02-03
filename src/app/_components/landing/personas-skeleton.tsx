@@ -1,6 +1,6 @@
 export function PersonasSkeleton() {
   return (
-    <section className="relative py-20 px-8 md:px-16 bg-black">
+    <section className="relative py-20 md:py-24 px-5 sm:px-6 md:px-16 bg-black">
       <div className="max-w-7xl mx-auto">
         {/* Header skeleton */}
         <div className="flex items-end justify-between mb-12">
@@ -16,7 +16,7 @@ export function PersonasSkeleton() {
             <div
               key={i}
               className={`rounded-3xl overflow-hidden bg-white/5 animate-pulse ${
-                i < 2 ? "h-[500px]" : "h-[400px]"
+                i < 2 ? "h-[360px] sm:h-[500px]" : "h-[300px] sm:h-[400px]"
               }`}
             >
               {/* Gradient shimmer */}

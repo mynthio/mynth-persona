@@ -33,7 +33,7 @@ export function PrsnaToolbar({ className }: { className?: string }) {
         >
           <div
             className={cn(
-              "relative flex items-center gap-3 p-2 pl-4 rounded-full border shadow-2xl backdrop-blur-xl transition-all duration-300 ring-1 ring-white/5 bg-background/60",
+              "relative flex items-center gap-3 p-2 pl-3 sm:pl-4 rounded-full border shadow-2xl backdrop-blur-xl transition-all duration-300 ring-1 ring-white/5 bg-background/60",
               isFocused ? "border-white/10" : "border-transparent"
             )}
           >
@@ -54,7 +54,7 @@ export function PrsnaToolbar({ className }: { className?: string }) {
               name="prompt"
               type="text"
               placeholder="Describe your ideal persona..."
-              className="flex-1 bg-transparent border-none outline-none h-12 text-lg placeholder:text-muted-foreground/50 placeholder:font-light"
+              className="flex-1 bg-transparent border-none outline-none h-11 sm:h-12 text-base sm:text-lg placeholder:text-muted-foreground/50 placeholder:font-light"
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
               onChange={(e) => setValue(e.target.value)}

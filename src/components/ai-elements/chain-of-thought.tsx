@@ -17,10 +17,10 @@ import {
 import type { ComponentProps, ReactNode } from "react";
 import { createContext, memo, useContext, useMemo } from "react";
 
-type ChainOfThoughtContextValue = {
+interface ChainOfThoughtContextValue {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-};
+}
 
 const ChainOfThoughtContext = createContext<ChainOfThoughtContextValue | null>(
   null
@@ -64,10 +64,7 @@ export const ChainOfThought = memo(
 
     return (
       <ChainOfThoughtContext.Provider value={chainOfThoughtContext}>
-        <div
-          className={cn("not-prose max-w-prose space-y-4", className)}
-          {...props}
-        >
+        <div className={cn("not-prose w-full space-y-4", className)} {...props}>
           {children}
         </div>
       </ChainOfThoughtContext.Provider>
@@ -143,7 +140,7 @@ export const ChainOfThoughtStep = memo(
       >
         <div className="relative mt-0.5">
           <Icon className="size-4" />
-          <div className="-mx-px absolute top-7 bottom-0 left-1/2 w-px bg-border" />
+          <div className="absolute top-7 bottom-0 left-1/2 -mx-px w-px bg-border" />
         </div>
         <div className="flex-1 space-y-2 overflow-hidden">
           <div>{label}</div>

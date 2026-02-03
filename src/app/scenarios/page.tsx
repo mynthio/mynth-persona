@@ -28,7 +28,6 @@ type PaginatedScenariosResponse = {
 };
 
 export default function ScenariosPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const eventFilter = searchParams.get("event");
   const [initialData, setInitialData] =
@@ -56,16 +55,6 @@ export default function ScenariosPage() {
 
     fetchInitialData();
   }, [eventFilter]);
-
-  const toggleHalloweenFilter = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (eventFilter === "halloween") {
-      params.delete("event");
-    } else {
-      params.set("event", "halloween");
-    }
-    router.push(`/scenarios?${params.toString()}`);
-  };
 
   if (isLoading || !initialData) {
     return (

@@ -17,16 +17,9 @@ import {
 interface PersonaCardProps {
   persona: PublicPersonaListItem;
   index: number;
-  size?: "default" | "large" | "small";
 }
 
-const heights = {
-  large: "h-[500px]",
-  default: "h-[400px]",
-  small: "h-[320px]",
-} as const;
-
-export function PersonaCard({ persona, index, size = "default" }: PersonaCardProps) {
+export function PersonaCard({ persona, index }: PersonaCardProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   const hasVideo = Boolean(persona.profileSpotlightMediaId);
@@ -56,8 +49,7 @@ export function PersonaCard({ persona, index, size = "default" }: PersonaCardPro
       <Link
         href={`/personas/${persona.slug}`}
         className={cn(
-          "relative block rounded-3xl overflow-hidden group",
-          heights[size],
+          "relative block rounded-3xl overflow-hidden group aspect-[3/4] sm:aspect-6/11 min-h-[260px] sm:min-h-[320px] lg:min-h-[340px] bg-card/20 border border-border/50 shadow-[0_20px_50px_-32px_rgba(0,0,0,0.6)]",
         )}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -114,11 +106,11 @@ export function PersonaCard({ persona, index, size = "default" }: PersonaCardPro
         </div>
 
         {/* Content */}
-        <div className="absolute bottom-0 left-0 right-0 p-6">
-          <h3 className="text-2xl font-bold text-white mb-1 group-hover:text-white/90 transition-colors">
+        <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
+          <h3 className="text-xl sm:text-2xl font-bold text-white mb-1 group-hover:text-white/90 transition-colors">
             {persona.publicName}
           </h3>
-          <p className="text-sm text-white/60 line-clamp-2 group-hover:text-white/70 transition-colors">
+          <p className="text-xs sm:text-sm text-white/60 line-clamp-2 group-hover:text-white/70 transition-colors">
             {persona.headline}
           </p>
 

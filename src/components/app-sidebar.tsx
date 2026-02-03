@@ -20,24 +20,23 @@ import { Link } from "./ui/link";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar
-      variant="sidebar"
-      collapsible="icon"
-      {...props}
-    >
+    <Sidebar variant="sidebar" collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <div className="w-full flex flex-row items-center group-data-[collapsible=icon]:justify-center gap-3 justify-between">
-              <Link href="/" className="flex items-center gap-2.5 group-data-[collapsible=icon]:gap-0">
-                <img
+              <Link
+                href="/"
+                className="flex items-center gap-2.5 group-data-[collapsible=icon]:gap-0"
+              >
+                {/* <img
                   className="aspect-square size-8 rounded-lg object-cover transition-transform hover:scale-105"
                   loading="lazy"
                   draggable={false}
                   src="https://mynth-persona-prod.b-cdn.net/static/prsna-logo.webp"
                   alt="Prsna"
-                />
-                <span className="font-semibold text-base tracking-tight group-data-[collapsible=icon]:hidden">
+                /> */}
+                <span className="font-bold first-letter:text-primary text-foreground text-base tracking-tight group-data-[collapsible=icon]:hidden">
                   PRSNA
                 </span>
               </Link>

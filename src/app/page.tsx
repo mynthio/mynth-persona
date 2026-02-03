@@ -15,21 +15,9 @@ const HeroSection = dynamic(
   }
 );
 
-const FeatureShowcase = dynamic(
-  () =>
-    import("./_components/landing/feature-showcase").then(
-      (m) => m.FeatureShowcase
-    ),
-  {
-    ssr: true,
-  }
-);
-
 const ModelsSection = dynamic(
   () =>
-    import("./_components/landing/models-section").then(
-      (m) => m.ModelsSection
-    ),
+    import("./_components/landing/models-section").then((m) => m.ModelsSection),
   {
     ssr: true,
   }
@@ -42,16 +30,6 @@ const PersonasSection = dynamic(
     ),
   {
     loading: () => <PersonasSkeleton />,
-  }
-);
-
-const EcoModelsSection = dynamic(
-  () =>
-    import("./_components/landing/eco-models-section").then(
-      (m) => m.EcoModelsSection
-    ),
-  {
-    ssr: true,
   }
 );
 
@@ -75,27 +53,9 @@ async function HeroWithData() {
   return <HeroSection personas={featured} />;
 }
 
-async function TrendingPersonas() {
-  const personas = await getPublicPersonas();
-  const trending = personas.slice(0, 8);
-
-  if (!trending.length) {
-    return null;
-  }
-
-  return (
-    <PersonasSection
-      title="Trending Characters"
-      subtitle="Most popular personas this week"
-      personas={trending}
-      viewAllHref="/explore"
-    />
-  );
-}
-
 async function RecentPersonas() {
   const personas = await getPublicPersonas();
-  const recent = personas.slice(8, 16);
+  const recent = personas.slice(0, 12);
 
   if (!recent.length) {
     return null;
@@ -117,7 +77,8 @@ export default function HomePage() {
     <div className="min-h-screen bg-black">
       {/* SEO H1 - visually hidden but accessible to search engines */}
       <h1 className="sr-only">
-        AI Roleplay Chat & Character Generator - Create Your Perfect AI Companion
+        AI Roleplay Chat & Character Generator - Create Your Perfect AI
+        Companion
       </h1>
 
       {/* Mobile sidebar trigger - only visible on mobile */}
@@ -129,15 +90,6 @@ export default function HomePage() {
       </Suspense>
 
       <ModelsSection />
-
-      <FeatureShowcase />
-
-      {/* Trending section with Suspense */}
-      <Suspense fallback={<PersonasSkeleton />}>
-        <TrendingPersonas />
-      </Suspense>
-
-      <EcoModelsSection />
 
       {/* Recent section with Suspense */}
       <Suspense fallback={<PersonasSkeleton />}>

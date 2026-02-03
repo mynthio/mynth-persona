@@ -22,20 +22,30 @@ export function PersonasSection({
   if (!personas.length) return null;
 
   return (
-    <section className="relative py-20 px-8 md:px-16 bg-black">
-      <div className="max-w-7xl mx-auto">
+    <section className="relative overflow-hidden bg-black py-20 md:py-24 px-5 sm:px-6 md:px-16">
+      {/* Ambient background to match hero/models sections */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,rgba(139,92,246,0.18),transparent_55%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_85%,rgba(236,72,153,0.12),transparent_55%)]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black" />
+
+      <div className="relative max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="flex items-end justify-between mb-12"
+          className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12"
         >
           <div>
-            <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.2em] text-white/60">
+              Latest Personas
+            </div>
+            <h2 className="mt-5 text-3xl sm:text-4xl md:text-5xl font-semibold text-white tracking-tight">
               {title}
             </h2>
-            <p className="text-white/50 mt-2">{subtitle}</p>
+            <p className="text-white/50 mt-3 text-sm sm:text-base max-w-xl">
+              {subtitle}
+            </p>
           </div>
           {viewAllHref && (
             <Link
@@ -50,12 +60,7 @@ export function PersonasSection({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {personas.slice(0, 8).map((persona, index) => (
-            <PersonaCard
-              key={persona.id}
-              persona={persona}
-              index={index}
-              size={index < 2 ? "large" : "default"}
-            />
+            <PersonaCard key={persona.id} persona={persona} index={index} />
           ))}
         </div>
 

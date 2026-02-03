@@ -82,7 +82,7 @@ export function ModelsSection() {
   const premiumCount = tierBuckets.premium.length;
 
   return (
-    <section className="relative overflow-hidden bg-black py-24 px-6 md:px-16">
+    <section className="relative overflow-hidden bg-black py-20 md:py-24 px-5 sm:px-6 md:px-16">
       {/* Subtle ambient background */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(139,92,246,0.15),transparent_60%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_100%,rgba(16,185,129,0.1),transparent_50%)]" />
@@ -102,10 +102,10 @@ export function ModelsSection() {
             Model Roster
           </div>
 
-          <h2 className="mt-6 text-3xl md:text-5xl font-semibold text-white tracking-tight">
+          <h2 className="mt-6 text-3xl sm:text-4xl md:text-5xl font-semibold text-white tracking-tight">
             Choose your partner
           </h2>
-          <p className="mt-4 text-base md:text-lg text-white/50 leading-relaxed max-w-xl mx-auto">
+          <p className="mt-4 text-sm sm:text-base md:text-lg text-white/50 leading-relaxed max-w-xl mx-auto">
             From quick chatters to deep thinkers. Pick the personality that fits
             your mood.
           </p>
@@ -123,7 +123,7 @@ export function ModelsSection() {
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(16,185,129,0.15),transparent_60%)]" />
 
-            <div className="relative p-8 md:p-10">
+            <div className="relative p-6 sm:p-8 md:p-10">
               <div className="flex items-center gap-3 mb-4">
                 <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1.5">
                   <LeafIcon weight="fill" className="size-4 text-emerald-400" />
@@ -136,10 +136,10 @@ export function ModelsSection() {
                 </span>
               </div>
 
-              <h3 className="text-2xl md:text-3xl font-semibold text-white mb-3">
+              <h3 className="text-2xl sm:text-3xl font-semibold text-white mb-3">
                 Jump right in
               </h3>
-              <p className="text-white/50 leading-relaxed mb-6 max-w-lg">
+              <p className="text-white/50 text-sm sm:text-base leading-relaxed mb-6 max-w-lg">
                 No paywall for basic fun. Test the waters, find a character you
                 vibe with, and start chatting instantly.
               </p>

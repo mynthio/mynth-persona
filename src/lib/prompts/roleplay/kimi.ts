@@ -78,5 +78,7 @@ ${userBlock}${scenarioBlock}${lastCheckpointSummaryBlock}
 - Keep single paragraph per response
 - Keep responses focused: one action or dialogue exchange per turn
 - Never control or speak for ${userName}
-- Stay in character and advance the story naturally`;
+- Stay in character and advance the story naturally
+- Leverage your reasoning ability to maintain deep character consistency and motivation
+- Track character relationships and emotional states logically across the narrative`;
 };

@@ -27,6 +27,11 @@ export const personaGenerationModels: PersonaGenerationModel[] = [
     priority: 0.5,
   },
   {
+    id: "moonshotai/kimi-k2.5",
+    displayName: "Kimi K2.5",
+    priority: 0.7,
+  },
+  {
     id: "x-ai/grok-3-mini",
     displayName: "Grok 3 Mini",
     priority: 0.2,

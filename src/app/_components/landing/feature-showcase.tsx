@@ -27,9 +27,9 @@ export function FeatureShowcase() {
           className="mb-24"
         >
           <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white tracking-tight leading-[0.9]">
-            Not just
+            This is
             <br />
-            <span className="text-white/20">another chatbot</span>
+            <span className="text-white/20">your world</span>
           </h2>
         </motion.div>
 
@@ -56,11 +56,12 @@ export function FeatureShowcase() {
                   AI Personas
                 </div>
                 <h3 className="text-3xl md:text-5xl font-bold text-white mb-4 max-w-xl leading-tight">
-                  Characters with depth, not scripts
+                  Deep & Responsive
                 </h3>
                 <p className="text-lg md:text-xl text-white/50 max-w-xl leading-relaxed">
-                  Every persona has a unique personality, backstory, and way of
-                  speaking. They remember your conversations and grow with you.
+                  Real conversations that adapt to you. Our personas have rich
+                  backstories and distinct personalities—ready to follow your
+                  lead wherever it goes.
                 </p>
               </div>
             </div>
@@ -87,11 +88,12 @@ export function FeatureShowcase() {
                   Immersive Chat
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
-                  Conversations that feel real
+                  Unbound Storytelling
                 </h3>
                 <p className="text-white/50 leading-relaxed">
-                  Natural dialogue with context awareness. Your companions
-                  understand nuance, emotion, and remember what matters.
+                  Experience natural dialogue that flows effortlessly. Whether
+                  it&apos;s a heartfelt confession or a wild adventure, explore
+                  any narrative you desire.
                 </p>
               </div>
             </div>
@@ -118,11 +120,11 @@ export function FeatureShowcase() {
                   Create
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
-                  Design your dream companion
+                  See the Action
                 </h3>
                 <p className="text-white/50 leading-relaxed">
-                  Describe who you want to meet and watch AI bring them to life
-                  with personality, visuals, and voice.
+                  Don&apos;t just imagine it—see it. Generate stunning images of
+                  your characters and scenarios directly within the chat.
                 </p>
               </div>
             </div>

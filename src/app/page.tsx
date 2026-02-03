@@ -25,6 +25,16 @@ const FeatureShowcase = dynamic(
   }
 );
 
+const ModelsSection = dynamic(
+  () =>
+    import("./_components/landing/models-section").then(
+      (m) => m.ModelsSection
+    ),
+  {
+    ssr: true,
+  }
+);
+
 const PersonasSection = dynamic(
   () =>
     import("./_components/landing/personas-section").then(
@@ -56,7 +66,7 @@ const CreateSection = dynamic(
 // Server Component that fetches data and renders async content
 async function HeroWithData() {
   const personas = await getPublicPersonas();
-  const featured = personas.slice(0, 5);
+  const featured = personas.slice(0, 6);
 
   if (!featured.length) {
     return <HeroSkeleton />;
@@ -117,6 +127,8 @@ export default function HomePage() {
       <Suspense fallback={<HeroSkeleton />}>
         <HeroWithData />
       </Suspense>
+
+      <ModelsSection />
 
       <FeatureShowcase />
 

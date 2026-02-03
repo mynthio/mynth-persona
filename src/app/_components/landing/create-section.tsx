@@ -20,21 +20,20 @@ export function CreateSection() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 text-violet-400 text-sm font-medium mb-6">
             <Stars01 className="size-4" strokeWidth={2} />
-            AI-Powered Creation
+            Limitless Creation
           </div>
 
           <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tight mb-6 leading-tight">
-            Bring your
-            <br />
+            Build your <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-purple-400 to-pink-400">
-              imagination
-            </span>{" "}
-            to life
+              perfect match.
+            </span>
           </h2>
 
           <p className="text-xl text-white/50 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Describe your perfect companion and watch as AI crafts a unique
-            persona just for you.
+            Sarcastic, sweet, or mysterious? You decide. Craft the perfect
+            companion with detailed traits, private quirks, and a style
+            that&apos;s all yours.
           </p>
 
           {/* Integrated toolbar */}

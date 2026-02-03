@@ -30,20 +30,19 @@ export function EcoModelsSection() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-medium mb-6">
               <LightningIcon weight="fill" className="size-4" />
-              Generous Free Tier
+              Always Free
             </div>
 
             <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-6 leading-tight">
-              Chat freely with{" "}
+              Chat for free. <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">
-                Eco Models
+                Forever.
               </span>
             </h2>
 
             <p className="text-lg text-white/60 mb-8 leading-relaxed">
-              Start chatting without worrying about costs. Our Eco models offer
-              generous daily limits while maintaining engaging, natural
-              conversations.
+              No credit card? No problem. Jump into unmetered conversations with
+              our efficient models and keep the story going as long as you want.
             </p>
 
             <Link

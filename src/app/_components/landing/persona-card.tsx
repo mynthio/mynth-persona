@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { PublicPersonaListItem } from "@/schemas/shared/persona-public.schema";
 import { getImageUrl, getVideoUrl, cn } from "@/lib/utils";
-import { Link } from "@/components/ui/link";
+import { CreateChatButton } from "@/components/create-chat-button";
 import { Play } from "@untitledui/icons";
 import {
   GenderFemaleIcon,
@@ -46,10 +46,13 @@ export function PersonaCard({ persona, index }: PersonaCardProps) {
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.08 }}
     >
-      <Link
-        href={`/personas/${persona.slug}`}
+      <CreateChatButton
+        personaId={persona.id}
+        type="button"
+        variant="ghost"
         className={cn(
-          "relative block rounded-3xl overflow-hidden group aspect-[3/4] sm:aspect-6/11 min-h-[260px] sm:min-h-[320px] lg:min-h-[340px] bg-card/20 border border-border/50 shadow-[0_20px_50px_-32px_rgba(0,0,0,0.6)]",
+          "group relative block w-full overflow-hidden rounded-3xl border border-border/50 bg-card/20 p-0 text-left whitespace-normal shadow-[0_20px_50px_-32px_rgba(0,0,0,0.6)] transition-colors hover:bg-card/30",
+          "aspect-[3/4] sm:aspect-6/11 min-h-[260px] sm:min-h-[320px] lg:min-h-[340px]",
         )}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -123,12 +126,12 @@ export function PersonaCard({ persona, index }: PersonaCardProps) {
 
         {/* Hover CTA */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/10 backdrop-blur-md text-white font-medium">
+          <div className="flex items-center gap-2 px-6 py-3 rounded-full bg-black/50 text-white font-medium shadow-[0_10px_30px_-20px_rgba(0,0,0,0.6)]">
             <Play className="size-5" />
-            Chat Now
+            Create Chat
           </div>
         </div>
-      </Link>
+      </CreateChatButton>
     </motion.div>
   );
 }

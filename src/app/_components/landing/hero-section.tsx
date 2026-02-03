@@ -100,7 +100,7 @@ export function HeroSection({ personas }: HeroSectionProps) {
             </div>
           </motion.div>
 
-          <div className="grid grid-cols-2 gap-2 sm:gap-3 auto-rows-[minmax(240px,1fr)] sm:auto-rows-[minmax(210px,1fr)] lg:auto-rows-auto lg:grid-rows-2 h-auto lg:h-[calc(100vh-7rem)]">
+          <div className="grid grid-cols-2 gap-1.5 sm:gap-2 auto-rows-[minmax(250px,1fr)] sm:auto-rows-[minmax(220px,1fr)] lg:auto-rows-auto lg:grid-rows-2 h-auto lg:h-[calc(100vh-7.5rem)]">
             {featured.map((persona, index) => (
               <motion.div
                 key={persona.id}
@@ -120,7 +120,7 @@ export function HeroSection({ personas }: HeroSectionProps) {
                       alt={persona.publicName}
                       className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
                   </div>
 
                   <div className="absolute top-3 left-3 flex items-center gap-2">
@@ -138,21 +138,23 @@ export function HeroSection({ personas }: HeroSectionProps) {
                     )}
                   </div>
 
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <div className="flex w-full flex-col gap-1 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-white shadow-[0_12px_30px_-20px_rgba(15,23,42,0.5)] backdrop-blur-md">
-                      <div className="text-lg font-semibold tracking-tight">
+                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                    <div className="flex w-full flex-col gap-0.5 text-white drop-shadow-[0_6px_14px_rgba(0,0,0,0.55)]">
+                      <div className="text-xl sm:text-[1.35rem] font-bold tracking-tight leading-tight">
                         {persona.publicName}
                       </div>
-                      <div className="text-xs text-white/70 line-clamp-2">
+                      <div className="text-[0.7rem] sm:text-xs text-white/80 line-clamp-2">
                         {persona.headline}
                       </div>
                     </div>
                   </div>
 
                   <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
-                    <div className="absolute bottom-4 left-4 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-white/80 backdrop-blur-md">
-                      Open profile
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="rounded-full border border-white/15 bg-black/50 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-white/85 shadow-[0_10px_30px_-20px_rgba(0,0,0,0.6)]">
+                        Open profile
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -162,7 +164,7 @@ export function HeroSection({ personas }: HeroSectionProps) {
         </div>
       </div>
 
-      <div className="absolute inset-0 h-full w-full -z-10">
+      <div className="absolute hidden dark:block inset-0 h-full w-full -z-10">
         <FloatingLines
           linesGradient={["#E945F5", "#2F4BC0", "#E945F5"]}
           animationSpeed={1}

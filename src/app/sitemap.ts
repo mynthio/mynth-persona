@@ -6,7 +6,6 @@ import { eq, isNotNull, and } from "drizzle-orm";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://prsna.app";
 
-  // Fetch all public personas with slugs
   const publicPersonas = await db
     .select({
       slug: personas.slug,
@@ -16,7 +15,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .from(personas)
     .where(
       and(eq(personas.visibility, "public"), isNotNull(personas.slug))
-    );
+    ).limit(30).catch((error) => {
+      console.error(error);
+      return [];
+    })
 
   const personaUrls: MetadataRoute.Sitemap = publicPersonas
     .filter((p) => p.slug)

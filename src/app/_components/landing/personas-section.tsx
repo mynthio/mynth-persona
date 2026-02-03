@@ -50,7 +50,7 @@ export function PersonasSection({
           {viewAllHref && (
             <Link
               href={viewAllHref}
-              className="hidden md:flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
+              className="hidden md:flex shrink-0 items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
             >
               View all
               <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />

@@ -2,11 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import {
-  MessageChatCircle,
-  ArrowRight,
-  SearchMd,
-} from "@untitledui/icons";
+import { MessageChatCircle, ArrowRight, SearchMd } from "@untitledui/icons";
 import { useDebounce } from "@uidotdev/usehooks";
 
 import {
@@ -37,7 +33,7 @@ export function ChatSearchDialog({
 
   // We only fetch when the dialog is open to save resources
   const { data, isLoading } = useUserChatsQuery(
-    open ? { q: debouncedQuery } : null
+    open ? { q: debouncedQuery } : null,
   );
 
   const chats = data?.data ?? [];
@@ -117,24 +113,31 @@ export function ChatSearchDialog({
           </div>
         </DialogHeader>
 
-        <ScrollArea className="h-[min(50vh,400px)] relative">
-          <div className="p-2">
+        <ScrollArea className="h-[min(50vh,400px)] relative overflow-hidden w-full">
+          <div className="p-2 w-full max-w-full overflow-hidden">
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <div className="size-8 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
-                <span className="text-sm text-muted-foreground">Searching...</span>
+                <span className="text-sm text-muted-foreground">
+                  Searching...
+                </span>
               </div>
             ) : chats.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 gap-4">
+              <div className="flex flex-col items-center justify-center py-16 gap-4 w-full">
                 <div className="size-12 rounded-full bg-muted/50 dark:bg-white/5 flex items-center justify-center">
-                  <MessageChatCircle className="size-6 text-muted-foreground/50" strokeWidth={1.5} />
+                  <MessageChatCircle
+                    className="size-6 text-muted-foreground/50"
+                    strokeWidth={1.5}
+                  />
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground">
                     {query ? "No conversations found" : "Search your chats"}
                   </p>
                   <p className="text-xs text-muted-foreground/60 mt-1">
-                    {query ? "Try a different search term" : "Type to find past conversations"}
+                    {query
+                      ? "Try a different search term"
+                      : "Type to find past conversations"}
                   </p>
                 </div>
               </div>
@@ -144,20 +147,24 @@ export function ChatSearchDialog({
                   <button
                     key={chat.id}
                     className={cn(
-                      "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-150",
+                      "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-150 overflow-hidden",
                       "hover:bg-muted/60 dark:hover:bg-white/[0.06]",
                       "focus:outline-none focus:bg-muted/60 dark:focus:bg-white/[0.06]",
                       "group",
-                      selectedIndex === index && "bg-muted/60 dark:bg-white/[0.06]"
+                      selectedIndex === index &&
+                        "bg-muted/60 dark:bg-white/[0.06]",
                     )}
                     onClick={() => handleSelect(chat.id)}
                     onMouseEnter={() => setSelectedIndex(index)}
                   >
                     <div className="size-9 rounded-lg bg-primary/5 dark:bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-primary/10 dark:group-hover:bg-white/10 transition-colors">
-                      <MessageChatCircle className="size-4 text-primary/70 dark:text-white/70" strokeWidth={1.5} />
+                      <MessageChatCircle
+                        className="size-4 text-primary/70 dark:text-white/70"
+                        strokeWidth={1.5}
+                      />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate text-foreground/90">
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                      <p className="text-sm font-medium truncate text-foreground/90 overflow-hidden text-ellipsis whitespace-nowrap">
                         {chat.title || "Untitled Chat"}
                       </p>
                       {chat.updatedAt && (
@@ -167,8 +174,12 @@ export function ChatSearchDialog({
                             {
                               month: "short",
                               day: "numeric",
-                              year: new Date(chat.updatedAt).getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
-                            }
+                              year:
+                                new Date(chat.updatedAt).getFullYear() !==
+                                new Date().getFullYear()
+                                  ? "numeric"
+                                  : undefined,
+                            },
                           )}
                           {" · "}
                           {new Date(chat.updatedAt).toLocaleTimeString(
@@ -176,7 +187,7 @@ export function ChatSearchDialog({
                             {
                               hour: "numeric",
                               minute: "2-digit",
-                            }
+                            },
                           )}
                         </p>
                       )}
@@ -193,17 +204,25 @@ export function ChatSearchDialog({
         <div className="relative border-t border-border/50 dark:border-white/10 px-4 py-2.5 flex items-center justify-between text-[11px] text-muted-foreground/50">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-muted/50 dark:bg-white/5 font-mono">↑</kbd>
-              <kbd className="px-1.5 py-0.5 rounded bg-muted/50 dark:bg-white/5 font-mono">↓</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-muted/50 dark:bg-white/5 font-mono">
+                ↑
+              </kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-muted/50 dark:bg-white/5 font-mono">
+                ↓
+              </kbd>
               <span className="ml-1">Navigate</span>
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-muted/50 dark:bg-white/5 font-mono">↵</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-muted/50 dark:bg-white/5 font-mono">
+                ↵
+              </kbd>
               <span className="ml-1">Open</span>
             </span>
           </div>
           <span className="flex items-center gap-1">
-            <kbd className="px-1.5 py-0.5 rounded bg-muted/50 dark:bg-white/5 font-mono">Esc</kbd>
+            <kbd className="px-1.5 py-0.5 rounded bg-muted/50 dark:bg-white/5 font-mono">
+              Esc
+            </kbd>
             <span className="ml-1">Close</span>
           </span>
         </div>

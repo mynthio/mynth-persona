@@ -9,6 +9,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   Feather,
@@ -30,6 +31,8 @@ import { useState } from "react";
 
 export function NavMain() {
   const [libraryOpen, setLibraryOpen] = useState(false);
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
 
   return (
     <>
@@ -77,49 +80,60 @@ export function NavMain() {
       <SidebarGroup>
         <SidebarGroupLabel>Your Library</SidebarGroupLabel>
         <SidebarMenu>
-          <Collapsible open={libraryOpen} onOpenChange={setLibraryOpen}>
+          {isCollapsed ? (
             <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton>
+              <SidebarMenuButton asChild tooltip="Library">
+                <Link href="/library">
                   <Hearts strokeWidth={1.5} />
                   <span>Library</span>
-                  <ChevronDown
-                    className="ml-auto transition-transform duration-200 data-[state=open]:rotate-180"
-                    data-state={libraryOpen ? "open" : "closed"}
-                    strokeWidth={1.5}
-                  />
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link href="/library/personas">
-                        <Users03 strokeWidth={1.5} />
-                        <span>Personas</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link href="/library/scenarios">
-                        <Feather strokeWidth={1.5} />
-                        <span>Scenarios</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link href="/library/images">
-                        <Image02 strokeWidth={1.5} />
-                        <span>Images</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                </SidebarMenuSub>
-              </CollapsibleContent>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
-          </Collapsible>
+          ) : (
+            <Collapsible open={libraryOpen} onOpenChange={setLibraryOpen}>
+              <SidebarMenuItem>
+                <CollapsibleTrigger asChild>
+                  <SidebarMenuButton>
+                    <Hearts strokeWidth={1.5} />
+                    <span>Library</span>
+                    <ChevronDown
+                      className="ml-auto transition-transform duration-200 data-[state=open]:rotate-180"
+                      data-state={libraryOpen ? "open" : "closed"}
+                      strokeWidth={1.5}
+                    />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild>
+                        <Link href="/library/personas">
+                          <Users03 strokeWidth={1.5} />
+                          <span>Personas</span>
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild>
+                        <Link href="/library/scenarios">
+                          <Feather strokeWidth={1.5} />
+                          <span>Scenarios</span>
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton asChild>
+                        <Link href="/library/images">
+                          <Image02 strokeWidth={1.5} />
+                          <span>Images</span>
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </Collapsible>
+          )}
         </SidebarMenu>
       </SidebarGroup>
     </>

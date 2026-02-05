@@ -38,7 +38,11 @@ export function NavSecondary(props: React.ComponentProps<typeof SidebarGroup>) {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild size="sm">
-              <a href={DISCORD_INVITE_URL} target="_blank" rel="noopener noreferrer">
+              <a
+                href={DISCORD_INVITE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <DiscordLogoIcon weight="fill" />
                 <span>Discord</span>
               </a>
@@ -52,7 +56,12 @@ export function NavSecondary(props: React.ComponentProps<typeof SidebarGroup>) {
                   <span>More</span>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-48" align="start" side="top" sideOffset={8}>
+              <DropdownMenuContent
+                className="w-48"
+                align="start"
+                side="top"
+                sideOffset={8}
+              >
                 <DropdownMenuGroup>
                   <DropdownMenuItem asChild>
                     <a

@@ -55,7 +55,7 @@ export function NavUser() {
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 size="lg"
-                className="h-12 data-[state=open]:bg-sidebar-accent/60 dark:data-[state=open]:bg-white/[0.06]"
+                className="h-12 data-[state=open]:bg-sidebar-accent/60 dark:data-[state=open]:bg-white/[0.06] group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center"
               >
                 <Avatar className="h-8 w-8 rounded-full ring-2 ring-sidebar-border">
                   <AvatarImage
@@ -66,13 +66,15 @@ export function NavUser() {
                     {user?.username?.slice(0, 2).toUpperCase() ?? "AN"}
                   </AvatarFallback>
                 </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
+                <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                   <span className="truncate font-medium">
                     {user?.username ?? "Anonymous"}
                   </span>
-                  <span className="truncate text-xs text-muted-foreground capitalize">{planName}</span>
+                  <span className="truncate text-xs text-muted-foreground capitalize">
+                    {planName}
+                  </span>
                 </div>
-                <ChevronsUpDown className="ml-auto size-4 opacity-50" />
+                <ChevronsUpDown className="ml-auto size-4 opacity-50 group-data-[collapsible=icon]:hidden" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -96,7 +98,9 @@ export function NavUser() {
                     <span className="truncate font-semibold">
                       {user?.username ?? "Anonymous"}
                     </span>
-                    <span className="truncate text-xs text-muted-foreground capitalize">{planName} plan</span>
+                    <span className="truncate text-xs text-muted-foreground capitalize">
+                      {planName} plan
+                    </span>
                   </div>
                 </div>
               </DropdownMenuLabel>
@@ -164,7 +168,10 @@ export function NavUser() {
                 </button>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => signOut()} className="text-destructive focus:text-destructive">
+              <DropdownMenuItem
+                onClick={() => signOut()}
+                className="text-destructive focus:text-destructive"
+              >
                 <LogOut />
                 Sign Out
               </DropdownMenuItem>
@@ -177,14 +184,16 @@ export function NavUser() {
           <SidebarMenuButton
             size="lg"
             onClick={() => openSignIn()}
-            className="h-12 bg-primary/5 hover:bg-primary/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06] border border-sidebar-border/50"
+            className="h-12 bg-primary/5 hover:bg-primary/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06] border border-sidebar-border/50 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
               <LogIn03 strokeWidth={2} className="size-4" />
             </div>
-            <div className="grid flex-1 text-left text-sm leading-tight">
+            <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
               <span className="truncate font-medium">Sign In</span>
-              <span className="truncate text-xs text-muted-foreground">Get started for free</span>
+              <span className="truncate text-xs text-muted-foreground">
+                Get started for free
+              </span>
             </div>
           </SidebarMenuButton>
         </SidebarMenuItem>

@@ -16,7 +16,7 @@ function TopBarSection({
     <div
       className={cn(
         "w-auto max-w-full overflow-hidden flex items-center",
-        className
+        className,
       )}
     >
       {children}
@@ -35,7 +35,7 @@ function TopBarSectionContent({
     <div
       className={cn(
         "h-10 rounded-lg max-w-full overflow-hidden [&>svg]:size-4 flex items-center justify-center gap-2 w-auto bg-background min-w-10 supports-backdrop-filter:bg-background/40 supports-backdrop-filter:backdrop-blur-lg",
-        className
+        className,
       )}
     >
       {children}
@@ -56,7 +56,7 @@ const TopBar = React.forwardRef<HTMLDivElement, TopBarProps>(
       className={cn(
         "w-full text-foreground/90 grid gap-2 font-montserrat h-18 items-center px-2 sticky top-0 z-20",
         center ? "grid-cols-[1fr_auto_1fr]" : "flex justify-between",
-        className
+        className,
       )}
       {...props}
     >
@@ -72,7 +72,7 @@ const TopBar = React.forwardRef<HTMLDivElement, TopBarProps>(
         <TopBarSectionContent>{right}</TopBarSectionContent>
       </TopBarSection>
     </div>
-  )
+  ),
 );
 
 TopBar.displayName = "TopBar";

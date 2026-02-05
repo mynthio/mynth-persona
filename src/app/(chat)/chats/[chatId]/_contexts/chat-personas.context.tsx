@@ -9,6 +9,8 @@ type ChatPersona = {
   name: string;
 
   profileImageIdMedia?: string;
+  slug?: string;
+  visibility?: string;
 };
 
 const ChatPersonasContext = createContext<{

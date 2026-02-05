@@ -5,12 +5,6 @@ import { cn, getImageUrl } from "@/lib/utils";
 import { useChatPersonas } from "../_contexts/chat-personas.context";
 import { useChatMain } from "../_contexts/chat-main.context";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -37,12 +31,6 @@ import { useChatImageGenerationStore } from "@/stores/chat-image-generation.stor
 import { ChatSettingsSceneImageInProgress } from "./chat-settings-scene-image-in-progress";
 import { updateChatAction } from "@/actions/update-chat.action";
 import { toast } from "sonner";
-import {
-  ArrowClockwiseIcon,
-  InfoIcon,
-  SparkleIcon,
-  TrashIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { useSidebar } from "@/components/ui/sidebar";
 import {
   Sheet,
@@ -65,40 +53,220 @@ import {
 import { deleteChatAction } from "@/actions/delete-chat.action";
 import { useSWRConfig } from "swr";
 import { useRouter } from "next/navigation";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Link } from "@/components/ui/link";
+import {
+  ArrowSquareOut,
+  GearSix,
+  ImageSquare,
+  PencilSimple,
+  Trash,
+  User,
+  Scroll,
+  ArrowClockwise,
+  Info,
+} from "@phosphor-icons/react/dist/ssr";
+import { SparkleIcon } from "@phosphor-icons/react/dist/ssr";
 
 const SIDEBAR_WIDTH = "18rem";
 
-function PersonaImage() {
+// ---------------------------------------------------------------------------
+// Section label
+// ---------------------------------------------------------------------------
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[0.65rem] font-semibold uppercase tracking-widest text-muted-foreground/70">
+      {children}
+    </p>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Persona Header – avatar, name, quick actions
+// ---------------------------------------------------------------------------
+function PersonaHeader() {
   const { personas } = useChatPersonas();
   const { settings } = useChatMain();
+  const { navigateSettings } = useSettingsNavigation();
 
   const persona = personas[0];
   const imageId = settings.sceneImageMediaId ?? persona.profileImageIdMedia;
-
-  if (!imageId) return null;
+  const personaPageHref =
+    persona.slug && persona.visibility === "public"
+      ? `/personas/${persona.slug}`
+      : null;
 
   return (
-    <div>
-      <img
-        src={getImageUrl(imageId)}
-        alt={persona.name}
-        className="aspect-square size-full rounded-xl object-cover object-top"
-      />
+    <div className="flex flex-col gap-3">
+      {/* Avatar */}
+      {imageId && (
+        <div className="overflow-hidden rounded-xl border border-border/40">
+          <img
+            src={getImageUrl(imageId)}
+            alt={persona.name}
+            className="aspect-3/4 w-full object-cover object-top"
+          />
+        </div>
+      )}
+
+      {/* Name + actions */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <h3 className="truncate text-sm font-semibold leading-tight text-foreground">
+            {persona.name}
+          </h3>
+        </div>
+      </div>
+
+      {/* Quick Action Buttons – extensible row */}
+      <div className="flex flex-wrap gap-1.5">
+        {personaPageHref && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="xs"
+                className="gap-1.5 text-muted-foreground"
+                asChild
+              >
+                <Link href={personaPageHref} target="_blank">
+                  <ArrowSquareOut className="size-3" />
+                  <span>Persona page</span>
+                </Link>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              View public persona page
+            </TooltipContent>
+          </Tooltip>
+        )}
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="xs"
+              className="gap-1.5 text-muted-foreground"
+              onClick={() => navigateSettings("settings")}
+            >
+              <GearSix className="size-3" />
+              <span>Settings</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Chat settings</TooltipContent>
+        </Tooltip>
+      </div>
     </div>
   );
 }
 
-function Content() {
+// ---------------------------------------------------------------------------
+// Your Character Section
+// ---------------------------------------------------------------------------
+function CharacterSection() {
+  const { settings } = useChatMain();
+  const { navigateSettings } = useSettingsNavigation();
+
+  const hasCharacter = !!settings.user_persona?.name;
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <SectionLabel>Your character</SectionLabel>
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          className="text-muted-foreground hover:text-foreground"
+          onClick={() => navigateSettings("user")}
+        >
+          <PencilSimple className="size-3" />
+        </Button>
+      </div>
+
+      {hasCharacter ? (
+        <div className="space-y-1 rounded-lg border border-border/40 bg-muted/30 p-3">
+          <div className="flex items-center gap-2">
+            <User className="size-3.5 shrink-0 text-muted-foreground" />
+            <p className="truncate text-xs font-medium text-foreground">
+              {settings.user_persona?.name}
+            </p>
+          </div>
+          {settings.user_persona?.character && (
+            <p className="line-clamp-3 pl-5.5 text-xs leading-relaxed text-muted-foreground">
+              {settings.user_persona.character}
+            </p>
+          )}
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => navigateSettings("user")}
+          className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border/50 p-3 text-xs text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+        >
+          <User className="size-3.5 shrink-0" />
+          <span>Set up your character</span>
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Scenario Section
+// ---------------------------------------------------------------------------
+function ScenarioSection() {
+  const { settings } = useChatMain();
+  const { navigateSettings } = useSettingsNavigation();
+
+  const scenarioText = settings.scenario?.scenario_text;
+  const hasScenario = !!scenarioText;
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <SectionLabel>Scenario</SectionLabel>
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          className="text-muted-foreground hover:text-foreground"
+          onClick={() => navigateSettings("scenario")}
+        >
+          <PencilSimple className="size-3" />
+        </Button>
+      </div>
+
+      {hasScenario ? (
+        <div className="space-y-1 rounded-lg border border-border/40 bg-muted/30 p-3">
+          <div className="flex items-start gap-2">
+            <Scroll className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+            <p className="line-clamp-4 text-xs leading-relaxed text-muted-foreground">
+              {scenarioText}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => navigateSettings("scenario")}
+          className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border/50 p-3 text-xs text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+        >
+          <Scroll className="size-3.5 shrink-0" />
+          <span>Add a scenario</span>
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Scene Image Section
+// ---------------------------------------------------------------------------
+function SceneImageSection() {
   const { chatId, settings, setSettings } = useChatMain();
   const { personas } = useChatPersonas();
   const persona = personas[0];
-  const { navigateSettings } = useSettingsNavigation();
-  const { mutate } = useSWRConfig();
-  const router = useRouter();
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const addSceneImageGenerationRun = useChatImageGenerationStore(
     (state) => state.addSceneImageGenerationRun
@@ -113,11 +281,6 @@ function Content() {
     );
     return runs.length > 0 ? runs[0] : null;
   }, [sceneImageGenerationRuns, chatId]);
-
-  const sceneImageMediaId = settings.sceneImageMediaId;
-  const currentSceneImageId =
-    sceneImageMediaId ?? persona?.profileImageIdMedia ?? null;
-  const hasCustomSceneImage = !!sceneImageMediaId;
 
   const handleSceneImageComplete = (mediaId: string) => {
     setSettings({
@@ -204,6 +367,163 @@ function Content() {
     }
   };
 
+  const busy = isGenerating || !!activeRun;
+
+  return (
+    <div className="space-y-2">
+      {activeRun && (
+        <ChatSettingsSceneImageInProgress
+          runId={activeRun.runId}
+          publicAccessToken={activeRun.publicAccessToken}
+          chatId={chatId}
+          onComplete={handleSceneImageComplete}
+        />
+      )}
+
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <SectionLabel>Scene image</SectionLabel>
+          <span className="rounded-full bg-rose-500/10 px-1.5 py-px text-[0.6rem] font-semibold leading-tight text-rose-400">
+            Beta
+          </span>
+        </div>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              className="inline-flex size-5 items-center justify-center rounded-full text-muted-foreground/60 transition-colors hover:text-muted-foreground"
+            >
+              <Info size={12} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="left" sideOffset={6} className="max-w-[220px]">
+            <p>
+              Character mode uses this image to keep your character looking
+              consistent across generations in this chat.
+            </p>
+            <p className="mt-1 text-[0.7rem] opacity-80">
+              For best results, re-generate a dedicated reference image instead
+              of using the profile picture.
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-1.5">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size="xs"
+              variant="outline"
+              className="flex-1 gap-1.5 text-muted-foreground"
+              disabled={busy}
+            >
+              {busy ? (
+                <>
+                  <CompactSpinner className="size-3" />
+                  <span>Generating…</span>
+                </>
+              ) : (
+                <>
+                  <ArrowClockwise className="size-3" />
+                  <span>Generate</span>
+                </>
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-60">
+            <DropdownMenuLabel className="text-xs">
+              Choose an image model
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {Object.values(IMAGE_MODELS).map((model) => (
+              <DropdownMenuItem
+                key={model.id}
+                onClick={() => handleSelectModel(model.id)}
+                disabled={busy}
+              >
+                <div className="flex flex-col gap-0.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-medium">
+                      {model.displayName}
+                    </span>
+                    {model.cost >= 2 && (
+                      <SparkleIcon
+                        weight="fill"
+                        className="text-amber-400"
+                        size={14}
+                      />
+                    )}
+                    {isModelNew(model.id) && (
+                      <Badge
+                        variant="outline"
+                        className="h-auto border-green-200 bg-green-50 px-1.5 py-0.5 text-[10px] text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-300"
+                      >
+                        New
+                      </Badge>
+                    )}
+                    {isModelBeta(model.id) && (
+                      <Badge
+                        variant="outline"
+                        className="h-auto border-blue-200 bg-blue-50 px-1.5 py-0.5 text-[10px] text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                      >
+                        Beta
+                      </Badge>
+                    )}
+                  </div>
+                  <span className="text-[0.7rem] text-muted-foreground">
+                    Cost: {model.cost} spark{model.cost !== 1 ? "s" : ""}
+                  </span>
+                </div>
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleSetToProfileImage}
+              disabled={!persona?.profileImageIdMedia || busy}
+            >
+              <div className="flex items-center gap-2">
+                <ImageSquare className="size-3.5" />
+                <span className="text-xs font-medium">
+                  Use persona profile image
+                </span>
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="xs"
+              variant="outline"
+              className="text-muted-foreground"
+              onClick={handleSetToProfileImage}
+              disabled={!persona?.profileImageIdMedia || busy}
+            >
+              <ImageSquare className="size-3" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            Use persona profile image
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Delete Chat Section
+// ---------------------------------------------------------------------------
+function DeleteChatSection() {
+  const { chatId } = useChatMain();
+  const { mutate } = useSWRConfig();
+  const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const handleDeleteChat = async () => {
     if (isDeleting) return;
     setIsDeleting(true);
@@ -222,265 +542,70 @@ function Content() {
   };
 
   return (
-    <div className="rounded-lg border-2 border-sidebar-border bg-sidebar px-4 py-2">
-      {activeRun && (
-        <ChatSettingsSceneImageInProgress
-          runId={activeRun.runId}
-          publicAccessToken={activeRun.publicAccessToken}
-          chatId={chatId}
-          onComplete={handleSceneImageComplete}
-        />
-      )}
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button
+          size="xs"
+          variant="ghost"
+          className="w-full gap-1.5 text-muted-foreground hover:text-destructive"
+          disabled={isDeleting}
+        >
+          <Trash className="size-3" />
+          Delete chat
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete chat?</AlertDialogTitle>
+          <AlertDialogDescription>
+            You can&apos;t undo this action. All messages will be removed.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleDeleteChat}
+            disabled={isDeleting}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {isDeleting ? "Deleting…" : "Delete"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
 
-      <Accordion type="single" collapsible>
-        <AccordionItem value="character">
-          <AccordionTrigger>My character</AccordionTrigger>
-          <AccordionContent>
-            <div className="space-y-2">
-              {settings.user_persona?.name ? (
-                <>
-                  <p>
-                    <strong>Name:</strong> {settings.user_persona?.name ?? ""}
-                  </p>
-                  <p>
-                    <strong>Description:</strong>{" "}
-                    {settings.user_persona?.character ?? ""}
-                  </p>
-                </>
-              ) : (
-                <p>No character set</p>
-              )}
-            </div>
-            <Button
-              size="sm"
-              variant="outline"
-              className="mt-4 w-full"
-              onClick={() => navigateSettings("user")}
-            >
-              Edit
-            </Button>
-          </AccordionContent>
-        </AccordionItem>
+// ---------------------------------------------------------------------------
+// Sidebar content – composed from sections
+// ---------------------------------------------------------------------------
+function SidebarContent() {
+  return (
+    <div className="flex flex-col gap-4">
+      <PersonaHeader />
 
-        <AccordionItem value="scenario">
-          <AccordionTrigger>Scenario</AccordionTrigger>
-          <AccordionContent>
-            <div className="space-y-2">
-              <p>
-                <strong>Scenario:</strong>{" "}
-                {settings.scenario?.scenario_text
-                  ? `${settings.scenario?.scenario_text?.slice(0, 222)}${
-                      settings.scenario?.scenario_text?.length > 222
-                        ? "..."
-                        : ""
-                    }`
-                  : "No scenario set"}
-              </p>
-              <Button
-                size="sm"
-                variant="outline"
-                className="mt-4 w-full"
-                onClick={() => navigateSettings("scenario")}
-              >
-                Edit
-              </Button>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
+      <Separator className="bg-border/50" />
 
-        <AccordionItem value="settings">
-          <AccordionTrigger>Settings</AccordionTrigger>
-          <AccordionContent className="space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <div className="space-y-1">
-                <div className="flex items-center gap-1">
-                  <p className="text-[0.68rem] font-medium uppercase tracking-wide text-muted-foreground">
-                    Scene reference image
-                  </p>
-                  <span className="rounded-full bg-rose-500/10 px-2 py-0.5 text-[0.65rem] font-semibold text-rose-400">
-                    Beta
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      type="button"
-                      className="inline-flex size-6 items-center justify-center rounded-full border border-border/70 bg-background/70 text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      <InfoIcon size={13} />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="left" sideOffset={6}>
-                    <div className="max-w-[220px] space-y-1">
-                      <p>
-                        Character mode uses this image to keep your character
-                        looking consistent across generations in this chat.
-                      </p>
-                      <p className="text-[0.7rem] opacity-80">
-                        For best results, re-generate a dedicated reference
-                        image instead of using the profile picture.
-                      </p>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            </div>
+      <CharacterSection />
 
-            {currentSceneImageId && (
-              <div className="overflow-hidden rounded-lg border border-border/40 bg-muted/30">
-                <img
-                  src={getImageUrl(currentSceneImageId)}
-                  alt="Scene reference preview"
-                  className="aspect-3/4 w-full object-cover object-top"
-                />
-              </div>
-            )}
+      <Separator className="bg-border/50" />
 
-            <div className="space-y-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex w-full items-center justify-between gap-2 border-border/60 bg-background/60 text-xs font-medium text-foreground hover:bg-background"
-                    disabled={isGenerating || !!activeRun}
-                  >
-                    <span className="flex items-center gap-2">
-                      <ArrowClockwiseIcon
-                        className={cn(
-                          "h-4 w-4 text-muted-foreground",
-                          (isGenerating || activeRun) && "animate-spin"
-                        )}
-                      />
-                      {activeRun
-                        ? "Generating scene image…"
-                        : "Re-generate scene image"}
-                    </span>
-                    {(isGenerating || activeRun) && (
-                      <CompactSpinner className="ml-1" />
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-60">
-                  <DropdownMenuLabel className="text-xs">
-                    Choose an image model
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {Object.values(IMAGE_MODELS).map((model) => (
-                    <DropdownMenuItem
-                      key={model.id}
-                      onClick={() => handleSelectModel(model.id)}
-                      disabled={isGenerating || !!activeRun}
-                    >
-                      <div className="flex flex-col gap-0.5">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-medium">
-                            {model.displayName}
-                          </span>
-                          {model.cost >= 2 && (
-                            <SparkleIcon
-                              weight="fill"
-                              className="text-amber-400"
-                              size={14}
-                            />
-                          )}
-                          {isModelNew(model.id) && (
-                            <Badge
-                              variant="outline"
-                              className="text-[10px] px-1.5 py-0.5 h-auto border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-300"
-                            >
-                              New
-                            </Badge>
-                          )}
-                          {isModelBeta(model.id) && (
-                            <Badge
-                              variant="outline"
-                              className="text-[10px] px-1.5 py-0.5 h-auto border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
-                            >
-                              Beta
-                            </Badge>
-                          )}
-                        </div>
-                        <span className="text-[0.7rem] text-muted-foreground">
-                          Cost: {model.cost} spark{model.cost !== 1 ? "s" : ""}
-                        </span>
-                      </div>
-                    </DropdownMenuItem>
-                  ))}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={handleSetToProfileImage}
-                    disabled={
-                      !persona?.profileImageIdMedia ||
-                      isGenerating ||
-                      !!activeRun
-                    }
-                  >
-                    <span className="text-xs font-medium">
-                      Use persona profile image
-                    </span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+      <ScenarioSection />
 
-              <Button
-                size="sm"
-                variant="outline"
-                className="w-full"
-                onClick={handleSetToProfileImage}
-                disabled={
-                  !persona?.profileImageIdMedia || isGenerating || !!activeRun
-                }
-              >
-                Use persona profile image
-              </Button>
-            </div>
+      <Separator className="bg-border/50" />
 
-            <div className="pt-4 border-t border-border/40">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="w-full"
-                    disabled={isDeleting}
-                  >
-                    <TrashIcon className="h-4 w-4" />
-                    Delete chat
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete chat?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      You can&apos;t undo this action. All messages will be
-                      removed.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel disabled={isDeleting}>
-                      Cancel
-                    </AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDeleteChat}
-                      disabled={isDeleting}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      {isDeleting ? "Deleting..." : "Delete"}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+      <SceneImageSection />
+
+      <Separator className="bg-border/50" />
+
+      <DeleteChatSection />
     </div>
   );
 }
 
+// ---------------------------------------------------------------------------
+// Exported ChatSidebar – responsive shell
+// ---------------------------------------------------------------------------
 export function ChatSidebar({ className }: { className?: string }) {
   const { sidebarOpen, setSidebarOpen } = useChatMain();
   const { isMobile, openMobile } = useSidebar();
@@ -497,39 +622,35 @@ export function ChatSidebar({ className }: { className?: string }) {
     return null;
   }
 
-  // Mobile: Use Sheet component for full-screen overlay
+  // Mobile: Sheet overlay
   if (isMobile) {
     return (
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
         <SheetContent
           side="right"
-          className="bg-sidebar text-sidebar-foreground w-[85%] max-w-[320px] p-0 [&>button]:hidden"
+          className="w-[85%] max-w-[320px] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Chat Sidebar</SheetTitle>
           </SheetHeader>
-          <div className="flex h-full w-full flex-col overflow-auto p-4">
-            <div className="flex flex-col gap-4">
-              <PersonaImage />
-              <Content />
-            </div>
+          <div className="flex h-full w-full flex-col overflow-y-auto p-4">
+            <SidebarContent />
           </div>
         </SheetContent>
       </Sheet>
     );
   }
 
-  // Desktop: Keep existing sticky sidebar behavior
+  // Desktop: sticky sidebar
   if (!sidebarOpen) return null;
 
   return (
     <div
       style={{ width: SIDEBAR_WIDTH } as React.CSSProperties}
-      className={cn("sticky top-0 h-screen p-4", className)}
+      className={cn("sticky top-0 h-screen", className)}
     >
-      <div className="flex flex-col gap-4 h-full overflow-y-auto">
-        <PersonaImage />
-        <Content />
+      <div className="flex h-full flex-col overflow-y-auto px-4 py-4">
+        <SidebarContent />
       </div>
     </div>
   );

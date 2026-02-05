@@ -42,6 +42,8 @@ export default async function ChatDetailPage({
     versionId: chatPersona.personaVersion.id,
     name: (chatPersona.personaVersion.data as PersonaData)?.name ?? "",
     profileImageIdMedia: chatPersona.persona.profileImageIdMedia ?? undefined,
+    slug: chatPersona.persona.slug ?? undefined,
+    visibility: chatPersona.persona.visibility ?? undefined,
   }));
 
   const leafId = await kv.get<string>(`chat:${chatId}:leaf`);

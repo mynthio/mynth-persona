@@ -71,6 +71,8 @@ export async function getChatForPageCached(chatId: string, userId: string) {
               persona: {
                 columns: {
                   profileImageIdMedia: true,
+                  slug: true,
+                  visibility: true,
                 },
               },
               personaVersion: {

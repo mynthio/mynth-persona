@@ -66,7 +66,7 @@ export function ChatModelPickerMenu({
 
   const unpinnedModels = useMemo(
     () => allModels.filter((m) => !pinnedModelIds.includes(m.modelId)),
-    [allModels, pinnedModelIds]
+    [allModels, pinnedModelIds],
   );
 
   const hasPinnedModels = pinnedModels.length > 0;
@@ -89,16 +89,26 @@ export function ChatModelPickerMenu({
           </span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[340px] p-0 max-h-[420px] rounded-xl border-border/50 dark:border-white/10 dark:bg-[#0c0c0f] overflow-hidden" align="start" sideOffset={8}>
+      <PopoverContent
+        className="w-[340px] p-0 max-h-[420px] rounded-xl border-border/50 dark:border-white/10 dark:bg-[#0c0c0f] overflow-hidden"
+        align="start"
+        sideOffset={8}
+      >
         <Command className="bg-transparent">
           <div className="border-b border-border/50 dark:border-white/[0.08]">
-            <CommandInput placeholder="Search models..." className="h-10 text-sm" />
+            <CommandInput
+              placeholder="Search models..."
+              className="h-10 text-sm"
+            />
           </div>
 
           <CommandList className="max-h-[340px] p-1.5">
             {hasPinnedModels && (
               <>
-                <CommandGroup heading="Pinned" className="[&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground/50 [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5">
+                <CommandGroup
+                  heading="Pinned"
+                  className="[&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground/50 [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5"
+                >
                   {pinnedModels.map((model) => (
                     <ModelRow
                       key={model.modelId}
@@ -117,8 +127,14 @@ export function ChatModelPickerMenu({
 
             {!hasPinnedModels && (
               <>
-                <CommandGroup heading="Pinned" className="[&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground/50 [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5">
-                  <CommandItem disabled className="text-xs text-muted-foreground/50 italic">
+                <CommandGroup
+                  heading="Pinned"
+                  className="[&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground/50 [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5"
+                >
+                  <CommandItem
+                    disabled
+                    className="text-xs text-muted-foreground/50 italic"
+                  >
                     Pin your favorite models (up to 5)
                   </CommandItem>
                 </CommandGroup>
@@ -127,7 +143,10 @@ export function ChatModelPickerMenu({
             )}
 
             {unpinnedModels.length > 0 ? (
-              <CommandGroup heading="All Models" className="[&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground/50 [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5">
+              <CommandGroup
+                heading="All Models"
+                className="[&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-muted-foreground/50 [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5"
+              >
                 {unpinnedModels.map((model) => (
                   <ModelRow
                     key={model.modelId}
@@ -141,7 +160,9 @@ export function ChatModelPickerMenu({
                 ))}
               </CommandGroup>
             ) : (
-              <CommandEmpty className="py-8 text-center text-sm text-muted-foreground">No models found</CommandEmpty>
+              <CommandEmpty className="py-8 text-center text-sm text-muted-foreground">
+                No models found
+              </CommandEmpty>
             )}
           </CommandList>
         </Command>

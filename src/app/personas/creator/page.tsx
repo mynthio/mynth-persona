@@ -21,12 +21,13 @@ function NewIdeaButton() {
 
 export default function PersonaCreatorPage() {
   return (
-    <div className="relative">
+    <div className="relative z-0">
       <GenerationContextProvider>
         <TopBar left={<TopBarSidebarTrigger />} right={<NewIdeaButton />} />
         <CreatorScreen />
       </GenerationContextProvider>
-      <div className="absolute left-0 top-0 right-0 w-full h-full max-h-full overflow-hidden z-0">
+
+      <div className="absolute left-0 top-0 right-0 w-full h-full max-h-full overflow-hidden -z-10">
         {/* Atmospheric backdrop - unified with design language */}
         <div className="absolute z-10 inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(145,120,255,0.22),transparent_55%)]" />
         <div className="absolute z-10 inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(197,122,255,0.16),transparent_50%)]" />

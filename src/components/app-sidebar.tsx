@@ -48,7 +48,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain />
-        <SidebarSeparator className="my-1" />
+        <SidebarSeparator className="my-1 mx-0" />
         <NavChats />
         <NavSecondary className="mt-auto" />
       </SidebarContent>

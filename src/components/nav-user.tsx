@@ -57,8 +57,9 @@ export function NavUser() {
                 size="lg"
                 className="h-12 data-[state=open]:bg-sidebar-accent/60 dark:data-[state=open]:bg-white/[0.06] group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center"
               >
-                <Avatar className="h-8 w-8 rounded-full ring-2 ring-sidebar-border">
+                <Avatar className="size-8 rounded-full ring-2 ring-sidebar-border">
                   <AvatarImage
+                    className="object-cover"
                     src={user?.imageUrl}
                     alt={user?.username ?? "Avatar"}
                   />

@@ -137,6 +137,13 @@ export default function ChatMessages(props: ChatMessagesProps) {
   // Use the passed ref or fallback to internal ref
   const containerRef = props.containerRef || internalContainerRef;
 
+  // Track the first message ID to re-setup observer when messages change (e.g., branch switch)
+  const firstMessageId = messages[0]?.id;
+
+  // Use a ref for isLoadingMore to avoid stale closure in observer callback and loadMore
+  const isLoadingMoreRef = useRef(isLoadingMore);
+  isLoadingMoreRef.current = isLoadingMore;
+
   // Add bottom padding when streaming to create space for assistant response
   const isStreaming = status === "streaming" || status === "submitted";
   // Provide baseline space for sticky prompt; expand slightly while streaming
@@ -148,7 +155,12 @@ export default function ChatMessages(props: ChatMessagesProps) {
     const currentMessages = storeApi.getState().messages;
     const firstMessage = currentMessages[0];
 
-    if (isLoadingMore || !firstMessage || !firstMessage.metadata?.parentId)
+    // Use ref to get current loading state to prevent race conditions
+    if (
+      isLoadingMoreRef.current ||
+      !firstMessage ||
+      !firstMessage.metadata?.parentId
+    )
       return;
 
     previousHeightRef.current = containerRef.current?.scrollHeight ?? 0;
@@ -173,7 +185,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
     } finally {
       setIsLoadingMore(false);
     }
-  }, [storeApi, setMessages, isLoadingMore, chatId, containerRef]);
+  }, [storeApi, setMessages, chatId, containerRef]);
 
   // Scroll to bottom on initial load (instant)
   useEffect(() => {
@@ -201,7 +213,8 @@ export default function ChatMessages(props: ChatMessagesProps) {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !isLoadingMore) {
+        // Use ref to get current loading state, avoiding stale closure
+        if (entries[0].isIntersecting && !isLoadingMoreRef.current) {
           loadMore();
         }
       },
@@ -217,7 +230,8 @@ export default function ChatMessages(props: ChatMessagesProps) {
     return () => {
       observer.disconnect();
     };
-  }, [initialScrollDone, loadMore, isLoadingMore, setIsLoadingMore]);
+    // Include firstMessageId to re-setup observer when messages change (branch switch, etc.)
+  }, [initialScrollDone, loadMore, firstMessageId]);
 
   useEffect(() => {
     if (justPrepended) {
@@ -241,7 +255,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
 
     if (parentId) {
       const parentElement = document.querySelector(
-        `[data-message-id="${parentId}"]`
+        `[data-message-id="${parentId}"]`,
       );
       if (parentElement) {
         const rect = parentElement.getBoundingClientRect();
@@ -304,7 +318,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
           // Use requestAnimationFrame to ensure DOM has updated
           requestAnimationFrame(() => {
             const messageElement = document.querySelector(
-              `[data-message-id="${lastMessage.id}"]`
+              `[data-message-id="${lastMessage.id}"]`,
             );
             if (messageElement) {
               // Scroll so the message is visible near the top third of the viewport
@@ -325,7 +339,12 @@ export default function ChatMessages(props: ChatMessagesProps) {
     // re-running on every streaming update. We only need to scroll when a new
     // message is added, not when content changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages.length, initialScrollDone, justPrepended, props.shouldScrollRef]);
+  }, [
+    messages.length,
+    initialScrollDone,
+    justPrepended,
+    props.shouldScrollRef,
+  ]);
 
   // Auto-scroll during streaming to keep new content visible
   useEffect(() => {
@@ -987,7 +1006,13 @@ type ChatMessageBranchesProps = {
 };
 
 function ChatMessageBranches(props: ChatMessageBranchesProps) {
-  const { branches, branchId, setActiveId, prepareScrollRestore, setIsSwitchingBranch } = useChatBranchesContext();
+  const {
+    branches,
+    branchId,
+    setActiveId,
+    prepareScrollRestore,
+    setIsSwitchingBranch,
+  } = useChatBranchesContext();
   const { chatId } = useChatMain();
   const { setMessages } = useChatActions<PersonaUIMessage>();
 

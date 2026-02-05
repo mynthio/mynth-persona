@@ -4,8 +4,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogContentCustom,
-  DialogOverlay,
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
@@ -107,8 +105,7 @@ export function MediaDialog() {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogOverlay className="bg-background/70 backdrop-blur-[2px]" />
-      <DialogContentCustom
+      <DialogContent
         showCloseButton={false}
         className="sm:max-w-full max-w-full rounded-none w-full h-full p-0 gap-0 bg-none bg-transparent border-none lg:overflow-hidden overflow-y-auto flex flex-col outline-none"
       >
@@ -198,7 +195,7 @@ export function MediaDialog() {
             </div>
           </div>
         )}
-      </DialogContentCustom>
+      </DialogContent>
     </Dialog>
   );
 }

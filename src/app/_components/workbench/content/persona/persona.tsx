@@ -6,9 +6,24 @@ import { usePersonaQuery } from "@/app/_queries/use-persona.query";
 import { getImageUrl } from "@/lib/utils";
 import { spaceCase } from "case-anything";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 import { useParams } from "next/navigation";
 import { CreateChatButton } from "@/components/create-chat-button";
+import {
+  ChatCircleDotsIcon,
+  ImageIcon,
+  SparkleIcon,
+  UserIcon,
+  BrainIcon,
+  BookOpenIcon,
+  MicrophoneIcon,
+  BriefcaseIcon,
+  PuzzlePieceIcon,
+  EyeIcon,
+} from "@phosphor-icons/react/dist/ssr";
+import { MiniWaveLoader } from "@/components/ui/mini-wave-loader";
 
 export default function PersonaContent() {
   return <Persona />;
@@ -21,78 +36,169 @@ function Persona() {
 
   const personaId = params.personaId;
   const { data: persona } = usePersonaQuery(personaId);
-  const { isLoading, data: personaVersion } = usePersonaVersionQuery(personaId);
+  const { isLoading, data: personaVersion } =
+    usePersonaVersionQuery(personaId);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center h-64">
+        <MiniWaveLoader aria-label="Loading persona" />
+      </div>
+    );
 
-  if (!personaVersion) return <div>Persona not found</div>;
+  if (!personaVersion)
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-muted-foreground text-sm">Persona not found</p>
+      </div>
+    );
 
   const { data } = personaVersion;
 
   return (
-    <div className="mt-12 max-w-2xl w-full mx-auto pb-32">
-      <div className="flex gap-8">
-        <div className="w-24 h-32 shrink-0">
-          {persona?.profileImageIdMedia ? (
-            <div className="rounded-md overflow-hidden w-full h-full">
-              <img
-                className="w-full h-full object-cover"
-                src={getImageUrl(persona.profileImageIdMedia)}
-                alt="Persona profile"
-              />
-            </div>
-          ) : (
-            <div className="w-full h-full rounded-md overflow-hidden border border-border bg-gradient-to-br from-muted/50 to-background/60 text-muted-foreground flex flex-col items-center justify-between gap-2 p-2">
-              <span className="text-[10px]">No image</span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setWorkbenchMode("gallery");
-                }}
-                aria-label="Generate image"
-                className="h-7 w-full px-2 text-[11px]"
-              >
-                Create
-              </Button>
-            </div>
-          )}
-        </div>
+    <div className="relative mt-6 max-w-3xl w-full mx-auto pb-32">
+      {/* Atmospheric backdrop */}
+      <div className="absolute -top-24 left-1/2 -translate-x-1/2 h-[400px] w-[600px] rounded-full bg-primary/8 blur-[120px] pointer-events-none" />
+      <div className="absolute -top-12 right-[-10%] h-[300px] w-[300px] rounded-full bg-primary/5 blur-[100px] pointer-events-none" />
 
-        <div className="mt-2">
-          <h1 className="font-semibold text-2xl">{data.name}</h1>
-          <div className="mt-1 text-xs text-zinc-600 flex items-center gap-2">
-            <span>{data.age}</span>
-            <span className="w-1 h-1 rounded-full bg-zinc-400" />
-            <span className="capitalize">{data.gender}</span>
-          </div>
-          <p className="mt-1 text-sm text-zinc-600">{data.summary}</p>
-          <div className="mt-3">
-            <CreateChatButton personaId={personaId} size="sm" variant="outline">
-              Create Chat
-            </CreateChatButton>
+      {/* Hero card */}
+      <div className="relative rounded-2xl border border-border/40 bg-card/30 backdrop-blur-sm overflow-hidden">
+        {/* Subtle gradient top accent */}
+        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary/30 to-transparent" />
+
+        <div className="p-6 sm:p-8">
+          <div className="flex gap-6 sm:gap-8">
+            {/* Profile image */}
+            <div className="w-28 h-36 sm:w-32 sm:h-40 shrink-0">
+              {persona?.profileImageIdMedia ? (
+                <div className="relative rounded-xl overflow-hidden w-full h-full border border-border/30 shadow-[0_12px_30px_-18px_rgba(124,58,237,0.35)]">
+                  <img
+                    className="w-full h-full object-cover"
+                    src={getImageUrl(persona.profileImageIdMedia)}
+                    alt="Persona profile"
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
+                </div>
+              ) : (
+                <div className="w-full h-full rounded-xl overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm text-muted-foreground flex flex-col items-center justify-center gap-3 p-3">
+                  <UserIcon className="size-8 text-muted-foreground/50" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setWorkbenchMode("gallery");
+                    }}
+                    aria-label="Generate image"
+                    className="h-7 w-full px-2 text-[11px] rounded-lg border-border/50"
+                  >
+                    <ImageIcon className="size-3.5" />
+                    Generate
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Persona info */}
+            <div className="flex flex-col justify-center min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="font-semibold text-2xl sm:text-3xl tracking-tight text-foreground">
+                  {data.name}
+                </h1>
+              </div>
+
+              <div className="mt-2 flex items-center gap-2 flex-wrap">
+                {data.age && (
+                  <Badge
+                    variant="outline"
+                    className="border-border/40 bg-card/40 text-muted-foreground text-[11px]"
+                  >
+                    {data.age}
+                  </Badge>
+                )}
+                {data.gender && (
+                  <Badge
+                    variant="outline"
+                    className="border-border/40 bg-card/40 text-muted-foreground text-[11px] capitalize"
+                  >
+                    {data.gender}
+                  </Badge>
+                )}
+                {data.occupation && (
+                  <Badge
+                    variant="outline"
+                    className="border-border/40 bg-card/40 text-muted-foreground text-[11px]"
+                  >
+                    <BriefcaseIcon className="size-3" />
+                    {data.occupation}
+                  </Badge>
+                )}
+              </div>
+
+              <p className="mt-3 text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                {data.summary}
+              </p>
+
+              <div className="mt-4 flex items-center gap-3">
+                <CreateChatButton
+                  personaId={personaId}
+                  size="sm"
+                  className="rounded-full bg-primary px-5 text-primary-foreground shadow-[0_12px_30px_-12px_rgba(124,58,237,0.6)] ring-1 ring-primary/30 transition-all hover:-translate-y-px hover:brightness-110"
+                >
+                  <ChatCircleDotsIcon weight="fill" className="size-4" />
+                  Start Chat
+                </CreateChatButton>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setWorkbenchMode("gallery")}
+                  className="rounded-full border-border/50 bg-card/40 hover:bg-card/70"
+                >
+                  <SparkleIcon className="size-4" />
+                  Gallery
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col gap-8 mt-8">
-        <PersonaDetailSection title="Appearance" content={data.appearance} />
-        <PersonaDetailSection title="Personality" content={data.personality} />
-        <PersonaDetailSection title="Background" content={data.background} />
+      {/* Detail sections */}
+      <div className="flex flex-col gap-4 mt-6">
+        <PersonaDetailSection
+          title="Appearance"
+          content={data.appearance}
+          icon={<EyeIcon className="size-4" />}
+        />
+        <PersonaDetailSection
+          title="Personality"
+          content={data.personality}
+          icon={<BrainIcon className="size-4" />}
+        />
+        <PersonaDetailSection
+          title="Background"
+          content={data.background}
+          icon={<BookOpenIcon className="size-4" />}
+        />
         {data.speakingStyle && (
           <PersonaDetailSection
             title="Speaking Style"
             content={data.speakingStyle}
+            icon={<MicrophoneIcon className="size-4" />}
           />
         )}
         {data.occupation && (
-          <PersonaDetailSection title="Occupation" content={data.occupation} />
+          <PersonaDetailSection
+            title="Occupation"
+            content={data.occupation}
+            icon={<BriefcaseIcon className="size-4" />}
+          />
         )}
         {Object.entries(data.extensions ?? {}).map(([key, value]) => (
           <PersonaDetailSection
             key={key}
             title={spaceCase(key, { keepSpecialCharacters: false })}
             content={typeof value === "string" ? value : ""}
+            icon={<PuzzlePieceIcon className="size-4" />}
           />
         ))}
       </div>
@@ -103,13 +209,29 @@ function Persona() {
 type PersonaDetailSectionProps = {
   title: string;
   content: string;
+  icon?: React.ReactNode;
 };
 
 function PersonaDetailSection(props: PersonaDetailSectionProps) {
   return (
-    <div>
-      <h3 className="text-2xl capitalize font-medium">{props.title}</h3>
-      <div className="mt-2">{props.content}</div>
+    <div className="group relative rounded-xl border border-border/30 bg-card/20 backdrop-blur-sm transition-colors hover:border-border/50 hover:bg-card/40">
+      {/* Top accent line */}
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-border/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+      <div className="p-5 sm:p-6">
+        <div className="flex items-center gap-2.5 mb-3">
+          <div className="flex items-center justify-center size-7 rounded-lg bg-primary/10 text-primary">
+            {props.icon}
+          </div>
+          <h3 className="text-sm font-semibold uppercase tracking-[0.08em] text-foreground/80">
+            {props.title}
+          </h3>
+        </div>
+        <Separator className="mb-3 bg-border/30" />
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {props.content}
+        </p>
+      </div>
     </div>
   );
 }

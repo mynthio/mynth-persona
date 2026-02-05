@@ -14,18 +14,24 @@ export default function PersonaSidebar() {
 
   return (
     <Tabs
-      className="h-full min-h-0 max-h-full gap-0"
+      className="h-full min-h-0 max-h-full gap-0 flex flex-col"
       value={personaWorkbenchMode}
       onValueChange={(value) => setPersonaWorkbenchMode(value)}
     >
-      <div className="pt-2 px-2">
-        <TabsList className="w-full">
-          <TabsTrigger value="creator">
-            <SparkleIcon />
+      <div className="pt-3 px-3">
+        <TabsList className="w-full bg-card/50 border border-border/30 backdrop-blur-sm p-1 rounded-xl">
+          <TabsTrigger
+            value="creator"
+            className="rounded-lg gap-1.5 text-xs font-medium data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none transition-all"
+          >
+            <SparkleIcon weight="fill" className="size-3.5" />
             Creator
           </TabsTrigger>
-          <TabsTrigger value="manage">
-            <GlobeIcon />
+          <TabsTrigger
+            value="manage"
+            className="rounded-lg gap-1.5 text-xs font-medium data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none transition-all"
+          >
+            <GlobeIcon weight="fill" className="size-3.5" />
             Manage
           </TabsTrigger>
         </TabsList>

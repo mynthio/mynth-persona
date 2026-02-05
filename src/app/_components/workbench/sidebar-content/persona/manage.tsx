@@ -12,23 +12,24 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 import { useParams, useRouter } from "next/navigation";
 import { usePersonaPublishStatusQuery } from "@/app/_queries/use-persona-publish-status.query";
 import { publishPersonaAction } from "@/actions/publish-persona.action";
 import { useSWRConfig } from "swr";
-import { GlobeIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+  GlobeIcon,
+  TrashIcon,
+  ProhibitIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  WarningCircleIcon,
+  ImageIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import { usePersonaQuery } from "@/app/_queries/use-persona.query";
 import { updatePersonaVisibilityAction } from "@/actions/update-persona-visibility.action";
-import { TrashIcon, ProhibitIcon } from "@phosphor-icons/react/dist/ssr";
 import { AlertCircle, AlertTriangle } from "lucide-react";
 
 export default function WorkbenchSidebarManage() {
@@ -129,57 +130,81 @@ export default function WorkbenchSidebarManage() {
 
   return (
     <div className="h-full min-h-0 flex flex-col">
-      <div className="flex-1 min-h-0 p-2">
-        <Card className="text-sm">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <CardTitle>Manage</CardTitle>
+      <div className="flex-1 min-h-0 p-3 space-y-3">
+        {/* Publish status card */}
+        <div className="rounded-xl border border-border/30 bg-card/20 backdrop-blur-sm overflow-hidden">
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center size-7 rounded-lg bg-primary/10 text-primary">
+                  <GlobeIcon weight="fill" className="size-4" />
+                </div>
+                <span className="text-sm font-semibold text-foreground/90">
+                  Publishing
+                </span>
+              </div>
               {isPublished ? (
-                <Badge variant="default" className="text-[11px]">
+                <Badge
+                  variant="default"
+                  className="text-[10px] bg-emerald-500/15 text-emerald-500 border-emerald-500/20"
+                >
+                  <CheckCircleIcon weight="fill" className="size-3" />
                   Published
                 </Badge>
               ) : isPending ? (
-                <Badge variant="secondary" className="text-[11px]">
+                <Badge
+                  variant="secondary"
+                  className="text-[10px] bg-amber-500/15 text-amber-500 border-amber-500/20"
+                >
+                  <ClockIcon weight="fill" className="size-3" />
                   Pending
                 </Badge>
               ) : (
-                <Badge variant="outline" className="text-[11px]">
+                <Badge
+                  variant="outline"
+                  className="text-[10px] border-border/40 text-muted-foreground"
+                >
                   Not published
                 </Badge>
               )}
             </div>
-            <CardDescription className="text-[12px] leading-relaxed">
-              Publishing makes your persona discoverable on the public feed and
-              allows them to generate content on the platform. After you
-              publish, your persona will be reviewed automatically and should be
-              published within a few minutes.
-            </CardDescription>
-          </CardHeader>
 
-          <CardContent className="space-y-4">
+            <p className="text-[12px] leading-relaxed text-muted-foreground">
+              Publishing makes your persona discoverable on the public feed.
+              After publishing, it will be reviewed automatically and should be
+              live within a few minutes.
+            </p>
+          </div>
+
+          <Separator className="bg-border/20" />
+
+          <div className="p-4 space-y-3">
             {isPublished && (
-              <Alert>
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Permanent License</AlertTitle>
-                <AlertDescription className="text-[12px]">
-                  By publishing, you granted us a perpetual license to use this
-                  persona. It cannot be unpublished or deleted through normal
-                  means. For exceptional removal requests, contact hi@prsna.app
-                  or Discord.
+              <Alert className="border-amber-500/20 bg-amber-500/5 text-amber-600 dark:text-amber-400">
+                <AlertTriangle className="h-4 w-4 text-amber-500" />
+                <AlertTitle className="text-[12px] font-semibold">
+                  Permanent License
+                </AlertTitle>
+                <AlertDescription className="text-[11px] text-amber-600/80 dark:text-amber-400/80">
+                  By publishing, you granted a perpetual license. Contact
+                  hi@prsna.app or Discord for removal requests.
                 </AlertDescription>
               </Alert>
             )}
 
-            <div className="space-y-2">
+            {/* Status detail */}
+            <div className="rounded-lg bg-card/30 border border-border/20 p-3 space-y-1.5">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Status</span>
+                <span className="text-[11px] font-medium text-foreground/70 uppercase tracking-wider">
+                  Status
+                </span>
                 {!isLoading && lastAttemptAt && (
-                  <span className="text-[11px] text-muted-foreground">
-                    Last attempt: {lastAttemptAt}
+                  <span className="text-[10px] text-muted-foreground">
+                    {lastAttemptAt}
                   </span>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[12px] text-muted-foreground">
                 {isPublished
                   ? `Published${
                       data?.publishedAt
@@ -187,14 +212,14 @@ export default function WorkbenchSidebarManage() {
                         : ""
                     }`
                   : isPending
-                  ? "Publishing in progress…"
-                  : "Not published"}
+                    ? "Publishing in progress…"
+                    : "Not published"}
               </p>
               {data?.lastPublishAttempt?.status === "failed" &&
                 data.lastPublishAttempt.error && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription className="text-[12px]">
+                  <Alert variant="destructive" className="mt-2">
+                    <AlertCircle className="h-3.5 w-3.5" />
+                    <AlertDescription className="text-[11px]">
                       {data.lastPublishAttempt.error}
                     </AlertDescription>
                   </Alert>
@@ -202,48 +227,49 @@ export default function WorkbenchSidebarManage() {
             </div>
 
             {!hasProfileImage && (
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-[12px]">
+              <div className="flex items-center gap-2 rounded-lg bg-card/30 border border-border/20 p-3">
+                <ImageIcon className="size-4 text-muted-foreground shrink-0" />
+                <p className="text-[11px] text-muted-foreground">
                   A profile image is required to publish your persona.
-                </AlertDescription>
-              </Alert>
+                </p>
+              </div>
             )}
 
-            <div className="flex gap-2">
+            {/* Action buttons */}
+            <div className="flex gap-2 pt-1">
               <Button
                 size="sm"
-                className="h-8 px-3 text-[12px]"
+                className="h-8 px-4 text-[12px] rounded-full bg-primary shadow-[0_8px_20px_-8px_rgba(124,58,237,0.5)] ring-1 ring-primary/30 transition-all hover:-translate-y-px hover:brightness-110"
                 onClick={onPublishClick}
                 disabled={Boolean(disabledReason) || submitting || isLoading}
                 title={disabledReason}
               >
-                <GlobeIcon />
+                <GlobeIcon weight="fill" className="size-3.5" />
                 {submitting
                   ? "Publishing…"
                   : isPublished
-                  ? "Published"
-                  : "Publish persona"}
+                    ? "Published"
+                    : "Publish"}
               </Button>
 
               {isPublished && (
                 <Button
                   size="sm"
                   variant="outline"
-                  className="h-8 px-3 text-[12px]"
+                  className="h-8 px-3 text-[12px] rounded-full border-border/40 bg-card/30 hover:bg-card/60"
                   onClick={onUnpublish}
                   disabled={true}
                   title="You granted a perpetual license when publishing. Contact hi@prsna.app for exceptional removal requests."
                 >
-                  <ProhibitIcon />
+                  <ProhibitIcon className="size-3.5" />
                   Unpublish
                 </Button>
               )}
 
               <Button
                 size="sm"
-                variant="destructive"
-                className="h-8 px-3 text-[12px]"
+                variant="outline"
+                className="h-8 px-3 text-[12px] rounded-full border-destructive/30 text-destructive hover:bg-destructive/10 hover:border-destructive/50"
                 onClick={() => setShowDeleteDialog(true)}
                 disabled={isPublished || submitting || isLoading}
                 title={
@@ -252,16 +278,16 @@ export default function WorkbenchSidebarManage() {
                     : "Delete persona"
                 }
               >
-                <TrashIcon />
+                <TrashIcon className="size-3.5" />
                 Delete
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       <Dialog open={showPublishDialog} onOpenChange={setShowPublishDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md border-border/40 bg-card/95 backdrop-blur-xl">
           <DialogHeader>
             <DialogTitle>Publish Persona</DialogTitle>
             <DialogDescription>
@@ -274,8 +300,8 @@ export default function WorkbenchSidebarManage() {
               and can generate content on the platform.
             </p>
 
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
+            <Alert className="border-amber-500/20 bg-amber-500/5">
+              <AlertTriangle className="h-4 w-4 text-amber-500" />
               <AlertTitle>This action is permanent</AlertTitle>
               <AlertDescription>
                 You will not be able to unpublish or delete your persona once
@@ -284,7 +310,7 @@ export default function WorkbenchSidebarManage() {
                   href="/terms-of-service#publishing-personas"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline font-medium hover:underline"
+                  className="underline font-medium hover:no-underline"
                 >
                   Publishing Personas policy
                 </a>{" "}
@@ -321,12 +347,14 @@ export default function WorkbenchSidebarManage() {
               variant="outline"
               onClick={() => setShowPublishDialog(false)}
               disabled={submitting}
+              className="rounded-full border-border/50"
             >
               Cancel
             </Button>
             <Button
               onClick={onPublishConfirm}
               disabled={!termsAccepted || submitting}
+              className="rounded-full bg-primary shadow-[0_8px_20px_-8px_rgba(124,58,237,0.5)]"
             >
               {submitting ? "Publishing..." : "Publish"}
             </Button>
@@ -335,7 +363,7 @@ export default function WorkbenchSidebarManage() {
       </Dialog>
 
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent>
+        <DialogContent className="border-border/40 bg-card/95 backdrop-blur-xl">
           <DialogHeader>
             <DialogTitle>Delete Persona</DialogTitle>
             <DialogDescription>
@@ -348,6 +376,7 @@ export default function WorkbenchSidebarManage() {
               variant="outline"
               onClick={() => setShowDeleteDialog(false)}
               disabled={submitting}
+              className="rounded-full border-border/50"
             >
               Cancel
             </Button>
@@ -355,6 +384,7 @@ export default function WorkbenchSidebarManage() {
               variant="destructive"
               onClick={onDelete}
               disabled={submitting}
+              className="rounded-full"
             >
               {submitting ? "Deleting..." : "Delete"}
             </Button>

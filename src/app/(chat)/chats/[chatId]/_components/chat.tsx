@@ -29,7 +29,7 @@ const ChatModelPickerMenu = dynamic(
     import("./chat-model-picker-menu").then((mod) => ({
       default: mod.ChatModelPickerMenu,
     })),
-  { ssr: false }
+  { ssr: false },
 );
 import { ArrowUp } from "@untitledui/icons";
 import { Drama, Square } from "lucide-react";
@@ -46,7 +46,8 @@ type ChatProps = {
 };
 
 export default function Chat(props: ChatProps) {
-  const { addMessageToBranch, setActiveId, isSwitchingBranch } = useChatBranchesContext();
+  const { addMessageToBranch, setActiveId, isSwitchingBranch } =
+    useChatBranchesContext();
   // Use non-null assertion for ref type to satisfy downstream component prop types
   const messagesContainerRef = useRef<HTMLDivElement>(null!);
   const shouldScrollRef = useRef(false);
@@ -159,7 +160,7 @@ function ChatPrompt(props: ChatPromptProps) {
           event: "send",
           modelId,
         },
-      }
+      },
     );
 
     // Clear input field
@@ -215,67 +216,59 @@ function ChatPrompt(props: ChatPromptProps) {
         {/* Main input container */}
         <div
           className={cn(
-            "relative overflow-hidden rounded-2xl transition-all duration-200",
-            "bg-card dark:bg-[#0f0f12]",
-            "border border-border/50 dark:border-white/[0.08]",
-            "shadow-lg dark:shadow-2xl dark:shadow-black/20",
-            isFocused && "border-primary/30 dark:border-white/[0.15] shadow-xl dark:shadow-primary/5"
+            "overflow-hidden rounded-xl transition-colors duration-200",
+            "bg-muted/40",
+            "border border-border/50",
+            isFocused && "border-border",
           )}
         >
-          {/* Subtle gradient overlay */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary/[0.02] via-transparent to-transparent dark:from-violet-500/[0.03]" />
-
           {/* Textarea */}
-          <div className="relative">
-            <TextareaAutosize
-              ref={textareaRef}
-              className={cn(
-                "w-full resize-none bg-transparent",
-                "px-4 pt-4 pb-2 text-[15px] leading-relaxed",
-                "placeholder:text-muted-foreground/50",
-                "outline-none border-none focus:ring-0",
-                "min-h-[56px] max-h-[200px]"
-              )}
-              placeholder="Write your message..."
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              spellCheck
-              autoCorrect="on"
-              autoCapitalize="sentences"
-              data-gramm="true"
-              data-gramm_editor="true"
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  e.currentTarget.form?.requestSubmit();
-                }
-              }}
-            />
-          </div>
+          <TextareaAutosize
+            ref={textareaRef}
+            className={cn(
+              "w-full resize-none bg-transparent",
+              "px-4 pt-3.5 pb-1.5 text-sm leading-relaxed",
+              "placeholder:text-muted-foreground/50",
+              "outline-none border-none focus:ring-0",
+              "min-h-[52px] max-h-[200px]",
+            )}
+            placeholder="Write your message..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            spellCheck
+            autoCorrect="on"
+            autoCapitalize="sentences"
+            data-gramm="true"
+            data-gramm_editor="true"
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                e.currentTarget.form?.requestSubmit();
+              }
+            }}
+          />
 
           {/* Bottom toolbar */}
-          <div className="relative flex items-center justify-between gap-2 px-3 pb-3 pt-1">
+          <div className="flex items-center justify-between px-2.5 pb-2.5 pt-0.5">
             {/* Left side - Model selector */}
             <ChatModelSelector />
 
             {/* Right side - Actions */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               {/* Impersonate button */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     type="button"
                     variant="ghost"
-                    size="sm"
+                    size="icon-sm"
                     onClick={handleImpersonate}
                     disabled={isImpersonating}
                     className={cn(
-                      "h-8 w-8 p-0 rounded-lg",
-                      "text-muted-foreground/60 hover:text-foreground",
-                      "hover:bg-muted/50 dark:hover:bg-white/[0.06]",
-                      isImpersonating && "text-primary animate-pulse"
+                      "rounded-lg text-muted-foreground/60 hover:text-foreground",
+                      isImpersonating && "text-primary animate-pulse",
                     )}
                   >
                     <Drama className="size-4" />
@@ -284,7 +277,9 @@ function ChatPrompt(props: ChatPromptProps) {
                 </TooltipTrigger>
                 <TooltipContent side="top" sideOffset={8}>
                   <p>Impersonate User</p>
-                  <p className="text-[10px] text-muted-foreground">AI writes as you</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    AI writes as you
+                  </p>
                 </TooltipContent>
               </Tooltip>
 
@@ -293,13 +288,9 @@ function ChatPrompt(props: ChatPromptProps) {
                 <Button
                   type="button"
                   onClick={stop}
-                  size="sm"
-                  className={cn(
-                    "h-9 w-9 p-0 rounded-xl",
-                    "bg-destructive/10 hover:bg-destructive/20",
-                    "text-destructive border border-destructive/20",
-                    "transition-all duration-150"
-                  )}
+                  variant="ghost"
+                  size="icon-sm"
+                  className="rounded-lg text-destructive hover:bg-destructive/10 hover:text-destructive"
                 >
                   <Square className="size-4 fill-current" />
                   <span className="sr-only">Stop generation</span>
@@ -307,14 +298,13 @@ function ChatPrompt(props: ChatPromptProps) {
               ) : (
                 <Button
                   type="submit"
-                  size="sm"
+                  size="icon-sm"
                   disabled={!hasText}
                   className={cn(
-                    "h-9 w-9 p-0 rounded-xl",
-                    "transition-all duration-150",
+                    "rounded-lg transition-colors",
                     hasText
-                      ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/25"
-                      : "bg-muted/50 dark:bg-white/[0.06] text-muted-foreground/50 cursor-not-allowed"
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "bg-transparent text-muted-foreground/30 cursor-not-allowed",
                   )}
                 >
                   <ArrowUp className="size-4" strokeWidth={2} />
@@ -326,15 +316,13 @@ function ChatPrompt(props: ChatPromptProps) {
         </div>
 
         {/* Keyboard hint */}
-        <div className="flex items-center justify-center mt-2">
-          <p className="text-[11px] text-muted-foreground/40">
-            <kbd className="px-1 py-0.5 rounded bg-muted/30 dark:bg-white/[0.03] font-mono text-[10px]">Enter</kbd>
-            <span className="mx-1">to send</span>
-            <span className="text-muted-foreground/20 mx-1">·</span>
-            <kbd className="px-1 py-0.5 rounded bg-muted/30 dark:bg-white/[0.03] font-mono text-[10px]">Shift + Enter</kbd>
-            <span className="mx-1">for new line</span>
-          </p>
-        </div>
+        <p className="mt-1.5 text-center text-[11px] text-muted-foreground/30 select-none">
+          <kbd className="font-mono text-[10px]">Enter</kbd>
+          <span className="mx-1">to send</span>
+          <span className="mx-1">·</span>
+          <kbd className="font-mono text-[10px]">Shift + Enter</kbd>
+          <span className="mx-1">for new line</span>
+        </p>
       </form>
     </div>
   );

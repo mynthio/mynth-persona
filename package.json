@@ -18,7 +18,6 @@
     "@ai-sdk/react": "^3.0.71",
     "@ai-sdk/rsc": "^2.0.69",
     "@axiomhq/pino": "^1.4.0",
-    "@base-ui-components/react": "1.0.0-rc.0",
     "@clerk/nextjs": "^6.37.1",
     "@logsnag/node": "^1.0.1",
     "@mdx-js/loader": "^3.1.1",

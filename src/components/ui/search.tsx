@@ -1,4 +1,4 @@
-import { Input } from "@base-ui-components/react/input";
+import { Input } from "@/components/ui/input";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr";
 
 type SearchProps = {
@@ -12,7 +12,7 @@ export function Search({ placeholder, onSearchChange }: SearchProps) {
       <Input
         autoFocus={false}
         className="pr-[28px] w-full text-foreground outline-none h-full py-[2px] px-[8px] text-[12px] placeholder:text-foreground/80"
-        onValueChange={onSearchChange}
+        onChange={(event) => onSearchChange?.(event.target.value)}
         placeholder={placeholder}
       />
       <MagnifyingGlassIcon

@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { desc, isNotNull, eq, and } from "drizzle-orm";
+import { desc, isNotNull } from "drizzle-orm";
 import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
 import { PublicPersonaListItem } from "@/schemas/shared/persona-public.schema";
@@ -28,12 +28,7 @@ export const getPublicPersonas = cache(async (): Promise<PublicPersonaListItem[]
       event: personas.event,
     })
     .from(personas)
-    .where(
-      and(
-        isNotNull(personas.publishedAt),
-        eq(personas.nsfwRating, "sfw")
-      )
-    )
+    .where(isNotNull(personas.publishedAt))
     .orderBy(desc(personas.publishedAt), desc(personas.id))
     .limit(LANDING_PAGE_LIMIT);
 

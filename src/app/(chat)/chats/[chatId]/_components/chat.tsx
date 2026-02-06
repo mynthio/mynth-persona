@@ -31,14 +31,19 @@ const ChatModelPickerMenu = dynamic(
     })),
   { ssr: false },
 );
-import { ArrowUp } from "@untitledui/icons";
-import { Drama, Square } from "lucide-react";
+import { ArrowUp, StickerSquare } from "@untitledui/icons";
+import { Drama, Square, X } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 type ChatProps = {
   chat: { id: string; mode: ChatMode };
@@ -119,7 +124,12 @@ function ChatPrompt(props: ChatPromptProps) {
   const { sendMessage, regenerate, stop } = useChatActions();
   const status = useChatStatus();
   const messages = useChatMessages();
-  const { modelId } = useChatMain();
+  const { modelId, authorNote, setAuthorNote } = useChatMain();
+
+  const [authorNoteOpen, setAuthorNoteOpen] = useState(false);
+  const authorNoteValue = authorNote ?? "";
+  const authorNoteLength = authorNoteValue.length;
+  const hasAuthorNote = authorNoteLength > 0;
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isStreaming = status === "streaming" || status === "submitted";
@@ -138,6 +148,7 @@ function ChatPrompt(props: ChatPromptProps) {
           body: {
             event: "regenerate",
             modelId,
+            authorNote,
           },
         });
       } else {
@@ -159,6 +170,7 @@ function ChatPrompt(props: ChatPromptProps) {
         body: {
           event: "send",
           modelId,
+          authorNote,
         },
       },
     );
@@ -282,6 +294,93 @@ function ChatPrompt(props: ChatPromptProps) {
                   </p>
                 </TooltipContent>
               </Tooltip>
+
+              {/* Author Note button */}
+              <Popover open={authorNoteOpen} onOpenChange={setAuthorNoteOpen}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="Open author note"
+                        className={cn(
+                          "rounded-lg text-muted-foreground/60 hover:text-foreground",
+                          hasAuthorNote && "text-primary",
+                        )}
+                      >
+                        <StickerSquare className="size-4" />
+                        <span className="sr-only">Author Note</span>
+                      </Button>
+                    </PopoverTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" sideOffset={8}>
+                    <p>Author Note</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Steer the AI temporarily
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+                <PopoverContent
+                  align="end"
+                  side="top"
+                  sideOffset={8}
+                  className="w-[min(30rem,calc(100vw-2rem))] p-3.5"
+                >
+                  <div className="mb-2.5 flex items-center justify-between">
+                    <span className="text-sm font-medium text-foreground">
+                      Author Note
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-xs"
+                      className="text-muted-foreground/80 hover:text-foreground"
+                      onClick={() => setAuthorNoteOpen(false)}
+                    >
+                      <X className="size-3.5" />
+                      <span className="sr-only">Close author note</span>
+                    </Button>
+                  </div>
+                  <textarea
+                    className={cn(
+                      "w-full resize-none rounded-md border border-border/60 bg-muted/30",
+                      "px-3 py-2.5 text-sm leading-relaxed",
+                      "placeholder:text-muted-foreground/50",
+                      "outline-none focus:border-border focus:ring-1 focus:ring-ring",
+                      "min-h-[88px] max-h-[180px]",
+                    )}
+                    placeholder="E.g. Make the character more flirty, introduce a plot twist..."
+                    value={authorNoteValue}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setAuthorNote(value.trim().length === 0 ? null : value);
+                    }}
+                    maxLength={500}
+                  />
+                  <div className="mt-2.5 flex items-center justify-between">
+                    <p className="text-[11px] text-muted-foreground/70">
+                      Sent with every message until cleared
+                    </p>
+                    <span className="text-[11px] text-muted-foreground/70 tabular-nums">
+                      {authorNoteLength}/500
+                    </span>
+                  </div>
+                  <div className="mt-2 flex justify-start">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 px-2.5 text-xs text-muted-foreground hover:text-destructive"
+                      disabled={!hasAuthorNote}
+                      onClick={() => setAuthorNote(null)}
+                    >
+                      Clear note
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
 
               {/* Send / Stop button */}
               {isStreaming ? (

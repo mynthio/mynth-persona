@@ -1,5 +1,6 @@
 import { replacePlaceholders } from "@/lib/replace-placeholders";
 import type { RoleplayPromptArgs, RoleplayPromptRenderer } from "./types";
+import { renderAuthorNote } from "./types";
 
 /**
  * MiniMax M2-her-specific roleplay system prompt renderer.
@@ -54,5 +55,5 @@ You are in an endless role-play with ${userName}. Stay fully in character as ${p
 
 Format: Use asterisks (*) for actions, thoughts, and descriptions. Use normal text for dialogue.
 
-Keep responses focused: one dialogue exchange and one action per reply. Let the conversation flow naturally, giving ${userName} space to respond and guide the story.`;
+Keep responses focused: one dialogue exchange and one action per reply. Let the conversation flow naturally, giving ${userName} space to respond and guide the story.${renderAuthorNote(args.authorNote)}`;
 };

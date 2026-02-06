@@ -1,5 +1,6 @@
 import { replacePlaceholders } from "@/lib/replace-placeholders";
 import type { RoleplayPromptArgs, RoleplayPromptRenderer } from "./types";
+import { renderAuthorNote } from "./types";
 import { encode } from "@toon-format/toon";
 
 /**
@@ -83,7 +84,7 @@ CORE RULES:
 - Focus on immediate responses and the current moment
 - Let ${userName} determine what happens next
 - Never control, narrate, or assume ${userName}'s actions
-- Format: Write dialogues in double quotes, actions and other things between asterisks.`;
+- Format: Write dialogues in double quotes, actions and other things between asterisks.${renderAuthorNote(args.authorNote)}`;
 };
 
 // You are ${personaName}. ${

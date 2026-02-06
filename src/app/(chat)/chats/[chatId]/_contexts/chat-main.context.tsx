@@ -25,9 +25,11 @@ export interface ChatContextValue {
   settings: ChatSettings;
   modelId?: TextGenerationModelId;
   editMessageId: string | null;
+  authorNote: string | null;
   setSettings: (settings: ChatSettings) => void;
   setEditMessageId: (id: string | null) => void;
   setModelId: (id?: TextGenerationModelId) => void;
+  setAuthorNote: (note: string | null) => void;
 }
 
 const ChatMainContext = createContext<ChatContextValue | undefined>(undefined);
@@ -67,6 +69,14 @@ export function ChatMainProvider({
 
   const [editMessageId, setEditMessageIdState] = useState<string | null>(null);
 
+  const [authorNote, setAuthorNoteState] = useState<string | null>(
+    initialSettings.author_note ?? null
+  );
+
+  const setAuthorNote = useCallback((note: string | null) => {
+    setAuthorNoteState(note);
+  }, []);
+
   const isMobile = useIsMobile();
   // On mobile, sidebar is hidden by default; on desktop, it's open by default
   const [sidebarOpen, setSidebarOpenState] = useState<boolean>(() => {
@@ -99,6 +109,8 @@ export function ChatMainProvider({
       editMessageId,
       setEditMessageId: setEditMessageIdState,
       setSettings,
+      authorNote,
+      setAuthorNote,
     }),
     [
       chatId,
@@ -112,6 +124,8 @@ export function ChatMainProvider({
       editMessageId,
       setEditMessageIdState,
       setSettings,
+      authorNote,
+      setAuthorNote,
     ]
   );
 

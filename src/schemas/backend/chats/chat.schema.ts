@@ -49,6 +49,7 @@ export const chatSettingsSchema = z.object({
   user_persona: chatSettingsUserPersonaSchema.nullable().optional(),
   scenario: chatSettingsScenarioSchema.nullable().optional(),
   sceneImageMediaId: z.string().optional(),
+  author_note: z.string().max(500).nullable().optional(),
 });
 
 export type ChatSettings = z.infer<typeof chatSettingsSchema>;

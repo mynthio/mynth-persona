@@ -179,6 +179,9 @@ export async function POST(
   const roleplayData = chatPersona.personaVersion
     .roleplayData as PersonaVersionRoleplayData;
 
+  // Resolve author note: payload takes priority, fall back to persisted value
+  const authorNote = payload.authorNote ?? chatSettings.author_note ?? null;
+
   // Placeholder replacement context
   const userName = chatSettings.user_persona?.name;
   const personaName = roleplayData.name;
@@ -253,17 +256,17 @@ export async function POST(
     ? messagesHistory.at(indexOfCheckpointToUse)?.metadata?.checkpoint?.content
     : undefined;
 
-  logger.debug(
-    {
-      lastCheckpointIndex,
-      previousCheckpointIndex,
-      messagesAfterCheckpointCount,
-      shouldGenerateCheckpoint,
-      indexOfCheckpointToUse,
-      checkpointContentToUse,
-    },
-    "Last Checkpoint"
-  );
+  // logger.debug(
+  //   {
+  //     lastCheckpointIndex,
+  //     previousCheckpointIndex,
+  //     messagesAfterCheckpointCount,
+  //     shouldGenerateCheckpoint,
+  //     indexOfCheckpointToUse,
+  //     checkpointContentToUse,
+  //   },
+  //   "Last Checkpoint"
+  // );
 
   // Validation for message events based on history
   if (payload.event === "send") {
@@ -341,6 +344,7 @@ export async function POST(
     user: chatSettings.user_persona,
     scenario: chatSettings.scenario,
     lastCheckpointSummary: checkpointContentToUse,
+    authorNote,
   });
 
   logger.debug({ system }, "📢 System Prompt 📢");
@@ -361,7 +365,7 @@ export async function POST(
       : 0
   );
 
-  console.log(JSON.stringify({ messagesTillCheckpoint }, null, 2));
+  // console.log(JSON.stringify({ messagesTillCheckpoint }, null, 2));
 
   const messages = isRootAssistantRegeneration
     ? [
@@ -539,12 +543,16 @@ export async function POST(
 
     const shouldUpdateModel =
       resolvedModelId !== chatSettings.model || newTitle;
+    const shouldUpdateAuthorNote =
+      (authorNote ?? null) !== (chatSettings.author_note ?? null);
+    const shouldUpdateSettings = shouldUpdateModel || shouldUpdateAuthorNote;
 
     logger.debug(
       {
         shouldUpdateTitle,
         newTitle,
         shouldUpdateModel,
+        shouldUpdateAuthorNote,
         msgLength: `== ${messagesHistory.length}`,
       },
       "Should update title and model"
@@ -563,23 +571,30 @@ export async function POST(
       // Let's don't break the flow just because of this
     });
 
+    // Build settings patch: merge model and author_note changes
+    const settingsPatch: Record<string, unknown> = {};
+    if (shouldUpdateModel) {
+      settingsPatch.model = resolvedModelId;
+    }
+    if (shouldUpdateAuthorNote) {
+      settingsPatch.author_note = authorNote;
+    }
+
     await db
       .update(chats)
       .set({
         updatedAt: sql`now()`,
         ...(newTitle && { title: newTitle }),
-        ...(shouldUpdateModel && {
+        ...(shouldUpdateSettings && {
           settings: sql`COALESCE(${
             chats.settings
-          }, '{}'::jsonb) || ${JSON.stringify({
-            model: resolvedModelId,
-          })}::jsonb`,
+          }, '{}'::jsonb) || ${JSON.stringify(settingsPatch)}::jsonb`,
         }),
       })
       .where(eq(chats.id, chatId));
 
     // Invalidate chat cache if settings were updated
-    if (shouldUpdateModel) {
+    if (shouldUpdateSettings) {
       revalidateTag(`chat:${chatId}`, "max");
     }
   });

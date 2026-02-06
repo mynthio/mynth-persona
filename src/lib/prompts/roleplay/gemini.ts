@@ -1,5 +1,6 @@
 import { replacePlaceholders } from "@/lib/replace-placeholders";
 import type { RoleplayPromptArgs, RoleplayPromptRenderer } from "./types";
+import { renderAuthorNote } from "./types";
 
 /**
  * Gemini 3 Flash-specific roleplay system prompt renderer.
@@ -41,5 +42,5 @@ export const renderGeminiRoleplayPrompt: RoleplayPromptRenderer = (
 
 ${userBlock}${scenarioBlock}${lastCheckpointSummaryBlock}
 
-It's an endless role-play story with the User. Write in the first person of ${personaName}. Never play or act as User. Use asterisks (*) for actions, thoughts, and descriptions. Use normal text for dialogue. Keep responses concise: limit to one turn or action per reply. Advance the story naturally, giving the user space to respond. Aim for a single dialogue line and action per reply. Avoid 2 or multiple actions, or multiple dialogue lines in a single reply. The role-play needs to be dynamic.`;
+It's an endless role-play story with the User. Write in the first person of ${personaName}. Never play or act as User. Use asterisks (*) for actions, thoughts, and descriptions. Use normal text for dialogue. Keep responses concise: limit to one turn or action per reply. Advance the story naturally, giving the user space to respond. Aim for a single dialogue line and action per reply. Avoid 2 or multiple actions, or multiple dialogue lines in a single reply. The role-play needs to be dynamic.${renderAuthorNote(args.authorNote)}`;
 };

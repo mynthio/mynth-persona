@@ -1,5 +1,6 @@
 import { replacePlaceholders } from "@/lib/replace-placeholders";
 import type { RoleplayPromptArgs, RoleplayPromptRenderer } from "./types";
+import { renderAuthorNote } from "./types";
 
 /**
  * Kimi K2.5-specific roleplay system prompt renderer.
@@ -80,5 +81,5 @@ ${userBlock}${scenarioBlock}${lastCheckpointSummaryBlock}
 - Never control or speak for ${userName}
 - Stay in character and advance the story naturally
 - Leverage your reasoning ability to maintain deep character consistency and motivation
-- Track character relationships and emotional states logically across the narrative`;
+- Track character relationships and emotional states logically across the narrative${renderAuthorNote(args.authorNote)}`;
 };

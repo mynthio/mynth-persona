@@ -115,7 +115,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
   const { setMessages, regenerate } = useChatActions<PersonaUIMessage>();
   const storeApi = useChatStoreApi<PersonaUIMessage>();
 
-  const { chatId, modelId } = useChatMain();
+  const { chatId, modelId, authorNote } = useChatMain();
   const { scrollRestoreRef } = useChatBranchesContext();
 
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -451,6 +451,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
                   body: {
                     event: "regenerate",
                     modelId,
+                    authorNote,
                   },
                 })
               }
@@ -751,7 +752,7 @@ type EditMessageProps = {
 };
 
 function EditMessage(props: EditMessageProps) {
-  const { setEditMessageId, modelId } = useChatMain();
+  const { setEditMessageId, modelId, authorNote } = useChatMain();
   const { regenerate, setMessages } = useChatActions<PersonaUIMessage>();
   const { addMessageToBranch } = useChatBranchesContext();
   const messages = useChatMessages<PersonaUIMessage>();
@@ -791,6 +792,7 @@ function EditMessage(props: EditMessageProps) {
       body: {
         event: "edit_message",
         modelId,
+        authorNote,
         editedMessage,
       },
     });
@@ -970,7 +972,7 @@ function ChatMessageRegenerate(props: ChatMessageRegenerateProps) {
 
   const { regenerate } = useChatActions<PersonaUIMessage>();
   const status = useChatStatus();
-  const { modelId } = useChatMain();
+  const { modelId, authorNote } = useChatMain();
   const { addMessageToBranch } = useChatBranchesContext();
 
   return (
@@ -990,6 +992,7 @@ function ChatMessageRegenerate(props: ChatMessageRegenerateProps) {
           body: {
             event: "regenerate",
             modelId,
+            authorNote,
           },
         });
       }}

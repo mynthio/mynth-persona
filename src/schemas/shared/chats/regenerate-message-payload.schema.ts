@@ -28,6 +28,9 @@ export const regenerateMessagePayloadSchema = z.object({
   // Optional model override - if provided, uses this model for generation
   // and persists it to chat settings on completion
   modelId: z.string().optional(),
+
+  // Optional author note - temporary instruction injected into the system prompt
+  authorNote: z.string().max(500).nullable().optional(),
 });
 
 export type RegenerateMessagePayload = z.infer<

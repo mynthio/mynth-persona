@@ -223,15 +223,19 @@ function ChatPrompt(props: ChatPromptProps) {
   };
 
   return (
-    <div className="sticky bottom-0 w-full max-w-2xl z-10 mt-auto shrink-0 pb-4 pt-4">
+    <div className="sticky bottom-0 w-full max-w-2xl z-10 mt-auto shrink-0 pb-5 pt-6">
       <form onSubmit={handleSubmit} className="relative w-full">
         {/* Main input container */}
         <div
           className={cn(
-            "overflow-hidden rounded-xl transition-colors duration-200",
-            "bg-muted/40",
-            "border border-border/50",
-            isFocused && "border-border",
+            "relative overflow-hidden rounded-2xl transition-all duration-300 ease-out",
+            "bg-card backdrop-blur-xl",
+            "shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_2px_8px_rgba(0,0,0,0.04),0_12px_32px_rgba(0,0,0,0.06)]",
+            "dark:shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_2px_8px_rgba(0,0,0,0.2),0_12px_32px_rgba(0,0,0,0.3)]",
+            "ring-1 ring-border/40",
+            isFocused && "ring-border/60 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_4px_12px_rgba(0,0,0,0.06),0_16px_40px_rgba(0,0,0,0.08)]",
+            isFocused &&
+              "dark:shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_4px_12px_rgba(0,0,0,0.25),0_16px_40px_rgba(0,0,0,0.35)]",
           )}
         >
           {/* Textarea */}
@@ -239,10 +243,10 @@ function ChatPrompt(props: ChatPromptProps) {
             ref={textareaRef}
             className={cn(
               "w-full resize-none bg-transparent",
-              "px-4 pt-3.5 pb-1.5 text-sm leading-relaxed",
-              "placeholder:text-muted-foreground/50",
+              "px-4 pt-4 pb-2 text-[15px] leading-relaxed tracking-[-0.01em]",
+              "placeholder:text-muted-foreground/40",
               "outline-none border-none focus:ring-0",
-              "min-h-[52px] max-h-[200px]",
+              "min-h-[56px] max-h-[200px]",
             )}
             placeholder="Write your message..."
             value={text}
@@ -263,12 +267,12 @@ function ChatPrompt(props: ChatPromptProps) {
           />
 
           {/* Bottom toolbar */}
-          <div className="flex items-center justify-between px-2.5 pb-2.5 pt-0.5">
+          <div className="flex items-center justify-between px-3 pb-3 pt-1">
             {/* Left side - Model selector */}
             <ChatModelSelector />
 
             {/* Right side - Actions */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               {/* Impersonate button */}
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -279,11 +283,12 @@ function ChatPrompt(props: ChatPromptProps) {
                     onClick={handleImpersonate}
                     disabled={isImpersonating}
                     className={cn(
-                      "rounded-lg text-muted-foreground/60 hover:text-foreground",
+                      "size-8 rounded-xl text-muted-foreground/50 hover:text-foreground hover:bg-muted/60",
+                      "transition-all duration-200",
                       isImpersonating && "text-primary animate-pulse",
                     )}
                   >
-                    <Drama className="size-4" />
+                    <Drama className="size-[18px]" />
                     <span className="sr-only">Impersonate User</span>
                   </Button>
                 </TooltipTrigger>
@@ -306,11 +311,12 @@ function ChatPrompt(props: ChatPromptProps) {
                         size="icon-sm"
                         aria-label="Open author note"
                         className={cn(
-                          "rounded-lg text-muted-foreground/60 hover:text-foreground",
+                          "size-8 rounded-xl text-muted-foreground/50 hover:text-foreground hover:bg-muted/60",
+                          "transition-all duration-200",
                           hasAuthorNote && "text-primary",
                         )}
                       >
-                        <StickerSquare className="size-4" />
+                        <StickerSquare className="size-[18px]" />
                         <span className="sr-only">Author Note</span>
                       </Button>
                     </PopoverTrigger>
@@ -325,10 +331,10 @@ function ChatPrompt(props: ChatPromptProps) {
                 <PopoverContent
                   align="end"
                   side="top"
-                  sideOffset={8}
-                  className="w-[min(30rem,calc(100vw-2rem))] p-3.5"
+                  sideOffset={12}
+                  className="w-[min(26rem,calc(100vw-2rem))] rounded-xl p-4 shadow-xl"
                 >
-                  <div className="mb-2.5 flex items-center justify-between">
+                  <div className="mb-3 flex items-center justify-between">
                     <span className="text-sm font-medium text-foreground">
                       Author Note
                     </span>
@@ -336,7 +342,7 @@ function ChatPrompt(props: ChatPromptProps) {
                       type="button"
                       variant="ghost"
                       size="icon-xs"
-                      className="text-muted-foreground/80 hover:text-foreground"
+                      className="size-6 rounded-lg text-muted-foreground/60 hover:text-foreground"
                       onClick={() => setAuthorNoteOpen(false)}
                     >
                       <X className="size-3.5" />
@@ -345,11 +351,12 @@ function ChatPrompt(props: ChatPromptProps) {
                   </div>
                   <textarea
                     className={cn(
-                      "w-full resize-none rounded-md border border-border/60 bg-muted/30",
-                      "px-3 py-2.5 text-sm leading-relaxed",
-                      "placeholder:text-muted-foreground/50",
-                      "outline-none focus:border-border focus:ring-1 focus:ring-ring",
-                      "min-h-[88px] max-h-[180px]",
+                      "w-full resize-none rounded-lg border-0 bg-muted/50",
+                      "px-3.5 py-3 text-sm leading-relaxed",
+                      "placeholder:text-muted-foreground/40",
+                      "outline-none ring-1 ring-border/40 focus:ring-border",
+                      "min-h-[100px] max-h-[180px]",
+                      "transition-shadow duration-200",
                     )}
                     placeholder="E.g. Make the character more flirty, introduce a plot twist..."
                     value={authorNoteValue}
@@ -359,39 +366,45 @@ function ChatPrompt(props: ChatPromptProps) {
                     }}
                     maxLength={500}
                   />
-                  <div className="mt-2.5 flex items-center justify-between">
-                    <p className="text-[11px] text-muted-foreground/70">
+                  <div className="mt-3 flex items-center justify-between">
+                    <p className="text-[11px] text-muted-foreground/60">
                       Sent with every message until cleared
                     </p>
-                    <span className="text-[11px] text-muted-foreground/70 tabular-nums">
+                    <span className="text-[11px] text-muted-foreground/50 tabular-nums">
                       {authorNoteLength}/500
                     </span>
                   </div>
-                  <div className="mt-2 flex justify-start">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 px-2.5 text-xs text-muted-foreground hover:text-destructive"
-                      disabled={!hasAuthorNote}
-                      onClick={() => setAuthorNote(null)}
-                    >
-                      Clear note
-                    </Button>
-                  </div>
+                  {hasAuthorNote && (
+                    <div className="mt-3 flex justify-start border-t border-border/40 pt-3">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2.5 text-xs text-muted-foreground hover:text-destructive"
+                        onClick={() => setAuthorNote(null)}
+                      >
+                        Clear note
+                      </Button>
+                    </div>
+                  )}
                 </PopoverContent>
               </Popover>
+
+              {/* Divider */}
+              <div className="mx-1.5 h-5 w-px bg-border/40" />
 
               {/* Send / Stop button */}
               {isStreaming ? (
                 <Button
                   type="button"
                   onClick={stop}
-                  variant="ghost"
                   size="icon-sm"
-                  className="rounded-lg text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  className={cn(
+                    "size-8 rounded-xl transition-all duration-200",
+                    "bg-destructive/10 text-destructive hover:bg-destructive/20",
+                  )}
                 >
-                  <Square className="size-4 fill-current" />
+                  <Square className="size-3.5 fill-current" />
                   <span className="sr-only">Stop generation</span>
                 </Button>
               ) : (
@@ -400,13 +413,13 @@ function ChatPrompt(props: ChatPromptProps) {
                   size="icon-sm"
                   disabled={!hasText}
                   className={cn(
-                    "rounded-lg transition-colors",
+                    "size-8 rounded-xl transition-all duration-200",
                     hasText
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                      : "bg-transparent text-muted-foreground/30 cursor-not-allowed",
+                      ? "bg-foreground text-background hover:bg-foreground/90 scale-100"
+                      : "bg-muted text-muted-foreground/30 cursor-not-allowed scale-95",
                   )}
                 >
-                  <ArrowUp className="size-4" strokeWidth={2} />
+                  <ArrowUp className="size-4" strokeWidth={2.5} />
                   <span className="sr-only">Send message</span>
                 </Button>
               )}

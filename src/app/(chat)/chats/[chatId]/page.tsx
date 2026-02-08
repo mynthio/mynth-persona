@@ -7,7 +7,7 @@ import { ChatPersonasProvider } from "./_contexts/chat-personas.context";
 import { PersonaData } from "@/schemas";
 import { ChatBranchesProvider } from "./_contexts/chat-branches.context";
 import { getChatBranches } from "@/services/chat/get-chat-branches";
-import { kv } from "@vercel/kv";
+import { redis } from "@/lib/redis";
 import { logger } from "@/lib/logger";
 import { ChatMainProvider } from "./_contexts/chat-main.context";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
@@ -46,7 +46,7 @@ export default async function ChatDetailPage({
     visibility: chatPersona.persona.visibility ?? undefined,
   }));
 
-  const leafId = await kv.get<string>(`chat:${chatId}:leaf`);
+  const leafId = await redis.get<string>(`chat:${chatId}:leaf`);
   logger.debug({ leafId }, "Leaf ID");
 
   const [initialMessages, branches] = await Promise.all([

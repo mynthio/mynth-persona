@@ -4,7 +4,7 @@ import { validateChatOwnershipCached } from "@/data/chats/get-chat.data";
 import { logger } from "@/lib/logger";
 import { auth } from "@clerk/nextjs/server";
 import { getChatMessagesData } from "@/data/messages/get-chat-messages.data";
-import { kv } from "@vercel/kv";
+import { redis } from "@/lib/redis";
 import ms from "ms";
 
 export async function GET(
@@ -61,7 +61,7 @@ export async function GET(
   // classic behavior. But we will keep redis cleaner.
   const lastMessageId = items.at(-1)?.id;
   if (lastMessageId) {
-    await kv.set<string>(`chat:${chatId}:leaf`, lastMessageId, {
+    await redis.set<string>(`chat:${chatId}:leaf`, lastMessageId, {
       px: ms("14d"),
     });
   }

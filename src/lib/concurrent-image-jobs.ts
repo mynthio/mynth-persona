@@ -1,6 +1,6 @@
 import "server-only";
 
-import { kv } from "@vercel/kv";
+import { redis } from "@/lib/redis";
 import { type PlanId } from "@/config/shared/plans";
 
 import { logger } from "@/lib/logger";
@@ -65,13 +65,13 @@ export const incrementConcurrentImageJob = async (
 
   try {
     // Atomically increment the counter
-    const newCount = await kv.incr(key);
-    await kv.expire(key, TTL_SECONDS);
+    const newCount = await redis.incr(key);
+    await redis.expire(key, TTL_SECONDS);
 
     // Check if limit exceeded
     if (newCount > limit) {
       // Immediately decrement since we exceeded the limit
-      await kv.decr(key);
+      await redis.decr(key);
 
       return {
         success: false,
@@ -116,11 +116,11 @@ export const decrementConcurrentImageJob = async (
   const key = getJobCountKey(userId);
 
   try {
-    const currentCount = await kv.get<number>(key);
+    const currentCount = await redis.get<number>(key);
 
     // Only decrement if counter exists and is > 0
     if (currentCount && currentCount > 0) {
-      await kv.decr(key);
+      await redis.decr(key);
 
       logger.debug(
         {

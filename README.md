@@ -40,7 +40,7 @@ Follow these steps to set up the project locally.
      - `DATABASE_URL`: Connection string for the main database.
      - `LOCAL_DATABASE_URL`: Used for local development (defaults to Docker setup).
      - `REDIS_URL`: Defaults to local Docker Redis.
-     - `KV_REST_API_URL` & `KV_REST_API_TOKEN`: For serverless Redis (defaults to Docker setup).
+     - `UPSTASH_REDIS_REST_URL` & `UPSTASH_REDIS_REST_TOKEN`: For serverless Redis via Upstash (defaults to Docker setup).
    - **Clerk Authentication**:
      - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` & `CLERK_SECRET_KEY` (from Clerk Dashboard).
      - **Billing Plans**: `NEXT_PUBLIC_SPARK_PLAN_ID`, `NEXT_PUBLIC_FLAME_PLAN_ID`, `NEXT_PUBLIC_BLAZE_PLAN_ID`.

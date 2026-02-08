@@ -35,7 +35,7 @@ import { getChatMessagesData } from "@/data/messages/get-chat-messages.data";
 import { getChatByIdForUserCached } from "@/data/chats/get-chat.data";
 import { replacePlaceholders } from "@/lib/replace-placeholders";
 
-import { kv } from "@vercel/kv";
+import { redis } from "@/lib/redis";
 import ms from "ms";
 import { getUserPlan } from "@/services/auth/user-plan.service";
 import { generateChatTitle } from "@/services/chat/generate-chat-title";
@@ -418,7 +418,7 @@ export async function POST(
             "Text generation failed"
           );
 
-          await kv.del(`chat:${chatId}:leaf`).catch((error) => {
+          await redis.del(`chat:${chatId}:leaf`).catch((error) => {
             logger.error(
               {
                 event: "kv-error",
@@ -558,7 +558,7 @@ export async function POST(
       "Should update title and model"
     );
 
-    await kv.del(`chat:${chatId}:leaf`).catch((error) => {
+    await redis.del(`chat:${chatId}:leaf`).catch((error) => {
       logger.error(
         {
           event: "kv-error",

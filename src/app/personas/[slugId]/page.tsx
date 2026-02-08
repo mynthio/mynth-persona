@@ -7,12 +7,17 @@ import { PersonaData } from "@/schemas";
 import type { Metadata } from "next";
 import { DEFAULT_GRADIENT_BACKGROUND } from "@/lib/image-palette";
 import { PersonaBanner } from "./_components/banner";
-import { PersonaActions } from "./_components/persona-actions";
+import { BioSection } from "./_components/bio-section";
 import { Suspense } from "react";
 import { PersonaScenarios } from "./_components/persona-scenarios";
-import { BirdIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+  BirdIcon,
+  ChatsTeardropIcon,
+  HeartIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import { TopBar, TopBarSidebarTrigger } from "@/components/layout/top-bar";
 import { Badge } from "@/components/ui/badge";
+import { CreateChatButton } from "@/components/create-chat-button";
 
 // Helper functions
 const getPersonaImageUrl = (profileImageIdMedia?: string | null) =>
@@ -121,65 +126,116 @@ export default async function PersonaPublicPage({
 
   const data = persona.publicVersion!.data as PersonaData;
   const displayName = getDisplayName(persona.publicName, data);
+
   return (
     <div className="w-full h-full pb-16">
-      {/* Top Bar */}
       <TopBar left={<TopBarSidebarTrigger />} />
 
-      {/* Banner Section */}
-      <div className="w-[calc(100%-24px)] px-4 max-w-[960px] mx-auto min-h-[400px] z-0 relative flex flex-col justify-end overflow-hidden">
-        {/* Banner Background */}
-        <div className="absolute inset-0 z-0 h-56 overflow-hidden rounded-3xl">
+      <div className="max-w-[720px] mx-auto px-4">
+        {/* Banner */}
+        <div className="relative h-48 md:h-56 rounded-3xl overflow-hidden">
           <PersonaBanner
             profileImageIdMedia={persona.profileImageIdMedia}
             fallbackGradient={DEFAULT_GRADIENT_BACKGROUND}
           />
-        </div>
 
-        {/* Status Badge */}
-        <div className="absolute top-4 left-4 z-10">
-          <Badge variant="secondary" className="backdrop-blur-sm">
-            {persona.status === "community" && <BirdIcon weight="fill" />}
-            {persona.status}
-          </Badge>
-        </div>
-
-        {/* Profile Content */}
-        <div className="w-full flex gap-3 md:gap-6 relative z-10 pb-6">
-          <div className="w-[140px] md:w-[200px] shrink-0">
-            <div className="rounded-2xl md:rounded-3xl w-full aspect-square p-1 flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20">
-              <img
-                src={getPersonaImageUrl(persona.profileImageIdMedia)}
-                alt={displayName}
-                draggable={false}
-                className="w-full h-full object-cover object-top rounded-xl md:rounded-2xl select-none"
-              />
-            </div>
+          {/* Status Badge */}
+          <div className="absolute top-4 left-4 z-10">
+            <Badge variant="secondary" className="backdrop-blur-sm">
+              {persona.status === "community" && <BirdIcon weight="fill" />}
+              {persona.status}
+            </Badge>
           </div>
 
-          <div className="flex flex-col justify-end w-full min-w-0">
-            <h1 className="text-2xl md:text-4xl font-onest font-semibold text-white leading-tight drop-shadow-lg">
-              {displayName}
-            </h1>
-            <p className="text-sm md:text-base text-white/90 md:max-w-[480px] mt-1 drop-shadow">
-              {persona.headline}
-            </p>
-            <div className="mt-4">
-              <PersonaActions
-                personaId={persona.id}
-                displayName={displayName}
-                data={data}
-              />
+          {/* NSFW Badge */}
+          {persona.nsfwRating && persona.nsfwRating !== "sfw" && (
+            <div className="absolute top-4 right-4 z-10">
+              <Badge variant="destructive" className="backdrop-blur-sm uppercase">
+                {persona.nsfwRating}
+              </Badge>
             </div>
+          )}
+        </div>
+
+        {/* Avatar - overlapping banner */}
+        <div className="flex justify-center -mt-20 md:-mt-24 relative z-10">
+          <div className="w-40 h-40 md:w-[200px] md:h-[200px] rounded-2xl border-4 border-background overflow-hidden shadow-lg">
+            <img
+              src={getPersonaImageUrl(persona.profileImageIdMedia)}
+              alt={displayName}
+              draggable={false}
+              className="w-full h-full object-cover object-top select-none"
+            />
           </div>
         </div>
-      </div>
 
-      {/* Scenarios Section */}
-      <div className="max-w-[960px] mx-auto mt-6 px-4">
-        <Suspense>
-          <PersonaScenarios personaId={persona.id} />
-        </Suspense>
+        {/* Profile Header */}
+        <div className="flex flex-col items-center text-center mt-4 gap-1">
+          <h1 className="text-2xl md:text-3xl font-onest font-semibold text-foreground">
+            {displayName}
+          </h1>
+          <p className="text-sm md:text-base text-muted-foreground max-w-md">
+            {persona.headline}
+          </p>
+
+          {/* Metadata Row */}
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-2 flex-wrap justify-center">
+            {data.age && <span>{data.age}</span>}
+            {data.gender && (
+              <>
+                <span className="text-muted-foreground/40">·</span>
+                <span>{data.gender}</span>
+              </>
+            )}
+            {persona.likesCount > 0 && (
+              <>
+                <span className="text-muted-foreground/40">·</span>
+                <span className="inline-flex items-center gap-1">
+                  <HeartIcon weight="fill" className="size-3.5" />
+                  {persona.likesCount.toLocaleString()}
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* CTA Button */}
+        <div className="mt-6">
+          <CreateChatButton
+            personaId={persona.id}
+            size="lg"
+            className="w-full shadow-md"
+          >
+            <ChatsTeardropIcon className="size-5" />
+            Start Chatting
+          </CreateChatButton>
+        </div>
+
+        {/* About Section */}
+        <div className="mt-10">
+          <div className="flex items-center gap-3 mb-6">
+            <h2 className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
+              About
+            </h2>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
+          <BioSection data={data} />
+        </div>
+
+        {/* Scenarios Section */}
+        <div className="mt-10">
+          <div className="flex items-center gap-3 mb-6">
+            <h2 className="text-xs uppercase tracking-widest text-muted-foreground font-medium">
+              Scenarios
+            </h2>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
+          <Suspense>
+            <PersonaScenarios personaId={persona.id} />
+          </Suspense>
+        </div>
       </div>
     </div>
   );

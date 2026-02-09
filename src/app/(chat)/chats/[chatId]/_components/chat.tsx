@@ -1,6 +1,13 @@
 "use client";
 
-import { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
+import { type FormEvent, useCallback, useMemo, useRef, useState } from "react";
+import type { ScrollActions } from "../_hooks/use-chat-scroll.hook";
+import dynamic from "next/dynamic";
+import TextareaAutosize from "react-textarea-autosize";
+import { nanoid } from "nanoid";
+import { DefaultChatTransport } from "ai";
+import { ArrowUp, StickerSquare } from "@untitledui/icons";
+import { Drama, Square, X } from "lucide-react";
 import {
   useChat,
   useChatActions,
@@ -8,21 +15,27 @@ import {
   useChatMessages,
   useChatStatus,
 } from "@ai-sdk-tools/store";
-import { DefaultChatTransport } from "ai";
 
-import { FormEvent, useRef, useState } from "react";
-import dynamic from "next/dynamic";
-
-import { useChatBranchesContext } from "../_contexts/chat-branches.context";
-import { Spinner } from "@/components/ui/spinner";
-import TextareaAutosize from "react-textarea-autosize";
-import { ChatMode } from "@/schemas/backend/chats/chat.schema";
-import { nanoid } from "nanoid";
-import ChatMessages from "./chat-messages";
-import { useChatMain } from "../_contexts/chat-main.context";
-import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
+import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
+import type { ChatMode } from "@/schemas/backend/chats/chat.schema";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
 import { cn } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useChatBranchesContext } from "../_contexts/chat-branches.context";
+import { useChatMain } from "../_contexts/chat-main.context";
+import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
+import ChatMessages from "./chat-messages";
 
 const ChatModelPickerMenu = dynamic(
   () =>
@@ -31,45 +44,31 @@ const ChatModelPickerMenu = dynamic(
     })),
   { ssr: false },
 );
-import { ArrowUp, StickerSquare } from "@untitledui/icons";
-import { Drama, Square, X } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+
+// ---------------------------------------------------------------------------
+// Chat (root)
+// ---------------------------------------------------------------------------
 
 type ChatProps = {
   chat: { id: string; mode: ChatMode };
   initialMessages: PersonaUIMessage[];
 };
 
-export default function Chat(props: ChatProps) {
+export default function Chat({ chat, initialMessages }: ChatProps) {
   const { addMessageToBranch, setActiveId, isSwitchingBranch } =
     useChatBranchesContext();
-  // Use non-null assertion for ref type to satisfy downstream component prop types
+
   const messagesContainerRef = useRef<HTMLDivElement>(null!);
-  const shouldScrollRef = useRef(false);
-  const setShouldScroll = (value: boolean) => {
-    shouldScrollRef.current = value;
-  };
+  const scrollActionsRef = useRef<ScrollActions>({
+    scrollToLatestMessage: () => {},
+  });
 
-  useChat({
-    id: props.chat.id,
-
-    messages: props.initialMessages,
-
-    transport: new DefaultChatTransport<PersonaUIMessage>({
-      api: `/api/chats/${props.chat.id}/chat`,
-
-      prepareSendMessagesRequest: ({ messages, body }) => {
-        return {
+  // Stable transport — avoids re-creating the instance on every render
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport<PersonaUIMessage>({
+        api: `/api/chats/${chat.id}/chat`,
+        prepareSendMessagesRequest: ({ messages, body }) => ({
           body: {
             ...body,
             parentId: messages.at(-2)?.id ?? null,
@@ -78,47 +77,58 @@ export default function Chat(props: ChatProps) {
                 ? body?.editedMessage
                 : messages.at(-1),
           },
-        };
-      },
-    }),
+        }),
+      }),
+    [chat.id],
+  );
 
-    onFinish: ({ message }) => {
+  // Stable callback — prevents useChat from re-subscribing each render
+  const handleFinish = useCallback(
+    ({ message }: { message: PersonaUIMessage }) => {
       setActiveId(message.id);
       addMessageToBranch(message.metadata?.parentId ?? null, {
         id: message.id,
         createdAt: new Date(),
       });
     },
+    [setActiveId, addMessageToBranch],
+  );
 
-    generateId: () => `msg_${nanoid(32)}`,
+  const generateId = useCallback(() => `msg_${nanoid(32)}`, []);
+
+  useChat({
+    id: chat.id,
+    messages: initialMessages,
+    transport,
+    onFinish: handleFinish,
+    generateId,
   });
 
   return (
     <div className="w-full flex flex-col shrink-0 min-w-0 min-h-0 items-center px-[12px] md:px-0 relative z-0">
       <ChatMessages
         containerRef={messagesContainerRef}
-        shouldScrollRef={shouldScrollRef}
+        scrollActionsRef={scrollActionsRef}
       />
-      {isSwitchingBranch && <BranchSwitchingIndicator />}
-      <ChatPrompt
-        messagesContainerRef={messagesContainerRef}
-        shouldScrollRef={shouldScrollRef}
-        setShouldScroll={setShouldScroll}
-      />
+      {isSwitchingBranch ? <BranchSwitchingIndicator /> : null}
+      <ChatPrompt scrollActionsRef={scrollActionsRef} />
     </div>
   );
 }
 
+// ---------------------------------------------------------------------------
+// ChatPrompt
+// ---------------------------------------------------------------------------
+
 type ChatPromptProps = {
-  messagesContainerRef: React.RefObject<HTMLDivElement>;
-  shouldScrollRef: React.MutableRefObject<boolean>;
-  setShouldScroll: (value: boolean) => void;
+  scrollActionsRef: React.RefObject<ScrollActions>;
 };
 
-function ChatPrompt(props: ChatPromptProps) {
-  const [text, setText] = useState<string>("");
+function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
+  const [text, setText] = useState("");
   const [isImpersonating, setIsImpersonating] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const [authorNoteOpen, setAuthorNoteOpen] = useState(false);
 
   const chatId = useChatId();
   const { sendMessage, regenerate, stop } = useChatActions();
@@ -126,58 +136,38 @@ function ChatPrompt(props: ChatPromptProps) {
   const messages = useChatMessages();
   const { modelId, authorNote, setAuthorNote } = useChatMain();
 
-  const [authorNoteOpen, setAuthorNoteOpen] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Derived state — computed during render, no effects needed
+  const isStreaming = status === "streaming" || status === "submitted";
+  const hasText = text.trim().length > 0;
   const authorNoteValue = authorNote ?? "";
   const authorNoteLength = authorNoteValue.length;
   const hasAuthorNote = authorNoteLength > 0;
 
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const isStreaming = status === "streaming" || status === "submitted";
-  const hasText = text.trim().length > 0;
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!hasText) {
-      return;
-    }
+    if (!hasText || (status !== "ready" && status !== "error")) return;
 
-    if (status !== "ready") {
-      if (status === "error") {
-        regenerate({
-          body: {
-            event: "regenerate",
-            modelId,
-            authorNote,
-          },
-        });
-      } else {
-        return;
-      }
+    if (status === "error") {
+      regenerate({
+        body: { event: "regenerate", modelId, authorNote },
+      });
     }
-
-    // Set flag to trigger scroll after message is added
-    props.setShouldScroll(true);
 
     sendMessage(
       {
         text,
-        metadata: {
-          parentId: messages.at(-1)?.id ?? null,
-        },
+        metadata: { parentId: messages.at(-1)?.id ?? null },
       },
       {
-        body: {
-          event: "send",
-          modelId,
-          authorNote,
-        },
+        body: { event: "send", modelId, authorNote },
       },
     );
 
-    // Clear input field
+    scrollActionsRef.current.scrollToLatestMessage();
     setText("");
-    event.currentTarget.reset();
   };
 
   const handleImpersonate = async () => {
@@ -189,18 +179,11 @@ function ChatPrompt(props: ChatPromptProps) {
     try {
       const response = await fetch(`/api/chats/${chatId}/impersonate`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          event: "send",
-          parentId,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ event: "send", parentId }),
       });
 
-      if (!response.ok || !response.body) {
-        return;
-      }
+      if (!response.ok || !response.body) return;
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -233,7 +216,8 @@ function ChatPrompt(props: ChatPromptProps) {
             "shadow-[0_0_0_1px_rgba(0,0,0,0.04),0_2px_8px_rgba(0,0,0,0.04),0_12px_32px_rgba(0,0,0,0.06)]",
             "dark:shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_2px_8px_rgba(0,0,0,0.2),0_12px_32px_rgba(0,0,0,0.3)]",
             "ring-1 ring-border/40",
-            isFocused && "ring-border/60 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_4px_12px_rgba(0,0,0,0.06),0_16px_40px_rgba(0,0,0,0.08)]",
+            isFocused &&
+              "ring-border/60 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_4px_12px_rgba(0,0,0,0.06),0_16px_40px_rgba(0,0,0,0.08)]",
             isFocused &&
               "dark:shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_4px_12px_rgba(0,0,0,0.25),0_16px_40px_rgba(0,0,0,0.35)]",
           )}
@@ -374,7 +358,7 @@ function ChatPrompt(props: ChatPromptProps) {
                       {authorNoteLength}/500
                     </span>
                   </div>
-                  {hasAuthorNote && (
+                  {hasAuthorNote ? (
                     <div className="mt-3 flex justify-start border-t border-border/40 pt-3">
                       <Button
                         type="button"
@@ -386,7 +370,7 @@ function ChatPrompt(props: ChatPromptProps) {
                         Clear note
                       </Button>
                     </div>
-                  )}
+                  ) : null}
                 </PopoverContent>
               </Popover>
 
@@ -440,6 +424,10 @@ function ChatPrompt(props: ChatPromptProps) {
   );
 }
 
+// ---------------------------------------------------------------------------
+// ChatModelSelector
+// ---------------------------------------------------------------------------
+
 function ChatModelSelector() {
   const { navigateSettings } = useSettingsNavigation();
   const { modelId, setModelId } = useChatMain();
@@ -460,12 +448,18 @@ function ChatModelSelector() {
   );
 }
 
+// ---------------------------------------------------------------------------
+// BranchSwitchingIndicator
+// ---------------------------------------------------------------------------
+
 function BranchSwitchingIndicator() {
   return (
     <div className="sticky bottom-20 z-20 flex justify-center pointer-events-none">
       <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 shadow-sm">
         <Spinner className="size-4" />
-        <span className="text-sm text-muted-foreground">Loading branch...</span>
+        <span className="text-sm text-muted-foreground">
+          Loading branch...
+        </span>
       </div>
     </div>
   );

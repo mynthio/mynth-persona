@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { nanoid } from "nanoid";
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
-import { ButtonGroup } from "@/components/ui/button-group";
-import { Textarea } from "@/components/ui/textarea";
+import { CheckIcon, XIcon } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 
 type EditMessageProps = {
   messageId: string;
@@ -20,21 +20,29 @@ export function EditMessage(props: EditMessageProps) {
   const { regenerate, setMessages } = useChatActions<PersonaUIMessage>();
   const { addMessageToBranch } = useChatBranchesContext();
   const messages = useChatMessages<PersonaUIMessage>();
+  const [value, setValue] = useState(
+    props.parts.find((p) => p.type === "text")?.text ?? "",
+  );
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const initialMessage = props.parts.find((p) => p.type === "text")?.text ?? "";
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+      textareaRef.current.setSelectionRange(value.length, value.length);
+    }
+  }, []);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const hasText = value.trim().length > 0;
+
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    const formData = new FormData(event.currentTarget);
-    const message = formData.get("message");
-
-    if (typeof message !== "string") return;
+    if (!hasText) return;
 
     const editedMessage = {
       id: `msg_${nanoid(32)}`,
       role: "user",
-      parts: [{ type: "text", text: message }],
+      parts: [{ type: "text", text: value }],
       metadata: {
         parentId: props.parentId,
       },
@@ -74,31 +82,45 @@ export function EditMessage(props: EditMessageProps) {
     setEditMessageId(null);
   };
 
-  return (
-    <div className="flex flex-col gap-3">
-      <form onSubmit={handleSubmit}>
-        <Textarea
-          name="message"
-          placeholder="Enter edited message..."
-          className="min-h-[80px] resize-none"
-          defaultValue={initialMessage}
-        />
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleSubmit(event);
+    } else if (event.key === "Escape") {
+      setEditMessageId(null);
+    }
+  };
 
-        <ButtonGroup className="justify-end mt-3">
-          <Button
-            onClick={() => {
-              setEditMessageId(null);
-            }}
-            size="sm"
-            variant="outline"
-          >
-            Cancel
-          </Button>
-          <Button type="submit" size="sm">
-            Save
-          </Button>
-        </ButtonGroup>
-      </form>
-    </div>
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        className="w-full bg-transparent text-foreground outline-none resize-none p-0 leading-relaxed"
+        rows={Math.max(1, value.split("\n").length)}
+      />
+      <div className="flex items-center gap-1">
+        <Button
+          type="submit"
+          size="icon-xs"
+          variant="ghost"
+          className="h-6 w-6"
+          disabled={!hasText}
+        >
+          <CheckIcon className="h-3.5 w-3.5" />
+        </Button>
+        <Button
+          type="button"
+          size="icon-xs"
+          variant="ghost"
+          className="h-6 w-6"
+          onClick={() => setEditMessageId(null)}
+        >
+          <XIcon className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+    </form>
   );
 }

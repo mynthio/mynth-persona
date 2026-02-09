@@ -154,6 +154,19 @@ export async function POST(
   const payload = await req.json().then(messageEventPayloadSchema.parseAsync);
   const parentId = payload.parentId;
 
+  // Validate that user message text is not empty
+  if (payload.event === "send" || payload.event === "edit_message") {
+    const messageText = payload.message.parts
+      .filter((p) => p.type === "text")
+      .map((p) => p.text)
+      .join("")
+      .trim();
+
+    if (!messageText) {
+      return new Response("Message cannot be empty", { status: 400 });
+    }
+  }
+
   console.log(JSON.stringify({ payload }, null, 2));
 
   /**

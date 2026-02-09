@@ -8,6 +8,7 @@ import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { CheckIcon, XIcon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { TextareaAutosize } from "@/components/ui/textarea";
 
 type EditMessageProps = {
   messageId: string;
@@ -92,14 +93,13 @@ export function EditMessage(props: EditMessageProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-      <textarea
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2 w-full">
+      <TextareaAutosize
         ref={textareaRef}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="w-full bg-transparent text-foreground outline-none resize-none p-0 leading-relaxed"
-        rows={Math.max(1, value.split("\n").length)}
+        className="w-full grow focus-visible:border-none focus-visible:ring-0 focus-visible:bg-transparent shadow-none dark:shadow-none dark:bg-transparent border-none min-w-[200px] min-h-[24px] bg-transparent text-base md:text-lg text-foreground outline-none resize-none p-0 leading-relaxed"
       />
       <div className="flex items-center gap-1">
         <Button

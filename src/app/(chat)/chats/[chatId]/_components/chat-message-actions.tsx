@@ -4,96 +4,48 @@ import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-mess
 import {
   useChatActions,
   useChatStatus,
-  useChatStore,
 } from "@ai-sdk-tools/store";
 import { Button } from "@/components/ui/button";
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
-import { Spinner } from "@/components/ui/spinner";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  ChevronLeft,
-  ChevronRight,
-  Edit04,
-  RefreshCcw05,
-} from "@untitledui/icons";
-import { ChatMessageGenerateImageButton } from "./chat-message-generate-image-button";
-
-/**
- * Custom hook to efficiently determine if a message is the last one during streaming.
- * Uses store selector for O(1) lookups and fine-grained re-renders.
- */
-function useIsLastMessageStreaming(messageId: string) {
-  return useChatStore((state) => {
-    const messages = state.messages;
-    const isLastMessage =
-      messages.length > 0 && messages[messages.length - 1]?.id === messageId;
-    return isLastMessage && state.status === "streaming";
-  });
-}
+  Refresh01Icon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+} from "@hugeicons/core-free-icons";
 
 type ChatMessageActionsProps = {
   message: PersonaUIMessage;
+  isStreaming?: boolean;
 };
 
 export function ChatMessageActions(props: ChatMessageActionsProps) {
-  const { message } = props;
+  const { message, isStreaming } = props;
 
   const { editMessageId } = useChatMain();
 
-  // Boolean constant for UI changes - determines when to show loading indicator instead of branches
-  const shouldShowLoadingIndicator = useIsLastMessageStreaming(message.id);
-
   if (editMessageId === message.id) return null;
 
+  // Hide actions entirely while streaming
+  if (isStreaming) {
+    return null;
+  }
+
   return (
-    <div className="flex gap-2 items-center group-[.is-user]:justify-end pointer-fine:hover:opacity-100 transition-opacity duration-250">
+    <div className="flex gap-2 items-center text-muted-foreground/70 group-[.is-user]:justify-end pointer-fine:hover:opacity-100 transition-opacity duration-250">
       {message.role === "assistant" && (
         <ChatMessageRegenerate
           messageId={message.id}
           parentId={message.metadata?.parentId}
         />
       )}
-      {shouldShowLoadingIndicator ? (
-        <div className="flex items-center justify-center px-2">
-          <Spinner className="size-4" />
-        </div>
-      ) : (
-        <ChatMessageBranches
-          messageId={message.id}
-          parentId={message.metadata?.parentId}
-        />
-      )}
-
-      {message.role === "assistant" && (
-        <ChatMessageGenerateImageButton messageId={message.id} />
-      )}
-
-      {message.role === "user" && (
-        <ChatMessageEditButton messageId={message.id} />
-      )}
+      <ChatMessageBranches
+        messageId={message.id}
+        parentId={message.metadata?.parentId}
+      />
     </div>
-  );
-}
-
-type ChatMessageEditButtonProps = {
-  messageId: string;
-};
-
-function ChatMessageEditButton(props: ChatMessageEditButtonProps) {
-  const { editMessageId, setEditMessageId } = useChatMain();
-
-  return (
-    <Button
-      size="icon-sm"
-      variant="ghost"
-      disabled={editMessageId === props.messageId}
-      onClick={() => {
-        setEditMessageId(props.messageId);
-      }}
-    >
-      <Edit04 strokeWidth={1} />
-    </Button>
   );
 }
 
@@ -113,7 +65,7 @@ function ChatMessageRegenerate(props: ChatMessageRegenerateProps) {
   return (
     <Button
       variant="ghost"
-      size="icon-sm"
+      size="icon-xs"
       onClick={() => {
         // Register the current message in branch state before it gets replaced,
         // so that both the old and new responses appear as switchable siblings.
@@ -133,7 +85,7 @@ function ChatMessageRegenerate(props: ChatMessageRegenerateProps) {
       }}
       disabled={status === "submitted" || status === "streaming"}
     >
-      <RefreshCcw05 strokeWidth={1} />
+      <HugeiconsIcon icon={Refresh01Icon} size={14} />
     </Button>
   );
 }
@@ -187,7 +139,7 @@ function ChatMessageBranches(props: ChatMessageBranchesProps) {
   return (
     <>
       <Button
-        size="icon-sm"
+        size="icon-xs"
         variant="ghost"
         disabled={currentMessageIndex === 0}
         onClick={() => {
@@ -196,13 +148,13 @@ function ChatMessageBranches(props: ChatMessageBranchesProps) {
           }
         }}
       >
-        <ChevronLeft strokeWidth={1} />
+        <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
       </Button>
       <span className="text-[0.75rem] cursor-default pointer-events-none select-none">
         {currentMessageIndex + 1} / {branchSize}
       </span>
       <Button
-        size="icon-sm"
+        size="icon-xs"
         variant="ghost"
         disabled={currentMessageIndex === branchSize - 1}
         onClick={() => {
@@ -211,7 +163,7 @@ function ChatMessageBranches(props: ChatMessageBranchesProps) {
           }
         }}
       >
-        <ChevronRight strokeWidth={1} />
+        <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
       </Button>
     </>
   );

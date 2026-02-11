@@ -3,10 +3,19 @@
 import { useCallback, useTransition } from "react";
 import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 import { useChatActions, useChatStoreApi } from "@ai-sdk-tools/store";
-import { CopyIcon, PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  Copy01Icon,
+  PencilEdit02Icon,
+  Delete02Icon,
+  Image02Icon,
+} from "@hugeicons/core-free-icons";
 import {
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
@@ -22,8 +31,8 @@ import {
 import { deleteMessageAction } from "@/actions/delete-message.action";
 import { useCopyToClipboard } from "@uidotdev/usehooks";
 import { useChatMain } from "../_contexts/chat-main.context";
-import { Trash03 } from "@untitledui/icons";
 import { toast } from "sonner";
+import { ImageGenerationMenuItems } from "./chat-message-generate-image-button";
 
 type ChatMessageMenuContentProps = {
   message: PersonaUIMessage;
@@ -44,11 +53,11 @@ export function UserMessageMenuContent(props: ChatMessageMenuContentProps) {
   return (
     <>
       <DropdownMenuItem onClick={handleCopy}>
-        <CopyIcon className="mr-2" size={16} />
+        <HugeiconsIcon icon={Copy01Icon} size={16} />
         Copy message
       </DropdownMenuItem>
       <DropdownMenuItem onClick={() => setEditMessageId(props.message.id)}>
-        <PencilSimpleIcon className="mr-2" size={16} />
+        <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
         Edit message
       </DropdownMenuItem>
       <DropdownMenuSeparator />
@@ -61,6 +70,7 @@ export function AssistantMessageMenuContent(
   props: ChatMessageMenuContentProps,
 ) {
   const [, copyToClipboard] = useCopyToClipboard();
+  const { setEditMessageId } = useChatMain();
 
   const handleCopy = useCallback(() => {
     copyToClipboard(
@@ -73,9 +83,22 @@ export function AssistantMessageMenuContent(
   return (
     <>
       <DropdownMenuItem onClick={handleCopy}>
-        <CopyIcon className="mr-2" size={16} />
+        <HugeiconsIcon icon={Copy01Icon} size={16} />
         Copy message
       </DropdownMenuItem>
+      <DropdownMenuItem onClick={() => setEditMessageId(props.message.id)}>
+        <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
+        Edit message
+      </DropdownMenuItem>
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger>
+          <HugeiconsIcon icon={Image02Icon} size={16} />
+          Generate image
+        </DropdownMenuSubTrigger>
+        <DropdownMenuSubContent className="w-56">
+          <ImageGenerationMenuItems messageId={props.message.id} />
+        </DropdownMenuSubContent>
+      </DropdownMenuSub>
       <DropdownMenuSeparator />
       <DeleteMessageMenuItem messageId={props.message.id} />
     </>
@@ -138,7 +161,7 @@ function DeleteMessageMenuItem(props: DeleteMessageMenuItemProps) {
           onSelect={(e) => e.preventDefault()}
           disabled={isPending}
         >
-          <Trash03 />
+          <HugeiconsIcon icon={Delete02Icon} size={16} />
           Delete message
         </DropdownMenuItem>
       </AlertDialogTrigger>

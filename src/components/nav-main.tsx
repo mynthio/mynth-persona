@@ -28,6 +28,15 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { useState } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  Album02Icon,
+  FolderLibraryIcon,
+  Home02Icon,
+  QuillWrite02Icon,
+  SaturnIcon,
+  UserMultipleIcon,
+} from "@hugeicons/core-free-icons";
 
 export function NavMain() {
   const [libraryOpen, setLibraryOpen] = useState(false);
@@ -42,7 +51,7 @@ export function NavMain() {
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link href="/">
-                <Home01 strokeWidth={1.5} />
+                <HugeiconsIcon icon={Home02Icon} />
                 <span>Home</span>
               </Link>
             </SidebarMenuButton>
@@ -51,7 +60,7 @@ export function NavMain() {
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link href="/explore">
-                <GlobeSlated01 strokeWidth={1.5} />
+                <HugeiconsIcon icon={SaturnIcon} />
                 <span>Explore</span>
               </Link>
             </SidebarMenuButton>
@@ -60,7 +69,7 @@ export function NavMain() {
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link href="/art">
-                <Brush01 strokeWidth={1.5} />
+                <HugeiconsIcon icon={Album02Icon} />
                 <span>Art</span>
               </Link>
             </SidebarMenuButton>
@@ -69,7 +78,7 @@ export function NavMain() {
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link href="/scenarios">
-                <Feather strokeWidth={1.5} />
+                <HugeiconsIcon icon={QuillWrite02Icon} />
                 <span>Scenarios</span>
               </Link>
             </SidebarMenuButton>
@@ -84,7 +93,7 @@ export function NavMain() {
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip="Library">
                 <Link href="/library">
-                  <Hearts strokeWidth={1.5} />
+                  <HugeiconsIcon icon={FolderLibraryIcon} />
                   <span>Library</span>
                 </Link>
               </SidebarMenuButton>
@@ -94,7 +103,7 @@ export function NavMain() {
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
                   <SidebarMenuButton>
-                    <Hearts strokeWidth={1.5} />
+                    <HugeiconsIcon icon={FolderLibraryIcon} />
                     <span>Library</span>
                     <ChevronDown
                       className="ml-auto transition-transform duration-200 data-[state=open]:rotate-180"
@@ -108,7 +117,7 @@ export function NavMain() {
                     <SidebarMenuSubItem>
                       <SidebarMenuSubButton asChild>
                         <Link href="/library/personas">
-                          <Users03 strokeWidth={1.5} />
+                          <HugeiconsIcon icon={UserMultipleIcon} />
                           <span>Personas</span>
                         </Link>
                       </SidebarMenuSubButton>
@@ -116,7 +125,7 @@ export function NavMain() {
                     <SidebarMenuSubItem>
                       <SidebarMenuSubButton asChild>
                         <Link href="/library/scenarios">
-                          <Feather strokeWidth={1.5} />
+                          <HugeiconsIcon icon={QuillWrite02Icon} />
                           <span>Scenarios</span>
                         </Link>
                       </SidebarMenuSubButton>
@@ -124,7 +133,7 @@ export function NavMain() {
                     <SidebarMenuSubItem>
                       <SidebarMenuSubButton asChild>
                         <Link href="/library/images">
-                          <Image02 strokeWidth={1.5} />
+                          <HugeiconsIcon icon={Album02Icon} />A
                           <span>Images</span>
                         </Link>
                       </SidebarMenuSubButton>

@@ -36,6 +36,13 @@ import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import ChatMessages from "./chat-messages";
+import {
+  ArrowUp02Icon,
+  MaskTheater02Icon,
+  Note01Icon,
+  StopIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 const ChatModelPickerMenu = dynamic(
   () =>
@@ -272,7 +279,7 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
                       isImpersonating && "text-primary animate-pulse",
                     )}
                   >
-                    <Drama className="size-[18px]" />
+                    <HugeiconsIcon icon={MaskTheater02Icon} />
                     <span className="sr-only">Impersonate User</span>
                   </Button>
                 </TooltipTrigger>
@@ -300,7 +307,7 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
                           hasAuthorNote && "text-primary",
                         )}
                       >
-                        <StickerSquare className="size-[18px]" />
+                        <HugeiconsIcon icon={Note01Icon} />
                         <span className="sr-only">Author Note</span>
                       </Button>
                     </PopoverTrigger>
@@ -388,7 +395,7 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
                     "bg-destructive/10 text-destructive hover:bg-destructive/20",
                   )}
                 >
-                  <Square className="size-3.5 fill-current" />
+                  <HugeiconsIcon icon={StopIcon} />
                   <span className="sr-only">Stop generation</span>
                 </Button>
               ) : (
@@ -403,7 +410,7 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
                       : "bg-muted text-muted-foreground/30 cursor-not-allowed scale-95",
                   )}
                 >
-                  <ArrowUp className="size-4" strokeWidth={2.5} />
+                  <HugeiconsIcon icon={ArrowUp02Icon} />
                   <span className="sr-only">Send message</span>
                 </Button>
               )}
@@ -457,9 +464,7 @@ function BranchSwitchingIndicator() {
     <div className="sticky bottom-20 z-20 flex justify-center pointer-events-none">
       <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 shadow-sm">
         <Spinner className="size-4" />
-        <span className="text-sm text-muted-foreground">
-          Loading branch...
-        </span>
+        <span className="text-sm text-muted-foreground">Loading branch...</span>
       </div>
     </div>
   );

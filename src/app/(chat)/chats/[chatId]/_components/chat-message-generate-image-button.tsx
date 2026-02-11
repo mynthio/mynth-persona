@@ -1,16 +1,11 @@
 "use client";
 
 import { useTransition } from "react";
-import { Button } from "@/components/ui/button";
-import { SparkleIcon } from "@phosphor-icons/react/dist/ssr";
 import { useChatMain } from "../_contexts/chat-main.context";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useChatImageGenerationStore } from "@/stores/chat-image-generation.store";
@@ -25,21 +20,21 @@ import {
   ImageModelId,
   supportsReferenceImages,
 } from "@/config/shared/image-models";
-import { Spinner } from "@/components/ui/spinner";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { SparklesIcon } from "@hugeicons/core-free-icons";
 import { toast } from "sonner";
-import { Image03 } from "@untitledui/icons";
 
 const CHARACTER_MODE_MODELS = Object.values(IMAGE_MODELS).filter((model) =>
   supportsReferenceImages(model.id),
 );
 const CREATIVE_MODE_MODELS = Object.values(IMAGE_MODELS);
 
-type ChatMessageGenerateImageButtonProps = {
+type ImageGenerationMenuItemsProps = {
   messageId: string;
 };
 
-export function ChatMessageGenerateImageButton(
-  props: ChatMessageGenerateImageButtonProps,
+export function ImageGenerationMenuItems(
+  props: ImageGenerationMenuItemsProps,
 ) {
   const { chatId, settings } = useChatMain();
   const addImageGenerationRun = useChatImageGenerationStore(
@@ -114,94 +109,77 @@ export function ChatMessageGenerateImageButton(
   };
 
   return (
-    <DropdownMenu modal={false}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          disabled={isPending}
-          title="Generate image for this message"
-        >
-          {isPending ? (
-            <Spinner className="size-4" />
-          ) : (
-            <Image03 strokeWidth={1.5} />
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent align="start" className="w-56">
-        {/* Character Mode Section */}
-        {hasSceneImage && (
-          <>
-            <DropdownMenuLabel>Character Mode</DropdownMenuLabel>
-            {CHARACTER_MODE_MODELS.map((model) => (
-              <DropdownMenuItem
-                key={model.id}
-                onClick={() => handleGenerateImage(model.id, "character")}
-                disabled={isPending}
-              >
-                <div className="flex items-center w-full justify-between gap-1">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    {model.displayName}
-                    {isModelNew(model.id) && (
-                      <Badge
-                        variant="outline"
-                        className="text-[10px] px-1.5 py-0.5 h-auto border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-300"
-                      >
-                        New
-                      </Badge>
-                    )}
-                    {isModelBeta(model.id) && (
-                      <Badge
-                        variant="outline"
-                        className="text-[10px] px-1.5 py-0.5 h-auto border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
-                      >
-                        Beta
-                      </Badge>
-                    )}
-                  </div>
-                  {model.cost > 1 && (
-                    <span className="text-yellow-800 bg-yellow-200 p-1 text-xs rounded">
-                      <SparkleIcon size={12} />
-                    </span>
+    <>
+      {/* Character Mode Section */}
+      {hasSceneImage && (
+        <>
+          <DropdownMenuLabel>Character Mode</DropdownMenuLabel>
+          {CHARACTER_MODE_MODELS.map((model) => (
+            <DropdownMenuItem
+              key={model.id}
+              onClick={() => handleGenerateImage(model.id, "character")}
+              disabled={isPending}
+            >
+              <div className="flex items-center w-full justify-between gap-1">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {model.displayName}
+                  {isModelNew(model.id) && (
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] px-1.5 py-0.5 h-auto border-green-200 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-300"
+                    >
+                      New
+                    </Badge>
+                  )}
+                  {isModelBeta(model.id) && (
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] px-1.5 py-0.5 h-auto border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                    >
+                      Beta
+                    </Badge>
                   )}
                 </div>
-              </DropdownMenuItem>
-            ))}
-            <DropdownMenuSeparator />
-          </>
-        )}
-
-        {/* Creative Mode Section */}
-        <DropdownMenuLabel>Creative Mode</DropdownMenuLabel>
-        {CREATIVE_MODE_MODELS.map((model) => (
-          <DropdownMenuItem
-            key={`creative-${model.id}`}
-            onClick={() => handleGenerateImage(model.id, "creative")}
-            disabled={isPending}
-          >
-            <div className="flex items-center w-full justify-between gap-1">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {model.displayName}
-                {isModelBeta(model.id) && (
-                  <Badge
-                    variant="outline"
-                    className="text-[10px] px-1.5 py-0.5 h-auto border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
-                  >
-                    Beta
-                  </Badge>
+                {model.cost > 1 && (
+                  <span className="text-yellow-800 bg-yellow-200 p-1 text-xs rounded">
+                    <HugeiconsIcon icon={SparklesIcon} size={12} />
+                  </span>
                 )}
               </div>
-              {model.cost > 1 && (
-                <span className="text-yellow-800 bg-yellow-200 p-1 text-xs rounded">
-                  <SparkleIcon size={12} />
-                </span>
+            </DropdownMenuItem>
+          ))}
+          <DropdownMenuSeparator />
+        </>
+      )}
+
+      {/* Creative Mode Section */}
+      <DropdownMenuLabel>Creative Mode</DropdownMenuLabel>
+      {CREATIVE_MODE_MODELS.map((model) => (
+        <DropdownMenuItem
+          key={`creative-${model.id}`}
+          onClick={() => handleGenerateImage(model.id, "creative")}
+          disabled={isPending}
+        >
+          <div className="flex items-center w-full justify-between gap-1">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {model.displayName}
+              {isModelBeta(model.id) && (
+                <Badge
+                  variant="outline"
+                  className="text-[10px] px-1.5 py-0.5 h-auto border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                >
+                  Beta
+                </Badge>
               )}
             </div>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+            {model.cost > 1 && (
+              <span className="text-yellow-800 bg-yellow-200 p-1 text-xs rounded">
+                <HugeiconsIcon icon={SparklesIcon} size={12} />
+              </span>
+            )}
+          </div>
+        </DropdownMenuItem>
+      ))}
+    </>
   );
 }

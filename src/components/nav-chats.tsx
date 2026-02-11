@@ -16,6 +16,8 @@ import { MessageChatCircle, SearchMd } from "@untitledui/icons";
 import { ChatSearchDialog } from "./chat-search-dialog";
 import { useAuth } from "@clerk/nextjs";
 import { Button } from "./ui/button";
+import { Chat01Icon, Message01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 export function NavChats() {
   const { data, isLoading } = useUserChatsQuery();
@@ -69,7 +71,7 @@ export function NavChats() {
               <SidebarMenuItem key={chat.id}>
                 <SidebarMenuButton asChild size="sm">
                   <Link href={`/chats/${chat.id}`}>
-                    <MessageChatCircle strokeWidth={1.5} />
+                    <HugeiconsIcon icon={Message01Icon} />
                     <span className="truncate">{chat.title}</span>
                   </Link>
                 </SidebarMenuButton>

@@ -192,8 +192,7 @@ export async function POST(
   const roleplayData = chatPersona.personaVersion
     .roleplayData as PersonaVersionRoleplayData;
 
-  // Resolve author note: payload takes priority, fall back to persisted value
-  const authorNote = payload.authorNote ?? chatSettings.author_note ?? null;
+  const authorNote = payload.authorNote ?? null;
 
   // Placeholder replacement context
   const userName = chatSettings.user_persona?.name;

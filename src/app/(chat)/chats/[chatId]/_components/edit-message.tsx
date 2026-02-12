@@ -1,7 +1,7 @@
 "use client";
 
 import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
-import { useChatActions, useChatMessages } from "@ai-sdk-tools/store";
+import { useChatActions, useChatMessages } from "../_store/hooks";
 import { Button } from "@/components/ui/button";
 import { nanoid } from "nanoid";
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
@@ -26,9 +26,9 @@ type EditMessageProps = {
 
 export function EditMessage(props: EditMessageProps) {
   const { setEditMessageId, modelId, authorNote } = useChatMain();
-  const { regenerate, setMessages } = useChatActions<PersonaUIMessage>();
+  const { regenerate, setMessages } = useChatActions();
   const { addMessageToBranch } = useChatBranchesContext();
-  const messages = useChatMessages<PersonaUIMessage>();
+  const messages = useChatMessages();
   const [value, setValue] = useState(
     props.parts.find((p) => p.type === "text")?.text ?? "",
   );

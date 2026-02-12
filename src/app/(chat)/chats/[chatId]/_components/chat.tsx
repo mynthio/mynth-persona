@@ -9,12 +9,12 @@ import { DefaultChatTransport } from "ai";
 import { ArrowUp, StickerSquare } from "@untitledui/icons";
 import { Drama, Square, X } from "lucide-react";
 import {
-  useChat,
   useChatActions,
   useChatId,
   useChatMessages,
   useChatStatus,
-} from "@ai-sdk-tools/store";
+} from "../_store/hooks";
+import { useChatBridge } from "../_store/chat-store-provider";
 
 import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 import type { ChatMode } from "@/schemas/backend/chats/chat.schema";
@@ -103,7 +103,7 @@ export default function Chat({ chat, initialMessages }: ChatProps) {
 
   const generateId = useCallback(() => `msg_${nanoid(32)}`, []);
 
-  useChat({
+  useChatBridge({
     id: chat.id,
     messages: initialMessages,
     transport,

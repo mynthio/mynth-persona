@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useChatActions, useMessageCount } from "@ai-sdk-tools/store";
+import { useChatActions, useMessageCount } from "../_store/hooks";
 import { useChatPersonas } from "../_contexts/chat-personas.context";
 import { ChatMode } from "@/schemas/backend/chats/chat.schema";
 import { useChatMain } from "../_contexts/chat-main.context";

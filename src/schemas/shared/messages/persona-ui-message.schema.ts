@@ -15,11 +15,13 @@ export const personaUIMessageMetadataSchema = z.object({
     )
     .optional(),
 
-  usage: z.object({
-    inputTokens: z.number().optional(),
-    outputTokens: z.number().optional(),
-    totalTokens: z.number().optional(),
-  }),
+  usage: z
+    .object({
+      inputTokens: z.number().optional(),
+      outputTokens: z.number().optional(),
+      totalTokens: z.number().optional(),
+    })
+    .optional(),
 
   checkpoint: z
     .object({

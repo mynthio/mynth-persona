@@ -14,7 +14,7 @@ import type { TextGenerationModelId } from "@/config/shared/models/text-generati
 import { ChatIntro } from "./_components/chat-intro";
 import { ChatSettings } from "./_components/chat-settings";
 import { ChatSettings as ChatSettingsSchema } from "@/schemas/backend/chats/chat.schema";
-import { Provider } from "@ai-sdk-tools/store";
+import { ChatStoreProvider } from "./_store/chat-store-provider";
 import { ChatTopBar } from "./_components/chat-top-bar";
 import { ChatSidebar } from "./_components/chat-sidebar";
 
@@ -61,7 +61,7 @@ export default async function ChatDetailPage({
 
   return (
     <>
-      <Provider initialMessages={initialMessages.messages}>
+      <ChatStoreProvider initialMessages={initialMessages.messages}>
         <ChatMainProvider
           initialSettings={chat.settings as ChatSettingsSchema}
           chatId={chat.id}
@@ -96,7 +96,7 @@ export default async function ChatDetailPage({
             </ChatBranchesProvider>
           </ChatPersonasProvider>
         </ChatMainProvider>
-      </Provider>
+      </ChatStoreProvider>
     </>
   );
 }

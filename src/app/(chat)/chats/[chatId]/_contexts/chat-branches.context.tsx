@@ -27,6 +27,10 @@ export interface ChatBranchesContextValue {
     parentId: string | null | undefined,
     message: { id: string; createdAt: string | Date }
   ) => void;
+  removeMessageFromBranch: (
+    parentId: string | null | undefined,
+    messageId: string
+  ) => void;
   // Scroll restoration for branch switching
   scrollRestoreRef: React.MutableRefObject<ScrollRestoreInfo | null>;
   prepareScrollRestore: (parentId: string | null) => void;
@@ -93,6 +97,24 @@ export function ChatBranchesProvider({
     [setBranchesState]
   );
 
+  const removeMessageFromBranch = (
+    parentId: string | null | undefined,
+    messageId: string,
+  ) => {
+    setBranchesState((prev) => {
+      const key = parentId ?? ROOT_BRANCH_PARENT_ID;
+      const branch = prev[key];
+      if (!branch) return prev;
+
+      const filtered = branch.filter((m) => m.id !== messageId);
+      if (filtered.length <= 1) {
+        const { [key]: _, ...rest } = prev;
+        return rest;
+      }
+      return { ...prev, [key]: filtered };
+    });
+  };
+
   // Prepare scroll restoration before branch switch
   // Captures the parent message's position relative to viewport
   const prepareScrollRestore = useCallback((parentId: string | null) => {
@@ -126,6 +148,7 @@ export function ChatBranchesProvider({
       setActiveId,
       branches: branchesState,
       addMessageToBranch,
+      removeMessageFromBranch,
       scrollRestoreRef,
       prepareScrollRestore,
       isSwitchingBranch,

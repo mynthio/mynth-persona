@@ -14,7 +14,6 @@
     "seed:tags": "tsx scripts/seed-tags.ts"
   },
   "dependencies": {
-    "@ai-sdk-tools/store": "^1.2.0",
     "@ai-sdk/react": "^3.0.81",
     "@ai-sdk/rsc": "^2.0.79",
     "@axiomhq/pino": "^1.4.0",

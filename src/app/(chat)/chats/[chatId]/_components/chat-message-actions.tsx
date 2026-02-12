@@ -4,11 +4,12 @@ import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-mess
 import {
   useChatActions,
   useChatStatus,
-} from "@ai-sdk-tools/store";
+} from "../_store/hooks";
 import { Button } from "@/components/ui/button";
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
+import { useSwitchBranch } from "../_hooks/use-switch-branch.hook";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Refresh01Icon,
@@ -57,7 +58,7 @@ type ChatMessageRegenerateProps = {
 function ChatMessageRegenerate(props: ChatMessageRegenerateProps) {
   const { messageId, parentId } = props;
 
-  const { regenerate } = useChatActions<PersonaUIMessage>();
+  const { regenerate } = useChatActions();
   const status = useChatStatus();
   const { modelId, authorNote } = useChatMain();
   const { addMessageToBranch } = useChatBranchesContext();
@@ -96,15 +97,8 @@ type ChatMessageBranchesProps = {
 };
 
 function ChatMessageBranches(props: ChatMessageBranchesProps) {
-  const {
-    branches,
-    branchId,
-    setActiveId,
-    prepareScrollRestore,
-    setIsSwitchingBranch,
-  } = useChatBranchesContext();
-  const { chatId } = useChatMain();
-  const { setMessages } = useChatActions<PersonaUIMessage>();
+  const { branches, branchId } = useChatBranchesContext();
+  const switchBranch = useSwitchBranch();
 
   const branch = branches[props.parentId || ROOT_BRANCH_PARENT_ID] ?? [];
 
@@ -116,24 +110,9 @@ function ChatMessageBranches(props: ChatMessageBranchesProps) {
 
   const branchSize = branch.length > 0 ? branch.length : 1;
 
-  const handleBranchChange = async (newBranchId: string) => {
+  const handleBranchChange = (newBranchId: string) => {
     if (newBranchId === branchId) return;
-
-    // Prepare scroll restoration before changing messages
-    // This captures the parent message's viewport position
-    prepareScrollRestore(props.parentId ?? null);
-    setIsSwitchingBranch(true);
-
-    try {
-      const newBranchMessages = await fetch(
-        `/api/chats/${chatId}/messages?messageId=${newBranchId}`,
-      ).then((res) => res.json());
-
-      setActiveId(newBranchMessages.leafId);
-      setMessages(newBranchMessages.messages);
-    } finally {
-      setIsSwitchingBranch(false);
-    }
+    switchBranch(newBranchId, { parentId: props.parentId ?? null });
   };
 
   return (

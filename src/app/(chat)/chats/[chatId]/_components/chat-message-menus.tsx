@@ -2,7 +2,7 @@
 
 import { useCallback, useTransition } from "react";
 import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
-import { useChatActions, useChatStoreApi } from "@ai-sdk-tools/store";
+import { useChatActions, useChatStoreApi } from "../_store/hooks";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Copy01Icon,
@@ -31,6 +31,9 @@ import {
 import { deleteMessageAction } from "@/actions/delete-message.action";
 import { useCopyToClipboard } from "@uidotdev/usehooks";
 import { useChatMain } from "../_contexts/chat-main.context";
+import { useChatBranchesContext } from "../_contexts/chat-branches.context";
+import { useSwitchBranch } from "../_hooks/use-switch-branch.hook";
+import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
 import { toast } from "sonner";
 import { ImageGenerationMenuItems } from "./chat-message-generate-image-button";
 
@@ -110,41 +113,78 @@ type DeleteMessageMenuItemProps = {
 };
 
 function DeleteMessageMenuItem(props: DeleteMessageMenuItemProps) {
-  const { setMessages } = useChatActions<PersonaUIMessage>();
-  const storeApi = useChatStoreApi<PersonaUIMessage>();
+  const { setMessages } = useChatActions();
+  const storeApi = useChatStoreApi();
+  const { branchId, branches, removeMessageFromBranch } =
+    useChatBranchesContext();
+  const switchBranch = useSwitchBranch();
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = () => {
     startTransition(async () => {
       try {
+        // Read messages before deletion to find parentId and check thread membership
+        const messages = storeApi.getState().messages;
+        const deletedMsg = messages.find((m) => m.id === props.messageId);
+        const parentId = deletedMsg?.metadata?.parentId ?? null;
+
+        // Check if the deleted message is in the current thread
+        // (i.e. it's the active branchId or an ancestor of it)
+        const messageIds = new Set(messages.map((m) => m.id));
+        const isInCurrentThread = messageIds.has(props.messageId);
+
         await deleteMessageAction(props.messageId);
 
-        // Read messages imperatively to avoid subscribing to every change
-        const messages = storeApi.getState().messages;
+        // Update branch state
+        removeMessageFromBranch(parentId, props.messageId);
 
-        // Build parent->children index for O(n) traversal instead of O(n*m)
-        const childrenByParent = new Map<string, string[]>();
-        for (const msg of messages) {
-          const pid = msg.metadata?.parentId;
-          if (pid) {
-            const siblings = childrenByParent.get(pid);
-            if (siblings) siblings.push(msg.id);
-            else childrenByParent.set(pid, [msg.id]);
+        if (!isInCurrentThread || props.messageId !== branchId) {
+          // Not in the current thread or not the active leaf — just filter locally
+          const childrenByParent = new Map<string, string[]>();
+          for (const msg of messages) {
+            const pid = msg.metadata?.parentId;
+            if (pid) {
+              const siblings = childrenByParent.get(pid);
+              if (siblings) siblings.push(msg.id);
+              else childrenByParent.set(pid, [msg.id]);
+            }
+          }
+
+          const messageIdsToRemove = new Set<string>();
+          const stack = [props.messageId];
+          while (stack.length > 0) {
+            const id = stack.pop()!;
+            messageIdsToRemove.add(id);
+            const children = childrenByParent.get(id);
+            if (children) stack.push(...children);
+          }
+
+          setMessages(
+            messages.filter((msg) => !messageIdsToRemove.has(msg.id)),
+          );
+        } else {
+          // Deleted message IS the active branch — need to switch
+          const parentKey = parentId ?? ROOT_BRANCH_PARENT_ID;
+          const siblings = branches[parentKey]?.filter(
+            (s) => s.id !== props.messageId,
+          );
+
+          if (siblings && siblings.length > 0) {
+            // Switch to next sibling (or previous if deleted was last)
+            const originalBranch = branches[parentKey] ?? [];
+            const deletedIdx = originalBranch.findIndex(
+              (m) => m.id === props.messageId,
+            );
+            const targetIdx = Math.min(deletedIdx, siblings.length - 1);
+            await switchBranch(siblings[targetIdx].id, { parentId });
+          } else if (parentId) {
+            // No siblings — switch to parent thread
+            await switchBranch(parentId, { parentId });
+          } else {
+            // No siblings, no parent — fetch latest thread or empty chat
+            await switchBranch(null);
           }
         }
-
-        // Collect all descendant message IDs using the index
-        const messageIdsToRemove = new Set<string>();
-        const stack = [props.messageId];
-        while (stack.length > 0) {
-          const id = stack.pop()!;
-          messageIdsToRemove.add(id);
-          const children = childrenByParent.get(id);
-          if (children) stack.push(...children);
-        }
-
-        // Filter out the deleted message and all its descendants
-        setMessages(messages.filter((msg) => !messageIdsToRemove.has(msg.id)));
 
         toast.success("Message deleted");
       } catch (error) {

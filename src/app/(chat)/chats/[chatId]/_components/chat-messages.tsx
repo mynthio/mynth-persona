@@ -1,14 +1,13 @@
 "use client";
 
 import React, { useCallback, useRef, useState } from "react";
-import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 import {
   useChatActions,
   useChatError,
   useChatMessages,
   useChatStatus,
   useChatStoreApi,
-} from "@ai-sdk-tools/store";
+} from "../_store/hooks";
 import { Button } from "@/components/ui/button";
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
@@ -32,11 +31,11 @@ type ChatMessagesProps = {
 };
 
 export default function ChatMessages(props: ChatMessagesProps) {
-  const messages = useChatMessages<PersonaUIMessage>();
+  const messages = useChatMessages();
   const chatError = useChatError();
   const status = useChatStatus();
-  const { setMessages, regenerate } = useChatActions<PersonaUIMessage>();
-  const storeApi = useChatStoreApi<PersonaUIMessage>();
+  const { setMessages, regenerate } = useChatActions();
+  const storeApi = useChatStoreApi();
 
   const { chatId, modelId, authorNote } = useChatMain();
   const { scrollRestoreRef } = useChatBranchesContext();

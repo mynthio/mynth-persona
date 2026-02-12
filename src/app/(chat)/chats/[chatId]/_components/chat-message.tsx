@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo } from "react";
 import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
-import { useChatStore } from "@ai-sdk-tools/store";
+import { useChatStore } from "../_store/hooks";
 import { Message, MessageContent } from "@/components/ai-elements/message";
 import { Response } from "@/components/ai-elements/response";
 import { useUser } from "@clerk/nextjs";

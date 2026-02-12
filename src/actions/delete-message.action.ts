@@ -8,6 +8,7 @@ import { validateChatOwnershipCached } from "@/data/chats/get-chat.data";
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { messageIdSchema } from "@/schemas/backend/messages/message.schema";
+import { redis } from "@/lib/redis";
 
 export async function deleteMessageAction(messageId: string) {
   await messageIdSchema.parseAsync(messageId);
@@ -37,6 +38,10 @@ export async function deleteMessageAction(messageId: string) {
 
   // Delete message (CASCADE will remove child messages based on parentId)
   await db.delete(messages).where(eq(messages.id, messageId));
+
+  // Clear Redis leaf cache so a refresh doesn't reference the deleted message.
+  // Awaited (not deferred via after()) to prevent race conditions.
+  await redis.del(`chat:${message.chatId}:leaf`);
 
   return { success: true } as const;
 }

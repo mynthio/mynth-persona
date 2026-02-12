@@ -42,6 +42,24 @@ export function useMessageCount() {
 }
 
 // ---------------------------------------------------------------------------
+// Computed hooks
+// ---------------------------------------------------------------------------
+
+/** Returns `true` when any activity is in progress (streaming, continuing, impersonating, etc.) */
+export function useChatBusy() {
+  return useStore(useChatStoreContext(), (s) =>
+    s.status === "streaming" || s.status === "submitted" || s.isContinuing || s.isImpersonating
+  );
+}
+
+/** Returns `true` when a new generation/stream can safely start */
+export function useChatCanStream() {
+  return useStore(useChatStoreContext(), (s) =>
+    !( s.status === "streaming" || s.status === "submitted" || s.isContinuing || s.isImpersonating )
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Action hooks
 // ---------------------------------------------------------------------------
 

@@ -10,9 +10,12 @@ import { ArrowUp, StickerSquare } from "@untitledui/icons";
 import { Drama, Square, X } from "lucide-react";
 import {
   useChatActions,
+  useChatCanStream,
   useChatId,
   useChatMessages,
   useChatStatus,
+  useChatStore,
+  useChatStoreApi,
 } from "../_store/hooks";
 import { useChatBridge } from "../_store/chat-store-provider";
 
@@ -38,6 +41,7 @@ import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import ChatMessages from "./chat-messages";
 import {
   ArrowUp02Icon,
+  Forward02Icon,
   MaskTheater02Icon,
   Note01Icon,
   StopIcon,
@@ -133,7 +137,6 @@ type ChatPromptProps = {
 
 function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
   const [text, setText] = useState("");
-  const [isImpersonating, setIsImpersonating] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [authorNoteOpen, setAuthorNoteOpen] = useState(false);
 
@@ -142,8 +145,13 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
   const status = useChatStatus();
   const messages = useChatMessages();
   const { modelId, authorNote, setAuthorNote } = useChatMain();
+  const canStream = useChatCanStream();
+  const isContinuing = useChatStore((s) => s.isContinuing);
+  const isImpersonating = useChatStore((s) => s.isImpersonating);
+  const storeApi = useChatStoreApi();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const continueAbortRef = useRef<AbortController | null>(null);
 
   // Derived state — computed during render, no effects needed
   const isStreaming = status === "streaming" || status === "submitted";
@@ -151,11 +159,13 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
   const authorNoteValue = authorNote ?? "";
   const authorNoteLength = authorNoteValue.length;
   const hasAuthorNote = authorNoteLength > 0;
+  const lastMessage = messages.at(-1);
+  const canContinue = lastMessage?.role === "assistant";
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!hasText || (status !== "ready" && status !== "error")) return;
+    if (!hasText || !canStream) return;
 
     if (status === "error") {
       regenerate({
@@ -178,10 +188,10 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
   };
 
   const handleImpersonate = async () => {
-    if (isImpersonating) return;
+    if (!canStream) return;
 
     const parentId = messages.at(-1)?.id ?? null;
-    setIsImpersonating(true);
+    storeApi.setState({ isImpersonating: true });
 
     try {
       const response = await fetch(`/api/chats/${chatId}/impersonate`, {
@@ -208,8 +218,86 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
     } catch (error) {
       console.error("Impersonation request failed", error);
     } finally {
-      setIsImpersonating(false);
+      storeApi.setState({ isImpersonating: false });
     }
+  };
+
+  const handleContinue = async () => {
+    if (!canStream || !canContinue || !lastMessage) return;
+
+    storeApi.setState({ isContinuing: true });
+    const abortController = new AbortController();
+    continueAbortRef.current = abortController;
+
+    try {
+      const response = await fetch(`/api/chats/${chatId}/continue`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messageId: lastMessage.id,
+          parentId: lastMessage.metadata?.parentId ?? null,
+          modelId,
+          authorNote,
+        }),
+        signal: abortController.signal,
+      });
+
+      if (!response.ok || !response.body) {
+        storeApi.setState({ isContinuing: false });
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      let done = false;
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+
+        if (value) {
+          const chunk = decoder.decode(value, { stream: !done });
+          const currentMessages = storeApi.getState().messages;
+          const lastMsg = currentMessages.at(-1);
+          if (!lastMsg) break;
+
+          const updatedMessages = [
+            ...currentMessages.slice(0, -1),
+            {
+              ...lastMsg,
+              parts: lastMsg.parts.map((part, i) => {
+                // Append to the last text part
+                if (
+                  part.type === "text" &&
+                  i ===
+                    lastMsg.parts.findLastIndex((p) => p.type === "text")
+                ) {
+                  return { ...part, text: (part as { type: "text"; text: string }).text + chunk };
+                }
+                return part;
+              }),
+            },
+          ];
+
+          storeApi.getState().setMessages(updatedMessages);
+        }
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        // User aborted — not an error
+      } else {
+        console.error("Continue request failed", error);
+      }
+    } finally {
+      storeApi.setState({ isContinuing: false });
+      continueAbortRef.current = null;
+    }
+  };
+
+  const handleStopContinue = () => {
+    continueAbortRef.current?.abort();
+    storeApi.setState({ isContinuing: false });
+    continueAbortRef.current = null;
   };
 
   return (
@@ -272,7 +360,7 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
                     variant="ghost"
                     size="icon-sm"
                     onClick={handleImpersonate}
-                    disabled={isImpersonating}
+                    disabled={!canStream}
                     className={cn(
                       "size-8 rounded-xl text-muted-foreground/50 hover:text-foreground hover:bg-muted/60",
                       "transition-all duration-200",
@@ -381,14 +469,43 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
                 </PopoverContent>
               </Popover>
 
+              {/* Continue button */}
+              {canContinue ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={handleContinue}
+                      disabled={!canStream}
+                      className={cn(
+                        "size-8 rounded-xl text-muted-foreground/50 hover:text-foreground hover:bg-muted/60",
+                        "transition-all duration-200",
+                        isContinuing && "text-primary animate-pulse",
+                      )}
+                    >
+                      <HugeiconsIcon icon={Forward02Icon} />
+                      <span className="sr-only">Continue</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" sideOffset={8}>
+                    <p>Continue</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Extend the last response
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              ) : null}
+
               {/* Divider */}
               <div className="mx-1.5 h-5 w-px bg-border/40" />
 
               {/* Send / Stop button */}
-              {isStreaming ? (
+              {isStreaming || isContinuing ? (
                 <Button
                   type="button"
-                  onClick={stop}
+                  onClick={isContinuing ? handleStopContinue : stop}
                   size="icon-sm"
                   className={cn(
                     "size-8 rounded-xl transition-all duration-200",

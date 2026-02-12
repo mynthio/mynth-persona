@@ -18,6 +18,8 @@ export type ChatStoreState = {
   messages: PersonaUIMessage[];
   status: ChatStatus;
   error: Error | undefined;
+  isContinuing: boolean;
+  isImpersonating: boolean;
 } & ActionDelegates;
 
 export type ChatStore = ReturnType<typeof createChatStore>;
@@ -36,6 +38,8 @@ export function createChatStore() {
     messages: [],
     status: "ready" as ChatStatus,
     error: undefined,
+    isContinuing: false,
+    isImpersonating: false,
 
     // Action delegates (overwritten by bridge once useChat initialises)
     sendMessage: asyncNoop as ChatStoreState["sendMessage"],

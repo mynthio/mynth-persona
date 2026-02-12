@@ -3,9 +3,9 @@
 import React, { useCallback, useRef, useState } from "react";
 import {
   useChatActions,
+  useChatBusy,
   useChatError,
   useChatMessages,
-  useChatStatus,
   useChatStoreApi,
 } from "../_store/hooks";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,6 @@ type ChatMessagesProps = {
 export default function ChatMessages(props: ChatMessagesProps) {
   const messages = useChatMessages();
   const chatError = useChatError();
-  const status = useChatStatus();
   const { setMessages, regenerate } = useChatActions();
   const storeApi = useChatStoreApi();
 
@@ -51,8 +50,8 @@ export default function ChatMessages(props: ChatMessagesProps) {
   const isLoadingMoreRef = useRef(isLoadingMore);
   isLoadingMoreRef.current = isLoadingMore;
 
-  const isStreaming = status === "streaming" || status === "submitted";
-  const dynamicPaddingBottom = isStreaming
+  const isBusy = useChatBusy();
+  const dynamicPaddingBottom = isBusy
     ? "clamp(160px, 24vh, 360px)"
     : "128px";
 
@@ -97,7 +96,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
 
   const { sentinelRef, scrollToLatestMessage } = useChatScroll({
     containerRef,
-    isStreaming,
+    isStreaming: isBusy,
     firstMessageId,
     scrollRestoreRef,
     loadMore,

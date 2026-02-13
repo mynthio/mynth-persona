@@ -19,7 +19,22 @@ import {
 } from "@/components/ui/collapsible";
 import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Album02Icon, ArrowDown01Icon, FeatherIcon, FolderLibraryIcon, Globe02Icon, HeartCheckIcon, Home01Icon, Home02Icon, Image02Icon, PaintBrush02Icon, QuillWrite02Icon, SaturnIcon, UserGroupIcon, UserMultipleIcon } from "@hugeicons/core-free-icons";
+import {
+  Album02Icon,
+  ArrowDown01Icon,
+  FeatherIcon,
+  FolderLibraryIcon,
+  Globe02Icon,
+  HeartCheckIcon,
+  Home01Icon,
+  Home02Icon,
+  Image02Icon,
+  PaintBrush02Icon,
+  QuillWrite02Icon,
+  SaturnIcon,
+  UserGroupIcon,
+  UserMultipleIcon,
+} from "@hugeicons/core-free-icons";
 
 export function NavMain() {
   const [libraryOpen, setLibraryOpen] = useState(false);
@@ -88,7 +103,8 @@ export function NavMain() {
                   <SidebarMenuButton>
                     <HugeiconsIcon icon={FolderLibraryIcon} />
                     <span>Library</span>
-                    <HugeiconsIcon icon={ArrowDown01Icon}
+                    <HugeiconsIcon
+                      icon={ArrowDown01Icon}
                       className="ml-auto transition-transform duration-200 data-[state=open]:rotate-180"
                       data-state={libraryOpen ? "open" : "closed"}
                       strokeWidth={1.5}
@@ -116,7 +132,7 @@ export function NavMain() {
                     <SidebarMenuSubItem>
                       <SidebarMenuSubButton asChild>
                         <Link href="/library/images">
-                          <HugeiconsIcon icon={Album02Icon} />A
+                          <HugeiconsIcon icon={Album02Icon} />
                           <span>Images</span>
                         </Link>
                       </SidebarMenuSubButton>

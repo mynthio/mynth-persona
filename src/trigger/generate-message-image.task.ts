@@ -7,7 +7,7 @@ import { z } from "zod";
 
 import logsnag from "@/lib/logsnag";
 import { revalidateCacheTag } from "./utils/revalidate-cache";
-import { ImageModelId } from "@/config/shared/image-models";
+import { getImagesPerGeneration, ImageModelId } from "@/config/shared/image-models";
 import { ImageGenerationFactory } from "@/lib/generation/image-generation/image-generation-factory";
 import { processImage } from "@/lib/image-processing/image-processor";
 import { uploadToBunny } from "@/lib/upload";
@@ -26,6 +26,7 @@ import {
 } from "@/lib/rate-limit-image";
 import { PlanId } from "@/config/shared/plans";
 import { decrementConcurrentImageJob } from "@/lib/concurrent-image-jobs";
+import { ImageGenerationResult } from "@/lib/generation/image-generation/image-generation-base";
 
 // Zod schema for input validation
 const GenerateMessageImageTaskPayloadSchema = z.object({
@@ -45,6 +46,60 @@ type GenerateMessageImageTaskPayload = z.infer<
   mode: ImageGenerationMode;
   planId: PlanId;
 };
+
+type GeneratedMessageImageResult = {
+  imageUrl: string;
+  mediaId: string;
+  mediaGenerationId: string;
+};
+
+async function processAndSaveMessageImage(
+  imageResult: ImageGenerationResult,
+  index: number
+): Promise<GeneratedMessageImageResult | null> {
+  try {
+    const [processedImage, processedThumbnail] = await processImage(
+      imageResult.image,
+      [
+        {},
+        {
+          resize: {
+            width: 240,
+            height: 240,
+            fit: "cover",
+            position: "top",
+          },
+        },
+      ]
+    );
+
+    const mediaId = `med_${nanoid(32)}`;
+    const mediaGenerationId = `mdg_${nanoid()}`;
+
+    const mainFilePath = `media/${mediaId}.webp`;
+    const thumbnailFilePath = `media/${mediaId}_thumb.webp`;
+
+    await Promise.all([
+      uploadToBunny(mainFilePath, processedImage),
+      uploadToBunny(thumbnailFilePath, processedThumbnail),
+    ]);
+
+    return {
+      imageUrl: `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/${mainFilePath}`,
+      mediaId,
+      mediaGenerationId,
+    };
+  } catch (error) {
+    logger.error(
+      {
+        error: error instanceof Error ? error.message : String(error),
+        index,
+      },
+      `Failed to process/save message image ${index}`
+    );
+    return null;
+  }
+}
 
 export const generateMessageImageTask = task({
   id: "generate-message-image",
@@ -144,12 +199,19 @@ export const generateMessageImageTask = task({
       referenceImages = [sceneImageUrl];
     }
 
-    // Generate image with reference images if available (character mode only)
+    const imagesPerGeneration = getImagesPerGeneration(modelId, {
+      withReferenceImages: mode === "character",
+    });
+
+    // Generate images with reference images if available (character mode only)
     let generateImageResult;
     try {
-      generateImageResult = await imageGenerationModel.generate(
+      generateImageResult = await imageGenerationModel.generateMultiple(
         imagePrompt,
-        referenceImages.length > 0 ? { referenceImages } : undefined
+        {
+          numberResults: imagesPerGeneration,
+          ...(referenceImages.length > 0 ? { referenceImages } : {}),
+        }
       );
     } catch (error) {
       console.error(error);
@@ -174,76 +236,76 @@ export const generateMessageImageTask = task({
       throw new Error("UNKNOWN_ERROR");
     }
 
-    /**
-     * Process Image
-     * - Format to webp using same size
-     * - Create thumbnail
-     */
-    const [processedImage, processedThumbnail] = await processImage(
-      generateImageResult.image,
-      [
-        {},
-        {
-          resize: {
-            width: 240,
-            height: 240,
-            fit: "cover",
-            position: "top",
-          },
-        },
-      ]
+    const processedResults = await Promise.all(
+      generateImageResult.images.map((imageResult, index) =>
+        processAndSaveMessageImage(imageResult, index)
+      )
     );
 
-    // Upload to Bunny.net storage
-    const mediaId = `med_${nanoid(32)}`;
-    const mediaGenerationId = `mdg_${nanoid()}`;
-
-    const mainFilePath = `media/${mediaId}.webp`;
-    const thumbnailFilePath = `media/${mediaId}_thumb.webp`;
-
-    const uploadMainImage = uploadToBunny(mainFilePath, processedImage);
-    const uploadThumbnailImage = uploadToBunny(
-      thumbnailFilePath,
-      processedThumbnail
+    const successfulResults = processedResults.filter(
+      (result): result is GeneratedMessageImageResult => result !== null
     );
 
-    await Promise.all([uploadMainImage, uploadThumbnailImage]);
+    if (successfulResults.length === 0) {
+      throw new Error("All images failed to process and save");
+    }
 
-    const imageUrl = `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/${mainFilePath}`;
+    logger.info(
+      {
+        requested: imagesPerGeneration,
+        generated: generateImageResult.images.length,
+        generationFailed: generateImageResult.failedCount,
+        processingFailed:
+          generateImageResult.images.length - successfulResults.length,
+        successful: successfulResults.length,
+      },
+      "Message image generation completed"
+    );
+
+    const firstImage = successfulResults[0];
+    const mediaEntries = successfulResults.map((result) => ({
+      id: result.mediaId,
+      type: "image" as const,
+    }));
 
     // Insert media and mediaGenerations in transaction
     await db.transaction(async (tx) => {
-      await tx.insert(mediaGenerations).values({
-        id: mediaGenerationId,
-        metadata: {
-          chatId,
-          messageId,
-          personaId: chatPersona.personaId,
-          prompt: imagePrompt,
-          aiModel: imageGenerationModel.modelId,
-        },
-        settings: {
-          modelId,
-          mode,
-          referenceImages: referenceImages.length > 0 ? referenceImages : null,
-        },
-        status: "success",
-        completedAt: new Date(),
-      });
+      for (const [index, result] of successfulResults.entries()) {
+        await tx.insert(mediaGenerations).values({
+          id: result.mediaGenerationId,
+          metadata: {
+            chatId,
+            messageId,
+            personaId: chatPersona.personaId,
+            prompt: imagePrompt,
+            aiModel: imageGenerationModel.modelId,
+            runId: ctx.run.id,
+            imageIndex: index,
+          },
+          settings: {
+            modelId,
+            mode,
+            referenceImages:
+              referenceImages.length > 0 ? referenceImages : null,
+          },
+          status: "success",
+          completedAt: new Date(),
+        });
 
-      await tx.insert(media).values({
-        id: mediaId,
-        personaId: chatPersona.personaId,
-        userId,
-        chatId,
-        generationId: mediaGenerationId,
-        type: "image",
-        visibility: "private",
-        nsfw: "sfw", // Chat images default to SFW
-        metadata: {
-          messageId,
-        },
-      });
+        await tx.insert(media).values({
+          id: result.mediaId,
+          personaId: chatPersona.personaId,
+          userId,
+          chatId,
+          generationId: result.mediaGenerationId,
+          type: "image",
+          visibility: "private",
+          nsfw: "sfw", // Chat images default to SFW
+          metadata: {
+            messageId,
+          },
+        });
+      }
 
       // Update message metadata with new media atomically to avoid race conditions
       // Uses PostgreSQL's jsonb_set and || operator to append to array without fetching
@@ -255,9 +317,7 @@ export const generateMessageImageTask = task({
             '{media}',
             COALESCE(${
               messages.metadata
-            } #> '{media}', '[]'::jsonb) || ${JSON.stringify([
-            { id: mediaId, type: "image" },
-          ])}::jsonb
+            } #> '{media}', '[]'::jsonb) || ${JSON.stringify(mediaEntries)}::jsonb
           )`,
           updatedAt: new Date(),
         })
@@ -271,7 +331,7 @@ export const generateMessageImageTask = task({
           settings: sql`jsonb_set(
             COALESCE(${chats.settings}, '{}'::jsonb),
             '{sceneImageMediaId}',
-            ${JSON.stringify(mediaId)}::jsonb
+            ${JSON.stringify(firstImage.mediaId)}::jsonb
           )`,
         })
         .where(
@@ -288,8 +348,12 @@ export const generateMessageImageTask = task({
     logger.flush();
 
     return {
-      imageUrl,
-      mediaId,
+      images: successfulResults.map((result) => ({
+        imageUrl: result.imageUrl,
+        mediaId: result.mediaId,
+      })),
+      imageUrl: firstImage.imageUrl,
+      mediaId: firstImage.mediaId,
     };
   },
   onFailure: async ({ payload, error }) => {

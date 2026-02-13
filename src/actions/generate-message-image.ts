@@ -178,7 +178,9 @@ export const generateMessageImage = async (
     }
   );
 
-  const expectedImageCount = getImagesPerGeneration(modelId);
+  const expectedImageCount = getImagesPerGeneration(modelId, {
+    withReferenceImages: mode === "character",
+  });
 
   return {
     success: true,

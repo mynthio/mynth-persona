@@ -25,6 +25,17 @@ export const IMAGE_MODELS = {
     imagesPerGeneration: 1,
     new: true,
   },
+  "black-forest-labs/flux-2-klein-4b": {
+    id: "black-forest-labs/flux-2-klein-4b" as const,
+    displayName: "FLUX.2 [klein] 4B",
+    cost: 1,
+    width: 768,
+    height: 1344,
+    supportsReferenceImages: true,
+    imagesPerGeneration: 4,
+    imagesPerGenerationWithReference: 2,
+    new: true,
+  },
   "black-forest-labs/flux-krea-dev": {
     id: "black-forest-labs/flux-krea-dev" as const,
     displayName: "FLUX.1 Krea [dev]",
@@ -200,8 +211,26 @@ export const supportsReferenceImages = (modelId: ImageModelId): boolean => {
 };
 
 // Helper to get number of images per generation for a model
-export const getImagesPerGeneration = (modelId: ImageModelId): number => {
-  return IMAGE_MODELS[modelId]?.imagesPerGeneration ?? 1;
+type GetImagesPerGenerationOptions = {
+  withReferenceImages?: boolean;
+};
+
+export const getImagesPerGeneration = (
+  modelId: ImageModelId,
+  options?: GetImagesPerGenerationOptions
+): number => {
+  const model = IMAGE_MODELS[modelId];
+  if (!model) return 1;
+
+  if (
+    options?.withReferenceImages &&
+    "imagesPerGenerationWithReference" in model &&
+    typeof model.imagesPerGenerationWithReference === "number"
+  ) {
+    return model.imagesPerGenerationWithReference;
+  }
+
+  return model.imagesPerGeneration ?? 1;
 };
 
 // Helper to get model display name with fallback to model ID

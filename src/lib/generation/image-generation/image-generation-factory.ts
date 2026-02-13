@@ -11,6 +11,7 @@ import { RunwareGPTImage1 } from "./runware/runware-gpt-image-1";
 import { RunwareQwenImage } from "./runware/runware-qwen-image";
 import { RunwareBismuthIllustriousMixV5 } from "./runware/runware-bismuth-illustrious-mix-v5";
 import { RunwareFlux2Dev } from "./runware/runware-flux-2-dev";
+import { RunwareFlux2Klein4B } from "./runware/runware-flux-2-klein-4b";
 import { RunwareFlux2Pro } from "./runware/runware-flux-2-pro";
 import { RunwareImagineArt15 } from "./runware/runware-imagineart-1.5";
 import { RunwareHunyuanImage3 } from "./runware/runware-hunyuan-image-3";
@@ -26,6 +27,7 @@ const MODEL_CLASS_MAP: Record<ImageModelId, new () => ImageGenerationBase> = {
   "black-forest-labs/flux-dev": RunwareFluxDev,
   "black-forest-labs/flux-krea-dev": RunwareFluxKrea,
   "black-forest-labs/flux-2-dev": RunwareFlux2Dev,
+  "black-forest-labs/flux-2-klein-4b": RunwareFlux2Klein4B,
   "google/gemini-flash-image-2.5": RunwareGeminiFlash,
   "qwen/qwen-image": RunwareQwenImage,
   "qwen/qwen-image-edit-plus": RunwareQwenImageEditPlus,

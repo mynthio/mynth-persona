@@ -26,6 +26,7 @@ import {
 import {
   IMAGE_MODELS,
   getGenerationModels,
+  getImagesPerGeneration,
   isModelBeta,
   isModelNew,
   ImageModelId,
@@ -270,13 +271,16 @@ function ImageModelCommandItem({
 }: ImageModelCommandItemProps) {
   const selectionKey = `${mode}:${model.id}`;
   const isSelectedPending = pendingSelection === selectionKey;
+  const imageCount = getImagesPerGeneration(model.id, {
+    withReferenceImages: mode === "character",
+  });
 
   return (
     <CommandItem
       value={[
         model.displayName,
         model.id,
-        `${model.imagesPerGeneration} image`,
+        `${imageCount} image`,
       ].join(" ")}
       disabled={disabled}
       onSelect={() => onSelect(model.id, mode)}
@@ -313,7 +317,7 @@ function ImageModelCommandItem({
 
           <div className="mt-1 flex flex-wrap items-center gap-1">
             <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
-              {model.imagesPerGeneration} img
+              {imageCount} img
             </Badge>
           </div>
         </div>

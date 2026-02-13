@@ -1,5 +1,7 @@
 "use client";
 
+import { Idea01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import { useChatActions, useMessageCount } from "../_store/hooks";
 import { useChatPersonas } from "../_contexts/chat-personas.context";
@@ -8,7 +10,6 @@ import { useChatMain } from "../_contexts/chat-main.context";
 import { updateChatAction } from "@/actions/update-chat.action";
 import { useRef, useState } from "react";
 import { getModelTips } from "@/data/model-tips";
-import { Lightbulb01 } from "@untitledui/icons";
 import {
   Carousel,
   CarouselContent,
@@ -51,7 +52,7 @@ export function ChatIntro() {
                 <CarouselItem key={tip.id}>
                   <div className="w-full max-w-full min-w-0 flex flex-col">
                     <div className="text-muted-foreground/80 flex items-center gap-2 justify-center mb-2 w-full wrap-anywhere">
-                      <Lightbulb01 strokeWidth={1.5} className="size-3.5" />
+                      <HugeiconsIcon icon={Idea01Icon} strokeWidth={1.5} className="size-3.5" />
                       <p className="text-md">{modelDisplayName}</p>
                     </div>
                     <p className="text-center text-balance wrap-anywhere text-muted-foreground">

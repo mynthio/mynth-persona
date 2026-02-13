@@ -1,5 +1,7 @@
 "use client";
 
+import { Share08Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +15,6 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
-import { ShareNetwork } from "@phosphor-icons/react/dist/ssr";
 
 interface PublishDialogProps {
   open: boolean;
@@ -82,7 +83,7 @@ export function PublishDialog({
               </>
             ) : (
               <>
-                <ShareNetwork className="mr-2 size-4" />
+                <HugeiconsIcon icon={Share08Icon} className="mr-2 size-4" />
                 Publish
               </>
             )}

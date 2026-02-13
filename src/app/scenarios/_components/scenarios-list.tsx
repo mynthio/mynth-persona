@@ -1,14 +1,10 @@
 "use client";
 
+import { ArrowLeft01Icon, ArrowRight01Icon, Globe02Icon, LockIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  GlobeIcon,
-  LockIcon,
-  CaretLeftIcon,
-  CaretRightIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import useSWR from "swr";
 import { useState, useEffect } from "react";
 import { Link } from "@/components/ui/link";
@@ -104,7 +100,7 @@ export function ScenariosList({ initialData, eventFilter }: ScenariosListProps) 
             onClick={handlePrevious}
             disabled={!hasPrevious || isLoading}
           >
-            <CaretLeftIcon className="mr-2 h-4 w-4" />
+            <HugeiconsIcon icon={ArrowLeft01Icon} className="mr-2 h-4 w-4" />
             Previous
           </Button>
           <Button
@@ -114,7 +110,7 @@ export function ScenariosList({ initialData, eventFilter }: ScenariosListProps) 
             disabled={!hasMore || isLoading}
           >
             Next
-            <CaretRightIcon className="ml-2 h-4 w-4" />
+            <HugeiconsIcon icon={ArrowRight01Icon} className="ml-2 h-4 w-4" />
           </Button>
         </div>
       )}
@@ -143,9 +139,9 @@ function ScenarioCard({ scenario }: { scenario: Scenario }) {
           <div className="flex items-center gap-2">
             <Badge variant={scenario.visibility === "public" ? "secondary" : "outline"} className="gap-1.5">
               {scenario.visibility === "public" ? (
-                <GlobeIcon className="h-3 w-3" />
+                <HugeiconsIcon icon={Globe02Icon} className="h-3 w-3" />
               ) : (
-                <LockIcon className="h-3 w-3" />
+                <HugeiconsIcon icon={LockIcon} className="h-3 w-3" />
               )}
               {scenario.visibility === "public" ? "Public" : "Private"}
             </Badge>

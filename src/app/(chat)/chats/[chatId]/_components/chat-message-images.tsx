@@ -1,11 +1,12 @@
 "use client";
 
+import { Image03Icon, ImageNotFound02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useMemo, useState } from "react";
 import { getMediaImageUrl } from "@/lib/utils";
 import { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 import type { ChatImageGenerationRun } from "@/stores/chat-image-generation.store";
 import { Spinner } from "@/components/ui/spinner";
-import { ImageBrokenIcon } from "@phosphor-icons/react/dist/ssr";
 import { getImageGenerationErrorMessage } from "@/lib/image-generation-errors";
 import {
   Dialog,
@@ -13,7 +14,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ImageX, Image03 } from "@untitledui/icons";
 import { Button } from "@/components/ui/button";
 import { updateChatAction } from "@/actions/update-chat.action";
 import { useChatMain } from "../_contexts/chat-main.context";
@@ -150,7 +150,7 @@ export function ChatMessageImages({
                   >
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="flex flex-col items-center gap-2 text-destructive p-4 text-center">
-                        <ImageX strokeWidth={1.5} />
+                        <HugeiconsIcon icon={ImageNotFound02Icon} strokeWidth={1.5} />
                         <div className="text-xs font-medium">
                           Failed to generate
                         </div>
@@ -202,7 +202,7 @@ export function ChatMessageImages({
                 <div className="absolute inset-0 flex items-center justify-center">
                   {isFailed ? (
                     <div className="flex flex-col items-center gap-2 text-destructive p-4 text-center">
-                      <ImageX strokeWidth={1.5} />
+                      <HugeiconsIcon icon={ImageNotFound02Icon} strokeWidth={1.5} />
                       <div className="text-xs font-medium">
                         {getImageGenerationErrorMessage(run.errorCode)}
                       </div>
@@ -245,7 +245,7 @@ export function ChatMessageImages({
                     onClick={handleSetAsSceneImage}
                     disabled={isSettingSceneImage}
                   >
-                    <Image03 className="size-4" strokeWidth={1.5} />
+                    <HugeiconsIcon icon={Image03Icon} className="size-4" strokeWidth={1.5} />
                     {isSettingSceneImage ? "Setting..." : "Set as Scene Image"}
                   </Button>
                 )}

@@ -1,3 +1,5 @@
+import { CreditCardIcon, DiscordIcon, MoreHorizontalIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -19,9 +21,7 @@ import {
   X_PROFILE_URL,
   GITHUB_REPO_URL,
 } from "@/lib/constants";
-import { CreditCard01, DotsHorizontal } from "@untitledui/icons";
 import { Link } from "@/components/ui/link";
-import { DiscordLogoIcon } from "@phosphor-icons/react/dist/ssr";
 
 export function NavSecondary(props: React.ComponentProps<typeof SidebarGroup>) {
   return (
@@ -31,7 +31,7 @@ export function NavSecondary(props: React.ComponentProps<typeof SidebarGroup>) {
           <SidebarMenuItem>
             <SidebarMenuButton asChild size="sm">
               <Link href="/plans">
-                <CreditCard01 strokeWidth={1.5} />
+                <HugeiconsIcon icon={CreditCardIcon} strokeWidth={1.5} />
                 <span>Pricing</span>
               </Link>
             </SidebarMenuButton>
@@ -43,7 +43,7 @@ export function NavSecondary(props: React.ComponentProps<typeof SidebarGroup>) {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <DiscordLogoIcon weight="fill" />
+                <HugeiconsIcon icon={DiscordIcon} />
                 <span>Discord</span>
               </a>
             </SidebarMenuButton>
@@ -52,7 +52,7 @@ export function NavSecondary(props: React.ComponentProps<typeof SidebarGroup>) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton size="sm">
-                  <DotsHorizontal strokeWidth={1.5} />
+                  <HugeiconsIcon icon={MoreHorizontalIcon} strokeWidth={1.5} />
                   <span>More</span>
                 </SidebarMenuButton>
               </DropdownMenuTrigger>

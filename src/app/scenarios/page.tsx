@@ -1,5 +1,7 @@
 "use client";
 
+import { FeatherIcon, PlusSignIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import { ScenariosList } from "./_components/scenarios-list";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,7 +13,6 @@ import {
   TopBarSidebarTrigger,
   TopBarTitle,
 } from "@/components/layout/top-bar";
-import { Feather, Plus } from "@untitledui/icons";
 import { Badge } from "@/components/ui/badge";
 
 type PaginatedScenariosResponse = {
@@ -63,14 +64,14 @@ export default function ScenariosPage() {
           left={<TopBarSidebarTrigger />}
           center={
             <TopBarTitle>
-              <Feather strokeWidth={1.5} />{" "}
+              <HugeiconsIcon icon={FeatherIcon} strokeWidth={1.5} />{" "}
               <span className="uppercase text-[0.75rem]">Scenarios</span>
               <Badge variant="destructive">Beta</Badge>
             </TopBarTitle>
           }
           right={
             <Button variant="ghost" size="sm" disabled>
-              <Plus />
+              <HugeiconsIcon icon={PlusSignIcon} />
               <span className="hidden md:block">Create Scenario</span>
             </Button>
           }
@@ -95,7 +96,7 @@ export default function ScenariosPage() {
         left={<TopBarSidebarTrigger />}
         center={
           <TopBarTitle>
-            <Feather strokeWidth={1.5} />{" "}
+            <HugeiconsIcon icon={FeatherIcon} strokeWidth={1.5} />{" "}
             <span className="uppercase text-[0.75rem]">Scenarios</span>
             <Badge variant="destructive">Beta</Badge>
           </TopBarTitle>
@@ -103,7 +104,7 @@ export default function ScenariosPage() {
         right={
           <Button variant="ghost" size="sm" asChild>
             <Link href="/scenarios/creator" className="flex items-center gap-1">
-              <Plus />
+              <HugeiconsIcon icon={PlusSignIcon} />
               <span className="hidden md:block">Create Scenario</span>
             </Link>
           </Button>

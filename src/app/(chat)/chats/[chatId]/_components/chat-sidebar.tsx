@@ -1,5 +1,7 @@
 "use client";
 
+import { ArrowReloadVerticalIcon, ArrowUpRight01Icon, Image02Icon, InformationCircleIcon, PencilEdit02Icon, ScrollVerticalIcon, SparklesIcon, User03Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useMemo, useState } from "react";
 import { cn, getImageUrl } from "@/lib/utils";
 import { useChatPersonas } from "../_contexts/chat-personas.context";
@@ -39,34 +41,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { deleteChatAction } from "@/actions/delete-chat.action";
-import { useSWRConfig } from "swr";
-import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "@/components/ui/link";
-import {
-  ArrowSquareOut,
-  GearSix,
-  ImageSquare,
-  PencilSimple,
-  Trash,
-  User,
-  Scroll,
-  ArrowClockwise,
-  Info,
-} from "@phosphor-icons/react/dist/ssr";
-import { SparkleIcon } from "@phosphor-icons/react/dist/ssr";
 
 const SIDEBAR_WIDTH = "18rem";
 
@@ -87,7 +63,6 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 function PersonaHeader() {
   const { personas } = useChatPersonas();
   const { settings } = useChatMain();
-  const { navigateSettings } = useSettingsNavigation();
 
   const persona = personas[0];
   const imageId = settings.sceneImageMediaId ?? persona.profileImageIdMedia;
@@ -130,7 +105,7 @@ function PersonaHeader() {
                 asChild
               >
                 <Link href={personaPageHref} target="_blank">
-                  <ArrowSquareOut className="size-3" />
+                  <HugeiconsIcon icon={ArrowUpRight01Icon} className="size-3" />
                   <span>Persona page</span>
                 </Link>
               </Button>
@@ -140,21 +115,6 @@ function PersonaHeader() {
             </TooltipContent>
           </Tooltip>
         )}
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="xs"
-              className="gap-1.5 text-muted-foreground"
-              onClick={() => navigateSettings("settings")}
-            >
-              <GearSix className="size-3" />
-              <span>Settings</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">Chat settings</TooltipContent>
-        </Tooltip>
       </div>
     </div>
   );
@@ -179,14 +139,14 @@ function CharacterSection() {
           className="text-muted-foreground hover:text-foreground"
           onClick={() => navigateSettings("user")}
         >
-          <PencilSimple className="size-3" />
+          <HugeiconsIcon icon={PencilEdit02Icon} className="size-3" />
         </Button>
       </div>
 
       {hasCharacter ? (
         <div className="space-y-1 rounded-lg border border-border/40 bg-muted/30 p-3">
           <div className="flex items-center gap-2">
-            <User className="size-3.5 shrink-0 text-muted-foreground" />
+            <HugeiconsIcon icon={User03Icon} className="size-3.5 shrink-0 text-muted-foreground" />
             <p className="truncate text-xs font-medium text-foreground">
               {settings.user_persona?.name}
             </p>
@@ -203,7 +163,7 @@ function CharacterSection() {
           onClick={() => navigateSettings("user")}
           className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border/50 p-3 text-xs text-muted-foreground transition-colors hover:border-border hover:text-foreground"
         >
-          <User className="size-3.5 shrink-0" />
+          <HugeiconsIcon icon={User03Icon} className="size-3.5 shrink-0" />
           <span>Set up your character</span>
         </button>
       )}
@@ -231,14 +191,14 @@ function ScenarioSection() {
           className="text-muted-foreground hover:text-foreground"
           onClick={() => navigateSettings("scenario")}
         >
-          <PencilSimple className="size-3" />
+          <HugeiconsIcon icon={PencilEdit02Icon} className="size-3" />
         </Button>
       </div>
 
       {hasScenario ? (
         <div className="space-y-1 rounded-lg border border-border/40 bg-muted/30 p-3">
           <div className="flex items-start gap-2">
-            <Scroll className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+            <HugeiconsIcon icon={ScrollVerticalIcon} className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
             <p className="line-clamp-4 text-xs leading-relaxed text-muted-foreground">
               {scenarioText}
             </p>
@@ -250,7 +210,7 @@ function ScenarioSection() {
           onClick={() => navigateSettings("scenario")}
           className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border/50 p-3 text-xs text-muted-foreground transition-colors hover:border-border hover:text-foreground"
         >
-          <Scroll className="size-3.5 shrink-0" />
+          <HugeiconsIcon icon={ScrollVerticalIcon} className="size-3.5 shrink-0" />
           <span>Add a scenario</span>
         </button>
       )}
@@ -394,7 +354,7 @@ function SceneImageSection() {
               type="button"
               className="inline-flex size-5 items-center justify-center rounded-full text-muted-foreground/60 transition-colors hover:text-muted-foreground"
             >
-              <Info size={12} />
+              <HugeiconsIcon icon={InformationCircleIcon} size={12} />
             </button>
           </TooltipTrigger>
           <TooltipContent side="left" sideOffset={6} className="max-w-[220px]">
@@ -427,7 +387,7 @@ function SceneImageSection() {
                 </>
               ) : (
                 <>
-                  <ArrowClockwise className="size-3" />
+                  <HugeiconsIcon icon={ArrowReloadVerticalIcon} className="size-3" />
                   <span>Generate</span>
                 </>
               )}
@@ -450,8 +410,7 @@ function SceneImageSection() {
                       {model.displayName}
                     </span>
                     {model.cost >= 2 && (
-                      <SparkleIcon
-                        weight="fill"
+                      <HugeiconsIcon icon={SparklesIcon}
                         className="text-amber-400"
                         size={14}
                       />
@@ -485,7 +444,7 @@ function SceneImageSection() {
               disabled={!persona?.profileImageIdMedia || busy}
             >
               <div className="flex items-center gap-2">
-                <ImageSquare className="size-3.5" />
+                <HugeiconsIcon icon={Image02Icon} className="size-3.5" />
                 <span className="text-xs font-medium">
                   Use persona profile image
                 </span>
@@ -503,7 +462,7 @@ function SceneImageSection() {
               onClick={handleSetToProfileImage}
               disabled={!persona?.profileImageIdMedia || busy}
             >
-              <ImageSquare className="size-3" />
+              <HugeiconsIcon icon={Image02Icon} className="size-3" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
@@ -512,67 +471,6 @@ function SceneImageSection() {
         </Tooltip>
       </div>
     </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Delete Chat Section
-// ---------------------------------------------------------------------------
-function DeleteChatSection() {
-  const { chatId } = useChatMain();
-  const { mutate } = useSWRConfig();
-  const router = useRouter();
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  const handleDeleteChat = async () => {
-    if (isDeleting) return;
-    setIsDeleting(true);
-    try {
-      await deleteChatAction(chatId);
-      await mutate("/api/chats");
-      router.push("/chats");
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unexpected error";
-      toast.error("Failed to delete chat", {
-        description: errorMessage,
-      });
-      setIsDeleting(false);
-    }
-  };
-
-  return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          size="xs"
-          variant="ghost"
-          className="w-full gap-1.5 text-muted-foreground hover:text-destructive"
-          disabled={isDeleting}
-        >
-          <Trash className="size-3" />
-          Delete chat
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete chat?</AlertDialogTitle>
-          <AlertDialogDescription>
-            You can&apos;t undo this action. All messages will be removed.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleDeleteChat}
-            disabled={isDeleting}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-          >
-            {isDeleting ? "Deleting…" : "Delete"}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
   );
 }
 
@@ -595,10 +493,6 @@ function SidebarContent() {
       <Separator className="bg-border/50" />
 
       <SceneImageSection />
-
-      <Separator className="bg-border/50" />
-
-      <DeleteChatSection />
     </div>
   );
 }

@@ -1,8 +1,9 @@
 "use client";
 
+import { ArrowRight01Icon, BubbleChatIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { MessageChatCircle, ArrowRight } from "@untitledui/icons";
 import { useDebounce } from "@uidotdev/usehooks";
 
 import {
@@ -91,7 +92,7 @@ export function ChatSearchDialog({
               <CommandEmpty className="py-8">
                 <div className="flex flex-col items-center justify-center gap-4 w-full">
                   <div className="size-12 rounded-full bg-muted/50 dark:bg-white/5 flex items-center justify-center">
-                    <MessageChatCircle
+                    <HugeiconsIcon icon={BubbleChatIcon}
                       className="size-6 text-muted-foreground/50"
                       strokeWidth={1.5}
                     />
@@ -122,7 +123,7 @@ export function ChatSearchDialog({
                   )}
                 >
                   <div className="size-9 rounded-lg bg-primary/5 dark:bg-white/5 flex items-center justify-center shrink-0 transition-colors">
-                    <MessageChatCircle
+                    <HugeiconsIcon icon={BubbleChatIcon}
                       className="size-4 text-primary/70 dark:text-white/70"
                       strokeWidth={1.5}
                     />
@@ -156,7 +157,7 @@ export function ChatSearchDialog({
                       </p>
                     )}
                   </div>
-                  <ArrowRight className="size-4 text-muted-foreground/30 transition-transform shrink-0 group-data-[selected=true]:text-muted-foreground/60 group-data-[selected=true]:translate-x-0.5" />
+                  <HugeiconsIcon icon={ArrowRight01Icon} className="size-4 text-muted-foreground/30 transition-transform shrink-0 group-data-[selected=true]:text-muted-foreground/60 group-data-[selected=true]:translate-x-0.5" />
                 </CommandItem>
               ))
             )}

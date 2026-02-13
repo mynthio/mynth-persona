@@ -1,39 +1,49 @@
 "use client";
 
 import {
+  Download02Icon,
+  Share08Icon,
+  User03Icon,
+  ViewOffSlashIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
   Dialog,
   DialogContent,
-  DialogOverlay,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useImageId } from "@/hooks/use-image-id.hook";
-import { getImageUrl } from "@/lib/utils";
 import { fetcher } from "@/lib/fetcher";
+import { cn, getImageUrl } from "@/lib/utils";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
-import { DownloadIcon } from "@phosphor-icons/react/dist/ssr";
-import { ExternalLink } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Spinner } from "@/components/ui/spinner";
 import { Link } from "@/components/ui/link";
-import { cn } from "@/lib/utils";
-import { Download02, Download04, User03 } from "@untitledui/icons";
 import {
-  getModelDisplayName,
   getModelDimensions,
+  getModelDisplayName,
 } from "@/config/shared/image-models";
+import { X } from "lucide-react";
 
 import {
   publishMediaAction,
   unpublishMediaAction,
 } from "@/app/(art)/_actions/actions";
 import { toast } from "sonner";
-import { useState } from "react";
-import { ShareNetwork } from "@phosphor-icons/react/dist/ssr";
 import { PublishDialog } from "./publish-dialog";
-import { EyeSlash } from "@phosphor-icons/react/dist/ssr";
+
+type DetailItem = {
+  label: string;
+  value: string;
+};
+
+const CONTENT_RATING_MAP: Record<string, string> = {
+  suggestive: "Suggestive",
+  explicit: "Explicit",
+  sfw: "Safe for work",
+};
 
 export function ImageDetailsDialog({
   hidePublish = false,
@@ -42,6 +52,7 @@ export function ImageDetailsDialog({
 }) {
   const [imageId, setImageId] = useImageId();
   const isOpen = Boolean(imageId);
+
   const [isPublishing, setIsPublishing] = useState(false);
   const [isUnpublishing, setIsUnpublishing] = useState(false);
   const [publishDialogOpen, setPublishDialogOpen] = useState(false);
@@ -56,10 +67,90 @@ export function ImageDetailsDialog({
     [imageId]
   );
 
+  const dimensions = useMemo(
+    () =>
+      data?.generation?.aiModel
+        ? getModelDimensions(data.generation.aiModel)
+        : null,
+    [data?.generation?.aiModel]
+  );
+
+  const detailItems = useMemo<DetailItem[]>(() => {
+    if (!data?.generation) {
+      return [];
+    }
+
+    const items: DetailItem[] = [];
+
+    if (data.generation.aiModel) {
+      items.push({
+        label: "Model",
+        value: getModelDisplayName(data.generation.aiModel),
+      });
+    }
+
+    if (dimensions) {
+      items.push({
+        label: "Dimensions",
+        value: `${dimensions.width} × ${dimensions.height} px`,
+      });
+    }
+
+    if (data.generation.tokensCost != null) {
+      items.push({
+        label: "Cost",
+        value: `${data.generation.tokensCost} credits`,
+      });
+    }
+
+    if (data.generation.settings?.style) {
+      items.push({
+        label: "Style",
+        value: data.generation.settings.style,
+      });
+    }
+
+    if (data.generation.settings?.shotType) {
+      items.push({
+        label: "Shot Type",
+        value: data.generation.settings.shotType,
+      });
+    }
+
+    if (data.generation.settings?.quality) {
+      items.push({
+        label: "Quality",
+        value: data.generation.settings.quality,
+      });
+    }
+
+    if (data.generation.createdAt) {
+      items.push({
+        label: "Generated",
+        value: new Date(data.generation.createdAt).toLocaleString(undefined, {
+          dateStyle: "medium",
+          timeStyle: "short",
+        }),
+      });
+    }
+
+    if (data.visibility === "public" && data.nsfw && data.nsfw !== "sfw") {
+      items.push({
+        label: "Content Rating",
+        value: CONTENT_RATING_MAP[data.nsfw] ?? data.nsfw,
+      });
+    }
+
+    return items;
+  }, [data, dimensions]);
+
+  const isPublished = data?.visibility === "public";
+
   const handleClose = () => setImageId(null);
 
   const handleDownload = () => {
     if (!imageId) return;
+
     const link = document.createElement("a");
     link.href = getImageUrl(imageId, "full");
     link.download = `${data?.persona?.title ?? "image"}.webp`;
@@ -75,14 +166,15 @@ export function ImageDetailsDialog({
         mediaId: imageId,
         isCreatorAnonymous: isAnonymous,
       });
+
       if (result.success) {
         toast.success("Image published successfully!");
         setPublishDialogOpen(false);
-        mutate(); // Refresh data to show published status if we add UI for it
+        mutate();
       } else {
         toast.error(result.error || "Failed to publish image");
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred");
     } finally {
       setIsPublishing(false);
@@ -97,352 +189,252 @@ export function ImageDetailsDialog({
       const result = await unpublishMediaAction({
         mediaId: imageId,
       });
+
       if (result.success) {
         toast.success("Image unpublished successfully!");
-        mutate(); // Refresh data to show unpublished status
+        mutate();
       } else {
         toast.error(result.error || "Failed to unpublish image");
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred");
     } finally {
       setIsUnpublishing(false);
     }
   };
 
-  const ActionButtons = ({
-    className,
-    variant = "default",
-  }: {
-    className?: string;
-    variant?: "default" | "overlay";
-  }) => {
-    const isOverlay = variant === "overlay";
-    const btnClass = isOverlay
-      ? "bg-black/50 hover:bg-black/70 text-white border-none backdrop-blur-md"
-      : "";
-
-    return (
-      <div className={cn("flex items-center gap-2", className)}>
-        {data?.persona?.id && (
-          <Button
-            variant={isOverlay ? "outline" : "outline"}
-            size={isOverlay ? "icon" : "default"}
-            className={cn(btnClass)}
-            asChild
-          >
-            <Link
-              href={`/workbench/${data.persona.id}`}
-              title="Open in Workbench"
-            >
-              {isOverlay ? (
-                <ExternalLink className="size-5" />
-              ) : (
-                <>
-                  <ExternalLink className="mr-2 size-4" />
-                  Open in Workbench
-                </>
-              )}
-            </Link>
-          </Button>
-        )}
-        <Button
-          variant={isOverlay ? "outline" : "outline"}
-          size={isOverlay ? "icon" : "default"}
-          onClick={handleDownload}
-          disabled={!imageId}
-          className={cn(btnClass)}
-          title="Download Image"
-        >
-          {isOverlay ? (
-            <DownloadIcon className="size-5" weight="duotone" />
-          ) : (
-            <>
-              <DownloadIcon className="mr-2 size-4" weight="duotone" />
-              Download Original
-            </>
-          )}
-        </Button>
-      </div>
-    );
-  };
-
   if (!isOpen) return null;
-
-  // Check if already published (assuming data includes media info, if not we might need to update the fetcher or API)
-  // The current /api/images/:id endpoint returns image details. We need to ensure it returns visibility.
-  // Let's assume for now we can check data.visibility or similar if available, or just show the button and let server handle validation.
-  // Better to show status if published.
-
-  const isPublished = data?.visibility === "public";
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogOverlay className="bg-background/70 backdrop-blur-[2px]" />
-      <DialogContent className="max-w-4xl h-[90vh] p-0 gap-0 bg-none bg-transparent border-none overflow-hidden flex flex-col outline-none">
-        <DialogTitle className="sr-only">Image Details</DialogTitle>
-        <Tabs defaultValue="image" className="flex-1 flex flex-col min-h-0">
-          <TabsList className="shrink-0">
-            <TabsTrigger value="image">Image</TabsTrigger>
-            <TabsTrigger value="details">Details</TabsTrigger>
-          </TabsList>
+      <DialogContent
+        showCloseButton={false}
+        className={cn(
+          "w-[calc(100vw-1.5rem)] max-w-[calc(100vw-1.5rem)] sm:w-[calc(100vw-3rem)] sm:max-w-[calc(100vw-3rem)] 2xl:w-[1500px] 2xl:max-w-[1500px] p-0 overflow-hidden border border-white/10 [&_button]:cursor-pointer [&_a[data-slot='button']]:cursor-pointer",
+          "bg-black/90 shadow-[0_40px_120px_-30px_rgba(0,0,0,0.8)]",
+          "backdrop-blur-xl"
+        )}
+      >
+        <DialogTitle className="sr-only">Image details</DialogTitle>
 
-          <TabsContent value="image" className="flex-1 min-h-0">
-            <div className="relative w-full h-full flex items-center justify-center">
-              {fullUrl && (
-                <>
+        <div className="flex max-h-[90vh] flex-col lg:grid lg:h-[88vh] lg:grid-cols-[minmax(0,1.35fr)_400px]">
+          <section className="relative h-[46vh] min-h-[280px] overflow-hidden border-b border-white/10 lg:h-auto lg:border-b-0 lg:border-r lg:border-r-white/10">
+            {fullUrl && (
+              <>
+                <img
+                  src={fullUrl}
+                  alt=""
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 h-full w-full scale-105 object-cover blur-2xl opacity-45"
+                  draggable={false}
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-black/84 via-[#0a0914]/70 to-[#03030a]/90" />
+                <div className="absolute inset-0 bg-[radial-gradient(120%_110%_at_15%_10%,rgba(124,92,230,0.16),transparent_58%)]" />
+              </>
+            )}
+
+            <div className="relative z-10 flex h-full flex-col p-3 sm:p-5 lg:p-6">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 space-y-1.5">
+                  <div
+                    className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/30 px-2 py-0.5 text-[10px] font-medium tracking-[0.08em] text-white/82 uppercase backdrop-blur-md"
+                    title={isPublished ? "Live in Art Gallery" : "Private Library"}
+                  >
+                    <span
+                      className={cn(
+                        "size-1.5 shrink-0 rounded-full",
+                        isPublished ? "bg-emerald-400" : "bg-zinc-300"
+                      )}
+                      aria-hidden
+                    />
+                    {isPublished ? "Live" : "Private"}
+                  </div>
+                  <h3 className="max-w-[30ch] text-lg font-semibold leading-tight text-white/95 sm:text-xl">
+                    {data?.persona?.title || "Generated image"}
+                  </h3>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  {data?.persona?.id && (
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="icon-sm"
+                      className="border-white/20 bg-black/35 text-white hover:bg-black/65"
+                      title="Go to Persona"
+                    >
+                      <Link href={`/workbench/${data.persona.id}`}>
+                        <HugeiconsIcon icon={User03Icon} className="size-4" />
+                      </Link>
+                    </Button>
+                  )}
+
+                  <Button
+                    variant="outline"
+                    size="icon-sm"
+                    onClick={handleDownload}
+                    className="border-white/20 bg-black/35 text-white hover:bg-black/65"
+                    title="Download image"
+                  >
+                    <HugeiconsIcon icon={Download02Icon} className="size-4" />
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={handleClose}
+                    className="text-white/85 hover:bg-white/15 hover:text-white"
+                    title="Close"
+                  >
+                    <X className="size-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="relative mt-3 flex min-h-0 flex-1 items-center justify-center">
+                {fullUrl ? (
                   <img
                     src={fullUrl}
-                    alt="Generated image"
-                    className="relative z-10 w-full h-full object-contain rounded-xl"
+                    alt={data?.persona?.title || "Generated image"}
+                    className="max-h-full max-w-full rounded-2xl border border-white/15 object-contain shadow-[0_30px_80px_-24px_rgba(0,0,0,0.9)]"
                     draggable={false}
                   />
-
-                  {/* Overlay Actions */}
-                  <div className="absolute top-3 right-3 z-20 flex gap-2">
-                    {!hidePublish &&
-                      (isPublished ? (
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={handleUnpublish}
-                          disabled={isUnpublishing}
-                          title="Unpublish from Art Gallery"
-                        >
-                          {isUnpublishing ? (
-                            <Spinner className="size-4" />
-                          ) : (
-                            <EyeSlash className="size-5" />
-                          )}
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => setPublishDialogOpen(true)}
-                          disabled={isPublishing}
-                          title="Publish to Art Gallery"
-                        >
-                          {isPublishing ? (
-                            <Spinner className="size-4" />
-                          ) : (
-                            <ShareNetwork className="size-5" />
-                          )}
-                        </Button>
-                      ))}
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={handleDownload}
-                    >
-                      <Download02 strokeWidth={1.5} />
-                    </Button>
-                  </div>
-                </>
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent
-            value="details"
-            className="bg-card rounded-3xl p-2 md:p-3 flex-1 min-h-0 flex flex-col overflow-hidden"
-          >
-            {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Spinner className="size-8" />
+                ) : (
+                  <Spinner className="size-7 text-white" />
+                )}
               </div>
-            ) : (
-              <ScrollArea className="flex-1 min-h-0">
-                <div className="space-y-8 pr-4">
-                  {/* Main Actions in Details */}
-                  <div className="grid grid-cols-2 gap-2">
+
+            </div>
+          </section>
+
+          <section className="flex min-h-0 flex-1 flex-col bg-[linear-gradient(180deg,rgba(24,24,28,0.95)_0%,rgba(15,15,18,0.98)_100%)]">
+            <ScrollArea className="min-h-0 flex-1">
+              <div className="space-y-6 px-4 py-4 sm:px-5 sm:py-5">
+                <div className="space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                  <p className="text-[11px] font-medium tracking-[0.16em] text-white/50 uppercase">
+                    Actions
+                  </p>
+
+                  <Button
+                    variant="outline"
+                    onClick={handleDownload}
+                    className="w-full justify-start border-white/12 bg-transparent text-white/92 hover:border-white/20 hover:bg-white/[0.06]"
+                  >
+                    <HugeiconsIcon icon={Download02Icon} className="size-4" />
+                    Download Original
+                  </Button>
+
+                  {data?.persona?.id && (
                     <Button
                       variant="outline"
-                      onClick={handleDownload}
-                      className="w-full"
+                      className="w-full justify-start border-white/12 bg-transparent text-white/92 hover:border-white/20 hover:bg-white/[0.06]"
+                      asChild
                     >
-                      <Download02 strokeWidth={1.5} />
-                      Download
+                      <Link href={`/workbench/${data.persona.id}`}>
+                        <HugeiconsIcon icon={User03Icon} className="size-4" />
+                        Go to Persona
+                      </Link>
                     </Button>
+                  )}
 
-                    {data?.persona?.id && (
-                      <Button variant="outline" className="w-full" asChild>
-                        <Link
-                          href={`/workbench/${data.persona.id}`}
-                          title="Open in Workbench"
-                        >
-                          <User03 strokeWidth={1.5} />
-                          Go to Persona
-                        </Link>
+                  {!hidePublish &&
+                    (isPublished ? (
+                      <Button
+                        variant="outline"
+                        onClick={handleUnpublish}
+                        disabled={isUnpublishing}
+                        className="w-full justify-start border-white/12 bg-transparent text-white/92 hover:border-white/20 hover:bg-white/[0.06]"
+                      >
+                        {isUnpublishing ? (
+                          <Spinner className="size-4" />
+                        ) : (
+                          <HugeiconsIcon icon={ViewOffSlashIcon} className="size-4" />
+                        )}
+                        Unpublish from Art Gallery
                       </Button>
-                    )}
+                    ) : (
+                      <Button
+                        variant="outline"
+                        onClick={() => setPublishDialogOpen(true)}
+                        disabled={isPublishing}
+                        className="w-full justify-start border-white/12 bg-transparent text-white/92 hover:border-white/20 hover:bg-white/[0.06]"
+                      >
+                        {isPublishing ? (
+                          <Spinner className="size-4" />
+                        ) : (
+                          <HugeiconsIcon icon={Share08Icon} className="size-4" />
+                        )}
+                        Publish to Art Gallery
+                      </Button>
+                    ))}
+                </div>
 
-                    {!hidePublish &&
-                      (isPublished ? (
-                        <Button
-                          variant="outline"
-                          className="w-full col-span-2"
-                          onClick={handleUnpublish}
-                          disabled={isUnpublishing}
-                        >
-                          {isUnpublishing ? (
-                            <Spinner className="mr-2 size-4" />
-                          ) : (
-                            <EyeSlash className="mr-2 size-4" />
-                          )}
-                          Unpublish from Art Gallery
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="default"
-                          className="w-full col-span-2"
-                          onClick={() => setPublishDialogOpen(true)}
-                          disabled={isPublishing}
-                        >
-                          {isPublishing ? (
-                            <Spinner className="mr-2 size-4" />
-                          ) : (
-                            <ShareNetwork className="mr-2 size-4" />
-                          )}
-                          Publish to Art Gallery
-                        </Button>
-                      ))}
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-[11px] font-medium tracking-[0.16em] text-white/50 uppercase">
+                      Image Information
+                    </p>
                   </div>
 
-                  {data?.generation && (
-                    <div className="flex flex-col gap-2">
-                      <div className="space-y-1">
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Model
-                        </span>
-                        <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm">
-                          {getModelDisplayName(data.generation.aiModel)}
+                  {isLoading ? (
+                    <div className="flex items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] p-8">
+                      <Spinner className="size-7" />
+                    </div>
+                  ) : detailItems.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      {detailItems.map((item) => (
+                        <div
+                          key={item.label}
+                          className="rounded-xl border border-white/10 bg-white/[0.03] p-3"
+                        >
+                          <p className="text-[11px] tracking-[0.14em] text-white/45 uppercase">
+                            {item.label}
+                          </p>
+                          <p className="mt-1 text-sm text-white/90 capitalize">
+                            {item.value}
+                          </p>
                         </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-white/70">
+                      No generation details are available for this image.
+                    </div>
+                  )}
+
+                  {data?.generation?.settings?.userNote && (
+                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                      <p className="text-[11px] tracking-[0.14em] text-white/45 uppercase">
+                        Note
+                      </p>
+                      <p className="mt-1 text-sm leading-relaxed text-white/85">
+                        {data.generation.settings.userNote}
+                      </p>
+                    </div>
+                  )}
+
+                  {data?.tags && data.tags.length > 0 && (
+                    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                      <p className="text-[11px] tracking-[0.14em] text-white/45 uppercase">
+                        Tags
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {data.tags.map((tag: string) => (
+                          <span
+                            key={tag}
+                            className="rounded-full border border-white/15 bg-black/25 px-2.5 py-1 text-xs text-white/80"
+                          >
+                            {tag}
+                          </span>
+                        ))}
                       </div>
-
-                      {(() => {
-                        const dimensions = getModelDimensions(
-                          data.generation.aiModel
-                        );
-                        return dimensions ? (
-                          <div className="space-y-1">
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                              Dimensions
-                            </span>
-                            <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm">
-                              {dimensions.width} × {dimensions.height} px
-                            </div>
-                          </div>
-                        ) : null;
-                      })()}
-
-                      {data.generation.tokensCost != null && (
-                        <div className="space-y-1">
-                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                            Cost
-                          </span>
-                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm">
-                            {data.generation.tokensCost} credits
-                          </div>
-                        </div>
-                      )}
-
-                      {data.generation.settings?.style && (
-                        <div className="space-y-1">
-                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                            Style
-                          </span>
-                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm capitalize">
-                            {data.generation.settings.style}
-                          </div>
-                        </div>
-                      )}
-
-                      {data.generation.settings?.shotType && (
-                        <div className="space-y-1">
-                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                            Shot Type
-                          </span>
-                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm capitalize">
-                            {data.generation.settings.shotType}
-                          </div>
-                        </div>
-                      )}
-
-                      {data.generation.settings?.quality && (
-                        <div className="space-y-1">
-                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                            Quality
-                          </span>
-                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm capitalize">
-                            {data.generation.settings.quality}
-                          </div>
-                        </div>
-                      )}
-
-                      {isPublished && data.nsfw && data.nsfw !== "sfw" && (
-                        <div className="space-y-1">
-                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                            Content Rating
-                          </span>
-                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm capitalize">
-                            {data.nsfw === "suggestive"
-                              ? "Suggestive"
-                              : data.nsfw === "explicit"
-                              ? "Explicit"
-                              : data.nsfw}
-                          </div>
-                        </div>
-                      )}
-
-                      {data.generation.createdAt && (
-                        <div className="space-y-1">
-                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                            Generated
-                          </span>
-                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm">
-                            {new Date(
-                              data.generation.createdAt
-                            ).toLocaleString()}
-                          </div>
-                        </div>
-                      )}
-
-                      {data.generation.settings?.userNote && (
-                        <div className="space-y-1">
-                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                            Note
-                          </span>
-                          <div className="p-3 rounded-lg bg-muted/30 border border-border/50 text-sm leading-relaxed">
-                            {data.generation.settings.userNote}
-                          </div>
-                        </div>
-                      )}
-
-                      {data.tags && data.tags.length > 0 && (
-                        <div className="space-y-1">
-                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                            Tags
-                          </span>
-                          <div className="flex flex-wrap gap-2">
-                            {data.tags.map((tag: string) => (
-                              <span
-                                key={tag}
-                                className="px-2 py-1 rounded-md bg-muted/50 border border-border/50 text-xs text-muted-foreground"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
-              </ScrollArea>
-            )}
-          </TabsContent>
-        </Tabs>
+              </div>
+            </ScrollArea>
+          </section>
+        </div>
       </DialogContent>
 
       <PublishDialog

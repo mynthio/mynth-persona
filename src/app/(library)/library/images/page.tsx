@@ -1,3 +1,5 @@
+import { Image02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { db } from "@/db/drizzle";
 import { media } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
@@ -21,7 +23,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
 import { Buffer } from "buffer";
-import { Image02 } from "@untitledui/icons";
 import { ImageDetailsDialog } from "./image-details-dialog";
 import { getImageUrl } from "@/lib/utils";
 
@@ -250,7 +251,7 @@ export default async function ImagesPage({ searchParams }: ImagesPageProps) {
           <Empty className="rounded-xl bg-linear-to-br from-background/80 via-card/80 to-muted/60 backdrop-blur-sm">
             <EmptyHeader>
               <EmptyMedia variant="icon" className="size-14">
-                <Image02
+                <HugeiconsIcon icon={Image02Icon}
                   strokeWidth={1.5}
                   className="size-8 text-muted-foreground"
                 />

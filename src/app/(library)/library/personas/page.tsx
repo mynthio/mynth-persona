@@ -1,3 +1,5 @@
+import { ArrowRight01Icon, Sad01Icon, Search01Icon, User03Icon, UserGroupIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
@@ -36,18 +38,9 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Button } from "@/components/ui/button";
-import { UserIcon } from "@phosphor-icons/react/dist/ssr";
 import { Link } from "@/components/ui/link";
 import { ChevronRightIcon, Search } from "lucide-react";
 import { Buffer } from "buffer";
-import {
-  ChevronRight,
-  FaceSad,
-  SearchRefraction,
-  User01,
-  User03,
-  Users03,
-} from "@untitledui/icons";
 
 const PERSONAS_PER_PAGE = 20;
 
@@ -298,7 +291,7 @@ export default async function PersonasPage({
             />
             <InputGroupAddon align="inline-end">
               <InputGroupButton type="submit">
-                <SearchRefraction
+                <HugeiconsIcon icon={Search01Icon}
                   strokeWidth={1.5}
                   className="size-4 text-muted-foreground"
                 />
@@ -311,7 +304,7 @@ export default async function PersonasPage({
           <Empty className="rounded-xl bg-linear-to-br from-background/80 via-card/80 to-muted/60 backdrop-blur-sm">
             <EmptyHeader>
               <EmptyMedia variant="icon" className="size-14">
-                <FaceSad
+                <HugeiconsIcon icon={Sad01Icon}
                   strokeWidth={1.5}
                   className="size-8 text-muted-foreground"
                 />
@@ -348,7 +341,7 @@ export default async function PersonasPage({
                             />
                           ) : (
                             <div className="size-10 rounded-sm border border-border bg-linear-to-br from-muted/50 to-background/60 flex items-center justify-center">
-                              <User03
+                              <HugeiconsIcon icon={User03Icon}
                                 className="size-5 text-muted-foreground"
                                 strokeWidth={1.5}
                               />
@@ -374,7 +367,7 @@ export default async function PersonasPage({
                           </ItemDescription>
                         </ItemContent>
                         <ItemActions>
-                          <ChevronRight
+                          <HugeiconsIcon icon={ArrowRight01Icon}
                             strokeWidth={1.5}
                             className="size-4 text-muted-foreground"
                           />

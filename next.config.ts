@@ -11,8 +11,9 @@ const nextConfig: NextConfig = {
   // Optimize barrel file imports for icon libraries (bundle-barrel-imports)
   experimental: {
     optimizePackageImports: [
-      "@phosphor-icons/react",
-      "@untitledui/icons",
+      "@hugeicons/core-free-icons",
+      "@hugeicons/react",
+      "lucide-react",
       "motion/react",
     ],
   },

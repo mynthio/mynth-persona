@@ -1,9 +1,11 @@
-import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr";
+import { Loading02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+
 
 export default function PersonaLoadingPage() {
   return (
     <div className="w-full h-full min-h-[80vh] flex items-center justify-center">
-      <CircleNotchIcon className="animate-spin" />
+      <HugeiconsIcon icon={Loading02Icon} className="animate-spin" />
     </div>
   );
 }

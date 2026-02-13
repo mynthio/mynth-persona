@@ -1,13 +1,11 @@
 "use client";
 
+import { Message01Icon, UserAccountIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useState } from "react";
 import { CreateChatButton } from "@/components/create-chat-button";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import {
-  ChatsTeardropIcon,
-  IdentificationCardIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { BioDialog } from "./bio-dialog";
 import { PersonaData } from "@/schemas";
 
@@ -28,11 +26,11 @@ export function PersonaActions({
     <>
       <ButtonGroup>
         <CreateChatButton personaId={personaId} size="sm">
-          <ChatsTeardropIcon /> Chat
+          <HugeiconsIcon icon={Message01Icon} /> Chat
         </CreateChatButton>
 
         <Button variant="outline" size="sm" onClick={() => setIsBioOpen(true)}>
-          <IdentificationCardIcon />
+          <HugeiconsIcon icon={UserAccountIcon} />
           Bio
         </Button>
       </ButtonGroup>

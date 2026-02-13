@@ -12,11 +12,10 @@ import {
 } from "@/components/ui/sidebar";
 import { useUserChatsQuery } from "@/app/_queries/use-user-chats.query";
 import { useState } from "react";
-import { MessageChatCircle, SearchMd } from "@untitledui/icons";
 import { ChatSearchDialog } from "./chat-search-dialog";
 import { useAuth } from "@clerk/nextjs";
 import { Button } from "./ui/button";
-import { Chat01Icon, Message01Icon } from "@hugeicons/core-free-icons";
+import { BubbleChatIcon, Chat01Icon, Message01Icon, Search01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
 export function NavChats() {
@@ -40,7 +39,7 @@ export function NavChats() {
                 tooltip="Search chats"
                 onClick={() => setIsSearchOpen(true)}
               >
-                <SearchMd strokeWidth={1.5} />
+                <HugeiconsIcon icon={Search01Icon} strokeWidth={1.5} />
                 <span>Search chats</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -56,7 +55,7 @@ export function NavChats() {
               className="h-6 w-6 p-0 opacity-60 hover:opacity-100"
               onClick={() => setIsSearchOpen(true)}
             >
-              <SearchMd strokeWidth={1.5} className="size-3.5" />
+              <HugeiconsIcon icon={Search01Icon} strokeWidth={1.5} className="size-3.5" />
               <span className="sr-only">Search chats</span>
             </Button>
           </div>

@@ -1,3 +1,5 @@
+import { AngryBirdIcon, HeartCheckIcon, Message01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
@@ -10,11 +12,6 @@ import { PersonaBanner } from "./_components/banner";
 import { BioSection } from "./_components/bio-section";
 import { Suspense } from "react";
 import { PersonaScenarios } from "./_components/persona-scenarios";
-import {
-  BirdIcon,
-  ChatsTeardropIcon,
-  HeartIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { TopBar, TopBarSidebarTrigger } from "@/components/layout/top-bar";
 import { Badge } from "@/components/ui/badge";
 import { CreateChatButton } from "@/components/create-chat-button";
@@ -142,7 +139,7 @@ export default async function PersonaPublicPage({
           {/* Status Badge */}
           <div className="absolute top-4 left-4 z-10">
             <Badge variant="secondary" className="backdrop-blur-sm">
-              {persona.status === "community" && <BirdIcon weight="fill" />}
+              {persona.status === "community" && <HugeiconsIcon icon={AngryBirdIcon} />}
               {persona.status}
             </Badge>
           </div>
@@ -191,7 +188,7 @@ export default async function PersonaPublicPage({
               <>
                 <span className="text-muted-foreground/40">·</span>
                 <span className="inline-flex items-center gap-1">
-                  <HeartIcon weight="fill" className="size-3.5" />
+                  <HugeiconsIcon icon={HeartCheckIcon} className="size-3.5" />
                   {persona.likesCount.toLocaleString()}
                 </span>
               </>
@@ -206,7 +203,7 @@ export default async function PersonaPublicPage({
             size="lg"
             className="w-full shadow-md"
           >
-            <ChatsTeardropIcon className="size-5" />
+            <HugeiconsIcon icon={Message01Icon} className="size-5" />
             Start Chatting
           </CreateChatButton>
         </div>

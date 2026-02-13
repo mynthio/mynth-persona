@@ -1,7 +1,8 @@
 "use client";
 
+import { StarsIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { motion } from "motion/react";
-import { Stars01 } from "@untitledui/icons";
 import { PrsnaToolbar } from "../prsna-toolbar";
 
 export function CreateSection() {
@@ -20,7 +21,7 @@ export function CreateSection() {
           transition={{ duration: 0.6 }}
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/50 bg-card/60 text-primary text-sm font-medium mb-6 shadow-[0_12px_30px_-18px_rgba(124,58,237,0.35)]">
-            <Stars01 className="size-4" strokeWidth={2} />
+            <HugeiconsIcon icon={StarsIcon} className="size-4" strokeWidth={2} />
             Limitless Creation
           </div>
 

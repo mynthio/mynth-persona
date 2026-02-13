@@ -1,14 +1,10 @@
 "use client";
 
+import { ArrowRight01Icon, CrownIcon, DatabaseLightningIcon, Leaf02Icon, StarsIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { motion } from "motion/react";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
 import { Link } from "@/components/ui/link";
-import { ArrowRight, Stars01 } from "@untitledui/icons";
-import {
-  LightningIcon,
-  CrownIcon,
-  LeafIcon,
-} from "@phosphor-icons/react/dist/ssr";
 
 type TierKey = "eco" | "standard" | "premium";
 
@@ -17,10 +13,7 @@ const tierMeta: Record<
   {
     label: string;
     description: string;
-    icon: React.ComponentType<{
-      className?: string;
-      weight?: "thin" | "light" | "regular" | "bold" | "fill" | "duotone";
-    }>;
+    icon: any;
     accent: string;
     textColor: string;
     bgColor: string;
@@ -29,7 +22,7 @@ const tierMeta: Record<
   eco: {
     label: "Eco",
     description: "Good for quick chats. Efficient and versatile.",
-    icon: LeafIcon,
+    icon: Leaf02Icon,
     accent: "from-emerald-500/20 via-teal-500/10 to-transparent",
     textColor: "text-emerald-600 dark:text-emerald-300",
     bgColor: "bg-emerald-500/10",
@@ -37,7 +30,7 @@ const tierMeta: Record<
   standard: {
     label: "Standard",
     description: "The sweet spot for immersive, open-ended roleplay.",
-    icon: Stars01,
+    icon: StarsIcon,
     accent: "from-violet-500/20 via-purple-500/10 to-transparent",
     textColor: "text-violet-600 dark:text-violet-300",
     bgColor: "bg-violet-500/10",
@@ -98,7 +91,7 @@ export function ModelsSection() {
           className="text-center mb-16"
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-border/50 bg-card/50 px-4 py-2 text-xs uppercase tracking-[0.2em] text-foreground/70 shadow-[0_12px_30px_-18px_rgba(124,58,237,0.35)]">
-            <LightningIcon weight="fill" className="size-4 text-primary/80" />
+            <HugeiconsIcon icon={DatabaseLightningIcon} className="size-4 text-primary/80" />
             Model Roster
           </div>
 
@@ -126,8 +119,7 @@ export function ModelsSection() {
             <div className="relative p-6 sm:p-8 md:p-10">
               <div className="flex items-center gap-3 mb-4">
                 <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1.5">
-                  <LeafIcon
-                    weight="fill"
+                  <HugeiconsIcon icon={Leaf02Icon}
                     className="size-4 text-emerald-600 dark:text-emerald-300"
                   />
                   <span className="text-sm font-medium text-emerald-600 dark:text-emerald-300">
@@ -169,7 +161,7 @@ export function ModelsSection() {
         {/* Standard & Premium Tiers */}
         <div className="space-y-4">
           {(["standard", "premium"] as TierKey[]).map((tier, index) => {
-            const TierIcon = tierMeta[tier].icon;
+            const tierIcon = tierMeta[tier].icon;
             const count = tierBuckets[tier].length;
 
             return (
@@ -187,8 +179,7 @@ export function ModelsSection() {
                       <div
                         className={`inline-flex items-center gap-2 rounded-full ${tierMeta[tier].bgColor} px-3 py-1.5`}
                       >
-                        <TierIcon
-                          weight="fill"
+                        <HugeiconsIcon icon={tierIcon}
                           className={`size-4 ${tierMeta[tier].textColor}`}
                         />
                         <span
@@ -244,7 +235,7 @@ export function ModelsSection() {
             className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold shadow-[0_18px_40px_-16px_rgba(124,58,237,0.45)] transition-transform hover:scale-[1.02]"
           >
             View Plans
-            <ArrowRight className="size-4" />
+            <HugeiconsIcon icon={ArrowRight01Icon} className="size-4" />
           </Link>
         </motion.div>
       </div>

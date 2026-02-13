@@ -1,5 +1,7 @@
 "use client";
 
+import { Diamond02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { generatePersonaImage } from "@/actions/generate-persona-image";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -35,7 +37,6 @@ import { toast } from "sonner";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Diamond01 } from "@untitledui/icons";
 
 type GenerationOptions = {
   modelId: ImageModelId;
@@ -163,7 +164,7 @@ export default function Imagine() {
                                     variant="outline"
                                     className="border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300"
                                   >
-                                    <Diamond01 strokeWidth={1.5} />
+                                    <HugeiconsIcon icon={Diamond02Icon} strokeWidth={1.5} />
                                   </Badge>
                                 </TooltipTrigger>
                                 <TooltipContent>

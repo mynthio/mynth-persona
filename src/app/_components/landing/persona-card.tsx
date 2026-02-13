@@ -1,18 +1,12 @@
 "use client";
 
+import { CheckmarkBadge02Icon, FemaleSymbolIcon, HeartCheckIcon, MaleSymbolIcon, PlayIcon, SignatureIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { PublicPersonaListItem } from "@/schemas/shared/persona-public.schema";
 import { getImageUrl, getVideoUrl, cn } from "@/lib/utils";
 import { CreateChatButton } from "@/components/create-chat-button";
-import { Play } from "@untitledui/icons";
-import {
-  GenderFemaleIcon,
-  GenderMaleIcon,
-  HeartIcon,
-  SealCheckIcon,
-  SignatureIcon,
-} from "@phosphor-icons/react/dist/ssr";
 
 interface PersonaCardProps {
   persona: PublicPersonaListItem;
@@ -85,12 +79,12 @@ export function PersonaCard({ persona, index }: PersonaCardProps) {
         <div className="absolute top-4 left-4 flex gap-2">
           {persona.status === "official" && (
             <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-amber-500/20 backdrop-blur-md text-amber-400 text-xs font-medium">
-              <SignatureIcon weight="fill" className="size-3" />
+              <HugeiconsIcon icon={SignatureIcon} className="size-3" />
             </div>
           )}
           {persona.status === "verified" && (
             <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-teal-500/20 backdrop-blur-md text-teal-400 text-xs font-medium">
-              <SealCheckIcon weight="fill" className="size-3" />
+              <HugeiconsIcon icon={CheckmarkBadge02Icon} className="size-3" />
             </div>
           )}
         </div>
@@ -99,11 +93,11 @@ export function PersonaCard({ persona, index }: PersonaCardProps) {
         <div className="absolute top-4 right-4">
           {persona.gender === "female" ? (
             <div className="size-8 flex items-center justify-center rounded-full bg-pink-500/20 backdrop-blur-md text-pink-400">
-              <GenderFemaleIcon className="size-4" />
+              <HugeiconsIcon icon={FemaleSymbolIcon} className="size-4" />
             </div>
           ) : persona.gender === "male" ? (
             <div className="size-8 flex items-center justify-center rounded-full bg-blue-500/20 backdrop-blur-md text-blue-400">
-              <GenderMaleIcon className="size-4" />
+              <HugeiconsIcon icon={MaleSymbolIcon} className="size-4" />
             </div>
           ) : null}
         </div>
@@ -119,7 +113,7 @@ export function PersonaCard({ persona, index }: PersonaCardProps) {
 
           {/* Likes */}
           <div className="flex items-center gap-1.5 mt-3 text-white/40 text-xs">
-            <HeartIcon weight="fill" className="size-3.5" />
+            <HugeiconsIcon icon={HeartCheckIcon} className="size-3.5" />
             {persona.likesCount.toLocaleString()}
           </div>
         </div>
@@ -127,7 +121,7 @@ export function PersonaCard({ persona, index }: PersonaCardProps) {
         {/* Hover CTA */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <div className="flex items-center gap-2 px-6 py-3 rounded-full bg-black/50 text-white font-medium shadow-[0_10px_30px_-20px_rgba(0,0,0,0.6)]">
-            <Play className="size-5" />
+            <HugeiconsIcon icon={PlayIcon} className="size-5" />
             Create Chat
           </div>
         </div>

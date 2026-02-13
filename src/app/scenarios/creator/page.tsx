@@ -1,7 +1,8 @@
+import { Alert02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import ScenarioCreatorForm from "./_components/form";
 import { TopBar, TopBarSidebarTrigger } from "@/components/layout/top-bar";
-import { AlertTriangle } from "@untitledui/icons";
 import { Button } from "@/components/ui/button";
 import { DISCORD_INVITE_URL } from "@/lib/constants";
 
@@ -12,7 +13,7 @@ export default function ScenarioCreatorPage() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-6 pb-6 sm:pt-12 sm:pb-12">
         <div className="max-w-xl mx-auto">
           <Alert className="mb-4">
-            <AlertTriangle />
+            <HugeiconsIcon icon={Alert02Icon} />
             <AlertTitle>Scenarios will be changed in future!</AlertTitle>
             <AlertDescription>
               Scenarios are currently in beta and will be changed in the future.

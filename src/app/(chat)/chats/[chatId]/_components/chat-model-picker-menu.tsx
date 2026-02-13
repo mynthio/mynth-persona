@@ -1,5 +1,7 @@
 "use client";
 
+import { ArrowUp01Icon, DatabaseLightningIcon, Diamond02Icon, GiftIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useState, useMemo } from "react";
 import { useDebounce } from "@uidotdev/usehooks";
 import { Button } from "@/components/ui/button";
@@ -21,7 +23,6 @@ import { chatConfig } from "@/config/shared/chat/chat-models.config";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
 import { usePinnedModels } from "../_hooks/use-pinned-models.hook";
-import { ChevronUp, Diamond01, Gift02, Lightning01 } from "@untitledui/icons";
 import { PinModelButton } from "./pin-model-button";
 
 interface ChatModelPickerMenuProps {
@@ -82,7 +83,7 @@ export function ChatModelPickerMenu({
           aria-label="Select AI model for role-play"
           className="h-8 px-2.5 gap-1.5 rounded-lg text-muted-foreground/70 hover:text-foreground hover:bg-muted/50 dark:hover:bg-white/[0.06] transition-colors"
         >
-          <ChevronUp strokeWidth={1.5} className="size-3.5 opacity-50" />
+          <HugeiconsIcon icon={ArrowUp01Icon} strokeWidth={1.5} className="size-3.5 opacity-50" />
           <span className="truncate text-xs font-medium">
             {currentModel?.displayName}
             {currentModel?.tier === "eco" && " (Eco)"}
@@ -181,11 +182,11 @@ function ModelRow({
 }) {
   const renderTierIcon = () => {
     if (model.tier === "premium") {
-      return <Diamond01 strokeWidth={1.5} className="size-3.5 text-rose-500" />;
+      return <HugeiconsIcon icon={Diamond02Icon} strokeWidth={1.5} className="size-3.5 text-rose-500" />;
     } else if (model.tier === "eco") {
-      return <Gift02 strokeWidth={1.5} className="size-3.5 text-emerald-500" />;
+      return <HugeiconsIcon icon={GiftIcon} strokeWidth={1.5} className="size-3.5 text-emerald-500" />;
     } else {
-      return <Lightning01 className="size-3.5 opacity-0" strokeWidth={1.5} />;
+      return <HugeiconsIcon icon={DatabaseLightningIcon} className="size-3.5 opacity-0" strokeWidth={1.5} />;
     }
   };
 

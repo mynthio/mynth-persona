@@ -1,5 +1,7 @@
 "use client";
 
+import { ArrowReloadVerticalIcon, Eraser01Icon, FallingStarIcon, Image02Icon, Loading02Icon, Message01Icon, PencilEdit02Icon, PlusSignIcon, SparklesIcon, StopIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { DeepPartial } from "ai";
 import { AnimatePresence, motion } from "motion/react";
@@ -8,19 +10,6 @@ import {
   creatorPersonaGenerateClientSchema,
   CreatorPersonaGenerateClientResponse,
 } from "@/schemas/shared/creator/persona-generate-client.schema";
-import {
-  ArrowsClockwiseIcon,
-  ArrowsVerticalIcon,
-  ChatsTeardropIcon,
-  CircleNotchIcon,
-  EraserIcon,
-  ImageIcon,
-  PencilLineIcon,
-  PlusIcon,
-  ShootingStarIcon,
-  SparkleIcon,
-  StopIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { DISCORD_INVITE_URL } from "@/lib/constants";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -288,7 +277,7 @@ export default function CreatorScreen() {
 
           {isLoading && !object ? (
             <div className="w-full h-[80vh] flex items-center justify-center">
-              <CircleNotchIcon className="animate-spin" />
+              <HugeiconsIcon icon={Loading02Icon} className="animate-spin" />
             </div>
           ) : error ? (
             <CreatorError
@@ -425,7 +414,7 @@ function Footer({
   const loader = useMemo(
     () => (
       <div className="size-[42px] rounded-[16px] flex items-center justify-center text-surface-100">
-        <CircleNotchIcon className="animate-spin" />
+        <HugeiconsIcon icon={Loading02Icon} className="animate-spin" />
       </div>
     ),
     []
@@ -451,7 +440,7 @@ function Footer({
             className="text-[0.98rem] text-surface-100 h-[42px] px-[12px] md:px-[24px] rounded-[16px] hover:bg-surface/20 font-mono"
             aria-label="Stop generation"
           >
-            <StopIcon size={16} weight="fill" />
+            <HugeiconsIcon icon={StopIcon} size={16} />
             Stop
           </Button>
         </>
@@ -466,7 +455,7 @@ function Footer({
             disabled={isLoading}
             aria-label="New prompt"
           >
-            <EraserIcon size={16} />
+            <HugeiconsIcon icon={Eraser01Icon} size={16} />
           </Button>
 
           <Button
@@ -476,7 +465,7 @@ function Footer({
             className="text-[0.98rem] text-surface-100 h-[42px] px-[12px] md:px-[24px] rounded-[16px] hover:bg-surface/20 font-mono"
             disabled={isLoading || isGenerating}
           >
-            <ArrowsClockwiseIcon size={16} />
+            <HugeiconsIcon icon={ArrowReloadVerticalIcon} size={16} />
             Retry
           </Button>
 
@@ -497,12 +486,12 @@ function Footer({
         flex items-center gap-[9px]
         "
                 >
-                  <SparkleIcon size={16} />
+                  <HugeiconsIcon icon={SparklesIcon} size={16} />
                   Workbench
                 </Link>
 
                 <CreateChatButton personaId={personaId}>
-                  <ChatsTeardropIcon size={16} />
+                  <HugeiconsIcon icon={Message01Icon} size={16} />
                 </CreateChatButton>
 
                 <Link
@@ -519,7 +508,7 @@ function Footer({
       flex items-center justify-center gap-[9px]
       "
                 >
-                  <ImageIcon size={16} />
+                  <HugeiconsIcon icon={Image02Icon} size={16} />
                 </Link>
               </>
             )
@@ -529,7 +518,7 @@ function Footer({
               variant="ghost"
               className="text-[0.98rem] text-surface-100 h-[42px] px-[12px] md:px-[24px] rounded-[16px] hover:bg-surface/20 font-mono"
             >
-              <ShootingStarIcon size={16} /> Sign in for more
+              <HugeiconsIcon icon={FallingStarIcon} size={16} /> Sign in for more
             </Button>
           )}
         </>
@@ -715,7 +704,7 @@ function PersonaStreamingResult({
                       disabled={isGenerating}
                       onClick={() => addNewSection(item.key)}
                     >
-                      <ShootingStarIcon size={12} /> {item.label}
+                      <HugeiconsIcon icon={FallingStarIcon} size={12} /> {item.label}
                     </Button>
                   ))}
                 </ButtonGroup>
@@ -740,7 +729,7 @@ function AddCustomPropertyPopover({
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button disabled={isGenerating}>
-          <PlusIcon size={12} /> Custom
+          <HugeiconsIcon icon={PlusSignIcon} size={12} /> Custom
         </Button>
       </PopoverTrigger>
 
@@ -888,7 +877,7 @@ function Section({
                 }}
                 variant="ghost"
               >
-                <StopIcon size={12} weight="fill" />
+                <HugeiconsIcon icon={StopIcon} size={12} />
                 Stop
               </Button>
             ) : (
@@ -899,7 +888,7 @@ function Section({
                   disabled={isGenerating}
                   onClick={() => handleAction("expand")}
                 >
-                  <ArrowsVerticalIcon size={12} />
+                  <HugeiconsIcon icon={ArrowReloadVerticalIcon} size={12} />
                   Expand
                 </Button>
 
@@ -909,7 +898,7 @@ function Section({
                   disabled={isGenerating}
                   onClick={() => handleAction("rewrite")}
                 >
-                  <PencilLineIcon size={12} />
+                  <HugeiconsIcon icon={PencilEdit02Icon} size={12} />
                   Rewrite
                 </Button>
               </>
@@ -919,7 +908,7 @@ function Section({
       </div>
 
       {isLoading && !currentContent && (
-        <CircleNotchIcon className="animate-spin my-[24px] ml-[6px]" />
+        <HugeiconsIcon icon={Loading02Icon} className="animate-spin my-[24px] ml-[6px]" />
       )}
 
       <Response className="text-[1.05rem] w-full">{currentContent}</Response>

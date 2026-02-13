@@ -1,5 +1,7 @@
 "use client";
 
+import { FilterVerticalIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,7 +12,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { usePersistedNsfwFilter } from "@/hooks/use-persisted-query-state";
-import { Sliders04 } from "@untitledui/icons";
 
 export function PersonasFilters() {
   const [includeNsfw, setIncludeNsfw] = usePersistedNsfwFilter();
@@ -19,7 +20,7 @@ export function PersonasFilters() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button size="sm" variant="ghost">
-          <Sliders04 strokeWidth={1.5} />
+          <HugeiconsIcon icon={FilterVerticalIcon} strokeWidth={1.5} />
           Filters
         </Button>
       </DropdownMenuTrigger>

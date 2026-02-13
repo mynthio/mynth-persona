@@ -6,7 +6,6 @@ import dynamic from "next/dynamic";
 import TextareaAutosize from "react-textarea-autosize";
 import { nanoid } from "nanoid";
 import { DefaultChatTransport } from "ai";
-import { ArrowUp, StickerSquare } from "@untitledui/icons";
 import { Drama, Square, X } from "lucide-react";
 import {
   useChatActions,
@@ -39,13 +38,7 @@ import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import ChatMessages from "./chat-messages";
-import {
-  ArrowUp02Icon,
-  Forward02Icon,
-  MaskTheater02Icon,
-  Note01Icon,
-  StopIcon,
-} from "@hugeicons/core-free-icons";
+import { ArrowUp01Icon, ArrowUp02Icon, Forward02Icon, MaskTheater02Icon, Note01Icon, StopIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
 const ChatModelPickerMenu = dynamic(

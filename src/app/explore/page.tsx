@@ -1,3 +1,5 @@
+import { Globe02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import type { Metadata } from "next";
 import {
   TopBar,
@@ -6,7 +8,6 @@ import {
 } from "@/components/layout/top-bar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import { GlobeSlated01 } from "@untitledui/icons";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import { PersonasFilters } from "../_components/personas-filters";
@@ -68,7 +69,7 @@ export default function ExplorePage() {
         left={<TopBarSidebarTrigger />}
         center={
           <TopBarTitle>
-            <GlobeSlated01 strokeWidth={1.5} />{" "}
+            <HugeiconsIcon icon={Globe02Icon} strokeWidth={1.5} />{" "}
             <span className="uppercase text-[0.75rem]">Explore</span>
           </TopBarTitle>
         }

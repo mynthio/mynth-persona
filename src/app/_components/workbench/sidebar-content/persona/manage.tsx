@@ -1,5 +1,7 @@
 "use client";
 
+import { AlertCircleIcon, CancelCircleIcon, CheckmarkCircle02Icon, Clock01Icon, Delete02Icon, Globe02Icon, Image02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,15 +21,6 @@ import { useParams, useRouter } from "next/navigation";
 import { usePersonaPublishStatusQuery } from "@/app/_queries/use-persona-publish-status.query";
 import { publishPersonaAction } from "@/actions/publish-persona.action";
 import { useSWRConfig } from "swr";
-import {
-  GlobeIcon,
-  TrashIcon,
-  ProhibitIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  WarningCircleIcon,
-  ImageIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { usePersonaQuery } from "@/app/_queries/use-persona.query";
 import { updatePersonaVisibilityAction } from "@/actions/update-persona-visibility.action";
 import { AlertCircle, AlertTriangle } from "lucide-react";
@@ -137,7 +130,7 @@ export default function WorkbenchSidebarManage() {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <div className="flex items-center justify-center size-7 rounded-lg bg-primary/10 text-primary">
-                  <GlobeIcon weight="fill" className="size-4" />
+                  <HugeiconsIcon icon={Globe02Icon} className="size-4" />
                 </div>
                 <span className="text-sm font-semibold text-foreground/90">
                   Publishing
@@ -148,7 +141,7 @@ export default function WorkbenchSidebarManage() {
                   variant="default"
                   className="text-[10px] bg-emerald-500/15 text-emerald-500 border-emerald-500/20"
                 >
-                  <CheckCircleIcon weight="fill" className="size-3" />
+                  <HugeiconsIcon icon={CheckmarkCircle02Icon} className="size-3" />
                   Published
                 </Badge>
               ) : isPending ? (
@@ -156,7 +149,7 @@ export default function WorkbenchSidebarManage() {
                   variant="secondary"
                   className="text-[10px] bg-amber-500/15 text-amber-500 border-amber-500/20"
                 >
-                  <ClockIcon weight="fill" className="size-3" />
+                  <HugeiconsIcon icon={Clock01Icon} className="size-3" />
                   Pending
                 </Badge>
               ) : (
@@ -228,7 +221,7 @@ export default function WorkbenchSidebarManage() {
 
             {!hasProfileImage && (
               <div className="flex items-center gap-2 rounded-lg bg-card/30 border border-border/20 p-3">
-                <ImageIcon className="size-4 text-muted-foreground shrink-0" />
+                <HugeiconsIcon icon={Image02Icon} className="size-4 text-muted-foreground shrink-0" />
                 <p className="text-[11px] text-muted-foreground">
                   A profile image is required to publish your persona.
                 </p>
@@ -244,7 +237,7 @@ export default function WorkbenchSidebarManage() {
                 disabled={Boolean(disabledReason) || submitting || isLoading}
                 title={disabledReason}
               >
-                <GlobeIcon weight="fill" className="size-3.5" />
+                <HugeiconsIcon icon={Globe02Icon} className="size-3.5" />
                 {submitting
                   ? "Publishing…"
                   : isPublished
@@ -261,7 +254,7 @@ export default function WorkbenchSidebarManage() {
                   disabled={true}
                   title="You granted a perpetual license when publishing. Contact hi@prsna.app for exceptional removal requests."
                 >
-                  <ProhibitIcon className="size-3.5" />
+                  <HugeiconsIcon icon={CancelCircleIcon} className="size-3.5" />
                   Unpublish
                 </Button>
               )}
@@ -278,7 +271,7 @@ export default function WorkbenchSidebarManage() {
                     : "Delete persona"
                 }
               >
-                <TrashIcon className="size-3.5" />
+                <HugeiconsIcon icon={Delete02Icon} className="size-3.5" />
                 Delete
               </Button>
             </div>

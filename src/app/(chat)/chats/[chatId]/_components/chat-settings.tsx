@@ -1,5 +1,7 @@
 "use client";
 
+import { FireIcon, GiftIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Dialog,
   DialogContent,
@@ -21,10 +23,6 @@ import {
 } from "@/components/ui/field";
 import { Textarea } from "@/components/ui/textarea";
 import { useSidebar } from "@/components/ui/sidebar";
-
-import {
-  FireIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
@@ -48,7 +46,6 @@ import {
   textGenerationModels,
 } from "@/config/shared/models/text-generation-models.config";
 import { Badge } from "@/components/ui/badge";
-import { Gift02 } from "@untitledui/icons";
 
 const PinModelButton = dynamic(
   () => import("./pin-model-button").then((mod) => ({ default: mod.PinModelButton })),
@@ -536,7 +533,7 @@ function ModelCard(props: {
           <div className="flex items-center gap-[8px] shrink-0">
             {model.tier === "premium" && (
               <Badge variant="destructive">
-                Premium <FireIcon weight="bold" />
+                Premium <HugeiconsIcon icon={FireIcon} />
               </Badge>
             )}
             {model.tier === "eco" && (
@@ -544,7 +541,7 @@ function ModelCard(props: {
                 variant="default"
                 className="bg-emerald-500 text-white hover:bg-emerald-600"
               >
-                Eco <Gift02 strokeWidth={2} className="w-4 h-4" />
+                Eco <HugeiconsIcon icon={GiftIcon} strokeWidth={2} className="w-4 h-4" />
               </Badge>
             )}
 

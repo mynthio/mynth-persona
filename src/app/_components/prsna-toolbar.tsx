@@ -1,9 +1,10 @@
 "use client";
 
+import { MailSend01Icon, StarsIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { cn } from "@/lib/utils";
 import Form from "next/form";
 import { useState, useRef } from "react";
-import { Send01, Stars01 } from "@untitledui/icons";
 
 export function PrsnaToolbar({ className }: { className?: string }) {
   const [isFocused, setIsFocused] = useState(false);
@@ -45,7 +46,7 @@ export function PrsnaToolbar({ className }: { className?: string }) {
                   isFocused && "scale-110"
                 )}
               >
-                <Stars01 strokeWidth={1.5} className="size-5" />
+                <HugeiconsIcon icon={StarsIcon} strokeWidth={1.5} className="size-5" />
               </div>
             </div>
 
@@ -69,7 +70,7 @@ export function PrsnaToolbar({ className }: { className?: string }) {
                   type="submit"
                   className="bg-foreground text-background rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:bg-primary hover:text-primary-foreground hover:scale-110 active:scale-90 transition-all animate-pop-in"
                 >
-                  <Send01 className="size-4" strokeWidth={1.5} />
+                  <HugeiconsIcon icon={MailSend01Icon} className="size-4" strokeWidth={1.5} />
                 </button>
               ) : (
                 <div className="text-muted-foreground/20">

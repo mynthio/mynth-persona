@@ -1,10 +1,11 @@
 "use client";
 
+import { Globe02Icon, SparklesIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Creator from "./creator";
 import { useState } from "react";
 import { useWorkbenchPersonaSidebarMode } from "@/hooks/use-workbench-persona-sidebar-mode";
-import { GlobeIcon, SparkleIcon } from "@phosphor-icons/react/dist/ssr";
 import WorkbenchSidebarManage from "./manage";
 
 export default function PersonaSidebar() {
@@ -24,14 +25,14 @@ export default function PersonaSidebar() {
             value="creator"
             className="rounded-lg gap-1.5 text-xs font-medium data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none transition-all"
           >
-            <SparkleIcon weight="fill" className="size-3.5" />
+            <HugeiconsIcon icon={SparklesIcon} className="size-3.5" />
             Creator
           </TabsTrigger>
           <TabsTrigger
             value="manage"
             className="rounded-lg gap-1.5 text-xs font-medium data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none transition-all"
           >
-            <GlobeIcon weight="fill" className="size-3.5" />
+            <HugeiconsIcon icon={Globe02Icon} className="size-3.5" />
             Manage
           </TabsTrigger>
         </TabsList>

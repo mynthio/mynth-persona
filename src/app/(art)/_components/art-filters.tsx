@@ -1,5 +1,7 @@
 "use client";
 
+import { Cancel01Icon, FilterVerticalIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,7 +13,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { useDebounce } from "@uidotdev/usehooks";
-import { Sliders04, XClose } from "@untitledui/icons";
 import { useRouter, useSearchParams } from "next/navigation";
 import { parseAsArrayOf, parseAsString, useQueryState } from "nuqs";
 import { useState, useEffect } from "react";
@@ -55,7 +56,7 @@ export function ArtFilters() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="gap-2">
-          <Sliders04 strokeWidth={1.5} />
+          <HugeiconsIcon icon={FilterVerticalIcon} strokeWidth={1.5} />
           Filters
         </Button>
       </DropdownMenuTrigger>
@@ -99,7 +100,7 @@ export function ArtFilters() {
               onClick={clearTags}
               className="h-8 px-2"
             >
-              <XClose className="h-3 w-3" />
+              <HugeiconsIcon icon={Cancel01Icon} className="h-3 w-3" />
             </Button>
           </div>
           <p className="text-[10px] text-muted-foreground mt-1.5">

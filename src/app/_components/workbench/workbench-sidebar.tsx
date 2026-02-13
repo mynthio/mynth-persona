@@ -1,9 +1,10 @@
 "use client";
 
+import { SparklesIcon, ToolsIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 import { useMediaQuery } from "@/hooks/use-media-query.hook";
-import { ToolboxIcon, SparkleIcon } from "@phosphor-icons/react/dist/ssr";
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 
@@ -35,7 +36,7 @@ export default function WorkbenchSidebar() {
   const closeMobilePanel = useCallback(() => setIsMobilePanelOpen(false), []);
 
   // Determine mobile button icon and label based on workbench mode
-  const MobileIcon = workbenchMode === "gallery" ? SparkleIcon : ToolboxIcon; // default persona
+  const mobileIcon = workbenchMode === "gallery" ? SparklesIcon : ToolsIcon; // default persona
   const mobileLabel = workbenchMode === "gallery" ? "create" : "workbench";
 
   return (
@@ -52,7 +53,7 @@ export default function WorkbenchSidebar() {
             onClick={openMobilePanel}
             className="inline-flex items-center justify-center gap-2 w-56 h-12 rounded-full bg-sidebar text-sidebar-foreground text-sm font-medium px-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40 transition-transform hover:scale-[1.02] active:scale-[0.99]"
           >
-            <MobileIcon className="h-4 w-4" />
+            <HugeiconsIcon icon={mobileIcon} className="h-4 w-4" />
             {mobileLabel}
           </button>
         </div>

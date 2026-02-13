@@ -1,5 +1,7 @@
 "use client";
 
+import { AlertCircleIcon, ImageNotFound02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { usePersonaImagesQuery } from "@/app/_queries/use-persona-images.query";
 import { useParams } from "next/navigation";
 import { getImageUrl } from "@/lib/utils";
@@ -11,7 +13,6 @@ import { usePersonaImagesMutation } from "@/app/_queries/use-persona-images.quer
 import { SWRConfig } from "swr";
 import { useImageId } from "@/hooks/use-image-id.hook";
 import GalleryImageModal from "./gallery-image-modal";
-import { ImageBrokenIcon, WarningCircle } from "@phosphor-icons/react/dist/ssr";
 import ms from "ms";
 
 export default function GalleryContent() {
@@ -204,7 +205,7 @@ function GalleryImageInProgress({
           <div className="absolute inset-0 flex items-center justify-center">
             {isFailed || isPartialCompletion ? (
               <div className="flex flex-col items-center gap-2 text-red-400">
-                <ImageBrokenIcon size={28} weight="duotone" />
+                <HugeiconsIcon icon={ImageNotFound02Icon} size={28} />
                 <div className="text-[11px]">Failed to generate</div>
               </div>
             ) : (

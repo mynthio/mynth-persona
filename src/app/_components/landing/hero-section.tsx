@@ -1,16 +1,12 @@
 "use client";
 
+import { ArrowRight01Icon, CheckmarkBadge02Icon, SignatureIcon, SparklesIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import dynamic from "next/dynamic";
 import { motion } from "motion/react";
 import { PublicPersonaListItem } from "@/schemas/shared/persona-public.schema";
 import { getImageUrl } from "@/lib/utils";
 import { Link } from "@/components/ui/link";
-import { ArrowRight } from "@untitledui/icons";
-import {
-  SignatureIcon,
-  SealCheckIcon,
-  SparkleIcon,
-} from "@phosphor-icons/react/dist/ssr";
 
 const FloatingLines = dynamic(() => import("@/components/FloatingLines"), {
   ssr: false,
@@ -45,7 +41,7 @@ export function HeroSection({ personas }: HeroSectionProps) {
           >
             {/* Badge - soft glass, consistent with sidebar */}
             <div className="inline-flex items-center gap-2 rounded-full border border-border/40 bg-card/40 px-4 py-2 text-xs uppercase tracking-[0.2em] text-foreground/70 shadow-[0_10px_30px_-18px_rgba(124,58,237,0.55)]">
-              <SparkleIcon weight="fill" className="size-4 text-primary/90" />
+              <HugeiconsIcon icon={SparklesIcon} className="size-4 text-primary/90" />
               Discover Prsna's
             </div>
 
@@ -68,7 +64,7 @@ export function HeroSection({ personas }: HeroSectionProps) {
                 className="group inline-flex items-center gap-3 rounded-full bg-primary px-5 py-2.5 sm:px-6 sm:py-3 text-sm font-semibold text-primary-foreground shadow-[0_18px_40px_-16px_rgba(124,58,237,0.8)] ring-1 ring-primary/40 transition-all hover:translate-y-[-1px] hover:brightness-110"
               >
                 Start Chatting
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                <HugeiconsIcon icon={ArrowRight01Icon} className="size-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
               <Link
                 href="/personas/creator"
@@ -126,13 +122,13 @@ export function HeroSection({ personas }: HeroSectionProps) {
                   <div className="absolute top-3 left-3 flex items-center gap-2">
                     {persona.status === "official" && (
                       <span className="flex items-center gap-1 rounded-full bg-amber-400/15 px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-wider text-amber-200">
-                        <SignatureIcon weight="fill" className="size-3" />
+                        <HugeiconsIcon icon={SignatureIcon} className="size-3" />
                         Official
                       </span>
                     )}
                     {persona.status === "verified" && (
                       <span className="flex items-center gap-1 rounded-full bg-emerald-400/15 px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-wider text-emerald-200">
-                        <SealCheckIcon weight="fill" className="size-3" />
+                        <HugeiconsIcon icon={CheckmarkBadge02Icon} className="size-3" />
                         Verified
                       </span>
                     )}

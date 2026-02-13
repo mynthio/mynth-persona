@@ -1,11 +1,12 @@
+import { Image02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { DISCORD_INVITE_URL } from "@/lib/constants";
-import { ImageIcon } from "@phosphor-icons/react/dist/ssr";
 
 export default function ImagesPage() {
   return (
     <div className="w-full h-full flex items-center justify-center max-w-xl mx-auto flex-col gap-[24px] text-center">
       <p>
-        <ImageIcon size={64} weight="thin" />
+        <HugeiconsIcon icon={Image02Icon} size={64} />
       </p>
       <p>
         While we work on the new image studio for creating character images, you

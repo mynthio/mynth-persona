@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr";
+import { SearchIcon } from "lucide-react";
 
 type SearchProps = {
   placeholder?: string;
@@ -15,7 +15,7 @@ export function Search({ placeholder, onSearchChange }: SearchProps) {
         onChange={(event) => onSearchChange?.(event.target.value)}
         placeholder={placeholder}
       />
-      <MagnifyingGlassIcon
+      <SearchIcon
         size={14}
         className="absolute top-[50%] translate-y-[-50%] right-[8px] text-foreground/80"
       />

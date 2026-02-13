@@ -1,3 +1,5 @@
+import { AngryBirdIcon, FeatherIcon, Globe02Icon, LockIcon, Menu05Icon, MoreVerticalIcon, PencilEdit02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Response } from "@/components/ai-elements/response";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,13 +17,6 @@ import { ScenarioContent } from "@/schemas";
 import { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
 import { auth } from "@clerk/nextjs/server";
 import Form from "next/form";
-import {
-  BirdIcon,
-  DotsThreeVerticalIcon,
-  GlobeIcon,
-  LockIcon,
-  PencilIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { notFound } from "next/navigation";
 import { PublishScenarioDialog } from "./_components/publish-scenario-dialog.client";
 import { CreateChatWithScenarioButton } from "@/components/create-chat-with-scenario-button";
@@ -30,7 +25,6 @@ import {
   TopBarSidebarTrigger,
   TopBarTitle,
 } from "@/components/layout/top-bar";
-import { Feather, Menu05 } from "@untitledui/icons";
 
 export default async function ScenarioPage({
   params,
@@ -96,7 +90,7 @@ export default async function ScenarioPage({
           left={<TopBarSidebarTrigger />}
           center={
             <>
-              <Feather strokeWidth={1.5} />
+              <HugeiconsIcon icon={FeatherIcon} strokeWidth={1.5} />
             </>
           }
           right={
@@ -105,14 +99,14 @@ export default async function ScenarioPage({
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button size="sm" variant="ghost">
-                      <Menu05 strokeWidth={1.5} />
+                      <HugeiconsIcon icon={Menu05Icon} strokeWidth={1.5} />
                       Manage
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     {scenario.visibility === "public" ? (
                       <DropdownMenuItem>
-                        <LockIcon />
+                        <HugeiconsIcon icon={LockIcon} />
                         Unpublish
                       </DropdownMenuItem>
                     ) : (
@@ -120,14 +114,14 @@ export default async function ScenarioPage({
                         <input type="hidden" name="action" value="publish" />
                         <DropdownMenuItem asChild>
                           <button type="submit" className="w-full">
-                            <GlobeIcon />
+                            <HugeiconsIcon icon={Globe02Icon} />
                             Publish
                           </button>
                         </DropdownMenuItem>
                       </Form>
                     )}
                     <DropdownMenuItem>
-                      <PencilIcon />
+                      <HugeiconsIcon icon={PencilEdit02Icon} />
                       Edit
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -142,16 +136,16 @@ export default async function ScenarioPage({
           <div className="flex flex-wrap gap-2 z-10 justify-start max-w-[720px] mx-auto w-full">
             <Badge variant="secondary" className="backdrop-blur-sm">
               {scenario.visibility === "public" ? (
-                <GlobeIcon weight="fill" />
+                <HugeiconsIcon icon={Globe02Icon} />
               ) : (
-                <LockIcon weight="fill" />
+                <HugeiconsIcon icon={LockIcon} />
               )}
               {scenario.visibility === "public" ? "Public" : "Private"}
             </Badge>
 
             {scenario.status && (
               <Badge variant="secondary" className="backdrop-blur-sm">
-                {scenario.status === "community" && <BirdIcon weight="fill" />}
+                {scenario.status === "community" && <HugeiconsIcon icon={AngryBirdIcon} />}
                 {scenario.status}
               </Badge>
             )}

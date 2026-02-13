@@ -1,5 +1,7 @@
 "use client";
 
+import { BookOpen01Icon, BubbleChatIcon, EyeIcon, Idea01Icon, Image02Icon, Mic01Icon, PuzzleIcon, SparklesIcon, ToolsIcon, User03Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { usePersonaVersionQuery } from "@/app/_queries/use-persona-version.query";
 import { usePersonaQuery } from "@/app/_queries/use-persona.query";
 
@@ -11,18 +13,6 @@ import { Separator } from "@/components/ui/separator";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 import { useParams } from "next/navigation";
 import { CreateChatButton } from "@/components/create-chat-button";
-import {
-  ChatCircleDotsIcon,
-  ImageIcon,
-  SparkleIcon,
-  UserIcon,
-  BrainIcon,
-  BookOpenIcon,
-  MicrophoneIcon,
-  BriefcaseIcon,
-  PuzzlePieceIcon,
-  EyeIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { MiniWaveLoader } from "@/components/ui/mini-wave-loader";
 
 export default function PersonaContent() {
@@ -81,7 +71,7 @@ function Persona() {
                 </div>
               ) : (
                 <div className="w-full h-full rounded-xl overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm text-muted-foreground flex flex-col items-center justify-center gap-3 p-3">
-                  <UserIcon className="size-8 text-muted-foreground/50" />
+                  <HugeiconsIcon icon={User03Icon} className="size-8 text-muted-foreground/50" />
                   <Button
                     variant="outline"
                     size="sm"
@@ -91,7 +81,7 @@ function Persona() {
                     aria-label="Generate image"
                     className="h-7 w-full px-2 text-[11px] rounded-lg border-border/50"
                   >
-                    <ImageIcon className="size-3.5" />
+                    <HugeiconsIcon icon={Image02Icon} className="size-3.5" />
                     Generate
                   </Button>
                 </div>
@@ -128,7 +118,7 @@ function Persona() {
                     variant="outline"
                     className="border-border/40 bg-card/40 text-muted-foreground text-[11px]"
                   >
-                    <BriefcaseIcon className="size-3" />
+                    <HugeiconsIcon icon={ToolsIcon} className="size-3" />
                     {data.occupation}
                   </Badge>
                 )}
@@ -144,7 +134,7 @@ function Persona() {
                   size="sm"
                   className="rounded-full bg-primary px-5 text-primary-foreground shadow-[0_12px_30px_-12px_rgba(124,58,237,0.6)] ring-1 ring-primary/30 transition-all hover:-translate-y-px hover:brightness-110"
                 >
-                  <ChatCircleDotsIcon weight="fill" className="size-4" />
+                  <HugeiconsIcon icon={BubbleChatIcon} className="size-4" />
                   Start Chat
                 </CreateChatButton>
                 <Button
@@ -153,7 +143,7 @@ function Persona() {
                   onClick={() => setWorkbenchMode("gallery")}
                   className="rounded-full border-border/50 bg-card/40 hover:bg-card/70"
                 >
-                  <SparkleIcon className="size-4" />
+                  <HugeiconsIcon icon={SparklesIcon} className="size-4" />
                   Gallery
                 </Button>
               </div>
@@ -167,30 +157,30 @@ function Persona() {
         <PersonaDetailSection
           title="Appearance"
           content={data.appearance}
-          icon={<EyeIcon className="size-4" />}
+          icon={<HugeiconsIcon icon={EyeIcon} className="size-4" />}
         />
         <PersonaDetailSection
           title="Personality"
           content={data.personality}
-          icon={<BrainIcon className="size-4" />}
+          icon={<HugeiconsIcon icon={Idea01Icon} className="size-4" />}
         />
         <PersonaDetailSection
           title="Background"
           content={data.background}
-          icon={<BookOpenIcon className="size-4" />}
+          icon={<HugeiconsIcon icon={BookOpen01Icon} className="size-4" />}
         />
         {data.speakingStyle && (
           <PersonaDetailSection
             title="Speaking Style"
             content={data.speakingStyle}
-            icon={<MicrophoneIcon className="size-4" />}
+            icon={<HugeiconsIcon icon={Mic01Icon} className="size-4" />}
           />
         )}
         {data.occupation && (
           <PersonaDetailSection
             title="Occupation"
             content={data.occupation}
-            icon={<BriefcaseIcon className="size-4" />}
+            icon={<HugeiconsIcon icon={ToolsIcon} className="size-4" />}
           />
         )}
         {Object.entries(data.extensions ?? {}).map(([key, value]) => (
@@ -198,7 +188,7 @@ function Persona() {
             key={key}
             title={spaceCase(key, { keepSpecialCharacters: false })}
             content={typeof value === "string" ? value : ""}
-            icon={<PuzzlePieceIcon className="size-4" />}
+            icon={<HugeiconsIcon icon={PuzzleIcon} className="size-4" />}
           />
         ))}
       </div>

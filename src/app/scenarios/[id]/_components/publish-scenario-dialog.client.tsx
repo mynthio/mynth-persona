@@ -1,5 +1,7 @@
 "use client";
 
+import { InformationCircleIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,7 +27,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { InfoIcon } from "@phosphor-icons/react/dist/ssr";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { DISCORD_INVITE_URL } from "@/lib/constants";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -261,7 +262,7 @@ function PublishInfo() {
     <Popover modal={false}>
       <PopoverTrigger asChild>
         <Button size="icon">
-          <InfoIcon />
+          <HugeiconsIcon icon={InformationCircleIcon} />
         </Button>
       </PopoverTrigger>
       <PopoverContent side="top" className="max-w-[420px]">

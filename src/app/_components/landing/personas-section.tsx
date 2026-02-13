@@ -1,9 +1,10 @@
 "use client";
 
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { motion } from "motion/react";
 import { PublicPersonaListItem } from "@/schemas/shared/persona-public.schema";
 import { Link } from "@/components/ui/link";
-import { ArrowRight } from "@untitledui/icons";
 import { PersonaCard } from "./persona-card";
 
 interface PersonasSectionProps {
@@ -53,7 +54,7 @@ export function PersonasSection({
               className="hidden md:flex shrink-0 items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
             >
               View all
-              <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
+              <HugeiconsIcon icon={ArrowRight01Icon} className="size-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           )}
         </motion.div>
@@ -71,7 +72,7 @@ export function PersonasSection({
               className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               View all
-              <ArrowRight className="size-4" />
+              <HugeiconsIcon icon={ArrowRight01Icon} className="size-4" />
             </Link>
           </div>
         )}

@@ -1,14 +1,14 @@
 "use client";
 
+import { Download04Icon, Loading02Icon, User03Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useImageId } from "@/hooks/use-image-id.hook";
 import { useParams } from "next/navigation";
 import { ImageDialog, ImageDialogContent } from "@/components/ui/image-dialog";
 import { MiniWaveLoader } from "@/components/ui/mini-wave-loader";
 import { Button } from "@/components/ui/button";
 import { getImageUrl } from "@/lib/utils";
-import { DownloadIcon, UserIcon } from "@phosphor-icons/react/dist/ssr";
 import useSWR, { useSWRConfig } from "swr";
-import { SpinnerGap } from "@phosphor-icons/react/dist/ssr";
 import { setPersonaProfileImage } from "@/actions/set-persona-profile-image.action";
 
 import { useMemo, useState } from "react";
@@ -119,9 +119,9 @@ export default function GalleryImageModal() {
                     disabled={!imageId || isSettingProfileImage}
                   >
                     {isSettingProfileImage ? (
-                      <SpinnerGap className="animate-spin" />
+                      <HugeiconsIcon icon={Loading02Icon} className="animate-spin" />
                     ) : (
-                      <UserIcon weight="duotone" />
+                      <HugeiconsIcon icon={User03Icon} />
                     )}
                     {isSettingProfileImage ? "Setting…" : "Set as profile"}
                   </Button>
@@ -130,7 +130,7 @@ export default function GalleryImageModal() {
                     onClick={handleDownload}
                     disabled={!imageId}
                   >
-                    <DownloadIcon weight="duotone" /> Download
+                    <HugeiconsIcon icon={Download04Icon} /> Download
                   </Button>
                 </div>
               </div>

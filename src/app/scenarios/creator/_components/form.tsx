@@ -1,5 +1,7 @@
 "use client";
 
+import { Delete02Icon, InformationCircleIcon, StarIcon, User03Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useForm } from "@tanstack/react-form";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -32,7 +34,6 @@ import {
   Persona,
 } from "@/components/persona-selector";
 import { getImageUrl } from "@/lib/utils";
-import { Info, StarIcon, TrashIcon, UserIcon } from "@phosphor-icons/react/dist/ssr";
 import { type StartingMessage } from "@/schemas/shared";
 import { createScenarioAction } from "@/actions/scenarios/create-scenario.action";
 
@@ -217,7 +218,7 @@ export default function ScenarioCreatorForm() {
       }}
     >
       <Alert className="text-sm sm:text-base">
-        <Info className="size-4 shrink-0" />
+        <HugeiconsIcon icon={InformationCircleIcon} className="size-4 shrink-0" />
         <AlertTitle className="text-sm sm:text-base">Template Variables</AlertTitle>
         <AlertDescription className="text-xs sm:text-sm">
           <p>
@@ -354,7 +355,7 @@ export default function ScenarioCreatorForm() {
                                 className="object-cover size-full"
                               />
                             ) : (
-                              <UserIcon className="text-surface-foreground/50 size-[14px]" />
+                              <HugeiconsIcon icon={User03Icon} className="text-surface-foreground/50 size-[14px]" />
                             )}
                           </div>
                           <span className="text-xs sm:text-sm font-medium truncate flex-1 min-w-0">
@@ -370,8 +371,7 @@ export default function ScenarioCreatorForm() {
                                 )
                               }
                             >
-                              <StarIcon
-                                weight={isPrimary ? "fill" : "regular"}
+                              <HugeiconsIcon icon={StarIcon}
                               />
                             </Button>
                             <Button
@@ -379,7 +379,7 @@ export default function ScenarioCreatorForm() {
                               variant="outline"
                               onClick={removePersona}
                             >
-                              <TrashIcon />
+                              <HugeiconsIcon icon={Delete02Icon} />
                             </Button>
                           </ButtonGroup>
                         </div>

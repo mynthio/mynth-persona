@@ -1,5 +1,7 @@
 "use client";
 
+import { Loading02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { enhancePersonaAction } from "@/actions/enhance-persona.action";
 // removed events hooks; using versions list instead
 import {
@@ -21,7 +23,6 @@ import {
 
 import { PublicPersonaVersion } from "@/schemas/shared";
 import usePersonaGenerationStore from "@/stores/persona-generation.store";
-import { SpinnerIcon } from "@phosphor-icons/react/dist/ssr";
 import { useEffect, useRef } from "react";
 import { useWorkbenchMode } from "@/hooks/use-workbench-mode.hook";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -95,7 +96,7 @@ function Events() {
     revalidateIfStale: false,
   });
 
-  if (isLoading) return <SpinnerIcon className="animate-spinner-linear-spin" />;
+  if (isLoading) return <HugeiconsIcon icon={Loading02Icon} className="animate-spinner-linear-spin" />;
 
   return data?.length
     ? data.map((version) => <Event key={version.id} version={version} />)

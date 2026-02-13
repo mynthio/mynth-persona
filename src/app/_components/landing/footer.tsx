@@ -1,5 +1,6 @@
+import { HeartCheckIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Link } from "@/components/ui/link";
-import { HeartIcon } from "@phosphor-icons/react/dist/ssr";
 
 export function Footer() {
   return (
@@ -28,7 +29,7 @@ export function Footer() {
             </Link>
           </div>
           <div className="text-sm text-muted-foreground">
-            Made with <HeartIcon className="inline ml-1 mb-0.5" />
+            Made with <HugeiconsIcon icon={HeartCheckIcon} className="inline ml-1 mb-0.5" />
           </div>
         </div>
       </div>

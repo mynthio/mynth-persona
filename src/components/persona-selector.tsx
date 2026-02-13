@@ -1,12 +1,6 @@
 "use client";
-
-import {
-  CheckSquareIcon,
-  GlobeSimpleIcon,
-  SquareIcon,
-  UserIcon,
-  XIcon,
-} from "@phosphor-icons/react/dist/ssr";
+import { Cancel01Icon, CheckmarkSquare02Icon, Globe02Icon, SquareIcon, User03Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "./ui/button";
 import { ButtonGroup } from "./ui/button-group";
 import {
@@ -241,7 +235,7 @@ export function PersonaChip({
             className="object-cover"
           />
         ) : (
-          <UserIcon className="text-surface-foreground/50 size-[14px]" />
+          <HugeiconsIcon icon={User03Icon} className="text-surface-foreground/50 size-[14px]" />
         )}
       </div>
 
@@ -254,7 +248,7 @@ export function PersonaChip({
           className="shrink-0 size-[16px] rounded-[4px] hover:bg-surface-200 flex items-center justify-center transition-colors"
           aria-label={`Remove ${displayName}`}
         >
-          <XIcon className="size-[12px]" />
+          <HugeiconsIcon icon={Cancel01Icon} className="size-[12px]" />
         </button>
       )}
     </div>
@@ -408,7 +402,7 @@ function PersonaSelectorContent() {
                         className="object-cover"
                       />
                     ) : (
-                      <UserIcon className="text-surface-foreground/50" />
+                      <HugeiconsIcon icon={User03Icon} className="text-surface-foreground/50" />
                     )}
                   </div>
 
@@ -419,7 +413,7 @@ function PersonaSelectorContent() {
                     <div className="text-xs text-muted-foreground flex items-center gap-2">
                       {persona.visibility === "public" && (
                         <>
-                          <GlobeSimpleIcon className="text-blue-500" />
+                          <HugeiconsIcon icon={Globe02Icon} className="text-blue-500" />
                           <span>•</span>
                         </>
                       )}
@@ -430,7 +424,7 @@ function PersonaSelectorContent() {
                   </div>
 
                   {isSelected && (
-                    <CheckSquareIcon className="shrink-0 text-primary" />
+                    <HugeiconsIcon icon={CheckmarkSquare02Icon} className="shrink-0 text-primary" />
                   )}
                 </button>
               );

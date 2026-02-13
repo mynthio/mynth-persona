@@ -1,22 +1,12 @@
 "use client";
 
+import { AngryBirdIcon, CheckmarkBadge02Icon, FemaleSymbolIcon, Loading02Icon, MaleSymbolIcon, QuestionIcon, SignatureIcon, SkullIcon, User03Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { PublicPersonaListItem } from "@/schemas/shared/persona-public.schema";
 import { getImageUrl, getVideoUrl } from "@/lib/utils";
 import { Masonry, useInfiniteLoader } from "masonic";
 import { useCallback, useMemo, useEffect, useRef, useState } from "react";
 import { useSharedIntersectionEffect } from "@/hooks/use-shared-intersection-observer";
-
-import {
-  BirdIcon,
-  CircleNotchIcon,
-  GenderFemaleIcon,
-  GenderMaleIcon,
-  GenderNonbinaryIcon,
-  GhostIcon,
-  QuestionMarkIcon,
-  SealCheckIcon,
-  SignatureIcon,
-} from "@phosphor-icons/react/dist/ssr";
 import { usePersistedNsfwFilter } from "@/hooks/use-persisted-query-state";
 import useSWRInfinite from "swr/infinite";
 import { fetcher } from "@/lib/fetcher";
@@ -120,7 +110,7 @@ export default function PublicPersonas() {
   if (!items.length && isLoading)
     return (
       <div className="w-full p-8 flex justify-center">
-        <CircleNotchIcon
+        <HugeiconsIcon icon={Loading02Icon}
           className="animate-spin text-muted-foreground"
           size={24}
         />
@@ -143,7 +133,7 @@ export default function PublicPersonas() {
 
       {isValidating && items.length > 0 ? (
         <div className="w-full p-8 flex justify-center">
-          <CircleNotchIcon
+          <HugeiconsIcon icon={Loading02Icon}
             className="animate-spin text-muted-foreground"
             size={24}
           />
@@ -181,19 +171,19 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
       case "official":
         return (
           <div className="size-[38px] bg-amber-500/30 flex items-center justify-center backdrop-blur-md rounded-[13px] text-amber-500/80">
-            <SignatureIcon size={18} weight="fill" />
+            <HugeiconsIcon icon={SignatureIcon} size={18} />
           </div>
         );
       case "verified":
         return (
           <div className="size-[38px] bg-teal-500/30 flex items-center justify-center backdrop-blur-md rounded-[13px] text-teal-500/80">
-            <SealCheckIcon size={18} weight="fill" />
+            <HugeiconsIcon icon={CheckmarkBadge02Icon} size={18} />
           </div>
         );
       case "community":
         return (
           <div className="size-[38px] bg-blue-500/30 text-blue-900/80 flex items-center justify-center backdrop-blur-md rounded-[13px]">
-            <BirdIcon size={18} weight="duotone" />
+            <HugeiconsIcon icon={AngryBirdIcon} size={18} />
           </div>
         );
     }
@@ -204,19 +194,19 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
       case "female":
         return (
           <div className="size-[38px] bg-pink-500/30 flex items-center justify-center backdrop-blur-md rounded-[13px] text-pink-500/80">
-            <GenderFemaleIcon size={18} />
+            <HugeiconsIcon icon={FemaleSymbolIcon} size={18} />
           </div>
         );
       case "male":
         return (
           <div className="size-[38px] bg-blue-500/30 flex items-center justify-center backdrop-blur-md rounded-[13px] text-blue-500/80">
-            <GenderMaleIcon size={18} />
+            <HugeiconsIcon icon={MaleSymbolIcon} size={18} />
           </div>
         );
       default:
         return (
           <div className="size-[38px] bg-surface-100/50 flex items-center justify-center backdrop-blur-md rounded-[13px] text-surface-foreground/80">
-            <GenderNonbinaryIcon size={18} />
+            <HugeiconsIcon icon={User03Icon} size={18} />
           </div>
         );
     }
@@ -276,7 +266,7 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
           {getStatusIcon()}
           {persona.event === "halloween" && (
             <div className="size-[38px] bg-orange-500/30 flex items-center justify-center backdrop-blur-md rounded-[13px] text-orange-500/80">
-              <GhostIcon size={18} weight="fill" />
+              <HugeiconsIcon icon={SkullIcon} size={18} />
             </div>
           )}
         </div>
@@ -286,7 +276,7 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
           text-surface-foreground/80 text-[0.66rem]"
           >
             {persona.ageBucket === "unknown" ? (
-              <QuestionMarkIcon size={14} />
+              <HugeiconsIcon icon={QuestionIcon} size={14} />
             ) : (
               persona.ageBucket
             )}

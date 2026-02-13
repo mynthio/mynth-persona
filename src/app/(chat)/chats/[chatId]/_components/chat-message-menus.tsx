@@ -8,14 +8,10 @@ import {
   Copy01Icon,
   PencilEdit02Icon,
   Delete02Icon,
-  Image02Icon,
 } from "@hugeicons/core-free-icons";
 import {
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
@@ -35,7 +31,6 @@ import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useSwitchBranch } from "../_hooks/use-switch-branch.hook";
 import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
 import { toast } from "sonner";
-import { ImageGenerationMenuItems } from "./chat-message-generate-image-button";
 
 type ChatMessageMenuContentProps = {
   message: PersonaUIMessage;
@@ -93,15 +88,6 @@ export function AssistantMessageMenuContent(
         <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
         Edit message
       </DropdownMenuItem>
-      <DropdownMenuSub>
-        <DropdownMenuSubTrigger>
-          <HugeiconsIcon icon={Image02Icon} size={16} />
-          Generate image
-        </DropdownMenuSubTrigger>
-        <DropdownMenuSubContent className="w-56">
-          <ImageGenerationMenuItems messageId={props.message.id} />
-        </DropdownMenuSubContent>
-      </DropdownMenuSub>
       <DropdownMenuSeparator />
       <DeleteMessageMenuItem messageId={props.message.id} />
     </>

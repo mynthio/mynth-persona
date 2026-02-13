@@ -1,3 +1,5 @@
+import { ArrowRight01Icon, File01Icon, Sad01Icon, Search01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { db } from "@/db/drizzle";
 import { scenarios } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
@@ -37,12 +39,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "@/components/ui/link";
 import { Buffer } from "buffer";
-import {
-  ChevronRight,
-  FaceSad,
-  SearchRefraction,
-  File05,
-} from "@untitledui/icons";
 
 const SCENARIOS_PER_PAGE = 20;
 
@@ -289,7 +285,7 @@ export default async function ScenariosPage({
             />
             <InputGroupAddon align="inline-end">
               <InputGroupButton type="submit">
-                <SearchRefraction
+                <HugeiconsIcon icon={Search01Icon}
                   strokeWidth={1.5}
                   className="size-4 text-muted-foreground"
                 />
@@ -302,7 +298,7 @@ export default async function ScenariosPage({
           <Empty className="rounded-xl bg-linear-to-br from-background/80 via-card/80 to-muted/60 backdrop-blur-sm">
             <EmptyHeader>
               <EmptyMedia variant="icon" className="size-14">
-                <FaceSad
+                <HugeiconsIcon icon={Sad01Icon}
                   strokeWidth={1.5}
                   className="size-8 text-muted-foreground"
                 />
@@ -336,7 +332,7 @@ export default async function ScenariosPage({
                             />
                           ) : (
                             <div className="size-10 rounded-sm border border-border bg-linear-to-br from-muted/50 to-background/60 flex items-center justify-center">
-                              <File05
+                              <HugeiconsIcon icon={File01Icon}
                                 className="size-5 text-muted-foreground"
                                 strokeWidth={1.5}
                               />
@@ -362,7 +358,7 @@ export default async function ScenariosPage({
                           </ItemDescription>
                         </ItemContent>
                         <ItemActions>
-                          <ChevronRight
+                          <HugeiconsIcon icon={ArrowRight01Icon}
                             strokeWidth={1.5}
                             className="size-4 text-muted-foreground"
                           />

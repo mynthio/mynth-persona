@@ -1,9 +1,10 @@
 "use client";
 
+import { FeatherIcon, Image02Icon, UserGroupIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
-import { Feather, Image02, Users03 } from "@untitledui/icons";
 import { memo, type ReactNode } from "react";
 import { Link } from "@/components/ui/link";
 
@@ -16,17 +17,17 @@ type NavigationItem = {
 const navigationItems: NavigationItem[] = [
   {
     href: "/library/personas",
-    icon: <Users03 strokeWidth={1.5} />,
+    icon: <HugeiconsIcon icon={UserGroupIcon} strokeWidth={1.5} />,
     label: "Personas",
   },
   {
     href: "/library/scenarios",
-    icon: <Feather strokeWidth={1.5} />,
+    icon: <HugeiconsIcon icon={FeatherIcon} strokeWidth={1.5} />,
     label: "Scenarios",
   },
   {
     href: "/library/images",
-    icon: <Image02 strokeWidth={1.5} />,
+    icon: <HugeiconsIcon icon={Image02Icon} strokeWidth={1.5} />,
     label: "Images",
   },
 ];

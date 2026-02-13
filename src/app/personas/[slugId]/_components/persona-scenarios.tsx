@@ -1,8 +1,9 @@
+import { Globe02Icon, LockIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { Link } from "@/components/ui/link";
 import { db } from "@/db/drizzle";
 import { scenarioPersonas, scenarios } from "@/db/schema";
 import { auth } from "@clerk/nextjs/server";
-import { GlobeIcon, LockIcon } from "@phosphor-icons/react/dist/ssr";
 import { and, eq, or } from "drizzle-orm";
 import { CreateChatWithScenarioButton } from "@/components/create-chat-with-scenario-button";
 
@@ -59,7 +60,7 @@ function ScenarioCard({
     <div className="relative text-primary-foreground flex justify-between flex-col w-full overflow-hidden z-0 rounded-[12px] border-[3px] border-surface-foreground/25 h-[220px] bg-linear-to-tr from-primary to-primary/80">
       <div className="flex flex-wrap gap-[4px] px-[24px] py-[12px]">
         <div className="cursor-default pointer-events-none flex items-center gap-[4px] text-[0.80rem] bg-primary/50 backdrop-blur-[3px] rounded-[9px] h-[28px] px-[12px] text-primary-foreground/80">
-          {scenario.visibility === "public" ? <GlobeIcon /> : <LockIcon />}
+          {scenario.visibility === "public" ? <HugeiconsIcon icon={Globe02Icon} /> : <HugeiconsIcon icon={LockIcon} />}
           {scenario.visibility === "public" ? "Public" : "Private"}
         </div>
       </div>

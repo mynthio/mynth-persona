@@ -1,5 +1,7 @@
 "use client";
 
+import { StarsIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   GenerationContextProvider,
   useGenerationContext,
@@ -7,14 +9,13 @@ import {
 import CreatorScreen from "./_components/creator-screen";
 import { TopBar, TopBarSidebarTrigger } from "@/components/layout/top-bar";
 import { Button } from "@/components/ui/button";
-import { Stars02 } from "@untitledui/icons";
 
 function NewIdeaButton() {
   const { resetGeneration } = useGenerationContext();
 
   return (
     <Button variant="ghost" size="sm" onClick={resetGeneration}>
-      <Stars02 strokeWidth={1.5} /> New idea
+      <HugeiconsIcon icon={StarsIcon} strokeWidth={1.5} /> New idea
     </Button>
   );
 }

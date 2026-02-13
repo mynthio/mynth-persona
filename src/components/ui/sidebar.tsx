@@ -23,7 +23,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { FlexAlignLeft, LayoutLeft as LayoutLeftIcon } from "@untitledui/icons";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  LayoutAlignLeftIcon,
+  LayoutAlignRightIcon,
+} from "@hugeicons/core-free-icons";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -281,11 +285,8 @@ function SidebarTrigger({
       }}
       {...props}
     >
-      {open ? (
-        <FlexAlignLeft className="size-4" />
-      ) : (
-        <LayoutLeftIcon className="size-4" />
-      )}
+      <HugeiconsIcon icon={LayoutAlignLeftIcon} className="size-4" />
+
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

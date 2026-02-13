@@ -1,9 +1,9 @@
 "use client";
 
+import { Cancel01Icon, PinIcon, PinOffIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { usePinnedModels } from "../_hooks/use-pinned-models.hook";
 import { Button } from "@/components/ui/button";
-import { Pin01, X } from "@untitledui/icons";
-import { PushPinIcon, PushPinSimpleSlashIcon } from "@phosphor-icons/react/dist/ssr";
 import { cn } from "@/lib/utils";
 
 interface PinModelButtonProps {
@@ -48,13 +48,11 @@ export function PinModelButton({
         aria-label={pinned ? "Unpin model" : "Pin model"}
       >
         {pinned ? (
-          <PushPinIcon
-            weight="fill"
+          <HugeiconsIcon icon={PinIcon}
             className="w-[16px] h-[16px] text-blue-600"
           />
         ) : (
-          <PushPinSimpleSlashIcon
-            weight="regular"
+          <HugeiconsIcon icon={PinOffIcon}
             className="w-[16px] h-[16px] text-surface-foreground/40"
           />
         )}
@@ -70,7 +68,7 @@ export function PinModelButton({
       className={cn("size-6 rounded-sm [&>svg]:size-2", className)}
       aria-label={pinned ? "Unpin model" : "Pin model"}
     >
-      {pinned ? <X strokeWidth={1.5} /> : <Pin01 strokeWidth={1.5} />}
+      {pinned ? <HugeiconsIcon icon={Cancel01Icon} strokeWidth={1.5} /> : <HugeiconsIcon icon={PinIcon} strokeWidth={1.5} />}
     </Button>
   );
 }

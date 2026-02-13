@@ -1,5 +1,7 @@
 "use client";
 
+import { Cancel01Icon, CpuIcon, Delete02Icon, Download02Icon, Download04Icon, Share08Icon, User03Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Dialog,
   DialogClose,
@@ -24,20 +26,11 @@ import { getImageUrl } from "@/lib/utils";
 import { fetcher } from "@/lib/fetcher";
 import useSWR from "swr";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { DownloadIcon } from "@phosphor-icons/react/dist/ssr";
 import { ExternalLink, Cpu } from "lucide-react";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { Spinner } from "@/components/ui/spinner";
 
 import { cn } from "@/lib/utils";
-import {
-  Download02,
-  Download04,
-  User03,
-  X,
-  Trash01,
-  CpuChip02,
-} from "@untitledui/icons";
 import { useForm } from "@tanstack/react-form";
 import { useAuth } from "@clerk/nextjs";
 import { z } from "zod";
@@ -49,7 +42,6 @@ import {
   deleteMediaCommentAction,
 } from "@/app/(art)/_actions/actions";
 import { toast } from "sonner";
-import { ShareNetwork } from "@phosphor-icons/react/dist/ssr";
 import { Badge } from "@/components/ui/badge";
 import {
   InputGroup,
@@ -111,7 +103,7 @@ export function MediaDialog() {
       >
         <DialogClose asChild className="fixed left-4 top-4 z-50">
           <Button size="lg">
-            <X strokeWidth={1.5} />
+            <HugeiconsIcon icon={Cancel01Icon} strokeWidth={1.5} />
             Close
           </Button>
         </DialogClose>
@@ -128,7 +120,7 @@ export function MediaDialog() {
                 className="absolute top-0 w-full h-full object-contain"
               />
               {/* <DialogClose className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white lg:hidden z-10">
-                <X strokeWidth={1.5} />
+                <HugeiconsIcon icon={Cancel01Icon} strokeWidth={1.5} />
               </DialogClose> */}
             </div>
 
@@ -138,7 +130,7 @@ export function MediaDialog() {
                   <Avatar>
                     <AvatarImage src={data?.user?.imageUrl} />
                     <AvatarFallback>
-                      <User03 className="size-4" />
+                      <HugeiconsIcon icon={User03Icon} className="size-4" />
                     </AvatarFallback>
                   </Avatar>
                   <span className="text-sm text-muted-foreground">
@@ -175,7 +167,7 @@ export function MediaDialog() {
                     variant="secondary"
                     className="gap-1.5 py-1 px-2 font-normal text-muted-foreground bg-muted/50 border-border/50 border hover:bg-muted/50"
                   >
-                    <CpuChip02 strokeWidth={1.5} />
+                    <HugeiconsIcon icon={CpuIcon} strokeWidth={1.5} />
                     {getModelDisplayName(data.generation.aiModel)}
                   </Badge>
                 </div>
@@ -358,7 +350,7 @@ function Comments({ mediaId }: { mediaId: string }) {
                               className="ml-auto h-6 w-6 p-0"
                               disabled={deletingCommentId === comment.id}
                             >
-                              <Trash01 className="h-3.5 w-3.5" />
+                              <HugeiconsIcon icon={Delete02Icon} className="h-3.5 w-3.5" />
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>

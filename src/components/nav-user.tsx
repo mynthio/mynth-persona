@@ -1,5 +1,7 @@
 "use client";
 
+import { Login03Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   ChevronsUpDown,
   CreditCard,
@@ -31,7 +33,6 @@ import {
 import { SignedIn, SignedOut, useAuth, useClerk, useUser } from "@clerk/nextjs";
 import { PlanId } from "@/config/shared/plans";
 import { useRouter } from "next/navigation";
-import { LogIn03 } from "@untitledui/icons";
 
 export function NavUser() {
   const { user } = useUser();
@@ -188,7 +189,7 @@ export function NavUser() {
             className="h-12 bg-primary/5 hover:bg-primary/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.06] border border-sidebar-border/50 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:justify-center"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <LogIn03 strokeWidth={2} className="size-4" />
+              <HugeiconsIcon icon={Login03Icon} strokeWidth={2} className="size-4" />
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
               <span className="truncate font-medium">Sign In</span>

@@ -10,6 +10,7 @@ import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
 import { useSwitchBranch } from "../_hooks/use-switch-branch.hook";
+import { ChatMessageGenerateImageButton } from "./chat-message-generate-image-button";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Refresh01Icon,
@@ -35,12 +36,15 @@ export function ChatMessageActions(props: ChatMessageActionsProps) {
   }
 
   return (
-    <div className="flex gap-2 items-center text-muted-foreground/70 group-[.is-user]:justify-end pointer-fine:hover:opacity-100 transition-opacity duration-250">
+    <div className="flex gap-1.5 items-center text-muted-foreground/70 group-[.is-user]:justify-end pointer-fine:hover:opacity-100 transition-opacity duration-250">
       {message.role === "assistant" && (
-        <ChatMessageRegenerate
-          messageId={message.id}
-          parentId={message.metadata?.parentId}
-        />
+        <>
+          <ChatMessageGenerateImageButton messageId={message.id} iconOnly />
+          <ChatMessageRegenerate
+            messageId={message.id}
+            parentId={message.metadata?.parentId}
+          />
+        </>
       )}
       <ChatMessageBranches
         messageId={message.id}

@@ -11,16 +11,6 @@ import {
   SidebarMenuSubButton,
   useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  Feather,
-  GlobeSlated01,
-  Hearts,
-  Users03,
-  Image02,
-  Brush01,
-  Home01,
-  ChevronDown,
-} from "@untitledui/icons";
 import { Link } from "./ui/link";
 import {
   Collapsible,
@@ -29,14 +19,7 @@ import {
 } from "@/components/ui/collapsible";
 import { useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Album02Icon,
-  FolderLibraryIcon,
-  Home02Icon,
-  QuillWrite02Icon,
-  SaturnIcon,
-  UserMultipleIcon,
-} from "@hugeicons/core-free-icons";
+import { Album02Icon, ArrowDown01Icon, FeatherIcon, FolderLibraryIcon, Globe02Icon, HeartCheckIcon, Home01Icon, Home02Icon, Image02Icon, PaintBrush02Icon, QuillWrite02Icon, SaturnIcon, UserGroupIcon, UserMultipleIcon } from "@hugeicons/core-free-icons";
 
 export function NavMain() {
   const [libraryOpen, setLibraryOpen] = useState(false);
@@ -105,7 +88,7 @@ export function NavMain() {
                   <SidebarMenuButton>
                     <HugeiconsIcon icon={FolderLibraryIcon} />
                     <span>Library</span>
-                    <ChevronDown
+                    <HugeiconsIcon icon={ArrowDown01Icon}
                       className="ml-auto transition-transform duration-200 data-[state=open]:rotate-180"
                       data-state={libraryOpen ? "open" : "closed"}
                       strokeWidth={1.5}

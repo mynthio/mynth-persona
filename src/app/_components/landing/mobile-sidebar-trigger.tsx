@@ -1,8 +1,9 @@
 "use client";
 
+import { Menu01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { Menu01 as MenuIcon } from "@untitledui/icons";
 
 export function MobileSidebarTrigger() {
   const { toggleSidebar, openMobile } = useSidebar();
@@ -16,7 +17,7 @@ export function MobileSidebarTrigger() {
       aria-label="Open menu"
       aria-expanded={openMobile}
     >
-      <MenuIcon className="size-5" />
+      <HugeiconsIcon icon={Menu01Icon} className="size-5" />
     </Button>
   );
 }

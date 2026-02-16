@@ -323,7 +323,10 @@ export async function POST(
             parts: [{ type: "text", text: continuedText }],
             metadata: sql`coalesce(${messagesTable.metadata}, '{}'::jsonb) || ${JSON.stringify(
               {
-                usage: finalData.usage,
+                usage: {
+                  inputTokens: finalData.usage.inputTokens,
+                  outputTokens: finalData.usage.outputTokens,
+                },
                 model: textGenerationModel.modelId,
               }
             )}::jsonb`,

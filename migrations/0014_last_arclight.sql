@@ -1,0 +1,1 @@
+ALTER TABLE "personas" ADD COLUMN "voice_id" text;

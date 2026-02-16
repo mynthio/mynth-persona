@@ -177,6 +177,7 @@ export const personas = pgTable(
     publicVersionId: text("public_version_id"),
     nsfwRating: nsfwRatingEnum("nsfw_rating").notNull().default("sfw"),
     gender: personaGenderEnum("gender").notNull().default("other"),
+    voiceId: text("voice_id"),
     headline: text("headline"),
     publicName: varchar("public_name", { length: 100 }),
     ageBucket: personaAgeBucketEnum("age_bucket").notNull().default("unknown"),

@@ -6,6 +6,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const getAudioUrl = (audioId: string) => {
+  return `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/audio/${audioId}.mp3`;
+};
+
 export const getImageUrl = (
   mediaId: string,
   variant: "full" | "thumb" = "full"

@@ -462,7 +462,11 @@ export async function POST(
 
       writer.merge(result.toUIMessageStream());
 
-      const usage = await result.usage;
+      const rawUsage = await result.usage;
+      const usage = {
+        inputTokens: rawUsage.inputTokens,
+        outputTokens: rawUsage.outputTokens,
+      };
 
       writer.write({
         type: "message-metadata",
@@ -488,7 +492,10 @@ export async function POST(
         role: responseMessage.role,
         metadata: {
           model: textGenerationModel.modelId,
-          usage: responseMessage.metadata?.usage,
+          usage: {
+            inputTokens: responseMessage.metadata?.usage?.inputTokens,
+            outputTokens: responseMessage.metadata?.usage?.outputTokens,
+          },
         },
       });
 

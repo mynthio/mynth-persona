@@ -87,7 +87,7 @@ export const imageRateLimitGuard = async (
 ): Promise<ImageRateLimitResult> => {
   // Check if user is whitelisted
   const whitelistedUserIds =
-    process.env.IMAGE_RATE_LIMIT_WHITELIST_USER_IDS?.split(",").map((id) =>
+    process.env.RATE_LIMIT_WHITELIST_USER_IDS?.split(",").map((id) =>
       id.trim()
     ) || [];
   if (whitelistedUserIds.includes(identifier)) {

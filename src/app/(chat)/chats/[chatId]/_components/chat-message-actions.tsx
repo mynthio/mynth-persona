@@ -11,6 +11,7 @@ import { useChatMain } from "../_contexts/chat-main.context";
 import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
 import { useSwitchBranch } from "../_hooks/use-switch-branch.hook";
 import { ChatMessageGenerateImageButton } from "./chat-message-generate-image-button";
+import { ChatMessageAudioButton } from "./chat-message-audio-button";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Refresh01Icon,
@@ -39,6 +40,7 @@ export function ChatMessageActions(props: ChatMessageActionsProps) {
     <div className="flex gap-1.5 items-center text-muted-foreground/70 group-[.is-user]:justify-end pointer-fine:hover:opacity-100 transition-opacity duration-250">
       {message.role === "assistant" && (
         <>
+          <ChatMessageAudioButton message={message} />
           <ChatMessageGenerateImageButton messageId={message.id} iconOnly />
           <ChatMessageRegenerate
             messageId={message.id}

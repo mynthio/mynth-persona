@@ -126,6 +126,52 @@ export async function validateChatOwnershipCached(
 }
 
 /**
+ * Cached chat fetch that returns the chat with its settings and persona voice/gender data.
+ * Used by TTS to resolve voice IDs through the chat → persona → defaults chain.
+ *
+ * Invalidate via `updateTag(\`chat:${chatId}\`)` in server actions after any chat mutation.
+ */
+export async function getChatWithPersonaVoiceCached(
+  chatId: string,
+  userId: string
+) {
+  const runner = unstable_cache(
+    async () => {
+      return db.query.chats.findFirst({
+        where: and(eq(chats.id, chatId), eq(chats.userId, userId)),
+        with: {
+          chatPersonas: {
+            columns: {},
+            with: {
+              persona: {
+                columns: {
+                  id: true,
+                  voiceId: true,
+                  gender: true,
+                  title: true,
+                },
+              },
+              personaVersion: {
+                columns: {
+                  data: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    },
+    ["chat:with-persona-voice", chatId, userId],
+    {
+      tags: [`chat:${chatId}`],
+      revalidate: CHAT_CACHE_TTL_SECONDS,
+    }
+  );
+
+  return runner();
+}
+
+/**
  * Cached chat fetch that returns the chat with its settings.
  * Useful for image generation actions that need to check chat settings.
  *

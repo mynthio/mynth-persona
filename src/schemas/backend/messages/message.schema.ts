@@ -6,8 +6,6 @@ import { languageModelUsageSchema } from "../ai/language-model-usage.schema";
 
 export const messageMetadataSchema = z.object({
   model: z.string(),
-  providr: z.string(),
-  cost: z.number(),
   usage: languageModelUsageSchema,
 });
 

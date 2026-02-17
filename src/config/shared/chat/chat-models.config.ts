@@ -11,7 +11,7 @@ export type ChatConfig = {
 };
 
 export const DEFAULT_CHAT_MODEL: TextGenerationModelId =
-  "nousresearch/hermes-4-70b:eco";
+  "google/gemini-3-flash-preview:standard";
 
 export const chatConfig: ChatConfig = {
   models: [

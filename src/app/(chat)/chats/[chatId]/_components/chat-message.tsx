@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 import { useChatStore } from "../_store/hooks";
 import { Message, MessageContent } from "@/components/ai-elements/message";
@@ -45,6 +45,17 @@ export const ChatMessage = React.memo(function ChatMessage(
   const removeImageGenerationRun = useChatImageGenerationStore(
     (state) => state.removeImageGenerationRun,
   );
+
+  // Lifted audio state so both the action bar button and the avatar menu share it
+  const [audioId, setAudioId] = useState<string | undefined>(
+    props.message.metadata?.audioId,
+  );
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+
+  const handleAudioGenerated = useCallback((newAudioId: string) => {
+    setAudioId(newAudioId);
+    setIsGeneratingAudio(false);
+  }, []);
 
   // Check if this message is currently streaming
   const isStreaming = useChatStore((state) => {
@@ -158,7 +169,7 @@ export const ChatMessage = React.memo(function ChatMessage(
       <div className="flex items-center gap-3 group-[.is-user]:justify-end mt-1">
         {props.message.role === "user" ? (
           <>
-            <ChatMessageActions message={props.message} isStreaming={isStreaming} />
+            <ChatMessageActions message={props.message} isStreaming={isStreaming} audioId={audioId} onAudioGenerated={handleAudioGenerated} />
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild disabled={isStreaming}>
                 <button
@@ -221,11 +232,11 @@ export const ChatMessage = React.memo(function ChatMessage(
               </DropdownMenuTrigger>
 
               <DropdownMenuContent side="top" align="start" className="w-48">
-                <AssistantMessageMenuContent message={props.message} />
+                <AssistantMessageMenuContent message={props.message} audioId={audioId} isGeneratingAudio={isGeneratingAudio} onAudioGenerated={handleAudioGenerated} onGeneratingAudioChange={setIsGeneratingAudio} />
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <ChatMessageActions message={props.message} isStreaming={isStreaming} />
+            <ChatMessageActions message={props.message} isStreaming={isStreaming} audioId={audioId} isGeneratingAudio={isGeneratingAudio} onAudioGenerated={handleAudioGenerated} onGeneratingAudioChange={setIsGeneratingAudio} />
           </>
         )}
       </div>

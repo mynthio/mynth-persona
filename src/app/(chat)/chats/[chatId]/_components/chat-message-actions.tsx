@@ -22,10 +22,14 @@ import {
 type ChatMessageActionsProps = {
   message: PersonaUIMessage;
   isStreaming?: boolean;
+  audioId?: string;
+  isGeneratingAudio?: boolean;
+  onAudioGenerated?: (audioId: string) => void;
+  onGeneratingAudioChange?: (generating: boolean) => void;
 };
 
 export function ChatMessageActions(props: ChatMessageActionsProps) {
-  const { message, isStreaming } = props;
+  const { message, isStreaming, audioId, isGeneratingAudio, onAudioGenerated, onGeneratingAudioChange } = props;
 
   const { editMessageId } = useChatMain();
 
@@ -40,7 +44,13 @@ export function ChatMessageActions(props: ChatMessageActionsProps) {
     <div className="flex gap-1.5 items-center text-muted-foreground/70 group-[.is-user]:justify-end pointer-fine:hover:opacity-100 transition-opacity duration-250">
       {message.role === "assistant" && (
         <>
-          <ChatMessageAudioButton message={message} />
+          <ChatMessageAudioButton
+            messageId={message.id}
+            audioId={audioId}
+            isGenerating={isGeneratingAudio ?? false}
+            onAudioGenerated={onAudioGenerated ?? (() => {})}
+            onGeneratingChange={onGeneratingAudioChange ?? (() => {})}
+          />
           <ChatMessageGenerateImageButton messageId={message.id} iconOnly />
           <ChatMessageRegenerate
             messageId={message.id}

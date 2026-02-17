@@ -48,6 +48,7 @@ export const publicPersonaSchema = z.object({
   id: z.string(),
   title: z.string().nullable(),
   profileImageIdMedia: z.string().nullable(),
+  voiceId: z.string().nullable().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

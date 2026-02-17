@@ -8,6 +8,7 @@ import {
   Copy01Icon,
   PencilEdit02Icon,
   Delete02Icon,
+  VolumeHighIcon,
 } from "@hugeicons/core-free-icons";
 import {
   DropdownMenuItem,
@@ -25,6 +26,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { deleteMessageAction } from "@/actions/delete-message.action";
+import { generateMessageAudio } from "@/actions/generate-message-audio.action";
 import { useCopyToClipboard } from "@uidotdev/usehooks";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
@@ -64,11 +66,18 @@ export function UserMessageMenuContent(props: ChatMessageMenuContentProps) {
   );
 }
 
+type AssistantMessageMenuContentProps = ChatMessageMenuContentProps & {
+  audioId?: string;
+  isGeneratingAudio: boolean;
+  onAudioGenerated: (audioId: string) => void;
+  onGeneratingAudioChange: (generating: boolean) => void;
+};
+
 export function AssistantMessageMenuContent(
-  props: ChatMessageMenuContentProps,
+  props: AssistantMessageMenuContentProps,
 ) {
   const [, copyToClipboard] = useCopyToClipboard();
-  const { setEditMessageId } = useChatMain();
+  const { chatId, setEditMessageId } = useChatMain();
 
   const handleCopy = useCallback(() => {
     copyToClipboard(
@@ -77,6 +86,44 @@ export function AssistantMessageMenuContent(
         .join(""),
     );
   }, [copyToClipboard, props.message.parts]);
+
+  const handleSpeech = useCallback(() => {
+    props.onGeneratingAudioChange(true);
+    toast.info("Generating speech", {
+      description:
+        "This takes about 10 seconds. It will auto-play when ready.",
+    });
+
+    generateMessageAudio(props.message.id, chatId).then((result) => {
+      if (!result.success) {
+        props.onGeneratingAudioChange(false);
+        const { code, message: errorMessage } = result.error;
+
+        if (code === "RATE_LIMIT_EXCEEDED") {
+          toast.error("Rate limit exceeded", {
+            description:
+              "You've reached your TTS generation limit. Please try again later.",
+          });
+        } else if (code === "MESSAGE_TOO_LONG") {
+          toast.error("Message too long", {
+            description: errorMessage,
+          });
+        } else {
+          toast.error("Failed to generate audio", {
+            description: errorMessage,
+          });
+        }
+        return;
+      }
+
+      props.onAudioGenerated(result.data.audioId);
+    }).catch(() => {
+      props.onGeneratingAudioChange(false);
+      toast.error("Failed to generate audio", {
+        description: "An unexpected error occurred. Please try again.",
+      });
+    });
+  }, [chatId, props.message.id, props.onAudioGenerated, props.onGeneratingAudioChange]);
 
   return (
     <>
@@ -87,6 +134,10 @@ export function AssistantMessageMenuContent(
       <DropdownMenuItem onClick={() => setEditMessageId(props.message.id)}>
         <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
         Edit message
+      </DropdownMenuItem>
+      <DropdownMenuItem onClick={handleSpeech} disabled={props.isGeneratingAudio}>
+        <HugeiconsIcon icon={VolumeHighIcon} size={16} />
+        {props.isGeneratingAudio ? "Generating..." : props.audioId ? "Regenerate speech" : "Generate speech"}
       </DropdownMenuItem>
       <DropdownMenuSeparator />
       <DeleteMessageMenuItem messageId={props.message.id} />

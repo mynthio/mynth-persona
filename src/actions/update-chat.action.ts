@@ -5,6 +5,7 @@ import { db } from "@/db/drizzle";
 import { chats } from "@/db/schema";
 import { UpdateChatPayload, updateChatPayloadSchema } from "@/schemas";
 import { chatIdSchema } from "@/schemas/backend/chats/chat.schema";
+import { voiceIds } from "@/config/shared/voices.config";
 import { auth } from "@clerk/nextjs/server";
 import { and, eq, sql } from "drizzle-orm";
 import { updateTag } from "next/cache";
@@ -20,6 +21,14 @@ export const updateChatAction = async (
 
   if (!userId) {
     throw new Error("User not found");
+  }
+
+  // Validate character voice ID if being updated (narrative voice uses predefined values only)
+  if (payload.settings?.characterVoiceId !== undefined) {
+    const voiceId = payload.settings.characterVoiceId;
+    if (voiceId !== null && !voiceIds.has(voiceId)) {
+      throw new Error("Invalid character voice ID");
+    }
   }
 
   // Only compute settings update when payload.settings is provided and has keys

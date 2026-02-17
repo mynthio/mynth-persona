@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircleIcon, CancelCircleIcon, CheckmarkCircle02Icon, Clock01Icon, Delete02Icon, Globe02Icon, Image02Icon } from "@hugeicons/core-free-icons";
+import { AlertCircleIcon, CancelCircleIcon, CheckmarkCircle02Icon, Clock01Icon, Delete02Icon, Globe02Icon, Image02Icon, VolumeHighIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,10 @@ import { publishPersonaAction } from "@/actions/publish-persona.action";
 import { useSWRConfig } from "swr";
 import { usePersonaQuery } from "@/app/_queries/use-persona.query";
 import { updatePersonaVisibilityAction } from "@/actions/update-persona-visibility.action";
+import { updatePersonaVoiceAction } from "@/actions/update-persona-voice.action";
 import { AlertCircle, AlertTriangle } from "lucide-react";
+import { VoicePicker } from "@/components/voice-picker";
+import { getVoiceById } from "@/config/shared/voices.config";
 
 export default function WorkbenchSidebarManage() {
   const params = useParams<{ personaId: string }>();
@@ -277,6 +280,13 @@ export default function WorkbenchSidebarManage() {
             </div>
           </div>
         </div>
+
+        {/* Voice card */}
+        <VoiceCard
+          voiceId={persona?.voiceId ?? null}
+          personaId={personaId}
+          onVoiceChanged={() => mutate(`/api/personas/${personaId}`)}
+        />
       </div>
 
       <Dialog open={showPublishDialog} onOpenChange={setShowPublishDialog}>
@@ -384,6 +394,104 @@ export default function WorkbenchSidebarManage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function VoiceCard({
+  voiceId,
+  personaId,
+  onVoiceChanged,
+}: {
+  voiceId: string | null;
+  personaId: string;
+  onVoiceChanged: () => void;
+}) {
+  const [saving, setSaving] = useState(false);
+  const currentVoice = voiceId ? getVoiceById(voiceId) : undefined;
+
+  async function handleVoiceChange(newVoiceId: string) {
+    try {
+      setSaving(true);
+      await updatePersonaVoiceAction(personaId, newVoiceId);
+      toast("Voice updated");
+      onVoiceChanged();
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to update voice");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleReset() {
+    try {
+      setSaving(true);
+      await updatePersonaVoiceAction(personaId, null);
+      toast("Voice reset to default");
+      onVoiceChanged();
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to reset voice");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="rounded-xl border border-border/30 bg-card/20 backdrop-blur-sm overflow-hidden">
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center size-7 rounded-lg bg-primary/10 text-primary">
+              <HugeiconsIcon icon={VolumeHighIcon} className="size-4" />
+            </div>
+            <span className="text-sm font-semibold text-foreground/90">
+              Voice
+            </span>
+          </div>
+          {currentVoice ? (
+            <Badge
+              variant="secondary"
+              className="text-[10px]"
+            >
+              {currentVoice.displayName}
+            </Badge>
+          ) : (
+            <Badge
+              variant="outline"
+              className="text-[10px] border-border/40 text-muted-foreground"
+            >
+              Default
+            </Badge>
+          )}
+        </div>
+
+        <p className="text-[12px] leading-relaxed text-muted-foreground">
+          Choose a voice for text-to-speech. When no voice is set, the default
+          is based on the persona&apos;s gender.
+        </p>
+      </div>
+
+      <Separator className="bg-border/20" />
+
+      <div className="p-4 space-y-3">
+        <div className="flex gap-2">
+          <VoicePicker
+            currentVoiceId={voiceId}
+            onVoiceChange={handleVoiceChange}
+          />
+          {voiceId && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 px-3 text-[12px] rounded-full border-border/40 bg-card/30 hover:bg-card/60"
+              onClick={handleReset}
+              disabled={saving}
+            >
+              Reset to default
+            </Button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

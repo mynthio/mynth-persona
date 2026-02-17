@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowReloadVerticalIcon, ArrowUpRight01Icon, Image02Icon, InformationCircleIcon, PencilEdit02Icon, ScrollVerticalIcon, SparklesIcon, User03Icon } from "@hugeicons/core-free-icons";
+import { ArrowReloadVerticalIcon, ArrowUpRight01Icon, Image02Icon, InformationCircleIcon, PencilEdit02Icon, ScrollVerticalIcon, SparklesIcon, User03Icon, VolumeHighIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useMemo, useState } from "react";
 import { cn, getImageUrl } from "@/lib/utils";
@@ -43,6 +43,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "@/components/ui/link";
+import { getVoiceById } from "@/config/shared/voices.config";
 
 const SIDEBAR_WIDTH = "18rem";
 
@@ -212,6 +213,56 @@ function ScenarioSection() {
         >
           <HugeiconsIcon icon={ScrollVerticalIcon} className="size-3.5 shrink-0" />
           <span>Add a scenario</span>
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Voice Section
+// ---------------------------------------------------------------------------
+function VoiceSection() {
+  const { settings } = useChatMain();
+  const { navigateSettings } = useSettingsNavigation();
+
+  const voiceId = settings.characterVoiceId;
+  const voice = voiceId ? getVoiceById(voiceId) : undefined;
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <SectionLabel>Voice</SectionLabel>
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          className="text-muted-foreground hover:text-foreground"
+          onClick={() => navigateSettings("voice")}
+        >
+          <HugeiconsIcon icon={PencilEdit02Icon} className="size-3" />
+        </Button>
+      </div>
+
+      {voice ? (
+        <div className="space-y-1 rounded-lg border border-border/40 bg-muted/30 p-3">
+          <div className="flex items-center gap-2">
+            <HugeiconsIcon icon={VolumeHighIcon} className="size-3.5 shrink-0 text-muted-foreground" />
+            <p className="truncate text-xs font-medium text-foreground">
+              {voice.displayName}
+            </p>
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 ml-auto">
+              Override
+            </Badge>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => navigateSettings("voice")}
+          className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border/50 p-3 text-xs text-muted-foreground transition-colors hover:border-border hover:text-foreground"
+        >
+          <HugeiconsIcon icon={VolumeHighIcon} className="size-3.5 shrink-0" />
+          <span>Using persona default</span>
         </button>
       )}
     </div>
@@ -489,6 +540,10 @@ function SidebarContent() {
       <Separator className="bg-border/50" />
 
       <ScenarioSection />
+
+      <Separator className="bg-border/50" />
+
+      <VoiceSection />
 
       <Separator className="bg-border/50" />
 

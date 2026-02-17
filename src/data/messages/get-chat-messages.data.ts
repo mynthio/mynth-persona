@@ -78,6 +78,7 @@ export async function getChatMessagesData(
       metadata: {
         parentId: r.parent_id as string | null,
         media: metadata?.media,
+        audioId: metadata?.audioId,
         usage: metadata?.usage ?? {},
         checkpoint: metadata?.checkpoint,
       },

@@ -16,7 +16,6 @@ import { extractPersonaMessageText } from "@/lib/utils";
 import { ActionResult } from "@/types/action-result.type";
 import {
   PersonaUIMessage,
-  PersonaUIMessageMetadata,
 } from "@/schemas/shared/messages/persona-ui-message.schema";
 import { logger } from "@/lib/logger";
 
@@ -98,18 +97,6 @@ export const generateMessageAudio = async (
         error: {
           code: "MESSAGE_NOT_FOUND",
           message: "Only assistant messages can have audio generated",
-        },
-      };
-    }
-
-    // Check if audio already exists
-    const metadata = message.metadata as PersonaUIMessageMetadata | null;
-    if (metadata?.audioId) {
-      return {
-        success: false,
-        error: {
-          code: "AUDIO_ALREADY_EXISTS",
-          message: "Audio has already been generated for this message",
         },
       };
     }

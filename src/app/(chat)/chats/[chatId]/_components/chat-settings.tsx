@@ -46,6 +46,9 @@ import {
   textGenerationModels,
 } from "@/config/shared/models/text-generation-models.config";
 import { Badge } from "@/components/ui/badge";
+import { VoicePicker } from "@/components/voice-picker";
+import { getVoiceById } from "@/config/shared/voices.config";
+import { DEFAULT_CHARACTER_VOICE_IDS } from "@/lib/constants";
 
 const PinModelButton = dynamic(
   () => import("./pin-model-button").then((mod) => ({ default: mod.PinModelButton })),
@@ -135,6 +138,8 @@ function ChatSettingsContent() {
         return <ChatSettingsUser />;
       case "scenario":
         return <ChatSettingsScenario />;
+      case "voice":
+        return <ChatSettingsVoice />;
       default:
         return <ChatSettingsHome />;
     }
@@ -422,6 +427,76 @@ function ChatSettingsScenario() {
         </Button>
       </ButtonGroup>
     </form>
+  );
+}
+
+function ChatSettingsVoice() {
+  const { chatId, settings, setSettings } = useChatMain();
+  const { personas } = useChatPersonas();
+  const persona = personas[0];
+
+  const chatVoiceId = settings.characterVoiceId ?? null;
+  const isOverride = !!chatVoiceId;
+
+  // Resolve what voice is currently active
+  const resolvedVoiceId =
+    chatVoiceId || DEFAULT_CHARACTER_VOICE_IDS["female"];
+  const resolvedVoice = getVoiceById(resolvedVoiceId);
+
+  async function handleVoiceChange(voiceId: string) {
+    await updateChatAction(chatId, {
+      settings: { characterVoiceId: voiceId },
+    });
+    setSettings({ ...settings, characterVoiceId: voiceId });
+  }
+
+  async function handleClearOverride() {
+    await updateChatAction(chatId, {
+      settings: { characterVoiceId: null as any },
+    });
+    const { characterVoiceId: _, ...rest } = settings;
+    setSettings(rest);
+  }
+
+  return (
+    <div className="space-y-[24px]">
+      <div className="flex flex-col gap-[8px]">
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-[2px]">
+            <p className="text-[0.9rem] text-surface-foreground">
+              Character Voice
+            </p>
+            <p className="text-[0.75rem] text-surface-foreground/80">
+              {isOverride
+                ? "Custom voice override for this chat"
+                : "Using persona default voice"}
+            </p>
+          </div>
+          {resolvedVoice && (
+            <Badge variant="secondary" className="text-[11px]">
+              {resolvedVoice.displayName}
+            </Badge>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-[8px]">
+        <VoicePicker
+          currentVoiceId={chatVoiceId}
+          onVoiceChange={handleVoiceChange}
+        />
+        {isOverride && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleClearOverride}
+            className="text-[12px]"
+          >
+            Use persona default
+          </Button>
+        )}
+      </div>
+    </div>
   );
 }
 

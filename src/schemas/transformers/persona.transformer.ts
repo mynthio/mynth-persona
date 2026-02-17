@@ -20,6 +20,7 @@ export function transformToPublicPersona(persona: Persona): PublicPersona {
     id: persona.id,
     title: persona.title,
     profileImageIdMedia: persona.profileImageIdMedia,
+    voiceId: persona.voiceId ?? null,
     createdAt: persona.createdAt,
     updatedAt: persona.updatedAt,
   });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition, useCallback, useEffect } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -13,22 +13,26 @@ import { toast } from "sonner";
 import { generateMessageAudio } from "@/actions/generate-message-audio.action";
 import { getAudioUrl } from "@/lib/utils";
 import { useChatMain } from "../_contexts/chat-main.context";
-import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 
 type ChatMessageAudioButtonProps = {
-  message: PersonaUIMessage;
+  messageId: string;
+  audioId: string | undefined;
+  isGenerating: boolean;
+  onAudioGenerated: (audioId: string) => void;
+  onGeneratingChange: (generating: boolean) => void;
 };
 
 export function ChatMessageAudioButton({
-  message,
+  messageId,
+  audioId,
+  isGenerating,
+  onAudioGenerated,
+  onGeneratingChange,
 }: ChatMessageAudioButtonProps) {
   const { chatId } = useChatMain();
-  const [audioId, setAudioId] = useState<string | undefined>(
-    message.metadata?.audioId
-  );
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isPending, startTransition] = useTransition();
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const prevAudioIdRef = useRef(audioId);
 
   const cleanupAudio = useCallback(() => {
     if (audioRef.current) {
@@ -37,6 +41,27 @@ export function ChatMessageAudioButton({
       audioRef.current = null;
     }
   }, []);
+
+  // When audioId changes (e.g. regenerated via menu), auto-play the new audio
+  useEffect(() => {
+    if (audioId === prevAudioIdRef.current) return;
+    prevAudioIdRef.current = audioId;
+
+    cleanupAudio();
+
+    if (audioId) {
+      const url = getAudioUrl(audioId);
+      const audio = new Audio(url);
+      audio.addEventListener("ended", handleEnded);
+      audioRef.current = audio;
+      audio
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(() => setIsPlaying(false));
+    } else {
+      setIsPlaying(false);
+    }
+  }, [audioId, cleanupAudio]);
 
   useEffect(() => {
     return () => cleanupAudio();
@@ -47,21 +72,22 @@ export function ChatMessageAudioButton({
   }
 
   const handleGenerate = () => {
-    startTransition(async () => {
-      try {
-        const result = await generateMessageAudio(message.id, chatId);
+    onGeneratingChange(true);
+    toast.info("Generating speech", {
+      description:
+        "This takes about 10 seconds. It will auto-play when ready.",
+    });
 
+    generateMessageAudio(messageId, chatId)
+      .then((result) => {
         if (!result.success) {
+          onGeneratingChange(false);
           const { code, message: errorMessage } = result.error;
 
           if (code === "RATE_LIMIT_EXCEEDED") {
             toast.error("Rate limit exceeded", {
               description:
                 "You've reached your TTS generation limit. Please try again later.",
-            });
-          } else if (code === "AUDIO_ALREADY_EXISTS") {
-            toast.error("Audio already exists", {
-              description: "Audio has already been generated for this message.",
             });
           } else if (code === "MESSAGE_TOO_LONG") {
             toast.error("Message too long", {
@@ -75,24 +101,14 @@ export function ChatMessageAudioButton({
           return;
         }
 
-        const newAudioId = result.data.audioId;
-        setAudioId(newAudioId);
-
-        // Auto-play the generated audio
-        const url = getAudioUrl(newAudioId);
-        cleanupAudio();
-        const audio = new Audio(url);
-        audio.addEventListener("ended", handleEnded);
-        audioRef.current = audio;
-        await audio.play();
-        setIsPlaying(true);
-      } catch (error) {
-        console.error("Failed to generate audio:", error);
+        onAudioGenerated(result.data.audioId);
+      })
+      .catch(() => {
+        onGeneratingChange(false);
         toast.error("Failed to generate audio", {
           description: "An unexpected error occurred. Please try again.",
         });
-      }
-    });
+      });
   };
 
   const handlePlayPause = async () => {
@@ -121,6 +137,25 @@ export function ChatMessageAudioButton({
     }
   };
 
+  // Generating — show spinner regardless of audio state
+  if (isGenerating) {
+    return (
+      <Button
+        variant="ghost"
+        size="icon-xs"
+        disabled
+        aria-label="Generating audio..."
+        title="Generating audio..."
+      >
+        <HugeiconsIcon
+          icon={Loading02Icon}
+          size={14}
+          className="animate-spin text-muted-foreground"
+        />
+      </Button>
+    );
+  }
+
   // No audio yet — show generate button
   if (!audioId) {
     return (
@@ -128,19 +163,10 @@ export function ChatMessageAudioButton({
         variant="ghost"
         size="icon-xs"
         onClick={handleGenerate}
-        disabled={isPending}
-        aria-label={isPending ? "Generating audio..." : "Generate audio"}
-        title={isPending ? "Generating audio..." : "Generate audio"}
+        aria-label="Generate audio"
+        title="Generate audio"
       >
-        {isPending ? (
-          <HugeiconsIcon
-            icon={Loading02Icon}
-            size={14}
-            className="animate-spin text-muted-foreground"
-          />
-        ) : (
-          <HugeiconsIcon icon={VolumeHighIcon} size={14} />
-        )}
+        <HugeiconsIcon icon={VolumeHighIcon} size={14} />
       </Button>
     );
   }

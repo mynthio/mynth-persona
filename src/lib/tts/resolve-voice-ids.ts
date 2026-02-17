@@ -6,7 +6,6 @@ import {
   DEFAULT_CHARACTER_VOICE_IDS,
   DEFAULT_NARRATIVE_VOICE_ID,
 } from "@/lib/constants";
-
 export type ResolvedVoices = {
   characterVoiceId: string;
   narrativeVoiceId: string;
@@ -35,6 +34,7 @@ export async function resolveVoiceIds(
   const persona = chat.chatPersonas?.[0]?.persona;
 
   // Resolve character voice: chat settings → persona → default by gender
+  // Voice IDs are validated at write time, so we trust them here
   const characterVoiceId =
     chatSettings?.characterVoiceId ||
     persona?.voiceId ||

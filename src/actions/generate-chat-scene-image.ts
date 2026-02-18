@@ -18,6 +18,7 @@ import {
 } from "@/config/shared/image-models";
 import { incrementConcurrentImageJob } from "@/lib/concurrent-image-jobs";
 import { ActionResult } from "@/types/action-result.type";
+import { trackImageGenerationSubmitted } from "@/lib/analytics";
 
 type GenerateChatSceneImageResult = {
   runId: string;
@@ -86,6 +87,14 @@ export const generateChatSceneImage = async (
       },
     };
   }
+
+  trackImageGenerationSubmitted({
+    userId,
+    modelId,
+    context: "scene",
+    chatId,
+    cost,
+  });
 
   const taskHandle = await tasks.trigger<typeof generateChatSceneImageTask>(
     "generate-chat-scene-image",

@@ -20,6 +20,10 @@ import { getSystemPromptRendererForRoleplay } from "@/lib/prompts/roleplay";
 import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
 import { trackChatError } from "@/lib/logsnag";
+import {
+  trackMessageSent,
+  trackMessageRegenerated,
+} from "@/lib/analytics";
 import { revalidateTag } from "next/cache";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
@@ -456,6 +460,18 @@ export async function POST(
           logAiSdkUsage(finalData, {
             component: `chat:${chat.mode}:chat_message:complete`,
             useCase: "chat_message_generation",
+          });
+
+          const trackFn =
+            payload.event === "regenerate"
+              ? trackMessageRegenerated
+              : trackMessageSent;
+          trackFn({
+            userId,
+            modelId: textGenerationModel.modelId,
+            inputTokens: finalData.usage.inputTokens,
+            outputTokens: finalData.usage.outputTokens,
+            chatId,
           });
         },
       }); // END: Stream Text

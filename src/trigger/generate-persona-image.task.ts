@@ -26,6 +26,10 @@ import {
 import { PlanId } from "@/config/shared/plans";
 import { decrementConcurrentImageJob } from "@/lib/concurrent-image-jobs";
 import { ImageGenerationResult } from "@/lib/generation/image-generation/image-generation-base";
+import {
+  trackImageGenerationCompleted,
+  trackImageGenerationFailed,
+} from "@/lib/analytics";
 
 // Zod schema for input validation
 const GeneratePersonaImageTaskPayloadSchema = z.object({
@@ -195,6 +199,8 @@ export const generatePersonaImageTask = task({
     maxAttempts: 1,
   },
   run: async (payload: GeneratePersonaImageTaskPayload, { ctx }) => {
+    const startTime = Date.now();
+
     /**
      * Validate input data with Zod schema
      */
@@ -303,6 +309,7 @@ export const generatePersonaImageTask = task({
       // Keep legacy fields for backwards compatibility
       imageUrl: successfulResults[0]?.imageUrl,
       mediaId: successfulResults[0]?.mediaId,
+      _generationTimeMs: Date.now() - startTime,
     };
   },
   onFailure: async ({ payload, error }) => {
@@ -313,10 +320,28 @@ export const generatePersonaImageTask = task({
 
     // Decrement concurrent job counter
     await decrementConcurrentImageJob(userId);
+
+    trackImageGenerationFailed({
+      userId,
+      modelId: payload.modelId,
+      context: "persona",
+      personaId: payload.persona.id,
+      cost,
+    });
   },
-  onSuccess: async ({ payload }) => {
+  onSuccess: async ({ payload, output }) => {
     // Decrement concurrent job counter
     await decrementConcurrentImageJob(payload.userId);
+
+    trackImageGenerationCompleted({
+      userId: payload.userId,
+      modelId: payload.modelId,
+      context: "persona",
+      personaId: payload.persona.id,
+      cost: payload.cost,
+      generationTimeMs: output._generationTimeMs,
+      imageCount: output.images.length,
+    });
 
     await logsnag
       .track({

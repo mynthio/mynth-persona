@@ -26,6 +26,7 @@ import {
 } from "@/config/shared/image-models";
 import { incrementConcurrentImageJob } from "@/lib/concurrent-image-jobs";
 import { ActionResult } from "@/types/action-result.type";
+import { trackImageGenerationSubmitted } from "@/lib/analytics";
 
 type GeneratePersonaImageSettings = {
   modelId: ImageModelId;
@@ -146,6 +147,14 @@ export const generatePersonaImage = async (
       tags: [`user:${userId}`],
     }
   );
+
+  trackImageGenerationSubmitted({
+    userId,
+    modelId: settings.modelId,
+    context: "persona",
+    personaId,
+    cost,
+  });
 
   const expectedImageCount = getImagesPerGeneration(settings.modelId);
 

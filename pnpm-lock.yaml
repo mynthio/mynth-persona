@@ -246,6 +246,9 @@ importers:
       posthog-js:
         specifier: 1.351.1
         version: 1.351.1
+      posthog-node:
+        specifier: ^5.24.17
+        version: 5.24.17
       radix-ui:
         specifier: ^1.4.3
         version: 1.4.3(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -6021,6 +6024,10 @@ packages:
 
   posthog-js@1.351.1:
     resolution: {integrity: sha512-IbyVjhmQOgXR5UDflibXpqticWbfNnh2hM5+h+Mtz+MKbmw4vIu0AsHqSr6IcNMyrRM8NHoNiecjb00N6ROtmQ==}
+
+  posthog-node@5.24.17:
+    resolution: {integrity: sha512-mdb8TKt+YCRbGQdYar3AKNUPCyEiqcprScF4unYpGALF6HlBaEuO6wPuIqXXpCWkw4VclJYCKbb6lq6pH6bJeA==}
+    engines: {node: ^20.20.0 || >=22.22.0}
 
   powershell-utils@0.1.0:
     resolution: {integrity: sha512-dM0jVuXJPsDN6DvRpea484tCUaMiXWjuCn++HGTqUWzGDjv5tZkEZldAJ/UMlqRYGFrD/etByo4/xOuC/snX2A==}
@@ -13423,6 +13430,10 @@ snapshots:
       preact: 10.28.3
       query-selector-shadow-dom: 1.0.1
       web-vitals: 5.1.0
+
+  posthog-node@5.24.17:
+    dependencies:
+      '@posthog/core': 1.23.1
 
   powershell-utils@0.1.0: {}
 

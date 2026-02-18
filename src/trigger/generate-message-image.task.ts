@@ -27,6 +27,10 @@ import {
 import { PlanId } from "@/config/shared/plans";
 import { decrementConcurrentImageJob } from "@/lib/concurrent-image-jobs";
 import { ImageGenerationResult } from "@/lib/generation/image-generation/image-generation-base";
+import {
+  trackImageGenerationCompleted,
+  trackImageGenerationFailed,
+} from "@/lib/analytics";
 
 // Zod schema for input validation
 const GenerateMessageImageTaskPayloadSchema = z.object({
@@ -108,6 +112,8 @@ export const generateMessageImageTask = task({
     maxAttempts: 1,
   },
   run: async (payload: GenerateMessageImageTaskPayload, { ctx }) => {
+    const startTime = Date.now();
+
     /**
      * Validate input data with Zod schema
      */
@@ -354,6 +360,7 @@ export const generateMessageImageTask = task({
       })),
       imageUrl: firstImage.imageUrl,
       mediaId: firstImage.mediaId,
+      _generationTimeMs: Date.now() - startTime,
     };
   },
   onFailure: async ({ payload, error }) => {
@@ -378,10 +385,28 @@ export const generateMessageImageTask = task({
 
     // Decrement concurrent job counter
     await decrementConcurrentImageJob(userId);
+
+    trackImageGenerationFailed({
+      userId,
+      modelId: payload.modelId,
+      context: "message",
+      chatId: payload.chatId,
+      cost,
+    });
   },
-  onSuccess: async ({ payload }) => {
+  onSuccess: async ({ payload, output }) => {
     // Decrement concurrent job counter
     await decrementConcurrentImageJob(payload.userId);
+
+    trackImageGenerationCompleted({
+      userId: payload.userId,
+      modelId: payload.modelId,
+      context: "message",
+      chatId: payload.chatId,
+      cost: payload.cost,
+      generationTimeMs: output._generationTimeMs,
+      imageCount: output.images.length,
+    });
 
     await logsnag
       .track({

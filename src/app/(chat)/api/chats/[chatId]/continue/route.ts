@@ -10,6 +10,7 @@ import { auth } from "@clerk/nextjs/server";
 import { getSystemPromptRendererForRoleplay } from "@/lib/prompts/roleplay";
 import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
 import { trackChatError } from "@/lib/logsnag";
+import { trackMessageContinued } from "@/lib/analytics";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
 import { PersonaVersionRoleplayData } from "@/schemas";
@@ -312,6 +313,14 @@ export async function POST(
       logAiSdkUsage(finalData, {
         component: `chat:${chat.mode}:continue:complete`,
         useCase: "chat_message_generation",
+      });
+
+      trackMessageContinued({
+        userId,
+        modelId: textGenerationModel.modelId,
+        inputTokens: finalData.usage.inputTokens,
+        outputTokens: finalData.usage.outputTokens,
+        chatId,
       });
 
       if (finalData.text) {

@@ -18,6 +18,7 @@ import {
   PersonaUIMessage,
 } from "@/schemas/shared/messages/persona-ui-message.schema";
 import { logger } from "@/lib/logger";
+import { trackAudioGenerated } from "@/lib/analytics";
 
 type GenerateMessageAudioResult = {
   audioId: string;
@@ -131,6 +132,10 @@ export const generateMessageAudio = async (
       chat?.chatPersonas?.[0]?.persona?.title ||
       "Character";
 
+    // Detect regeneration (message already has audio)
+    const existingMetadata = message.metadata as Record<string, unknown> | null;
+    const isRegeneration = !!existingMetadata?.audioId;
+
     // Extract dialogue parts via LLM
     const parts = await extractDialogueParts(messageText, characterName);
 
@@ -147,7 +152,9 @@ export const generateMessageAudio = async (
     }
 
     // Generate audio via ElevenLabs
+    const audioStartTime = Date.now();
     const audioBuffer = await generateDialogueAudio(parts, voices);
+    const audioGenerationTimeMs = Date.now() - audioStartTime;
 
     // Generate audio ID and upload to Bunny CDN
     const audioId = `aud_${nanoid(32)}`;
@@ -167,6 +174,14 @@ export const generateMessageAudio = async (
       .where(eq(messages.id, messageId));
 
     shouldRestore = false;
+
+    trackAudioGenerated({
+      userId,
+      chatId,
+      voiceId: voices.characterVoiceId,
+      isRegeneration,
+      generationTimeMs: audioGenerationTimeMs,
+    });
 
     return {
       success: true,

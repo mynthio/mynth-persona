@@ -21,6 +21,10 @@ import {
 } from "@/lib/rate-limit-image";
 import { PlanId } from "@/config/shared/plans";
 import { decrementConcurrentImageJob } from "@/lib/concurrent-image-jobs";
+import {
+  trackImageGenerationCompleted,
+  trackImageGenerationFailed,
+} from "@/lib/analytics";
 
 // Zod schema for input validation
 const GenerateChatSceneImageTaskPayloadSchema = z.object({
@@ -53,6 +57,8 @@ export const generateChatSceneImageTask = task({
     if (!validationResult.success) {
       throw new Error(`Invalid payload: ${validationResult.error.message}`);
     }
+
+    const startTime = Date.now();
 
     /**
      * Get data from payload
@@ -220,6 +226,7 @@ export const generateChatSceneImageTask = task({
     return {
       imageUrl,
       mediaId,
+      _generationTimeMs: Date.now() - startTime,
     };
   },
   onFailure: async ({ payload, error }) => {
@@ -244,10 +251,28 @@ export const generateChatSceneImageTask = task({
 
     // Decrement concurrent job counter
     await decrementConcurrentImageJob(userId);
+
+    trackImageGenerationFailed({
+      userId,
+      modelId: payload.modelId,
+      context: "scene",
+      chatId: payload.chatId,
+      cost,
+    });
   },
-  onSuccess: async ({ payload }) => {
+  onSuccess: async ({ payload, output }) => {
     // Decrement concurrent job counter
     await decrementConcurrentImageJob(payload.userId);
+
+    trackImageGenerationCompleted({
+      userId: payload.userId,
+      modelId: payload.modelId,
+      context: "scene",
+      chatId: payload.chatId,
+      cost: payload.cost,
+      generationTimeMs: output._generationTimeMs,
+      imageCount: 1,
+    });
 
     await logsnag
       .track({

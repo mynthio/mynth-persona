@@ -26,88 +26,123 @@ export const voices: VoiceConfig[] = [
       "https://storage.googleapis.com/eleven-public-prod/database/user/eFd3DolNNZViZOfaQX2h8ZlIROn2/voices/BNlQZXHhRfq9Rzsahhpb/83caff1f-2ee1-4807-b0c0-159a9cde223c.mp3",
   },
   {
-    id: "EXAVITQu4vr4xnSDxMaL",
-    displayName: "Sarah",
+    id: "weA4Q36twV5kwSaTEL0Q",
+    displayName: "Eva",
     gender: "female",
     accent: "American",
     age: "young",
     description:
-      "Young adult woman with a confident and warm, mature quality and a reassuring, professional tone.",
-    tags: ["confident", "reassuring", "mature"],
+      "Female Robot / AI Assistant Voice (with robot effect) - Female voice over for AI assistant, GPS, virtual helper, robot character, etc.!",
+    tags: ["robotic"],
     previewUrl:
-      "https://storage.googleapis.com/eleven-public-prod/premade/voices/EXAVITQu4vr4xnSDxMaL/01a3e33c-6e99-4ee7-8543-ff2216a32186.mp3",
+      "https://storage.googleapis.com/eleven-public-prod/custom/voices/weA4Q36twV5kwSaTEL0Q/bnjkXRROmsXsHf4UVCt7.mp3",
   },
   {
-    id: "FGY2WhTYpPnrIDTdsKH5",
-    displayName: "Laura",
+    id: "4tRn1lSkEn13EVTuqb0g",
+    displayName: "Serafina",
     gender: "female",
     accent: "American",
     age: "young",
     description:
-      "This young adult female voice delivers sunny enthusiasm with a quirky attitude.",
-    tags: ["enthusiastic", "quirky", "sassy"],
+      "A deep, smooth American woman's voice that is rich, velvety, and irresistibly captivating. Perfect for a villain, seductress, succubus, siren, or femme fatale.",
+    tags: ["mature", "sensual", "seductive"],
     previewUrl:
-      "https://storage.googleapis.com/eleven-public-prod/premade/voices/FGY2WhTYpPnrIDTdsKH5/67341759-ad08-41a5-be6e-de12fe448618.mp3",
+      "https://storage.googleapis.com/eleven-public-prod/database/user/tX5fxBB622QUr3fe7clp9pGVxh33/voices/4tRn1lSkEn13EVTuqb0g/bcpK2WjskARST5huKo0l.mp3",
   },
   {
-    id: "cgSgspJ2msm6clMCkdW9",
-    displayName: "Jessica",
+    id: "a5zfmqTslZJBP0jutmVY",
+    displayName: "Jen Frankie",
     gender: "female",
     accent: "American",
     age: "young",
     description:
-      "Young and popular, this playful American female voice is perfect for trendy content.",
-    tags: ["playful", "bright", "cute"],
+      "Reality TV wife. Gossip and drama. Small town glamorous. She'd be a real sweetheart if she wasn't so demanding and annoyed. Western United States, Utah accent.",
+    tags: ["sassy", "entitled", "spoiled"],
     previewUrl:
-      "https://storage.googleapis.com/eleven-public-prod/premade/voices/cgSgspJ2msm6clMCkdW9/56a97bf8-b69b-448f-846c-c3a11683d45a.mp3",
+      "https://storage.googleapis.com/eleven-public-prod/database/user/Una4hgv9bsP02e2YCrT9uElGJ2C3/voices/a5zfmqTslZJBP0jutmVY/TAuwwyyaw8uPXSjflETS.mp3",
   },
   {
-    id: "pFZP5JQG7iQjIQuC4Bku",
-    displayName: "Lily",
-    gender: "female",
-    accent: "British",
-    age: "middle-aged",
-    description:
-      "Velvety British female voice delivers news and narrations with warmth and clarity.",
-    tags: ["velvety", "confident", "warm"],
-    previewUrl:
-      "https://storage.googleapis.com/eleven-public-prod/premade/voices/pFZP5JQG7iQjIQuC4Bku/89b68b35-b3dd-4348-a84a-a3c13a3c2b30.mp3",
-  },
-  {
-    id: "Xb7hH8MSUJpSbSDYk0k2",
-    displayName: "Alice",
-    gender: "female",
-    accent: "British",
-    age: "middle-aged",
-    description:
-      "Clear and engaging, friendly woman with a British accent suitable for e-learning.",
-    tags: ["clear", "engaging", "professional"],
-    previewUrl:
-      "https://storage.googleapis.com/eleven-public-prod/premade/voices/Xb7hH8MSUJpSbSDYk0k2/d10f7534-11f6-41fe-a012-2de1e482d336.mp3",
-  },
-  {
-    id: "XrExE9yKIg1WjnnlVkGX",
-    displayName: "Matilda",
+    id: "esy0r39YPLQjOczyOib8",
+    displayName: "Britney",
     gender: "female",
     accent: "American",
     age: "middle-aged",
     description:
-      "A professional woman with a pleasing alto pitch. Suitable for many use cases.",
-    tags: ["professional", "upbeat", "versatile"],
+      "Brittney - Female Villain, Wicked and Deliciously Dark - A calm and calculating female villain. The perfect character for your epic novel, dark animation, or fantasy film.",
+    tags: ["confident", "villain", "calculating"],
     previewUrl:
-      "https://storage.googleapis.com/eleven-public-prod/premade/voices/XrExE9yKIg1WjnnlVkGX/b930e18d-6b4d-466e-bab2-0ae97c6d8535.mp3",
+      "https://storage.googleapis.com/eleven-public-prod/database/user/glklRmLoFeWZciiTRthKn6JAIwp1/voices/esy0r39YPLQjOczyOib8/HTHkPiNlxYETEllpEhuJ.mp3",
   },
   {
-    id: "hpp4J3VqNfWAUOO0d1Us",
-    displayName: "Bella",
+    id: "flHkNRp1BlvT73UL6gyz",
+    displayName: "Jessica Ann",
     gender: "female",
     accent: "American",
     age: "middle-aged",
     description:
-      "Warm, bright, and professional voice with crisp diction and a deliberate, rhythmic pace.",
-    tags: ["warm", "bright", "professional"],
+      "Jessica Anne Bogart - Character and Animation - The Villain! Wickedly eloquent. Calculating. Cruel and calm.",
+    tags: ["crisp", "villain", "eloquent"],
     previewUrl:
-      "https://storage.googleapis.com/eleven-public-prod/premade/voices/hpp4J3VqNfWAUOO0d1Us/dab0f5ba-3aa4-48a8-9fad-f138fea1126d.mp3",
+      "https://storage.googleapis.com/eleven-public-prod/database/user/yA8yDNUx4dZ4gwL9ztbTpUEIyR12/voices/flHkNRp1BlvT73UL6gyz/Wi2FL0vNQp7bJAeSrJaz.mp3",
+  },
+  {
+    id: "WtA85syCrJwasGeHGH2p",
+    displayName: "Ember",
+    gender: "female",
+    accent: "American",
+    age: "young",
+    description: "Ember - Energetic Confident Protagonist",
+    tags: ["hyped", "energetic", "confident"],
+    previewUrl:
+      "https://storage.googleapis.com/eleven-public-prod/database/user/Nk3HKkUZ4uNoj87fdfwrmirVKIr1/voices/WtA85syCrJwasGeHGH2p/N06J4KwLlruDZghTUuox.mp3",
+  },
+  {
+    id: "jqcCZkN6Knx8BJ5TBdYR",
+    displayName: "Zara",
+    gender: "female",
+    accent: "American",
+    age: "young",
+    description:
+      "A warm, real-world conversationalist. Blends warmth, clarity, and confident expression. Ideal for creators and brands who want content that feels real, relatable, and human.",
+    tags: ["warm", "confident", "conversational"],
+    previewUrl:
+      "https://storage.googleapis.com/eleven-public-prod/database/user/XKwEw9ihVRMYSZkGwKydUfpES0B3/voices/jqcCZkN6Knx8BJ5TBdYR/JKHbp9CMKBoqcDFfzWIf.mp3",
+  },
+  {
+    id: "zkun1BJsBXbRTLj3sJAM",
+    displayName: "Luna",
+    gender: "female",
+    accent: "American",
+    age: "young",
+    description:
+      "A delicate, airy voice designed to trigger immediate tingles through its close-up, nurturing quality - ideal for high-sensitivity ASMR recordings and sleep aid content.",
+    tags: ["delicate", "airy", "calm"],
+    previewUrl:
+      "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/zkun1BJsBXbRTLj3sJAM/BUGEzjidFdBI18fvcLy1.mp3",
+  },
+  {
+    id: "LTdCOVuNg0GlsSue75IB",
+    displayName: "Francesca",
+    gender: "female",
+    accent: "American",
+    age: "middle-aged",
+    description:
+      "A cosmopolitan woman living in New York with a sultry voice full of personality. Great for fashion content.",
+    tags: ["sultry", "classy", "fashion"],
+    previewUrl:
+      "https://storage.googleapis.com/eleven-public-prod/database/user/jtTYnERxVfShx33UbofXQyQtghT2/voices/LTdCOVuNg0GlsSue75IB/86CGBEcKnGQsKLbilnJZ.mp3",
+  },
+  {
+    id: "sp8CrAP79SOncD3rShle",
+    displayName: "Mia",
+    gender: "female",
+    accent: "American",
+    age: "young",
+    description:
+      "A smooth, whispery voice that emphasizes a sense of safety and proximity - ideal for ASMR relaxation sessions.",
+    tags: ["soft", "intimate", "whispery"],
+    previewUrl:
+      "https://storage.googleapis.com/eleven-public-prod/database/workspace/1da06ea679a54975ad96a2221fe6530d/voices/sp8CrAP79SOncD3rShle/kAxf598SLBrFQymko5Ti.mp3",
   },
 
   // ── Male voices ──

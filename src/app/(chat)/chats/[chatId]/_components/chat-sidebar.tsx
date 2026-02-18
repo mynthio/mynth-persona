@@ -3,6 +3,7 @@
 import { ArrowReloadVerticalIcon, ArrowUpRight01Icon, Image02Icon, InformationCircleIcon, PencilEdit02Icon, ScrollVerticalIcon, SparklesIcon, User03Icon, VolumeHighIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { cn, getImageUrl } from "@/lib/utils";
 import { useChatPersonas } from "../_contexts/chat-personas.context";
 import { useChatMain } from "../_contexts/chat-main.context";
@@ -44,6 +45,12 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "@/components/ui/link";
 import { getVoiceById } from "@/config/shared/voices.config";
+
+// Lazy load VoicePicker for client-side only rendering
+const VoicePicker = dynamic(
+  () => import("@/components/voice-picker").then((mod) => ({ default: mod.VoicePicker })),
+  { ssr: false }
+);
 
 const SIDEBAR_WIDTH = "18rem";
 
@@ -223,24 +230,51 @@ function ScenarioSection() {
 // Voice Section
 // ---------------------------------------------------------------------------
 function VoiceSection() {
-  const { settings } = useChatMain();
-  const { navigateSettings } = useSettingsNavigation();
-
+  const { chatId, settings, setSettings } = useChatMain();
   const voiceId = settings.characterVoiceId;
   const voice = voiceId ? getVoiceById(voiceId) : undefined;
+  const isOverride = !!voiceId;
+
+  async function handleVoiceChange(voiceId: string) {
+    try {
+      await updateChatAction(chatId, {
+        settings: { characterVoiceId: voiceId },
+      });
+      setSettings({ ...settings, characterVoiceId: voiceId });
+      toast.success("Voice updated");
+    } catch {
+      toast.error("Failed to update voice");
+    }
+  }
+
+  async function handleClearOverride() {
+    try {
+      await updateChatAction(chatId, {
+        settings: { characterVoiceId: null as any },
+      });
+      const { characterVoiceId: _, ...rest } = settings;
+      setSettings(rest);
+      toast.success("Using persona default voice");
+    } catch {
+      toast.error("Failed to clear voice override");
+    }
+  }
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <SectionLabel>Voice</SectionLabel>
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          className="text-muted-foreground hover:text-foreground"
-          onClick={() => navigateSettings("voice")}
-        >
-          <HugeiconsIcon icon={PencilEdit02Icon} className="size-3" />
-        </Button>
+        {isOverride && (
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            className="text-muted-foreground hover:text-foreground"
+            onClick={handleClearOverride}
+            title="Use persona default"
+          >
+            <HugeiconsIcon icon={PencilEdit02Icon} className="size-3" />
+          </Button>
+        )}
       </div>
 
       {voice ? (
@@ -254,16 +288,24 @@ function VoiceSection() {
               Override
             </Badge>
           </div>
+          <div className="pl-5.5 pt-1">
+            <VoicePicker
+              currentVoiceId={voiceId ?? null}
+              onVoiceChange={handleVoiceChange}
+            />
+          </div>
         </div>
       ) : (
-        <button
-          type="button"
-          onClick={() => navigateSettings("voice")}
-          className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border/50 p-3 text-xs text-muted-foreground transition-colors hover:border-border hover:text-foreground"
-        >
-          <HugeiconsIcon icon={VolumeHighIcon} className="size-3.5 shrink-0" />
-          <span>Using persona default</span>
-        </button>
+        <div className="rounded-lg border border-dashed border-border/50 p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <HugeiconsIcon icon={VolumeHighIcon} className="size-3.5 shrink-0 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">Using persona default</span>
+          </div>
+          <VoicePicker
+            currentVoiceId={voiceId ?? null}
+            onVoiceChange={handleVoiceChange}
+          />
+        </div>
       )}
     </div>
   );

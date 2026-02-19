@@ -30,6 +30,7 @@ import { ImageGenerationResult } from "@/lib/generation/image-generation/image-g
 import {
   trackImageGenerationCompleted,
   trackImageGenerationFailed,
+  flushAnalytics,
 } from "@/lib/analytics";
 
 // Zod schema for input validation
@@ -393,6 +394,7 @@ export const generateMessageImageTask = task({
       chatId: payload.chatId,
       cost,
     });
+    await flushAnalytics();
   },
   onSuccess: async ({ payload, output }) => {
     // Decrement concurrent job counter
@@ -417,5 +419,7 @@ export const generateMessageImageTask = task({
         user_id: payload.userId,
       })
       .catch(() => {});
+
+    await flushAnalytics();
   },
 });

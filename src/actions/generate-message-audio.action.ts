@@ -18,7 +18,7 @@ import {
   PersonaUIMessage,
 } from "@/schemas/shared/messages/persona-ui-message.schema";
 import { logger } from "@/lib/logger";
-import { trackAudioGenerated } from "@/lib/analytics";
+import { trackAudioGenerated, flushAnalytics } from "@/lib/analytics";
 
 type GenerateMessageAudioResult = {
   audioId: string;
@@ -182,6 +182,7 @@ export const generateMessageAudio = async (
       isRegeneration,
       generationTimeMs: audioGenerationTimeMs,
     });
+    await flushAnalytics();
 
     return {
       success: true,

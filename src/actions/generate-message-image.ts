@@ -25,7 +25,7 @@ import {
 import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
 import { incrementConcurrentImageJob } from "@/lib/concurrent-image-jobs";
 import { ActionResult } from "@/types/action-result.type";
-import { trackImageGenerationSubmitted } from "@/lib/analytics";
+import { trackImageGenerationSubmitted, flushAnalytics } from "@/lib/analytics";
 
 export type ImageGenerationMode = "character" | "creative";
 
@@ -186,6 +186,7 @@ export const generateMessageImage = async (
     chatId,
     cost,
   });
+  await flushAnalytics();
 
   const expectedImageCount = getImagesPerGeneration(modelId, {
     withReferenceImages: mode === "character",

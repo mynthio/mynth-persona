@@ -10,7 +10,7 @@ import { auth } from "@clerk/nextjs/server";
 import { getSystemPromptRendererForRoleplay } from "@/lib/prompts/roleplay";
 import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
 import { trackChatError } from "@/lib/logsnag";
-import { trackMessageContinued } from "@/lib/analytics";
+import { trackMessageContinued, flushAnalytics } from "@/lib/analytics";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
 import { PersonaVersionRoleplayData } from "@/schemas";
@@ -362,6 +362,8 @@ export async function POST(
       .update(chats)
       .set({ updatedAt: sql`now()` })
       .where(eq(chats.id, chatId));
+
+    await flushAnalytics();
   });
 
   return result.toTextStreamResponse();

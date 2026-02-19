@@ -11,7 +11,7 @@ import { messageIdSchema } from "@/schemas/backend/messages/message.schema";
 import { redis } from "@/lib/redis";
 import { nanoid } from "nanoid";
 import z from "zod";
-import { trackMessageEdited } from "@/lib/analytics";
+import { trackMessageEdited, flushAnalytics } from "@/lib/analytics";
 
 const editAssistantMessageSchema = z.object({
   messageId: messageIdSchema,
@@ -69,6 +69,7 @@ export async function editAssistantMessageAction(
     await redis.del(`chat:${message.chatId}:leaf`).catch(() => {});
 
     trackMessageEdited({ userId, chatId: message.chatId, mode: "update" });
+    await flushAnalytics();
 
     return { success: true, mode: "update" as const, messageId };
   }
@@ -94,6 +95,7 @@ export async function editAssistantMessageAction(
   await redis.del(`chat:${message.chatId}:leaf`).catch(() => {});
 
   trackMessageEdited({ userId, chatId: message.chatId, mode: "save_as_new" });
+  await flushAnalytics();
 
   return {
     success: true,

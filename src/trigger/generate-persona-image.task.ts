@@ -29,6 +29,7 @@ import { ImageGenerationResult } from "@/lib/generation/image-generation/image-g
 import {
   trackImageGenerationCompleted,
   trackImageGenerationFailed,
+  flushAnalytics,
 } from "@/lib/analytics";
 
 // Zod schema for input validation
@@ -328,6 +329,7 @@ export const generatePersonaImageTask = task({
       personaId: payload.persona.id,
       cost,
     });
+    await flushAnalytics();
   },
   onSuccess: async ({ payload, output }) => {
     // Decrement concurrent job counter
@@ -352,5 +354,7 @@ export const generatePersonaImageTask = task({
         user_id: payload.userId,
       })
       .catch(() => {});
+
+    await flushAnalytics();
   },
 });

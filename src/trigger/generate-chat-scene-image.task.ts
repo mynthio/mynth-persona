@@ -24,6 +24,7 @@ import { decrementConcurrentImageJob } from "@/lib/concurrent-image-jobs";
 import {
   trackImageGenerationCompleted,
   trackImageGenerationFailed,
+  flushAnalytics,
 } from "@/lib/analytics";
 
 // Zod schema for input validation
@@ -259,6 +260,7 @@ export const generateChatSceneImageTask = task({
       chatId: payload.chatId,
       cost,
     });
+    await flushAnalytics();
   },
   onSuccess: async ({ payload, output }) => {
     // Decrement concurrent job counter
@@ -283,5 +285,7 @@ export const generateChatSceneImageTask = task({
         user_id: payload.userId,
       })
       .catch(() => {});
+
+    await flushAnalytics();
   },
 });

@@ -217,6 +217,10 @@ export function trackAudioGenerated({
   });
 }
 
+export async function flushAnalytics() {
+  await posthog.flush();
+}
+
 export async function shutdownAnalytics() {
   await posthog.shutdown();
 }

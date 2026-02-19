@@ -23,6 +23,7 @@ import { trackChatError } from "@/lib/logsnag";
 import {
   trackMessageSent,
   trackMessageRegenerated,
+  flushAnalytics,
 } from "@/lib/analytics";
 import { revalidateTag } from "next/cache";
 import { notFound } from "next/navigation";
@@ -632,6 +633,8 @@ export async function POST(
     if (shouldUpdateSettings) {
       revalidateTag(`chat:${chatId}`, "max");
     }
+
+    await flushAnalytics();
   });
 
   return createUIMessageStreamResponse({

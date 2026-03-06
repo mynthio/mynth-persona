@@ -53,9 +53,9 @@ const MODEL_TIPS_BY_BASE: Record<string, ModelTip[]> = {
       ),
     },
   ],
-  "google/gemini-3-pro-preview": [
+  "google/gemini-3.1-pro-preview": [
     {
-      id: "gemini-3-pro-mature-content",
+      id: "gemini-3.1-pro-mature-content",
       content: (
         <>
           Model respond differently to mature content. If you&apos;re finding a

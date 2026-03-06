@@ -3,9 +3,19 @@ import "server-only";
 import { PostHog } from "posthog-node";
 import crypto from "crypto";
 
-const posthog = new PostHog(process.env.POSTHOG_API_KEY!, {
-  host: process.env.POSTHOG_HOST,
-});
+const isLocalDevelopment =
+  process.env.NODE_ENV !== "production" ||
+  process.env.TRIGGER_API_URL?.includes("localhost") ||
+  process.env.TRIGGER_SECRET_KEY?.startsWith("tr_dev_");
+
+const shouldEnableAnalytics =
+  !isLocalDevelopment && Boolean(process.env.POSTHOG_API_KEY);
+
+const posthog = shouldEnableAnalytics
+  ? new PostHog(process.env.POSTHOG_API_KEY!, {
+      host: process.env.POSTHOG_HOST,
+    })
+  : null;
 
 function hashSensitive(value: string): string {
   return crypto.createHash("sha256").update(value).digest("hex");
@@ -20,6 +30,8 @@ function capture(
   event: string,
   properties: Record<string, unknown>
 ) {
+  if (!posthog) return;
+
   posthog
     .capture({
       distinctId: hashSensitive(userId),
@@ -218,9 +230,13 @@ export function trackAudioGenerated({
 }
 
 export async function flushAnalytics() {
+  if (!posthog) return;
+
   await posthog.flush();
 }
 
 export async function shutdownAnalytics() {
+  if (!posthog) return;
+
   await posthog.shutdown();
 }

@@ -77,8 +77,8 @@ export const personaGenerationModels: PersonaGenerationModel[] = [
     priority: 0.0,
   },
   {
-    id: "google/gemini-3-pro-preview",
-    displayName: "Gemini 3 Pro Preview",
+    id: "google/gemini-3.1-pro-preview",
+    displayName: "Gemini 3.1 Pro Preview",
     priority: 0.0,
   },
 ];

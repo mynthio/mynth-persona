@@ -102,58 +102,71 @@ export function ChatTopBar({ className }: { className?: string }) {
           </TopBarTitle>
         }
         right={
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="More chat actions"
-                title="More"
-              >
-                <HugeiconsIcon icon={Menu09Icon} />
-              </Button>
-            </DropdownMenuTrigger>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              aria-label={sidebarOpen ? "Hide chat panel" : "Show chat panel"}
+              title={sidebarOpen ? "Hide chat panel" : "Show chat panel"}
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              <HugeiconsIcon icon={LayoutAlignRightIcon} />
+            </Button>
 
-            <DropdownMenuContent align="end" sideOffset={8} className="w-52">
-              <DropdownMenuItem
-                disabled={isCreatingChat || !persona?.id}
-                onSelect={(event) => {
-                  event.preventDefault();
-                  void handleStartNewChat();
-                }}
-              >
-                <HugeiconsIcon
-                  icon={isCreatingChat ? Loading02Icon : PlusSignIcon}
-                  className={isCreatingChat ? "animate-spin" : ""}
-                />
-                Start new chat
-              </DropdownMenuItem>
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="More chat actions"
+                  title="More"
+                >
+                  <HugeiconsIcon icon={Menu09Icon} />
+                </Button>
+              </DropdownMenuTrigger>
 
-              <DropdownMenuItem
-                onSelect={(event) => {
-                  event.preventDefault();
-                  setSidebarOpen(!sidebarOpen);
-                }}
-              >
-                <HugeiconsIcon icon={LayoutAlignRightIcon} />
-                {sidebarOpen ? "Hide chat panel" : "Show chat panel"}
-              </DropdownMenuItem>
+              <DropdownMenuContent align="end" sideOffset={8} className="w-52">
+                <DropdownMenuItem
+                  disabled={isCreatingChat || !persona?.id}
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    void handleStartNewChat();
+                  }}
+                >
+                  <HugeiconsIcon
+                    icon={isCreatingChat ? Loading02Icon : PlusSignIcon}
+                    className={isCreatingChat ? "animate-spin" : ""}
+                  />
+                  Start new chat
+                </DropdownMenuItem>
 
-              <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    setSidebarOpen(!sidebarOpen);
+                  }}
+                >
+                  <HugeiconsIcon icon={LayoutAlignRightIcon} />
+                  {sidebarOpen ? "Hide chat panel" : "Show chat panel"}
+                </DropdownMenuItem>
 
-              <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
-                disabled={isDeletingChat}
-                onSelect={(event) => {
-                  event.preventDefault();
-                  setIsDeleteDialogOpen(true);
-                }}
-              >
-                <HugeiconsIcon icon={Delete02Icon} />
-                Delete chat
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  disabled={isDeletingChat}
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    setIsDeleteDialogOpen(true);
+                  }}
+                >
+                  <HugeiconsIcon icon={Delete02Icon} />
+                  Delete chat
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         }
       />
 

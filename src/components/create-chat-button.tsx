@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUserChatsMutation } from "@/app/_queries/use-user-chats.query";
 import posthog from "posthog-js";
+import { useAuth, useClerk } from "@clerk/nextjs";
 
 type CreateChatButtonProps = React.ComponentProps<typeof Button> & {
   personaId: string;
@@ -19,13 +20,21 @@ export function CreateChatButton({
   const [isLoading, setIsLoading] = useState(false);
   const mutate = useUserChatsMutation();
   const { push } = useRouter();
+  const { isLoaded, isSignedIn } = useAuth();
+  const { redirectToSignIn } = useClerk();
 
   return (
     <Button
       {...props}
-      disabled={isLoading}
+      disabled={isLoading || !isLoaded}
       onClick={async () => {
-        if (isLoading) return;
+        if (isLoading || !isLoaded) return;
+
+        if (!isSignedIn) {
+          await redirectToSignIn({ redirectUrl: window.location.href });
+          return;
+        }
+
         setIsLoading(true);
         try {
           posthog.capture("create_chat_clicked", {
@@ -38,12 +47,6 @@ export function CreateChatButton({
         } catch {}
         toast.promise(
           createChatAction(personaId)
-            .catch((error) => {
-              if (error.message === "NEXT_REDIRECT") {
-                return "redirect";
-              }
-              throw error;
-            })
             .then((createdChat: any) => {
               try {
                 posthog.capture("chat_created", {

@@ -53,7 +53,7 @@ export const chatConfig: ChatConfig = {
       modelId: "x-ai/grok-3:premium",
     },
     {
-      modelId: "google/gemini-3-pro-preview:premium",
+      modelId: "google/gemini-3.1-pro-preview:premium",
     },
     {
       modelId: "x-ai/grok-4-fast:standard",

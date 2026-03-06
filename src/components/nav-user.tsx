@@ -30,7 +30,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { SignedIn, SignedOut, useAuth, useClerk, useUser } from "@clerk/nextjs";
+import { useAuth, useClerk, useUser } from "@clerk/nextjs";
 import { PlanId } from "@/config/shared/plans";
 import { useRouter } from "next/navigation";
 
@@ -38,7 +38,7 @@ export function NavUser() {
   const { user } = useUser();
   const { isMobile } = useSidebar();
   const { setTheme, theme } = useTheme();
-  const { sessionClaims } = useAuth();
+  const { isLoaded, isSignedIn, sessionClaims } = useAuth();
   const { openUserProfile, signOut, openSignIn } = useClerk();
   const { push } = useRouter();
 
@@ -48,9 +48,13 @@ export function NavUser() {
       : "free"
   ) as PlanId;
 
+  if (!isLoaded) {
+    return null;
+  }
+
   return (
     <SidebarMenu>
-      <SignedIn>
+      {isSignedIn ? (
         <SidebarMenuItem>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -180,8 +184,7 @@ export function NavUser() {
             </DropdownMenuContent>
           </DropdownMenu>
         </SidebarMenuItem>
-      </SignedIn>
-      <SignedOut>
+      ) : (
         <SidebarMenuItem>
           <SidebarMenuButton
             size="lg"
@@ -199,7 +202,7 @@ export function NavUser() {
             </div>
           </SidebarMenuButton>
         </SidebarMenuItem>
-      </SignedOut>
+      )}
     </SidebarMenu>
   );
 }

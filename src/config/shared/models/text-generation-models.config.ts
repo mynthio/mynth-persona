@@ -22,7 +22,7 @@ export type TextGenerationModelId =
   | "raifle/sorcererlm-8x22b:premium"
   | "thedrummer/skyfall-36b-v2:standard"
   | "google/gemini-2.5-flash-preview-09-2025:standard"
-  | "google/gemini-3-pro-preview:premium"
+  | "google/gemini-3.1-pro-preview:premium"
   | "google/gemini-3-flash-preview:standard"
   | "minimax/minimax-m2-her:eco"
   | "minimax/minimax-m2-her:standard"
@@ -634,12 +634,12 @@ export const textGenerationModels: Record<
         "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
     },
   },
-  "google/gemini-3-pro-preview:premium": {
+  "google/gemini-3.1-pro-preview:premium": {
     enabled: true,
     isFreeVersionAvailable: false,
-    displayName: "Gemini 3 Pro",
-    modelId: "google/gemini-3-pro-preview:premium",
-    openRouterModelId: "google/gemini-3-pro-preview",
+    displayName: "Gemini 3.1 Pro",
+    modelId: "google/gemini-3.1-pro-preview:premium",
+    openRouterModelId: "google/gemini-3.1-pro-preview",
     uncensored: false,
     description: "",
     style: "",

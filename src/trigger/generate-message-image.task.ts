@@ -1,7 +1,7 @@
 import { db } from "@/db/drizzle";
 import { chats, media, mediaGenerations, messages } from "@/db/schema";
 import { metadata, task } from "@trigger.dev/sdk";
-import { and, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 
@@ -167,7 +167,7 @@ export const generateMessageImageTask = task({
     const { messages: messagesData } = await getChatMessagesData(chatId, {
       messageId: messageId,
       strict: true,
-      limit: 2,
+      limit: 4,
     });
 
     // Get the appropriate model
@@ -176,18 +176,21 @@ export const generateMessageImageTask = task({
     let imagePrompt = metadata.get("imagePrompt") as string | undefined;
 
     if (!imagePrompt) {
-      // Use appropriate prompt crafting function based on mode
-      const craftPromptFunction =
+      const imageGenerationResult =
         mode === "character"
-          ? craftImagePromptForMessageCharacterMode
-          : craftImagePromptForMessageCreativeMode;
-
-      const imageGenerationResult = await craftPromptFunction({
-        messages: messagesData,
-        targetMessageId: messageId,
-        personaData: persona.data,
-        chatSettings: chatSettings,
-      });
+          ? await craftImagePromptForMessageCharacterMode({
+              messages: messagesData,
+              targetMessageId: messageId,
+              personaData: persona.data,
+              chatSettings: chatSettings,
+              imageModelDisplayName: imageGenerationModel.displayName,
+            })
+          : await craftImagePromptForMessageCreativeMode({
+              messages: messagesData,
+              targetMessageId: messageId,
+              personaData: persona.data,
+              chatSettings: chatSettings,
+            });
 
       if (!imageGenerationResult?.prompt) {
         throw new Error("Failed to generate image prompt");
@@ -330,26 +333,9 @@ export const generateMessageImageTask = task({
         })
         .where(eq(messages.id, messageId));
 
-      // If chat has no scene image, set this as the scene image atomically
-      // The WHERE clause ensures only the first job succeeds if multiple run concurrently
-      await tx
-        .update(chats)
-        .set({
-          settings: sql`jsonb_set(
-            COALESCE(${chats.settings}, '{}'::jsonb),
-            '{sceneImageMediaId}',
-            ${JSON.stringify(firstImage.mediaId)}::jsonb
-          )`,
-        })
-        .where(
-          and(
-            eq(chats.id, chatId),
-            sql`${chats.settings} #>> '{sceneImageMediaId}' IS NULL`
-          )
-        );
     });
 
-    // Invalidate chat cache after potential settings update via internal Route Handler
+    // Invalidate chat cache after message media metadata update
     await revalidateCacheTag(`chat:${chatId}`);
 
     logger.flush();

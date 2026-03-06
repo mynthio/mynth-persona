@@ -49,6 +49,7 @@ import { Badge } from "@/components/ui/badge";
 import { VoicePicker } from "@/components/voice-picker";
 import { getVoiceById } from "@/config/shared/voices.config";
 import { DEFAULT_CHARACTER_VOICE_IDS } from "@/lib/constants";
+import { toast } from "sonner";
 
 const PinModelButton = dynamic(
   () => import("./pin-model-button").then((mod) => ({ default: mod.PinModelButton })),
@@ -82,7 +83,7 @@ function ChatSettingsDesktop(props: ChatSettingsDesktopProps) {
       open={areSettingsOpen}
       onOpenChange={closeSettings}
     >
-      <DialogContent className="max-w-[800px] h-[520px] max-h-[calc(100vh-3rem)]">
+      <DialogContent className="sm:max-w-[640px] h-[520px] max-h-[calc(100vh-3rem)]">
         <DialogHeader>
           <DialogTitle>Settings</DialogTitle>
         </DialogHeader>
@@ -220,6 +221,7 @@ function ChatSettingsHome() {
 function ChatSettingsUser() {
   const { chatId, settings, setSettings, mode } = useChatMain();
   const { personas } = useChatPersonas();
+  const { closeSettings } = useSettingsNavigation();
   const persona = personas[0];
 
   const isStoryMode = mode === "story";
@@ -257,6 +259,8 @@ function ChatSettingsUser() {
             character: value.character,
           },
         });
+        toast.success("User persona saved");
+        closeSettings();
       });
     },
   });
@@ -319,7 +323,7 @@ function ChatSettingsUser() {
                 autoComplete="off"
                 data-form-type="other"
                 disabled={isStoryMode}
-                className="min-h-[80px]"
+                className="min-h-[140px]"
               />
               {isInvalid && <FieldError errors={field.state.meta.errors} />}
               <FieldDescription>
@@ -342,6 +346,7 @@ function ChatSettingsUser() {
 
 function ChatSettingsScenario() {
   const { chatId, settings, setSettings, mode } = useChatMain();
+  const { closeSettings } = useSettingsNavigation();
 
   const isStoryMode = mode === "story";
 
@@ -373,6 +378,8 @@ function ChatSettingsScenario() {
             scenario_text: value.scenario,
           },
         });
+        toast.success("Scenario saved");
+        closeSettings();
       });
     },
   });
@@ -409,7 +416,7 @@ function ChatSettingsScenario() {
                 autoComplete="off"
                 data-form-type="other"
                 disabled={isStoryMode}
-                className="min-h-[80px]"
+                className="min-h-[140px]"
               />
               {isInvalid && <FieldError errors={field.state.meta.errors} />}
               <FieldDescription>

@@ -12,6 +12,7 @@ type CraftImagePromptForMessagePayload = {
   targetMessageId: string;
   personaData: any;
   chatSettings: ChatSettings | null;
+  imageModelDisplayName?: string;
 };
 
 const SCHEMA = z.object({
@@ -23,7 +24,7 @@ const SCHEMA = z.object({
 });
 
 /**
- * Determines how many messages to use for context based on message length
+ * Returns a focused context window ending at the target message.
  */
 function getContextMessages(
   messages: PersonaUIMessage[],
@@ -49,7 +50,12 @@ function getContextMessages(
 export async function craftImagePromptForMessageCharacterMode(
   payload: CraftImagePromptForMessagePayload
 ): Promise<{ prompt: string }> {
-  const { messages, targetMessageId, personaData, chatSettings } = payload;
+  const {
+    messages,
+    targetMessageId,
+    chatSettings,
+    imageModelDisplayName,
+  } = payload;
 
   /**
    * Setup logger
@@ -60,56 +66,60 @@ export async function craftImagePromptForMessageCharacterMode(
     },
   });
 
-  // Get context messages based on length
+  // Get context messages ending at the target message
   const contextMessages = getContextMessages(messages, targetMessageId);
-  const targetMessage = contextMessages[contextMessages.length - 1];
 
   // Build conversation context
   const conversationContext = contextMessages
-    .map((msg, idx) => {
+    .map((msg) => {
       const text = extractPersonaMessageText(msg);
       const role = msg.role === "user" ? "User" : "Character";
-      const isTarget = msg.id === targetMessageId;
+      const targetLabel =
+        msg.id === targetMessageId ? " (TARGET MESSAGE)" : "";
+
       return `
-### ${role}
+### ${role}${targetLabel}
 
 ${text}`;
     })
     .join("\n\n");
 
-  // Extract persona basics (name only, to avoid over-describing appearance which can introduce noise)
-  const personaName = personaData?.name || "Character";
-
-  // Extract scenario context if available
-  const scenarioContext = chatSettings?.scenario?.scenario_text || "";
+  const scenarioContext = chatSettings?.scenario?.scenario_text?.trim();
+  const scenarioStyleGuidelines =
+    chatSettings?.scenario?.style_guidelines?.trim();
 
   const system = `
-You are a prompt engineer for Gemini 2.5 Flash Image model (Nano Banana), generating concise prompts for consistent character images in RP chats. Analyze the last 2-4 messages, focusing only on the main character's actions, pose, expression, outfit, and surroundings from the latest message. Ignore third-parties; center solely on the main character.
-Guidelines:
+You are an image-prompt engineer for roleplay chats.
+Target image model: ${imageModelDisplayName || "the selected model"}.
+Write a single paragraph prompt for character mode, where a full-body reference image is provided.
 
-Start with: "Using the provided full-body reference image of the character,"
-Preserve base physical properties (facial features, hair, body proportions, skin tone).
-Do NOT add or change the visual style. Preserve the reference image's existing style exactly (e.g., if the reference is illustrated, keep it illustrated; if it's photographic, keep it photographic).
-Do NOT include style/rendering keywords like: photorealistic, realistic, anime, cinematic, 3D render, cartoon, watercolor, oil painting, etc.
-Always specify a pose and outfit, even if unchanged (default to neutral standing and reference outfit if unspecified).
-Describe changes/new elements briefly: pose/action, expression, outfit mods, lighting, background.
-Single narrative paragraph, hyper-specific. Under 100 words.
-Output ONLY the prompt—no extras.
-
-Examples:
-
-Chat: User: "You enter the forest." Char: "I step cautiously, lantern up."
-Output: "Using the provided full-body reference image of the character, pose as stepping cautiously with arm raised holding lantern, alert expression, wearing explorer outfit. Dark misty forest background at night, lantern glow. Preserve facial features, hair, body, skin tone. Do not add style; keep the reference image's style."
-Chat: Prev: "Battle on." User: "Swing sword." Char: "Leap back, panting in torn armor."
-Output: "Using the provided full-body reference image of the character, pose leaping back panting, exhausted expression, in torn armor outfit. Smoky battlefield background. Keep identical facial structure, hair, proportions, skin tone. Do not add style; keep the reference image's style."
+Rules:
+- Start with exactly: "Using the provided full-body reference image of the character,"
+- Preserve core identity from the reference image: face, hair, body proportions, skin tone.
+- Keep the reference image's existing visual style; do not force style shifts.
+- Always specify a clear pose or action.
+- Facial expression should be subtle/neutral by default; only use strong emotion if the target message clearly demands it.
+- Do not copy reference-image pose or expression by default.
+- Outfit handling:
+  - If the target message clearly specifies clothing, follow it.
+  - If clothing is not explicit, do not invent new outfit details.
+  - For bikini/swimwear requests, describe a coherent swimwear outfit and avoid contradictory layering (for example, bikini over regular clothes).
+- Include one short, high-level background/environment line that is compatible with the scene.
+- Focus on the main character from the target message; avoid adding unrelated subjects.
+- Keep it concise and specific, max 110 words.
+- Output only the final prompt paragraph.
 `.trim();
 
   const prompt = `
-Last messages from the role-playing chat:
+${scenarioContext ? `Scenario context: ${scenarioContext}\n\n` : ""}${
+    scenarioStyleGuidelines
+      ? `Scenario style guidance: ${scenarioStyleGuidelines}\n\n`
+      : ""
+  }Last messages from the role-playing chat:
 
 ${conversationContext}
 
-Generate a prompt for Gemini 2.5 Flash to visualize the scene from the last message, using the full-body reference image of the character.
+Generate the final prompt for character-mode image generation from the target message.
 `.trim();
 
   utilLogger.debug({
@@ -120,6 +130,9 @@ Generate a prompt for Gemini 2.5 Flash to visualize the scene from the last mess
       system: system.slice(0, 200),
       prompt: prompt.slice(0, 200),
       contextMessagesCount: contextMessages.length,
+      imageModelDisplayName: imageModelDisplayName || null,
+      hasScenarioContext: Boolean(scenarioContext),
+      hasScenarioStyleGuidelines: Boolean(scenarioStyleGuidelines),
     },
   });
 
@@ -173,16 +186,14 @@ export async function craftImagePromptForMessageCreativeMode(
     },
   });
 
-  // Get context messages based on length
+  // Get context messages ending at the target message
   const contextMessages = getContextMessages(messages, targetMessageId);
-  const targetMessage = contextMessages[contextMessages.length - 1];
 
   // Build conversation context
   const conversationContext = contextMessages
-    .map((msg, idx) => {
+    .map((msg) => {
       const text = extractPersonaMessageText(msg);
       const role = msg.role === "user" ? "User" : "Character";
-      const isTarget = msg.id === targetMessageId;
       return `
 ### ${role}
 
@@ -190,8 +201,6 @@ ${text}`;
     })
     .join("\n\n");
 
-  // Extract persona appearance and name
-  const personaName = personaData?.name || "Character";
   const personaAppearance = personaData?.appearance || "";
 
   // Extract scenario context if available

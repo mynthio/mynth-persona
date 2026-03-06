@@ -278,20 +278,43 @@ function VoiceSection() {
       </div>
 
       {voice ? (
-        <div className="space-y-1 rounded-lg border border-border/40 bg-muted/30 p-3">
-          <div className="flex items-center gap-2">
+        <div className="rounded-xl border border-border/40 bg-muted/30 p-3">
+          <div className="flex items-start gap-2">
             <HugeiconsIcon icon={VolumeHighIcon} className="size-3.5 shrink-0 text-muted-foreground" />
-            <p className="truncate text-xs font-medium text-foreground">
-              {voice.displayName}
-            </p>
-            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 ml-auto">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-medium text-foreground">
+                {voice.displayName}
+              </p>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                Custom voice override for this chat
+              </p>
+            </div>
+            <Badge variant="secondary" className="ml-auto h-4 px-1.5 py-0 text-[10px]">
               Override
             </Badge>
           </div>
-          <div className="pl-5.5 pt-1">
+          <div className="mt-3">
             <VoicePicker
               currentVoiceId={voiceId ?? null}
               onVoiceChange={handleVoiceChange}
+              trigger={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 w-full justify-between rounded-xl border-border/40 bg-background/40 px-3 text-[12px] font-medium hover:bg-background/70"
+                >
+                  <span className="flex items-center gap-2">
+                    <HugeiconsIcon
+                      icon={VolumeHighIcon}
+                      className="size-3.5 shrink-0"
+                    />
+                    Change voice
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">
+                    Browse
+                  </span>
+                </Button>
+              }
             />
           </div>
         </div>
@@ -304,6 +327,24 @@ function VoiceSection() {
           <VoicePicker
             currentVoiceId={voiceId ?? null}
             onVoiceChange={handleVoiceChange}
+            trigger={
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 w-full justify-between rounded-xl border-border/40 bg-card/30 px-3 text-[12px] font-medium hover:bg-card/60"
+              >
+                <span className="flex items-center gap-2">
+                  <HugeiconsIcon
+                    icon={VolumeHighIcon}
+                    className="size-3.5 shrink-0"
+                  />
+                  Choose voice override
+                </span>
+                <span className="text-[11px] text-muted-foreground">
+                  Open
+                </span>
+              </Button>
+            }
           />
         </div>
       )}

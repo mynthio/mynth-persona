@@ -7,12 +7,12 @@ import {
   SubscriptionDetailsButton,
   useSubscription,
 } from "@clerk/nextjs/experimental";
+import { useAuth } from "@clerk/nextjs";
 import { CLERK_PLAN_SLUG_TO_PLAN_ID } from "@/config/shared/plans";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StarsBackground } from "@/components/animate-ui/components/backgrounds/stars";
 import { motion } from "motion/react";
-import { SignedIn } from "@clerk/nextjs";
 
 export function Plans() {
   const [period, setPeriod] = useState<"monthly" | "annual">("monthly");
@@ -178,6 +178,7 @@ type PlanProps = {
 
 function Plan(props: PlanProps) {
   const { data, isLoading } = useSubscription();
+  const { isLoaded: isAuthLoaded, isSignedIn } = useAuth();
 
   const isActive = data?.subscriptionItems?.[0]?.plan?.id === props.id;
 
@@ -260,25 +261,21 @@ function Plan(props: PlanProps) {
       <div className="flex items-center justify-center px-[2rem] py-[1rem]">
         {props.id === "free" ? null : isLoading ? (
           <HugeiconsIcon icon={Loading02Icon} className="animate-spin" />
-        ) : isActive ? (
-          <SignedIn>
-            <SubscriptionDetailsButton>
-              <Button variant="outline" className="text-primary-foreground">
-                Manage
-              </Button>
-            </SubscriptionDetailsButton>
-          </SignedIn>
+        ) : !isAuthLoaded || !isSignedIn ? null : isActive ? (
+          <SubscriptionDetailsButton>
+            <Button variant="outline" className="text-primary-foreground">
+              Manage
+            </Button>
+          </SubscriptionDetailsButton>
         ) : (
-          <SignedIn>
-            <CheckoutButton
-              planId={props.id}
-              planPeriod={props.period === "annual" ? "annual" : "month"}
-            >
-              <Button variant="outline" className="text-primary-foreground">
-                Subscribe for {props.period === "annual" ? "Year" : "Month"}
-              </Button>
-            </CheckoutButton>
-          </SignedIn>
+          <CheckoutButton
+            planId={props.id}
+            planPeriod={props.period === "annual" ? "annual" : "month"}
+          >
+            <Button variant="outline" className="text-primary-foreground">
+              Subscribe for {props.period === "annual" ? "Year" : "Month"}
+            </Button>
+          </CheckoutButton>
         )}
       </div>
 

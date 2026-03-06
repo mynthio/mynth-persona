@@ -14,9 +14,18 @@ import {
   CommandItem,
   CommandEmpty,
 } from "@/components/ui/command";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  ArrowRight01Icon,
   CheckmarkCircle02Icon,
   PlayIcon,
   StopIcon,
@@ -29,6 +38,7 @@ import {
   type VoiceConfig,
   type VoiceGender,
 } from "@/config/shared/voices.config";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface VoicePickerProps {
   currentVoiceId: string | null;
@@ -47,6 +57,7 @@ export function VoicePicker({
   onVoiceChange,
   trigger,
 }: VoicePickerProps) {
+  const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -120,20 +131,128 @@ export function VoicePicker({
     [stopAudio]
   );
 
+  const triggerNode =
+    trigger ?? (
+      <Button
+        variant="outline"
+        size="sm"
+        className="h-9 w-full justify-between rounded-xl border border-border/40 bg-card/30 px-3 text-[12px] font-medium hover:bg-card/60"
+      >
+        <span className="flex min-w-0 items-center gap-2">
+          <HugeiconsIcon icon={VolumeHighIcon} className="size-3.5 shrink-0" />
+          <span className="truncate">
+            {currentVoice ? "Change voice" : "Choose voice"}
+          </span>
+        </span>
+        <HugeiconsIcon
+          icon={ArrowRight01Icon}
+          className="size-3.5 shrink-0 text-muted-foreground"
+        />
+      </Button>
+    );
+
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={handleOpenChange}>
+        <DrawerTrigger asChild>{triggerNode}</DrawerTrigger>
+        <DrawerContent className="max-h-[85vh] border-border/50 dark:bg-[#0c0c0f]">
+          <DrawerHeader className="text-left">
+            <DrawerTitle>Choose voice</DrawerTitle>
+            <DrawerDescription>
+              Preview and select a voice without opening the keyboard.
+            </DrawerDescription>
+          </DrawerHeader>
+
+          <div className="min-h-0 px-3 pb-3">
+            <div className="max-h-[calc(85vh-7rem)] overflow-y-auto overscroll-contain pr-1">
+              <div className="space-y-4">
+                {grouped.map((group) => (
+                  <div key={group.label} className="space-y-2">
+                    <p className="px-1 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                      {group.label}
+                    </p>
+
+                    <div className="space-y-2">
+                      {group.voices.map((voice) => {
+                        const isSelected = currentVoiceId === voice.id;
+                        const isPlaying = playingId === voice.id;
+
+                        return (
+                          <div
+                            key={voice.id}
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => handleSelect(voice.id)}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter" || event.key === " ") {
+                                event.preventDefault();
+                                handleSelect(voice.id);
+                              }
+                            }}
+                            className="flex w-full cursor-pointer items-start gap-3 rounded-xl border border-border/50 bg-card/40 px-3 py-3 text-left transition-colors hover:bg-accent/60 focus:outline-none focus:ring-2 focus:ring-ring/50"
+                          >
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="truncate text-sm font-medium">
+                                  {voice.displayName}
+                                </span>
+                                {isSelected && (
+                                  <HugeiconsIcon
+                                    icon={CheckmarkCircle02Icon}
+                                    className="size-3.5 shrink-0 text-primary"
+                                  />
+                                )}
+                              </div>
+
+                              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                                {voice.accent} · {voice.age}
+                              </p>
+
+                              <div className="mt-1.5 flex flex-wrap gap-1">
+                                {voice.tags.map((tag) => (
+                                  <Badge
+                                    key={tag}
+                                    variant="secondary"
+                                    className="h-4 px-1.5 py-0 text-[10px]"
+                                  >
+                                    {tag}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-full hover:bg-accent transition-colors"
+                              onClick={(e) => playPreview(voice, e)}
+                              aria-label={
+                                isPlaying
+                                  ? `Stop ${voice.displayName} preview`
+                                  : `Play ${voice.displayName} preview`
+                              }
+                            >
+                              <HugeiconsIcon
+                                icon={isPlaying ? StopIcon : PlayIcon}
+                                className="size-4 text-muted-foreground"
+                              />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>
-        {trigger ?? (
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8 px-3 text-[12px] rounded-full border-border/40 bg-card/30 hover:bg-card/60 gap-1.5"
-          >
-            <HugeiconsIcon icon={VolumeHighIcon} className="size-3.5" />
-            {currentVoice?.displayName ?? "Select voice"}
-          </Button>
-        )}
-      </PopoverTrigger>
+      <PopoverTrigger asChild>{triggerNode}</PopoverTrigger>
       <PopoverContent
         className="w-[360px] p-0 rounded-xl border-border/50 dark:bg-[#0c0c0f]"
         align="start"

@@ -23,7 +23,6 @@ export const IMAGE_MODELS = {
     height: 1344,
     supportsReferenceImages: true,
     imagesPerGeneration: 1,
-    new: true,
   },
   "black-forest-labs/flux-2-klein-4b": {
     id: "black-forest-labs/flux-2-klein-4b" as const,
@@ -34,7 +33,6 @@ export const IMAGE_MODELS = {
     supportsReferenceImages: true,
     imagesPerGeneration: 4,
     imagesPerGenerationWithReference: 2,
-    new: true,
   },
   "black-forest-labs/flux-krea-dev": {
     id: "black-forest-labs/flux-krea-dev" as const,
@@ -62,7 +60,6 @@ export const IMAGE_MODELS = {
     height: 1344,
     supportsReferenceImages: true,
     imagesPerGeneration: 1,
-    new: true,
     editOnly: true,
   },
   "seedream/seedream-3.0": {
@@ -83,7 +80,6 @@ export const IMAGE_MODELS = {
     supportsReferenceImages: false,
     imagesPerGeneration: 2,
     beta: true,
-    new: true,
   },
   "imagineart/imagineart-1.5": {
     id: "imagineart/imagineart-1.5" as const,
@@ -93,7 +89,6 @@ export const IMAGE_MODELS = {
     height: 2304,
     supportsReferenceImages: false,
     imagesPerGeneration: 1,
-    new: true,
   },
   "z-image/z-image-turbo": {
     id: "z-image/z-image-turbo" as const,
@@ -103,7 +98,6 @@ export const IMAGE_MODELS = {
     height: 1344,
     supportsReferenceImages: false,
     imagesPerGeneration: 2,
-    new: true,
   },
   "prunaai/p-image": {
     id: "prunaai/p-image" as const,
@@ -113,7 +107,6 @@ export const IMAGE_MODELS = {
     height: 1376,
     supportsReferenceImages: false,
     imagesPerGeneration: 1,
-    new: true,
   },
   // Cost 2 - Premium models
   "google/gemini-flash-image-2.5": {
@@ -160,6 +153,15 @@ export const IMAGE_MODELS = {
     height: 2560,
     supportsReferenceImages: false,
     imagesPerGeneration: 1,
+  },
+  "seedream/seedream-5.0-lite": {
+    id: "seedream/seedream-5.0-lite" as const,
+    displayName: "SeeDream 5.0 Lite",
+    cost: 2,
+    width: 1600,
+    height: 2848,
+    supportsReferenceImages: true,
+    imagesPerGeneration: 1,
     new: true,
   },
   "black-forest-labs/flux-2-pro": {
@@ -170,7 +172,6 @@ export const IMAGE_MODELS = {
     height: 1344,
     supportsReferenceImages: false,
     imagesPerGeneration: 1,
-    new: true,
   },
   "tencent/hunyuan-image-3.0": {
     id: "tencent/hunyuan-image-3.0" as const,
@@ -180,7 +181,6 @@ export const IMAGE_MODELS = {
     height: 1152,
     supportsReferenceImages: false,
     imagesPerGeneration: 1,
-    new: true,
   },
   "sourceful/riverflow-2-fast": {
     id: "sourceful/riverflow-2-fast" as const,
@@ -190,7 +190,6 @@ export const IMAGE_MODELS = {
     height: 1280,
     supportsReferenceImages: true,
     imagesPerGeneration: 1,
-    new: true,
     editOnly: true,
   },
 } as const;

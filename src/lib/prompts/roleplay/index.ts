@@ -20,6 +20,9 @@ export type { RoleplayPromptArgs, RoleplayPromptStyle, RoleplayPromptRenderer };
 const promptsByModel: Partial<Record<string, RoleplayPromptRenderer>> = {
   "nousresearch/hermes-4-70b:standard": renderHermesRoleplayPrompt,
   "nousresearch/hermes-4-70b:eco": renderHermesRoleplayPrompt,
+  "google/gemini-2.5-flash-preview-09-2025:standard":
+    renderGeminiRoleplayPrompt,
+  "google/gemini-3.1-pro-preview:premium": renderGeminiRoleplayPrompt,
   "google/gemini-3-flash-preview:standard": renderGeminiRoleplayPrompt,
   "minimax/minimax-m2-her:eco": renderMiniMaxRoleplayPrompt,
   "minimax/minimax-m2-her:standard": renderMiniMaxRoleplayPrompt,

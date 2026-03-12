@@ -2,9 +2,6 @@ import { ImageGenerationBase } from "./image-generation-base";
 import { ImageModelId, IMAGE_MODELS } from "@/config/shared/image-models";
 import { RunwareFluxDev } from "./runware/runware-flux-dev";
 import { RunwareFluxKrea } from "./runware/runware-flux-krea";
-import { RunwareSeedream3 } from "./runware/runware-seedream-3";
-import { RunwareSeedream4 } from "./runware/runware-seedream-4";
-import { RunwareSeedream45 } from "./runware/runware-seedream-4.5";
 import { RunwareSeedream5Lite } from "./runware/runware-seedream-5-lite";
 import { RunwareGeminiFlash } from "./runware/runware-gemini-flash";
 import { RunwareImagen4 } from "./runware/runware-imagen-4";
@@ -32,7 +29,6 @@ const MODEL_CLASS_MAP: Record<ImageModelId, new () => ImageGenerationBase> = {
   "google/gemini-flash-image-2.5": RunwareGeminiFlash,
   "qwen/qwen-image": RunwareQwenImage,
   "qwen/qwen-image-edit-plus": RunwareQwenImageEditPlus,
-  "seedream/seedream-3.0": RunwareSeedream3,
   "prsna/bismuth-illustrious-mix-v5.0": RunwareBismuthIllustriousMixV5,
   "imagineart/imagineart-1.5": RunwareImagineArt15,
   "z-image/z-image-turbo": RunwareZImageTurbo,
@@ -40,8 +36,6 @@ const MODEL_CLASS_MAP: Record<ImageModelId, new () => ImageGenerationBase> = {
   // Cost 2 - Premium models
   "openai/gpt-image-1": RunwareGPTImage1,
   "google/imagen-4-preview": RunwareImagen4,
-  "seedream/seedream-4.0": RunwareSeedream4,
-  "seedream/seedream-4.5": RunwareSeedream45,
   "seedream/seedream-5.0-lite": RunwareSeedream5Lite,
   "black-forest-labs/flux-2-pro": RunwareFlux2Pro,
   "tencent/hunyuan-image-3.0": RunwareHunyuanImage3,

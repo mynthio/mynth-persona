@@ -17,7 +17,17 @@ import {
   Refresh01Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
+  PinIcon,
+  PinOffIcon,
 } from "@hugeicons/core-free-icons";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { toast } from "sonner";
 
 type ChatMessageActionsProps = {
   message: PersonaUIMessage;
@@ -62,6 +72,7 @@ export function ChatMessageActions(props: ChatMessageActionsProps) {
         messageId={message.id}
         parentId={message.metadata?.parentId}
       />
+      <PinMessageButton message={message} />
     </div>
   );
 }
@@ -111,6 +122,87 @@ type ChatMessageBranchesProps = {
   messageId: string;
   parentId?: string | null;
 };
+
+function PinMessageButton({ message }: { message: PersonaUIMessage }) {
+  const { pinnedBranches, pinMessage, unpinMessage } = useChatBranchesContext();
+  const isPinned = pinnedBranches.some((p) => p.id === message.id);
+  const [open, setOpen] = useState(false);
+  const [label, setLabel] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const getAutoLabel = () => {
+    const parts = message.parts;
+    for (const part of parts) {
+      if (part.type === "text" && part.text) {
+        return part.text.slice(0, 60);
+      }
+    }
+    return "";
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await pinMessage(message.id, label.trim() || getAutoLabel() || undefined);
+      toast.success("Branch saved");
+      setOpen(false);
+      setLabel("");
+    } catch {
+      toast.error("Failed to save branch");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleUnpin = async () => {
+    try {
+      await unpinMessage(message.id);
+      toast.success("Branch removed");
+    } catch {
+      toast.error("Failed to remove branch");
+    }
+  };
+
+  if (isPinned) {
+    return (
+      <Button
+        variant="ghost"
+        size="icon-xs"
+        onClick={handleUnpin}
+        title="Remove saved branch"
+      >
+        <HugeiconsIcon icon={PinOffIcon} size={14} />
+      </Button>
+    );
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="icon-xs" title="Save branch">
+          <HugeiconsIcon icon={PinIcon} size={14} />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-64 p-3" side="top" align="end">
+        <p className="mb-2 text-xs font-medium text-foreground">Save branch</p>
+        <Input
+          placeholder="Label (optional)"
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          className="mb-2 h-7 text-xs"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSave();
+            if (e.key === "Escape") setOpen(false);
+          }}
+          autoFocus
+        />
+        <Button size="xs" className="w-full" onClick={handleSave} disabled={saving}>
+          {saving ? "Saving…" : "Save"}
+        </Button>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 function ChatMessageBranches(props: ChatMessageBranchesProps) {
   const { branches, branchId } = useChatBranchesContext();

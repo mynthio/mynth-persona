@@ -31,6 +31,9 @@ export const personaUIMessageMetadataSchema = z.object({
       createdAt: z.date(),
     })
     .optional(),
+
+  pinned: z.boolean().optional(),
+  pinnedLabel: z.string().optional().nullable(),
 });
 
 export type PersonaUIMessageMetadata = z.infer<

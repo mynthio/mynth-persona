@@ -11,6 +11,7 @@ import {
 } from "react";
 import { BranchesByParent } from "@/services/chat/get-chat-branches";
 import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
+import { usePinnedBranches, type PinnedMessage } from "../_hooks/use-pinned-branches.hook";
 
 // Scroll restoration info for branch switching
 export interface ScrollRestoreInfo {
@@ -37,6 +38,11 @@ export interface ChatBranchesContextValue {
   // Loading state for branch switching
   isSwitchingBranch: boolean;
   setIsSwitchingBranch: (value: boolean) => void;
+  // Pinned branches
+  pinnedBranches: PinnedMessage[];
+  pinMessage: (messageId: string, label?: string) => Promise<void>;
+  unpinMessage: (messageId: string) => Promise<void>;
+  isPinnedLoading: boolean;
 }
 
 const ChatBranchesContext = createContext<ChatBranchesContextValue | undefined>(
@@ -59,6 +65,10 @@ export function ChatBranchesProvider({
   const [branchesState, setBranchesState] =
     useState<BranchesByParent>(branches);
   const [isSwitchingBranch, setIsSwitchingBranch] = useState(false);
+
+  // Pinned branches
+  const { pinnedBranches, pinMessage, unpinMessage, isLoading: isPinnedLoading } =
+    usePinnedBranches(chatId);
 
   // Ref to store pending scroll restoration info
   const scrollRestoreRef = useRef<ScrollRestoreInfo | null>(null);
@@ -153,8 +163,12 @@ export function ChatBranchesProvider({
       prepareScrollRestore,
       isSwitchingBranch,
       setIsSwitchingBranch,
+      pinnedBranches,
+      pinMessage,
+      unpinMessage,
+      isPinnedLoading,
     }),
-    [branchId, setActiveId, branchesState, addMessageToBranch, prepareScrollRestore, isSwitchingBranch]
+    [branchId, setActiveId, branchesState, addMessageToBranch, prepareScrollRestore, isSwitchingBranch, pinnedBranches, pinMessage, unpinMessage, isPinnedLoading]
   );
 
   return (

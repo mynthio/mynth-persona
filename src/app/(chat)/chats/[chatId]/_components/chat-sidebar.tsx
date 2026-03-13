@@ -1,12 +1,14 @@
 "use client";
 
-import { ArrowReloadVerticalIcon, ArrowUpRight01Icon, Image02Icon, InformationCircleIcon, PencilEdit02Icon, ScrollVerticalIcon, SparklesIcon, User03Icon, VolumeHighIcon } from "@hugeicons/core-free-icons";
+import { ArrowReloadVerticalIcon, ArrowUpRight01Icon, Cancel01Icon, Image02Icon, InformationCircleIcon, PencilEdit02Icon, PinIcon, ScrollVerticalIcon, SparklesIcon, User03Icon, VolumeHighIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { cn, getImageUrl } from "@/lib/utils";
 import { useChatPersonas } from "../_contexts/chat-personas.context";
 import { useChatMain } from "../_contexts/chat-main.context";
+import { useChatBranchesContext } from "../_contexts/chat-branches.context";
+import { useSwitchBranch } from "../_hooks/use-switch-branch.hook";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -609,6 +611,80 @@ function SceneImageSection() {
 }
 
 // ---------------------------------------------------------------------------
+// Saved Branches Section
+// ---------------------------------------------------------------------------
+function SavedBranchesSection() {
+  const { pinnedBranches, unpinMessage, branchId, isPinnedLoading } = useChatBranchesContext();
+  const switchBranch = useSwitchBranch();
+
+  return (
+    <div className="space-y-2">
+      <SectionLabel>Saved branches</SectionLabel>
+
+      {isPinnedLoading ? (
+        <p className="text-[11px] text-muted-foreground/60">Loading…</p>
+      ) : pinnedBranches.length === 0 ? (
+        <p className="text-[11px] text-muted-foreground/60">
+          No saved branches yet. Pin a message to save its conversation path.
+        </p>
+      ) : (
+        <div className="space-y-1">
+          {pinnedBranches.map((pin) => {
+            const isActive = branchId === pin.id;
+            return (
+              <div
+                key={pin.id}
+                className={cn(
+                  "group flex cursor-pointer items-start gap-2 rounded-lg border p-2.5 transition-colors hover:bg-muted/40",
+                  isActive
+                    ? "border-primary/30 bg-primary/5"
+                    : "border-border/40 bg-transparent"
+                )}
+                onClick={() => switchBranch(pin.id)}
+              >
+                <HugeiconsIcon
+                  icon={PinIcon}
+                  className="mt-0.5 size-3 shrink-0 text-muted-foreground"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[11px] font-medium text-foreground">
+                    {pin.pinnedLabel || pin.contentPreview?.slice(0, 40) || "Saved branch"}
+                  </p>
+                  {pin.contentPreview && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <p className="mt-0.5 line-clamp-2 text-[10px] leading-relaxed text-muted-foreground">
+                          {pin.contentPreview}
+                        </p>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="max-w-[240px] text-xs">
+                        {pin.contentPreview}
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  className="shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    unpinMessage(pin.id);
+                  }}
+                  title="Remove saved branch"
+                >
+                  <HugeiconsIcon icon={Cancel01Icon} className="size-3" />
+                </Button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Sidebar content – composed from sections
 // ---------------------------------------------------------------------------
 function SidebarContent() {
@@ -623,6 +699,10 @@ function SidebarContent() {
       <Separator className="bg-border/50" />
 
       <ScenarioSection />
+
+      <Separator className="bg-border/50" />
+
+      <SavedBranchesSection />
 
       <Separator className="bg-border/50" />
 

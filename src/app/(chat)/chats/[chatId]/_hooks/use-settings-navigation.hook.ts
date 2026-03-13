@@ -17,6 +17,7 @@ const DEFAULT_OPEN_VALUE: SettingsNav = "_";
 export const useSettingsNavigation = () => {
   const [state, setState] = useQueryState("s", {
     clearOnDefault: true,
+    scroll: false,
   });
 
   // Open settings with default nav value

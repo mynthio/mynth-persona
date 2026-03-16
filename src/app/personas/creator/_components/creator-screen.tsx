@@ -1,11 +1,29 @@
 "use client";
 
-import { ArrowReloadVerticalIcon, Eraser01Icon, FallingStarIcon, Image02Icon, Loading02Icon, Message01Icon, PencilEdit02Icon, PlusSignIcon, SparklesIcon, StopIcon } from "@hugeicons/core-free-icons";
+import {
+  ArrowReloadVerticalIcon,
+  Eraser01Icon,
+  FallingStarIcon,
+  Image02Icon,
+  Loading02Icon,
+  Message01Icon,
+  PencilEdit02Icon,
+  PlusSignIcon,
+  SparklesIcon,
+  StopIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { experimental_useObject as useObject } from "@ai-sdk/react";
 import { DeepPartial } from "ai";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import {
+  Activity,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   creatorPersonaGenerateClientSchema,
   CreatorPersonaGenerateClientResponse,
@@ -39,6 +57,8 @@ import { snakeCase, spaceCase } from "case-anything";
 import { z } from "zod";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ThinkingProcess } from "./thinking-process";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CustomCreatorForm from "./custom-creator-form";
 
 dayjs.extend(relativeTime);
 
@@ -89,9 +109,10 @@ export default function CreatorScreen() {
   const [submittedPrompt, setSubmittedPrompt] = useState("");
   const [personaId, setPersonaId] = useState<string | undefined>();
   const [rateLimitError, setRateLimitError] = useState<RateLimitInfo | null>(
-    null
+    null,
   );
   const [showResultView, setShowResultView] = useState(false);
+  const [creatorMode, setCreatorMode] = useState<"ai" | "custom">("ai");
 
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -164,7 +185,7 @@ export default function CreatorScreen() {
       setShowResultView(true);
       submit({ prompt: trimmed, modelId: options?.model });
     },
-    [isGenerating, setActiveStream, submit]
+    [isGenerating, setActiveStream, submit],
   );
 
   const handleRetry = useCallback(
@@ -181,7 +202,7 @@ export default function CreatorScreen() {
         modelId: options?.model,
       });
     },
-    [isGenerating, personaId, submittedPrompt, setActiveStream, submit]
+    [isGenerating, personaId, submittedPrompt, setActiveStream, submit],
   );
 
   const handleReset = useCallback(() => {
@@ -238,82 +259,115 @@ export default function CreatorScreen() {
     Boolean(object) ||
     Boolean(error);
 
+  const showTabs = !shouldShowResult;
+
   return (
-    <AnimatePresence mode="wait">
-      {shouldShowResult ? (
-        <motion.div
-          key="result"
-          initial={{ opacity: 0, y: 8, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -8, scale: 0.98 }}
-          transition={{ duration: 0.25, ease: "easeInOut" }}
-          className="w-full max-w-3xl mx-auto flex flex-col gap-[12px] mt-[32px] px-[12px] md:px-0 relative"
-        >
-          <div
-            className="
-              bg-background/70 text-surface-100/80 font-medium backdrop-blur-lg border border-surface-200/50
-              rounded-[16px] rounded-br-[6px] px-[24px] py-[12px]
-              max-w-[460px]
-              text-right
-              self-end w-auto grow-0
-            "
+    <>
+      {showTabs && (
+        <div className="w-full max-w-3xl mx-auto px-[12px] md:px-0 mt-[24px]">
+          <Tabs
+            value={creatorMode}
+            onValueChange={(v) => setCreatorMode(v as "ai" | "custom")}
           >
-            {submittedPrompt}
-          </div>
-
-          {object?.persona?.note_for_user && (
-            <div
-              className="
-              bg-white/50 mt-[12px] text-surface-foreground/80 font-medium backdrop-blur-lg border border-surface-200/70
-              rounded-[16px] rounded-bl-[6px] px-[24px] py-[12px]
-              max-w-[460px]
-              text-left
-              self-start w-auto grow-0
-            "
-            >
-              {object?.persona?.note_for_user}
-            </div>
-          )}
-
-          {isLoading && !object ? (
-            <div className="w-full h-[80vh] flex items-center justify-center">
-              <HugeiconsIcon icon={Loading02Icon} className="animate-spin" />
-            </div>
-          ) : error ? (
-            <CreatorError
-              isSignedIn={signedIn}
-              rateLimitError={rateLimitError}
-              onRetry={handleRetry}
-              onReset={handleReset}
-              clearErrors={() => setRateLimitError(null)}
-            />
-          ) : (
-            <PersonaStreamingResult
-              key={submittedPrompt || "pending"}
-              object={object}
-            />
-          )}
-
-          <Footer
-            personaId={personaId}
-            onRetry={handleRetry}
-            onReset={handleReset}
-            onStop={stop}
-            isLoading={isLoading}
-          />
-        </motion.div>
-      ) : (
-        <motion.div
-          key="form"
-          initial={{ opacity: 0, y: 8, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -8, scale: 0.98 }}
-          transition={{ duration: 0.2, ease: "easeInOut" }}
-        >
-          <PersonaCreator onGenerate={handleSubmit} />
-        </motion.div>
+            <TabsList className="mx-auto">
+              <TabsTrigger value="ai" className="font-onest gap-1.5">
+                <HugeiconsIcon icon={SparklesIcon} size={14} />
+                AI Generator
+              </TabsTrigger>
+              <TabsTrigger value="custom" className="font-onest gap-1.5">
+                <HugeiconsIcon icon={PencilEdit02Icon} size={14} />
+                Custom
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       )}
-    </AnimatePresence>
+
+      <Activity mode={creatorMode === "ai" ? "visible" : "hidden"}>
+        <AnimatePresence mode="wait">
+          {shouldShowResult ? (
+            <motion.div
+              key="result"
+              initial={{ opacity: 0, y: 8, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.98 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className="w-full max-w-3xl mx-auto flex flex-col gap-[12px] mt-[32px] px-[12px] md:px-0 relative"
+            >
+              <div
+                className="
+                  bg-background/70 text-surface-100/80 font-medium backdrop-blur-lg border border-surface-200/50
+                  rounded-[16px] rounded-br-[6px] px-[24px] py-[12px]
+                  max-w-[460px]
+                  text-right
+                  self-end w-auto grow-0
+                "
+              >
+                {submittedPrompt}
+              </div>
+
+              {object?.persona?.note_for_user && (
+                <div
+                  className="
+                  bg-white/50 mt-[12px] text-surface-foreground/80 font-medium backdrop-blur-lg border border-surface-200/70
+                  rounded-[16px] rounded-bl-[6px] px-[24px] py-[12px]
+                  max-w-[460px]
+                  text-left
+                  self-start w-auto grow-0
+                "
+                >
+                  {object?.persona?.note_for_user}
+                </div>
+              )}
+
+              {isLoading && !object ? (
+                <div className="w-full h-[80vh] flex items-center justify-center">
+                  <HugeiconsIcon
+                    icon={Loading02Icon}
+                    className="animate-spin"
+                  />
+                </div>
+              ) : error ? (
+                <CreatorError
+                  isSignedIn={signedIn}
+                  rateLimitError={rateLimitError}
+                  onRetry={handleRetry}
+                  onReset={handleReset}
+                  clearErrors={() => setRateLimitError(null)}
+                />
+              ) : (
+                <PersonaStreamingResult
+                  key={submittedPrompt || "pending"}
+                  object={object}
+                />
+              )}
+
+              <Footer
+                personaId={personaId}
+                onRetry={handleRetry}
+                onReset={handleReset}
+                onStop={stop}
+                isLoading={isLoading}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="form"
+              initial={{ opacity: 0, y: 8, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.98 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+            >
+              <PersonaCreator onGenerate={handleSubmit} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Activity>
+
+      <Activity mode={creatorMode === "custom" ? "visible" : "hidden"}>
+        <CustomCreatorForm />
+      </Activity>
+    </>
   );
 }
 
@@ -417,7 +471,7 @@ function Footer({
         <HugeiconsIcon icon={Loading02Icon} className="animate-spin" />
       </div>
     ),
-    []
+    [],
   );
 
   return (
@@ -518,7 +572,8 @@ function Footer({
               variant="ghost"
               className="text-[0.98rem] text-surface-100 h-[42px] px-[12px] md:px-[24px] rounded-[16px] hover:bg-surface/20 font-mono"
             >
-              <HugeiconsIcon icon={FallingStarIcon} size={16} /> Sign in for more
+              <HugeiconsIcon icon={FallingStarIcon} size={16} /> Sign in for
+              more
             </Button>
           )}
         </>
@@ -545,7 +600,7 @@ function PersonaStreamingResult({
       if (persona && (persona as any)?.extensions?.[name]) return;
       setExtraSections((prev) => [...prev, name]);
     },
-    [extraSections, isGenerating, persona]
+    [extraSections, isGenerating, persona],
   );
 
   const randomFollowUps = (() => {
@@ -555,7 +610,7 @@ function PersonaStreamingResult({
 
     const available = FOLLOW_UP_SUGGESTIONS.filter(
       (item) =>
-        !extensionKeys.includes(item.key) && !extraSections.includes(item.key)
+        !extensionKeys.includes(item.key) && !extraSections.includes(item.key),
     );
 
     const seed = object?.personaId ?? persona?.name ?? "persona";
@@ -678,7 +733,7 @@ function PersonaStreamingResult({
                       content={value}
                       personaId={object?.personaId}
                     />
-                  )
+                  ),
               )}
 
             {extraSections.map((prop) => (
@@ -704,7 +759,8 @@ function PersonaStreamingResult({
                       disabled={isGenerating}
                       onClick={() => addNewSection(item.key)}
                     >
-                      <HugeiconsIcon icon={FallingStarIcon} size={12} /> {item.label}
+                      <HugeiconsIcon icon={FallingStarIcon} size={12} />{" "}
+                      {item.label}
                     </Button>
                   ))}
                 </ButtonGroup>
@@ -744,12 +800,12 @@ function AddCustomPropertyPopover({
               formData.get("property")?.toString() ?? "",
               {
                 keepSpecialCharacters: false,
-              }
+              },
             );
 
             const property =
               await personaNewCustomPropertyNameSchema.parseAsync(
-                normalizedProperty
+                normalizedProperty,
               );
 
             onAdd(property);
@@ -827,13 +883,13 @@ function Section({
         action,
       });
     },
-    [submit, personaId, title, isGenerating, setActiveStream]
+    [submit, personaId, title, isGenerating, setActiveStream],
   );
 
   const autoStartedRef = useRef(false);
   const autoKey = useMemo(
     () => `${personaId ?? "none"}::${title}`,
-    [personaId, title]
+    [personaId, title],
   );
 
   useEffect(() => {
@@ -908,7 +964,10 @@ function Section({
       </div>
 
       {isLoading && !currentContent && (
-        <HugeiconsIcon icon={Loading02Icon} className="animate-spin my-[24px] ml-[6px]" />
+        <HugeiconsIcon
+          icon={Loading02Icon}
+          className="animate-spin my-[24px] ml-[6px]"
+        />
       )}
 
       <Response className="text-[1.05rem] w-full">{currentContent}</Response>

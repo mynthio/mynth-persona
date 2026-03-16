@@ -14,6 +14,8 @@ type CreatePersonaPayload = {
 
   title: string;
   data: PersonaData;
+
+  isCustom?: boolean;
 };
 
 export const createPersona = async (payload: CreatePersonaPayload) => {
@@ -23,13 +25,14 @@ export const createPersona = async (payload: CreatePersonaPayload) => {
   const title =
     payload.title && payload.title.length < 3
       ? payload.data.name
-      : payload.title ?? payload.data.name;
+      : (payload.title ?? payload.data.name);
 
   await db.transaction(async (tx) => {
     await tx.insert(personas).values({
       id: personaId,
       title: payload.title,
       userId: payload.userId,
+      isCustom: payload.isCustom ?? false,
     });
 
     await tx.insert(personaVersions).values({

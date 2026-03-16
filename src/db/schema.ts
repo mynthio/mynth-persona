@@ -22,7 +22,7 @@ import { relations, sql } from "drizzle-orm";
 // Enums for better type safety
 export const imageGenerationStatusEnum = pgEnum(
   "image_generation_status_enum",
-  ["pending", "processing", "completed", "failed"]
+  ["pending", "processing", "completed", "failed"],
 );
 
 export const transactionTypeEnum = pgEnum("transaction_type_enum", [
@@ -144,7 +144,7 @@ export const users = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (t) => [unique("users_username_unique").on(t.username)]
+  (t) => [unique("users_username_unique").on(t.username)],
 );
 
 // Personas table - basic metadata only
@@ -163,11 +163,11 @@ export const personas = pgTable(
       () => media.id,
       {
         onDelete: "set null",
-      }
+      },
     ),
     profileSpotlightMediaId: text("profile_spotlight_media_id").references(
       () => media.id,
-      { onDelete: "set null" }
+      { onDelete: "set null" },
     ),
 
     visibility: personaVisibilityEnum("visibility")
@@ -187,6 +187,7 @@ export const personas = pgTable(
     slug: varchar("slug", { length: 200 }),
     lastPublishAttempt: jsonb("last_publish_attempt"),
     event: varchar("event", { length: 50 }),
+    isCustom: boolean("is_custom").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -196,7 +197,7 @@ export const personas = pgTable(
     index("personas_nsfw_rating_idx").on(t.nsfwRating),
     index("personas_gender_idx").on(t.gender),
     unique("personas_slug_unique").on(t.slug),
-  ]
+  ],
 );
 
 // Persona versions - actual persona data and versions
@@ -229,7 +230,7 @@ export const chats = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (t) => [index("chats_user_id_idx").on(t.userId)]
+  (t) => [index("chats_user_id_idx").on(t.userId)],
 );
 
 // Chat personas junction table - many-to-many relationship between chats and personas
@@ -249,7 +250,7 @@ export const chatPersonas = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (t) => [primaryKey({ columns: [t.chatId, t.personaId] })]
+  (t) => [primaryKey({ columns: [t.chatId, t.personaId] })],
 );
 
 // Messages table - chat messages with branching support
@@ -272,7 +273,7 @@ export const messages = pgTable(
   (t) => [
     index("messages_chat_id_idx").on(t.chatId),
     index("messages_parent_id_idx").on(t.parentId),
-  ]
+  ],
 );
 
 // Image generations table - tracks the AI generation process/request
@@ -325,7 +326,7 @@ export const mediaGenerations = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
     completedAt: timestamp("completed_at"),
   },
-  (t) => [index("media_generations_status_idx").on(t.status)]
+  (t) => [index("media_generations_status_idx").on(t.status)],
 );
 
 // Media table - unified storage for images and videos
@@ -378,9 +379,9 @@ export const media = pgTable(
     index("media_published_at_idx").on(t.publishedAt),
     check(
       "media_rating_average_percentage_check",
-      sql`${t.ratingAveragePercentage} >= 0 AND ${t.ratingAveragePercentage} <= 100`
+      sql`${t.ratingAveragePercentage} >= 0 AND ${t.ratingAveragePercentage} <= 100`,
     ),
-  ]
+  ],
 );
 
 // Tags table - predefined tags for personas
@@ -394,7 +395,7 @@ export const tags = pgTable(
     sortOrder: integer("sort_order").notNull().default(0),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  (t) => [unique("tags_name_unique").on(t.name)]
+  (t) => [unique("tags_name_unique").on(t.name)],
 );
 
 // Persona-Tags junction with confidence 0-100
@@ -414,9 +415,9 @@ export const personaTags = pgTable(
     primaryKey({ columns: [t.personaId, t.tagId] }),
     check(
       "persona_tags_confidence_check",
-      sql`${t.confidence} >= 0 AND ${t.confidence} <= 100`
+      sql`${t.confidence} >= 0 AND ${t.confidence} <= 100`,
     ),
-  ]
+  ],
 );
 
 // User tokens - current balance and daily usage tracking
@@ -484,7 +485,7 @@ export const scenarios = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     verifiedBy: varchar("verified_by", { length: 255 }).references(
       () => users.id,
-      { onDelete: "set null" }
+      { onDelete: "set null" },
     ),
     verifiedAt: timestamp("verified_at"),
     preferredGroupMembers: integer("preferred_group_members")
@@ -502,7 +503,7 @@ export const scenarios = pgTable(
     index("scenarios_status_idx").on(t.status),
     index("scenarios_creator_id_idx").on(t.creatorId),
     index("scenarios_content_rating_idx").on(t.contentRating),
-  ]
+  ],
 );
 
 // Scenario-Personas junction table - links personas to scenarios with roles
@@ -523,7 +524,7 @@ export const scenarioPersonas = pgTable(
   (t) => [
     primaryKey({ columns: [t.scenarioId, t.personaId] }),
     index("scenario_personas_role_type_idx").on(t.roleType),
-  ]
+  ],
 );
 
 // Ratings table - user ratings for scenarios
@@ -545,7 +546,7 @@ export const ratings = pgTable(
     unique("ratings_scenario_user_unique").on(t.scenarioId, t.userId),
     check("ratings_rating_check", sql`${t.rating} >= 1 AND ${t.rating} <= 5`),
     index("ratings_scenario_id_idx").on(t.scenarioId),
-  ]
+  ],
 );
 
 // Relations for better querying
@@ -597,7 +598,7 @@ export const personaVersionsRelations = relations(
       references: [personas.id],
     }),
     chatPersonas: many(chatPersonas),
-  })
+  }),
 );
 
 export const chatsRelations = relations(chats, ({ one, many }) => ({
@@ -654,7 +655,7 @@ export const imageGenerationsRelations = relations(
       fields: [imageGenerations.imageId],
       references: [images.id],
     }),
-  })
+  }),
 );
 
 export const imagesRelations = relations(images, ({ one }) => ({
@@ -672,7 +673,7 @@ export const mediaGenerationsRelations = relations(
   mediaGenerations,
   ({ many }) => ({
     media: many(media),
-  })
+  }),
 );
 
 // Media reactions: votes (thumbs up/down), likes (saves), comments
@@ -692,7 +693,7 @@ export const mediaVotes = pgTable(
   (t) => [
     primaryKey({ columns: [t.mediaId, t.userId] }),
     index("media_votes_is_upvote_idx").on(t.isUpvote),
-  ]
+  ],
 );
 
 export const mediaComments = pgTable(
@@ -713,7 +714,7 @@ export const mediaComments = pgTable(
   (t) => [
     index("media_comments_media_id_idx").on(t.mediaId),
     index("media_comments_user_id_idx").on(t.userId),
-  ]
+  ],
 );
 
 export const mediaLikes = pgTable(
@@ -730,7 +731,7 @@ export const mediaLikes = pgTable(
   (t) => [
     primaryKey({ columns: [t.mediaId, t.userId] }),
     index("media_likes_user_id_idx").on(t.userId),
-  ]
+  ],
 );
 
 export const mediaRelations = relations(media, ({ one, many }) => ({
@@ -818,7 +819,7 @@ export const tokenTransactionsRelations = relations(
       fields: [tokenTransactions.userId],
       references: [users.id],
     }),
-  })
+  }),
 );
 
 export const scenariosRelations = relations(scenarios, ({ one, many }) => ({
@@ -845,7 +846,7 @@ export const scenarioPersonasRelations = relations(
       fields: [scenarioPersonas.personaId],
       references: [personas.id],
     }),
-  })
+  }),
 );
 
 export const ratingsRelations = relations(ratings, ({ one }) => ({

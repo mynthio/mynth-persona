@@ -4,6 +4,10 @@ import { getOpenRouter } from "@/lib/generation/text-generation/providers/open-r
 import { generateObject } from "ai";
 import ms from "ms";
 import { ChatSettings } from "@/schemas/backend/chats/chat.schema";
+import {
+  CHAT_IMAGE_PROMPT_FALLBACK_MODELS,
+  CHAT_IMAGE_PROMPT_PRIMARY_MODEL,
+} from "@/config/shared/models/chat-image-prompt-models.config";
 
 type CraftImagePromptForSceneImagePayload = {
   personaData: any;
@@ -37,20 +41,22 @@ export async function craftImagePromptForSceneImage(
   const personaName = personaData?.name || "Character";
   const personaGender = personaData?.gender || "Unknown";
   const personaAge = personaData?.age || "Unknown";
-  const personaAppearance = personaData?.appearance || "No appearance description available";
+  const personaAppearance =
+    personaData?.appearance || "No appearance description available";
   const personaSummary = personaData?.summary || "";
 
-  // Extract scenario context if available
-  const scenarioContext = chatSettings?.scenario?.scenario_text || "";
+  const scenarioContext = chatSettings?.scenario?.scenario_text?.trim() || "";
+  const scenarioStyleGuidelines =
+    chatSettings?.scenario?.style_guidelines?.trim() || "";
 
   const system = `
-You are an elite prompt engineer for text-to-image models specialized in creating reference scene images for roleplay characters.
+You are an elite prompt engineer for text-to-image models specialized in creating canonical reference images for roleplay characters.
 
 MODEL: ${modelName}
 
 TASK
 Generate a detailed image prompt for a full-body character reference image.
-This image will be used as a reference for generating future scene images, so it must clearly show the character's full appearance.
+This image will be used as a reference for future message images, so identity clarity and outfit consistency matter more than cinematic experimentation.
 
 CHARACTER IDENTITY (must preserve exactly)
 - Name: ${personaName}
@@ -63,14 +69,16 @@ COMPOSITION REQUIREMENTS
 - Full-body shot showing the character from head to toe
 - Character should be centered and clearly visible
 - Simple, clean background (solid color or subtle gradient preferred)
-- Natural, neutral pose that shows the character's full appearance
-- Good lighting that highlights the character's features and clothing
+- Natural standing or relaxed three-quarter pose that clearly shows the full silhouette
+- Arms, hands, hair, footwear, accessories, and outfit layers should remain visible unless the character description makes that impossible
+- Good lighting that highlights the character's facial features, hairstyle, and clothing construction
 
 STYLE & RENDERING
 - Create photorealistic images with natural lighting
 - Use precise photographic language: camera angle, lighting mood, color palette
 - Professional portrait photography style
 - Clean, simple composition focused on the character
+- Preserve one coherent canonical outfit; do not mix incompatible garments just to include every detail from the description
 
 BACKGROUND
 - Keep background simple and non-distracting
@@ -85,20 +93,27 @@ SAFETY
 
 OUTPUT FORMAT
 Return ONLY the final prompt paragraph, no markup, no section labels.
-Maximum 3000 characters.
+Maximum 170 words.
 `.trim();
 
   const prompt = `
-${scenarioContext ? `Scenario context: ${scenarioContext}\n\n` : ""}Generate a full-body reference image of ${personaName}.
+${scenarioContext ? `Scenario context: ${scenarioContext}\n\n` : ""}${
+    scenarioStyleGuidelines
+      ? `Scenario style guidance: ${scenarioStyleGuidelines}\n\n`
+      : ""
+  }Generate a full-body reference image of ${personaName}.
 
 Requirements:
 - Full-body shot, head to toe
 - Simple, clean background (solid color or subtle)
-- Natural, neutral standing pose
+- Natural standing or relaxed three-quarter pose
 - Clear view of character's appearance, clothing, and features
 - Professional photography style with good lighting
+- Prioritize a single cohesive canonical outfit and visible accessories that will work well as future reference input
 
 Character details: ${personaAppearance}
+
+${personaSummary ? `Character summary: ${personaSummary}` : ""}
 `.trim();
 
   utilLogger.debug({
@@ -113,8 +128,11 @@ Character details: ${personaAppearance}
   });
 
   const openRouter = getOpenRouter();
-  const model = openRouter("x-ai/grok-4-fast", {
-    models: ["moonshotai/kimi-k2-0905"],
+  const model = openRouter(CHAT_IMAGE_PROMPT_PRIMARY_MODEL, {
+    models: CHAT_IMAGE_PROMPT_FALLBACK_MODELS,
+    usage: {
+      include: true,
+    },
   });
 
   const result = await generateObject({

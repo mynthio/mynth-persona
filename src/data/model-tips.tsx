@@ -10,6 +10,48 @@ export type ModelTip = {
  * This allows tips defined once to apply to all variants of a model.
  */
 const MODEL_TIPS_BY_BASE: Record<string, ModelTip[]> = {
+  "aion-labs/aion-2.0": [
+    {
+      id: "aion-2.0-tension",
+      content: (
+        <>
+          Aion 2.0 is especially good when a scene has pressure: a want, an
+          obstacle, a secret, or a risk. If you give it friction to work with,
+          it tends to create more vivid and engaging turns.
+        </>
+      ),
+    },
+    {
+      id: "aion-2.0-structured-guidance",
+      content: (
+        <>
+          This model responds well to concrete setup. Scenario details, style
+          guidelines, and short author notes usually steer it better than long,
+          abstract instructions.
+        </>
+      ),
+    },
+    {
+      id: "aion-2.0-pacing",
+      content: (
+        <>
+          If you want brisk, dynamic replies, start with a short active message.
+          If it becomes too reflective or analytical, add an author note like
+          &quot;keep it reactive, sensory, and in the moment.&quot;
+        </>
+      ),
+    },
+    {
+      id: "aion-2.0-cozy",
+      content: (
+        <>
+          Aion naturally leans toward tension and sharper stakes. For cozy,
+          gentle, or low-conflict chat, say that explicitly and it will usually
+          settle into the softer tone.
+        </>
+      ),
+    },
+  ],
   "nousresearch/hermes-4-70b": [
     {
       id: "hermes-4-placeholder",

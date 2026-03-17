@@ -16,6 +16,12 @@ export const DEFAULT_CHAT_MODEL: TextGenerationModelId =
 export const chatConfig: ChatConfig = {
   models: [
     {
+      modelId: "aion-labs/aion-2.0:eco",
+    },
+    {
+      modelId: "aion-labs/aion-2.0:standard",
+    },
+    {
       modelId: "deepseek/deepseek-v3.2:eco",
     },
     {
@@ -65,9 +71,6 @@ export const chatConfig: ChatConfig = {
       modelId: "google/gemini-3-flash-preview:standard",
     },
     {
-      modelId: "aion-labs/aion-rp-llama-3.1-8b:standard",
-    },
-    {
       modelId: "meta-llama/llama-3.3-70b-instruct:standard",
     },
     {
@@ -81,6 +84,9 @@ export const chatConfig: ChatConfig = {
     },
     {
       modelId: "openai/gpt-oss-20b:standard",
+    },
+    {
+      modelId: "aion-labs/aion-rp-llama-3.1-8b:standard",
     },
     {
       modelId: "nvidia/nemotron-nano-9b-v2:standard",

@@ -12,74 +12,49 @@ export const personaGenerationModels: PersonaGenerationModel[] = [
     priority: 0,
   },
   {
-    id: "thedrummer/unslopnemo-12b",
-    displayName: "Unslopnemo 12B",
-    priority: 0.5,
-  },
-  {
-    id: "meta-llama/llama-4-maverick",
-    displayName: "Llama 4 Maverick",
-    priority: 0.2,
-  },
-  {
     id: "moonshotai/kimi-k2-0905",
     displayName: "Kimi K2",
-    priority: 0.5,
+    priority: 0.4,
   },
   {
     id: "moonshotai/kimi-k2.5",
     displayName: "Kimi K2.5",
-    priority: 0.7,
+    priority: 0.65,
   },
   {
-    id: "x-ai/grok-3-mini",
-    displayName: "Grok 3 Mini",
-    priority: 0.2,
+    id: "x-ai/grok-4.20-multi-agent-beta",
+    displayName: "Grok 4.20 Beta",
+    priority: 0.18,
   },
   {
     id: "x-ai/grok-4-fast",
     displayName: "Grok 4 Fast",
-    priority: 0.1,
+    priority: 0.12,
   },
   {
     id: "sao10k/l3.3-euryale-70b",
     displayName: "L3.3 Euryale 70B",
-    priority: 0.3,
-  },
-  {
-    id: "openai/gpt-5-mini",
-    displayName: "GPT-5 Mini",
-    priority: 0.4,
+    priority: 0.28,
   },
   {
     id: "z-ai/glm-4.6",
     displayName: "GLM 4.6",
-    priority: 0.2,
+    priority: 0.18,
   },
   {
-    id: "inception/mercury",
-    displayName: "Mercury",
-    priority: 0.2,
-  },
-  {
-    id: "amazon/nova-2-lite-v1",
-    displayName: "Nova 2 Lite",
-    priority: 0.0,
-  },
-  {
-    id: "nex-agi/deepseek-v3.1-nex-n1:free",
-    displayName: "DeepSeek V3.1 Nex N1",
-    priority: 0.0,
-  },
-  {
-    id: "tngtech/tng-r1t-chimera",
-    displayName: "TNG R1T Chimera",
-    priority: 0.0,
+    id: "aion-labs/aion-2.0",
+    displayName: "Aion 2.0",
+    priority: 0.16,
   },
   {
     id: "google/gemini-3.1-pro-preview",
     displayName: "Gemini 3.1 Pro Preview",
-    priority: 0.0,
+    priority: 0.05,
+  },
+  {
+    id: "bytedance-seed/seed-2.0-lite",
+    displayName: "Seed 2.0 Lite",
+    priority: 0.02,
   },
 ];
 

@@ -32,6 +32,7 @@ import {
   trackImageGenerationFailed,
   flushAnalytics,
 } from "@/lib/analytics";
+import { MESSAGE_IMAGE_PROMPT_CONTEXT_CONFIG } from "@/config/shared/models/chat-image-prompt-models.config";
 
 // Zod schema for input validation
 const GenerateMessageImageTaskPayloadSchema = z.object({
@@ -167,11 +168,20 @@ export const generateMessageImageTask = task({
     const { messages: messagesData } = await getChatMessagesData(chatId, {
       messageId: messageId,
       strict: true,
-      limit: 4,
+      limit: MESSAGE_IMAGE_PROMPT_CONTEXT_CONFIG.fetchLimit,
     });
 
     // Get the appropriate model
     const imageGenerationModel = ImageGenerationFactory.byModelId(modelId);
+
+    // Get scene image URL from chat settings if it exists (only for character mode)
+    const sceneImageMediaId = chatSettings?.sceneImageMediaId;
+    let referenceImages: string[] = [];
+
+    if (mode === "character" && sceneImageMediaId) {
+      const sceneImageUrl = `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/media/${sceneImageMediaId}.webp`;
+      referenceImages = [sceneImageUrl];
+    }
 
     let imagePrompt = metadata.get("imagePrompt") as string | undefined;
 
@@ -198,15 +208,6 @@ export const generateMessageImageTask = task({
 
       imagePrompt = imageGenerationResult.prompt;
       metadata.set("imagePrompt", imagePrompt);
-    }
-
-    // Get scene image URL from chat settings if it exists (only for character mode)
-    const sceneImageMediaId = chatSettings?.sceneImageMediaId;
-    let referenceImages: string[] = [];
-
-    if (mode === "character" && sceneImageMediaId) {
-      const sceneImageUrl = `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/media/${sceneImageMediaId}.webp`;
-      referenceImages = [sceneImageUrl];
     }
 
     const imagesPerGeneration = getImagesPerGeneration(modelId, {

@@ -12,6 +12,8 @@ export type TextGenerationModelId =
   | "z-ai/glm-4.5-air:standard"
   | "deepseek/deepseek-v3.2:standard"
   | "deepseek/deepseek-v3.2:eco"
+  | "aion-labs/aion-2.0:standard"
+  | "aion-labs/aion-2.0:eco"
   | "aion-labs/aion-rp-llama-3.1-8b:standard"
   | "openai/gpt-oss-20b:standard"
   | "meituan/longcat-flash-chat:standard"
@@ -361,6 +363,62 @@ export const textGenerationModels: Record<
       storesMessages: "yes",
       additionalNotes:
         "Does not sell data, offers opt-out options for sharing and analytics, supports anonymous API use, data deleted from live systems within 30 days upon request, backups may be kept for legal or safety reasons.",
+    },
+  },
+  "aion-labs/aion-2.0:standard": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    description:
+      "A DeepSeek V3.2 variant tuned for immersive roleplay, especially strong at building tension, conflict, and sharper narrative turns while still handling mature or darker scenes with more nuance than flatter chat models.",
+    style:
+      "Prefers active scenes with friction, subtext, and forward motion. Responds well to concise, concrete setup and clearly defined character/scenario constraints. A strong fit for darker, mature, or conflict-heavy roleplay without needing overly long prompts.",
+    displayName: "Aion 2.0",
+    modelId: "aion-labs/aion-2.0:standard",
+    openRouterModelId: "aion-labs/aion-2.0",
+    uncensored: true,
+    perks: [
+      "naturally adds tension, stakes, and conflict to scenes",
+      "131K context for long-running roleplay sessions",
+      "handles mature and darker themes with more nuance",
+    ],
+    tags: ["roleplay", "long-context", "reasoning"],
+    tier: "standard",
+    provider: {
+      url: "https://www.aionlabs.ai/",
+      displayName: "Aion Labs",
+      privacyPolicyUrl: "https://www.aionlabs.ai/privacy-policy",
+      training: "unknown",
+      storesMessages: "yes",
+      additionalNotes:
+        "Accessed via OpenRouter. OpenRouter reports support for reasoning controls and up to 32,768 completion tokens on the top provider.",
+    },
+  },
+  "aion-labs/aion-2.0:eco": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    description:
+      "A DeepSeek V3.2 variant tuned for immersive roleplay, especially strong at building tension, conflict, and sharper narrative turns while still handling mature or darker scenes with more nuance than flatter chat models.",
+    style:
+      "Prefers active scenes with friction, subtext, and forward motion. Responds well to concise, concrete setup and clearly defined character/scenario constraints. A strong fit for darker, mature, or conflict-heavy roleplay without needing overly long prompts.",
+    displayName: "Aion 2.0",
+    modelId: "aion-labs/aion-2.0:eco",
+    openRouterModelId: "aion-labs/aion-2.0",
+    uncensored: true,
+    perks: [
+      "naturally adds tension, stakes, and conflict to scenes",
+      "131K context for long-running roleplay sessions",
+      "handles mature and darker themes with more nuance",
+    ],
+    tags: ["roleplay", "long-context", "reasoning"],
+    tier: "eco",
+    provider: {
+      url: "https://www.aionlabs.ai/",
+      displayName: "Aion Labs",
+      privacyPolicyUrl: "https://www.aionlabs.ai/privacy-policy",
+      training: "unknown",
+      storesMessages: "yes",
+      additionalNotes:
+        "Accessed via OpenRouter. OpenRouter reports support for reasoning controls and up to 32,768 completion tokens on the top provider.",
     },
   },
   "aion-labs/aion-rp-llama-3.1-8b:standard": {

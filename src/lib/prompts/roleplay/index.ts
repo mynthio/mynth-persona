@@ -1,3 +1,4 @@
+import { renderAionRoleplayPrompt } from "./aion";
 import { renderDefaultRoleplayPrompt } from "./default";
 import { renderGeminiRoleplayPrompt } from "./gemini";
 import { renderHermesRoleplayPrompt } from "./hermes";
@@ -18,6 +19,8 @@ export type { RoleplayPromptArgs, RoleplayPromptStyle, RoleplayPromptRenderer };
  * Add model-specific prompts here as needed.
  */
 const promptsByModel: Partial<Record<string, RoleplayPromptRenderer>> = {
+  "aion-labs/aion-2.0:standard": renderAionRoleplayPrompt,
+  "aion-labs/aion-2.0:eco": renderAionRoleplayPrompt,
   "nousresearch/hermes-4-70b:standard": renderHermesRoleplayPrompt,
   "nousresearch/hermes-4-70b:eco": renderHermesRoleplayPrompt,
   "google/gemini-2.5-flash-preview-09-2025:standard":
@@ -121,6 +124,7 @@ export function renderRoleplaySystemPrompt(
 
 // Re-export the default renderer for direct access if needed
 export {
+  renderAionRoleplayPrompt,
   renderDefaultRoleplayPrompt,
   renderGeminiRoleplayPrompt,
   renderHermesRoleplayPrompt,

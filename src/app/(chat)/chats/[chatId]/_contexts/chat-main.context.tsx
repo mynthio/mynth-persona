@@ -18,6 +18,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface ChatContextValue {
   chatId: string;
+  title: string;
   mode: ChatMode;
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
@@ -36,12 +37,14 @@ const ChatMainContext = createContext<ChatContextValue | undefined>(undefined);
 
 export function ChatMainProvider({
   chatId,
+  title,
   mode: initialMode,
   initialModelId,
   initialSettings,
   children,
 }: {
   chatId: string;
+  title: string;
   mode: ChatMode;
   initialModelId?: TextGenerationModelId;
   initialSettings: ChatSettings;
@@ -99,6 +102,7 @@ export function ChatMainProvider({
   const value = useMemo<ChatContextValue>(
     () => ({
       chatId,
+      title,
       mode: modeState,
       sidebarOpen,
       setSidebarOpen,
@@ -114,6 +118,7 @@ export function ChatMainProvider({
     }),
     [
       chatId,
+      title,
       modeState,
       sidebarOpen,
       setSidebarOpen,

@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Copy01Icon,
   Delete02Icon,
   LayoutAlignRightIcon,
   Loading02Icon,
@@ -16,8 +17,20 @@ import {
   TopBarTitle,
 } from "@/components/layout/top-bar";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { useChatPersonas } from "../_contexts/chat-personas.context";
 import { useChatMain } from "../_contexts/chat-main.context";
+import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,19 +50,25 @@ import {
 } from "@/components/ui/alert-dialog";
 import { createChatAction } from "@/actions/create-chat.action";
 import { deleteChatAction } from "@/actions/delete-chat.action";
+import { cloneChatAction } from "@/actions/clone-chat.action";
 import { useRouter } from "next/navigation";
 import { useSWRConfig } from "swr";
 import { toast } from "sonner";
 
 export function ChatTopBar({ className }: { className?: string }) {
-  const { sidebarOpen, setSidebarOpen, chatId } = useChatMain();
+  const { sidebarOpen, setSidebarOpen, chatId, title } = useChatMain();
   const { personas } = useChatPersonas();
+  const { branchId } = useChatBranchesContext();
   const { mutate } = useSWRConfig();
   const router = useRouter();
 
   const [isCreatingChat, setIsCreatingChat] = useState(false);
   const [isDeletingChat, setIsDeletingChat] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isCloneDialogOpen, setIsCloneDialogOpen] = useState(false);
+  const [isCloningChat, setIsCloningChat] = useState(false);
+  const [cloneTitle, setCloneTitle] = useState("");
+  const [cloneActiveBranchOnly, setCloneActiveBranchOnly] = useState(true);
 
   const persona = personas[0];
 
@@ -87,6 +106,37 @@ export function ChatTopBar({ className }: { className?: string }) {
         description: errorMessage,
       });
       setIsDeletingChat(false);
+    }
+  };
+
+  const handleOpenCloneDialog = () => {
+    setCloneTitle(`${title} (Copy)`);
+    setCloneActiveBranchOnly(true);
+    setIsCloneDialogOpen(true);
+  };
+
+  const handleCloneChat = async () => {
+    if (isCloningChat) return;
+
+    setIsCloningChat(true);
+    try {
+      const result = await cloneChatAction({
+        chatId,
+        title: cloneTitle,
+        activeBranchOnly: cloneActiveBranchOnly,
+        leafId: branchId,
+      });
+      await mutate("/api/chats");
+      setIsCloneDialogOpen(false);
+      router.push(`/chats/${result.id}`);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unexpected error";
+      toast.error("Failed to clone chat", {
+        description: errorMessage,
+      });
+    } finally {
+      setIsCloningChat(false);
     }
   };
 
@@ -151,6 +201,16 @@ export function ChatTopBar({ className }: { className?: string }) {
                   {sidebarOpen ? "Hide chat panel" : "Show chat panel"}
                 </DropdownMenuItem>
 
+                <DropdownMenuItem
+                  onSelect={(event) => {
+                    event.preventDefault();
+                    handleOpenCloneDialog();
+                  }}
+                >
+                  <HugeiconsIcon icon={Copy01Icon} />
+                  Clone chat
+                </DropdownMenuItem>
+
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem
@@ -195,6 +255,59 @@ export function ChatTopBar({ className }: { className?: string }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={isCloneDialogOpen} onOpenChange={setIsCloneDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Clone chat</DialogTitle>
+            <DialogDescription>
+              Create a copy of this chat with all settings and personas.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-4 py-2">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="clone-title">Title</Label>
+              <Input
+                id="clone-title"
+                value={cloneTitle}
+                onChange={(e) => setCloneTitle(e.target.value)}
+                placeholder="Chat title"
+              />
+            </div>
+
+            <Label className="flex items-center gap-2">
+              <Checkbox
+                checked={cloneActiveBranchOnly}
+                onCheckedChange={(checked) =>
+                  setCloneActiveBranchOnly(checked === true)
+                }
+              />
+              Clone only active branch
+            </Label>
+            <p className="text-sm text-muted-foreground -mt-2">
+              When checked, only the current conversation thread is copied.
+              Uncheck to include all branches.
+            </p>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsCloneDialogOpen(false)}
+              disabled={isCloningChat}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => void handleCloneChat()}
+              disabled={isCloningChat}
+            >
+              {isCloningChat ? "Cloning..." : "Clone"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -65,6 +65,7 @@ export default async function ChatDetailPage({
         <ChatMainProvider
           initialSettings={chat.settings as ChatSettingsSchema}
           chatId={chat.id}
+          title={chat.title ?? "Untitled"}
           mode={chat.mode}
           initialModelId={
             (chat.settings as { model?: string } | null)?.model as

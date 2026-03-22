@@ -28,6 +28,7 @@ import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import { generateChatSceneImage } from "@/actions/generate-chat-scene-image";
 import {
   IMAGE_MODELS,
+  getGenerationModels,
   type ImageModelId,
   isModelBeta,
   isModelNew,
@@ -534,7 +535,7 @@ function SceneImageSection() {
               Choose an image model
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {Object.values(IMAGE_MODELS).map((model) => (
+            {getGenerationModels().map((model) => (
               <DropdownMenuItem
                 key={model.id}
                 onClick={() => handleSelectModel(model.id)}

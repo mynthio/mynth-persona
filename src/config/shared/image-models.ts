@@ -99,6 +99,16 @@ export const IMAGE_MODELS = {
     supportsReferenceImages: false,
     imagesPerGeneration: 1,
   },
+  "xai/grok-imagine-image": {
+    id: "xai/grok-imagine-image" as const,
+    displayName: "Grok Imagine Image",
+    cost: 1,
+    width: 768,
+    height: 1408,
+    supportsReferenceImages: true,
+    imagesPerGeneration: 1,
+    new: true,
+  },
   // Cost 2 - Premium models
   "google/gemini-flash-image-2.5": {
     id: "google/gemini-flash-image-2.5" as const,
@@ -127,6 +137,46 @@ export const IMAGE_MODELS = {
     supportsReferenceImages: false,
     imagesPerGeneration: 1,
   },
+  "alibaba/qwen-image-2.0": {
+    id: "alibaba/qwen-image-2.0" as const,
+    displayName: "Qwen Image 2.0",
+    cost: 2,
+    width: 768,
+    height: 1344,
+    supportsReferenceImages: true,
+    imagesPerGeneration: 1,
+    new: true,
+  },
+  "google/nano-banana-2": {
+    id: "google/nano-banana-2" as const,
+    displayName: "Nano Banana 2",
+    cost: 2,
+    width: 768,
+    height: 1376,
+    supportsReferenceImages: true,
+    imagesPerGeneration: 1,
+    new: true,
+  },
+  "klingai/kling-image-3.0": {
+    id: "klingai/kling-image-3.0" as const,
+    displayName: "Kling Image 3.0",
+    cost: 2,
+    width: 768,
+    height: 1360,
+    supportsReferenceImages: true,
+    imagesPerGeneration: 1,
+    new: true,
+  },
+  "recraft/recraft-v4": {
+    id: "recraft/recraft-v4" as const,
+    displayName: "Recraft V4",
+    cost: 2,
+    width: 768,
+    height: 1344,
+    supportsReferenceImages: false,
+    imagesPerGeneration: 1,
+    new: true,
+  },
   "seedream/seedream-5.0-lite": {
     id: "seedream/seedream-5.0-lite" as const,
     displayName: "SeeDream 5.0 Lite",
@@ -145,6 +195,16 @@ export const IMAGE_MODELS = {
     height: 1344,
     supportsReferenceImages: false,
     imagesPerGeneration: 1,
+  },
+  "alibaba/qwen-image-2.0-pro": {
+    id: "alibaba/qwen-image-2.0-pro" as const,
+    displayName: "Qwen Image 2.0 Pro",
+    cost: 3,
+    width: 768,
+    height: 1344,
+    supportsReferenceImages: true,
+    imagesPerGeneration: 1,
+    new: true,
   },
   "tencent/hunyuan-image-3.0": {
     id: "tencent/hunyuan-image-3.0" as const,
@@ -169,8 +229,77 @@ export const IMAGE_MODELS = {
 
 export type ImageModelId = keyof typeof IMAGE_MODELS;
 
+// Ranked in March 2026 from current vendor docs plus live arena/leaderboard data.
+// Creative mode favors broadly demanded, high-quality text-to-image defaults.
+const CREATIVE_UI_MODEL_ORDER: readonly ImageModelId[] = [
+  "google/gemini-flash-image-2.5",
+  "google/nano-banana-2",
+  "black-forest-labs/flux-2-pro",
+  "openai/gpt-image-1",
+  "xai/grok-imagine-image",
+  "tencent/hunyuan-image-3.0",
+  "google/imagen-4-preview",
+  "alibaba/qwen-image-2.0-pro",
+  "alibaba/qwen-image-2.0",
+  "seedream/seedream-5.0-lite",
+  "recraft/recraft-v4",
+  "klingai/kling-image-3.0",
+  "black-forest-labs/flux-2-dev",
+  "black-forest-labs/flux-2-klein-4b",
+  "qwen/qwen-image",
+  "black-forest-labs/flux-krea-dev",
+  "black-forest-labs/flux-dev",
+  "imagineart/imagineart-1.5",
+  "z-image/z-image-turbo",
+  "prunaai/p-image",
+  "prsna/bismuth-illustrious-mix-v5.0",
+  "qwen/qwen-image-edit-plus",
+  "sourceful/riverflow-2-fast",
+] as const;
+
+// Character mode uses reference images, so we bias toward stronger edit/multi-image models.
+const REFERENCE_UI_MODEL_ORDER: readonly ImageModelId[] = [
+  "google/gemini-flash-image-2.5",
+  "google/nano-banana-2",
+  "seedream/seedream-5.0-lite",
+  "black-forest-labs/flux-2-pro",
+  "xai/grok-imagine-image",
+  "alibaba/qwen-image-2.0-pro",
+  "alibaba/qwen-image-2.0",
+  "klingai/kling-image-3.0",
+  "black-forest-labs/flux-2-dev",
+  "black-forest-labs/flux-2-klein-4b",
+  "qwen/qwen-image-edit-plus",
+  "sourceful/riverflow-2-fast",
+  "qwen/qwen-image",
+] as const;
+
 export const DEFAULT_IMAGE_MODEL_ID: ImageModelId =
   "google/gemini-flash-image-2.5";
+
+const CREATIVE_UI_MODEL_ORDER_INDEX = new Map(
+  CREATIVE_UI_MODEL_ORDER.map((modelId, index) => [modelId, index] as const)
+);
+
+const REFERENCE_UI_MODEL_ORDER_INDEX = new Map(
+  REFERENCE_UI_MODEL_ORDER.map((modelId, index) => [modelId, index] as const)
+);
+
+const sortModelsByUiOrder = (
+  models: ReadonlyArray<(typeof IMAGE_MODELS)[ImageModelId]>,
+  orderIndex: ReadonlyMap<ImageModelId, number>
+) => {
+  return [...models].sort((a, b) => {
+    const aRank = orderIndex.get(a.id) ?? Number.MAX_SAFE_INTEGER;
+    const bRank = orderIndex.get(b.id) ?? Number.MAX_SAFE_INTEGER;
+
+    if (aRank !== bRank) {
+      return aRank - bRank;
+    }
+
+    return a.displayName.localeCompare(b.displayName);
+  });
+};
 
 // Helper to get model cost
 export const getModelCost = (modelId: ImageModelId): number => {
@@ -244,9 +373,20 @@ export const isModelEditOnly = (modelId: ImageModelId): boolean => {
   return (model && "editOnly" in model && model.editOnly === true) ?? false;
 };
 
+// Helper to get reference-capable models ordered for character/reference flows
+export const getReferenceImageModels = () => {
+  return sortModelsByUiOrder(
+    Object.values(IMAGE_MODELS).filter((model) => model.supportsReferenceImages),
+    REFERENCE_UI_MODEL_ORDER_INDEX
+  );
+};
+
 // Helper to get models available for image generation (excludes edit-only models)
 export const getGenerationModels = () => {
-  return Object.values(IMAGE_MODELS).filter(
-    (model) => !("editOnly" in model && model.editOnly === true)
+  return sortModelsByUiOrder(
+    Object.values(IMAGE_MODELS).filter(
+      (model) => !("editOnly" in model && model.editOnly === true)
+    ),
+    CREATIVE_UI_MODEL_ORDER_INDEX
   );
 };

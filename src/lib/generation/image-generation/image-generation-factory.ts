@@ -17,6 +17,12 @@ import { RunwareZImageTurbo } from "./runware/runware-z-image-turbo";
 import { RunwarePImage } from "./runware/runware-p-image";
 import { RunwareQwenImageEditPlus } from "./runware/runware-qwen-image-edit-plus";
 import { RunwareRiverflow2Fast } from "./runware/runware-riverflow-2-fast";
+import { RunwareQwenImage2 } from "./runware/runware-qwen-image-2";
+import { RunwareQwenImage2Pro } from "./runware/runware-qwen-image-2-pro";
+import { RunwareNanoBanana2 } from "./runware/runware-nano-banana-2";
+import { RunwareKlingImage3 } from "./runware/runware-kling-image-3";
+import { RunwareRecraftV4 } from "./runware/runware-recraft-v4";
+import { RunwareGrokImagineImage } from "./runware/runware-grok-imagine-image";
 import { logger } from "@/lib/logger";
 
 // Simple model class mapping
@@ -33,11 +39,17 @@ const MODEL_CLASS_MAP: Record<ImageModelId, new () => ImageGenerationBase> = {
   "imagineart/imagineart-1.5": RunwareImagineArt15,
   "z-image/z-image-turbo": RunwareZImageTurbo,
   "prunaai/p-image": RunwarePImage,
+  "xai/grok-imagine-image": RunwareGrokImagineImage,
   // Cost 2 - Premium models
   "openai/gpt-image-1": RunwareGPTImage1,
   "google/imagen-4-preview": RunwareImagen4,
+  "alibaba/qwen-image-2.0": RunwareQwenImage2,
+  "google/nano-banana-2": RunwareNanoBanana2,
+  "klingai/kling-image-3.0": RunwareKlingImage3,
+  "recraft/recraft-v4": RunwareRecraftV4,
   "seedream/seedream-5.0-lite": RunwareSeedream5Lite,
   "black-forest-labs/flux-2-pro": RunwareFlux2Pro,
+  "alibaba/qwen-image-2.0-pro": RunwareQwenImage2Pro,
   "tencent/hunyuan-image-3.0": RunwareHunyuanImage3,
   "sourceful/riverflow-2-fast": RunwareRiverflow2Fast,
 };

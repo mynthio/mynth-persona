@@ -24,13 +24,12 @@ import {
   ImageGenerationMode,
 } from "@/actions/generate-message-image";
 import {
-  IMAGE_MODELS,
   getGenerationModels,
+  getReferenceImageModels,
   getImagesPerGeneration,
   isModelBeta,
   isModelNew,
   ImageModelId,
-  supportsReferenceImages,
 } from "@/config/shared/image-models";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -42,9 +41,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 const GENERATION_MODELS = getGenerationModels();
-const CHARACTER_MODE_MODELS = Object.values(IMAGE_MODELS).filter((model) =>
-  supportsReferenceImages(model.id),
-);
+const CHARACTER_MODE_MODELS = getReferenceImageModels();
 const CREATIVE_MODE_MODELS = GENERATION_MODELS;
 
 type ChatMessageGenerateImageButtonProps = {

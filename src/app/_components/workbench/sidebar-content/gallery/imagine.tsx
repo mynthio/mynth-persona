@@ -26,8 +26,8 @@ import { usePersonaGenerationStore } from "@/stores/persona-generation.store";
 import { ImageStyle } from "@/types/image-generation/image-style.type";
 import { ShotType } from "@/types/image-generation/shot-type.type";
 import {
+  DEFAULT_IMAGE_MODEL_ID,
   ImageModelId,
-  IMAGE_MODELS,
   isModelBeta,
   isModelNew,
   getGenerationModels,
@@ -53,7 +53,7 @@ export default function Imagine() {
   const [, setWorkbenchMode] = useWorkbenchMode();
 
   const [options, setOptions] = useState<GenerationOptions>({
-    modelId: "black-forest-labs/flux-dev",
+    modelId: DEFAULT_IMAGE_MODEL_ID,
     style: "auto",
     shotType: "full-body",
     userNote: "",
@@ -315,7 +315,7 @@ export default function Imagine() {
             disabled={isLoading}
             onClick={() => {
               setOptions({
-                modelId: "black-forest-labs/flux-dev",
+                modelId: DEFAULT_IMAGE_MODEL_ID,
                 style: "auto",
                 shotType: "full-body",
                 userNote: "",

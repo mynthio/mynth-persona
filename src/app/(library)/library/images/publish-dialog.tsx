@@ -46,8 +46,8 @@ export function PublishDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex items-center justify-between space-x-4 py-4">
-          <div className="flex-1 space-y-1">
+        <div className="flex items-center justify-between gap-4 py-4">
+          <div className="flex-1 flex flex-col gap-1">
             <Label htmlFor="anonymous-mode" className="text-sm font-medium">
               Publish anonymously
             </Label>

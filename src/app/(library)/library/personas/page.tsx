@@ -280,8 +280,8 @@ export default async function PersonasPage({
   })();
 
   return (
-    <div className="w-full h-full max-w-4xl mx-auto px-4 py-8 md:px-6 md:py-10">
-      <div className="space-y-3">
+    <div className="size-full max-w-4xl mx-auto px-4 py-8 md:px-6 md:py-10">
+      <div className="flex flex-col gap-3">
         <form action="/library/personas" className="w-full px-2">
           <InputGroup>
             <InputGroupInput

@@ -4,7 +4,7 @@ import { DISCORD_INVITE_URL } from "@/lib/constants";
 
 export default function ImagesPage() {
   return (
-    <div className="w-full h-full flex items-center justify-center max-w-xl mx-auto flex-col gap-[24px] text-center">
+    <div className="size-full flex items-center justify-center max-w-xl mx-auto flex-col gap-[24px] text-center">
       <p>
         <HugeiconsIcon icon={Image02Icon} size={64} />
       </p>

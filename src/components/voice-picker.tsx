@@ -165,14 +165,14 @@ export function VoicePicker({
 
           <div className="min-h-0 px-3 pb-3">
             <div className="max-h-[calc(85vh-7rem)] overflow-y-auto overscroll-contain pr-1">
-              <div className="space-y-4">
+              <div className="flex flex-col gap-4">
                 {grouped.map((group) => (
-                  <div key={group.label} className="space-y-2">
+                  <div key={group.label} className="flex flex-col gap-2">
                     <p className="px-1 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
                       {group.label}
                     </p>
 
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       {group.voices.map((voice) => {
                         const isSelected = currentVoiceId === voice.id;
                         const isPlaying = playingId === voice.id;

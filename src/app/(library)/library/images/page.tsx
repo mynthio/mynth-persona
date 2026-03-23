@@ -245,8 +245,8 @@ export default async function ImagesPage({ searchParams }: ImagesPageProps) {
   })();
 
   return (
-    <div className="w-full h-full max-w-[1600px] mx-auto px-4 py-8 md:px-6 md:py-10">
-      <div className="space-y-6">
+    <div className="size-full max-w-[1600px] mx-auto px-4 py-8 md:px-6 md:py-10">
+      <div className="flex flex-col gap-6">
         {result.data.length === 0 ? (
           <Empty className="rounded-xl bg-linear-to-br from-background/80 via-card/80 to-muted/60 backdrop-blur-sm">
             <EmptyHeader>
@@ -288,7 +288,7 @@ export default async function ImagesPage({ searchParams }: ImagesPageProps) {
                     <img
                       src={getImageUrl(img.id, "thumb")}
                       alt={img.title || "Generated image"}
-                      className="w-full h-full object-cover"
+                      className="size-full object-cover"
                       loading="lazy"
                       draggable={false}
                     />

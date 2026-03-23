@@ -38,6 +38,7 @@ import { useChatMain } from "../_contexts/chat-main.context";
 import { CreateChatButton } from "@/components/create-chat-button";
 import { DeleteChat } from "./delete-chat";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { useDebounce } from "@uidotdev/usehooks";
 import { chatConfig } from "@/config/shared/chat/chat-models.config";
 import {
@@ -115,7 +116,7 @@ function ChatSettingsMobile(props: ChatSettingsMobileProps) {
         <SheetHeader>
           <SheetTitle className="sr-only">Chat Settings</SheetTitle>
         </SheetHeader>
-        <div className="relative w-full h-full min-h-0">
+        <div className="relative size-full min-h-0">
           <ScrollArea className="h-full w-full">
             <div className="px-[24px] pt-[24px]">
               <ChatSettingsContent />
@@ -155,7 +156,7 @@ function ChatSettingsContent() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -4 }}
           transition={{ duration: 0.18, ease: "easeOut" }}
-          className="w-full h-full"
+          className="size-full"
         >
           {contentComponent}
         </motion.div>
@@ -198,7 +199,7 @@ function ChatSettingsHome() {
         <p className="font-mono uppercase text-[0.75rem] shrink-0 text-surface-foreground/50">
           Danger Zone
         </p>
-        <hr className="w-full h-[1px] bg-surface-foreground/50" />
+        <Separator className="bg-surface-foreground/50" />
       </div>
 
       <div className="flex items-center justify-between gap-[32px]">
@@ -267,7 +268,7 @@ function ChatSettingsUser() {
 
   return (
     <form
-      className="space-y-[24px]"
+      className="flex flex-col gap-[24px]"
       onSubmit={(e) => {
         e.preventDefault();
         form.handleSubmit();
@@ -386,7 +387,7 @@ function ChatSettingsScenario() {
 
   return (
     <form
-      className="space-y-[24px]"
+      className="flex flex-col gap-[24px]"
       onSubmit={(e) => {
         e.preventDefault();
         form.handleSubmit();
@@ -466,7 +467,7 @@ function ChatSettingsVoice() {
   }
 
   return (
-    <div className="space-y-[24px]">
+    <div className="flex flex-col gap-[24px]">
       <div className="flex flex-col gap-[8px]">
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-[2px]">
@@ -568,7 +569,7 @@ function ChatSettingsModel() {
           className="w-full"
         />
       </div>
-      <div className="space-y-[12px]">
+      <div className="flex flex-col gap-[12px]">
         {models.map((model) => (
           <ModelCard
             isSelected={model.modelId === modelId}
@@ -623,7 +624,7 @@ function ModelCard(props: {
                 variant="default"
                 className="bg-emerald-500 text-white hover:bg-emerald-600"
               >
-                Eco <HugeiconsIcon icon={GiftIcon} strokeWidth={2} className="w-4 h-4" />
+                Eco <HugeiconsIcon icon={GiftIcon} strokeWidth={2} />
               </Badge>
             )}
 

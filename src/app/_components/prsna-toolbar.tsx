@@ -68,13 +68,13 @@ export function PrsnaToolbar({ className }: { className?: string }) {
                 <button
                   key="submit-btn"
                   type="submit"
-                  className="bg-foreground text-background rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:bg-primary hover:text-primary-foreground hover:scale-110 active:scale-90 transition-all animate-pop-in"
+                  className="bg-foreground text-background rounded-full size-10 flex items-center justify-center shadow-lg hover:bg-primary hover:text-primary-foreground hover:scale-110 active:scale-90 transition-all animate-pop-in"
                 >
                   <HugeiconsIcon icon={MailSend01Icon} className="size-4" strokeWidth={1.5} />
                 </button>
               ) : (
                 <div className="text-muted-foreground/20">
-                  <div className="w-2 h-2 rounded-full bg-current" />
+                  <div className="size-2 rounded-full bg-current" />
                 </div>
               )}
             </div>

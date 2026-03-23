@@ -131,7 +131,7 @@ export default function Imagine() {
                 Model
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 w-full">
+            <CardContent className="flex flex-col gap-2 w-full">
               <TooltipProvider>
                 {getGenerationModels().map((model) => {
                   const isPremium = model.cost > 1;
@@ -215,14 +215,14 @@ export default function Imagine() {
                       <ItemActions className="shrink-0">
                         <div
                           className={cn(
-                            "relative flex items-center justify-center w-5 h-5 rounded-full border-2 transition-all",
+                            "relative flex items-center justify-center size-5 rounded-full border-2 transition-all",
                             selected
                               ? "border-primary bg-primary"
                               : "border-muted-foreground/30"
                           )}
                         >
                           {selected && (
-                            <Check className="w-3 h-3 text-primary-foreground" />
+                            <Check className="size-3 text-primary-foreground" />
                           )}
                         </div>
                       </ItemActions>
@@ -284,7 +284,7 @@ export default function Imagine() {
                 Additional Notes
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="flex flex-col gap-2">
               <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
                 <span>Optional details for the generation</span>
                 <span>{options.userNote.length}/500</span>
@@ -375,13 +375,13 @@ function StyleCard({
           <img
             src={styleImages[style]!}
             alt={`${styleLabels[style]} example`}
-            className="w-full h-full object-cover"
+            className="size-full object-cover"
           />
         ) : null}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         {selected && (
-          <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary grid place-items-center">
-            <Check className="w-3 h-3 text-primary-foreground" />
+          <div className="absolute top-1.5 right-1.5 size-5 rounded-full bg-primary grid place-items-center">
+            <Check className="size-3 text-primary-foreground" />
           </div>
         )}
         <div className="absolute bottom-1.5 left-1.5 text-white text-[11px] font-semibold px-2 py-1 rounded-md bg-black/50 backdrop-blur-sm">
@@ -428,12 +428,12 @@ function ShotTypeCard({
         <img
           src={images[shotType]}
           alt={`${labels[shotType]} example`}
-          className="w-full h-full object-cover"
+          className="size-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         {selected && (
-          <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary grid place-items-center">
-            <Check className="w-3 h-3 text-primary-foreground" />
+          <div className="absolute top-1.5 right-1.5 size-5 rounded-full bg-primary grid place-items-center">
+            <Check className="size-3 text-primary-foreground" />
           </div>
         )}
         <div className="absolute bottom-1.5 left-1.5 text-white text-[11px] font-semibold px-2 py-1 rounded-md bg-black/50 backdrop-blur-sm">

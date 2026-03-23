@@ -61,16 +61,16 @@ function Persona() {
             {/* Profile image */}
             <div className="w-28 h-36 sm:w-32 sm:h-40 shrink-0">
               {persona?.profileImageIdMedia ? (
-                <div className="relative rounded-xl overflow-hidden w-full h-full border border-border/30 shadow-[0_12px_30px_-18px_rgba(124,58,237,0.35)]">
+                <div className="relative rounded-xl overflow-hidden size-full border border-border/30 shadow-[0_12px_30px_-18px_rgba(124,58,237,0.35)]">
                   <img
-                    className="w-full h-full object-cover"
+                    className="size-full object-cover"
                     src={getImageUrl(persona.profileImageIdMedia)}
                     alt="Persona profile"
                   />
                   <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
                 </div>
               ) : (
-                <div className="w-full h-full rounded-xl overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm text-muted-foreground flex flex-col items-center justify-center gap-3 p-3">
+                <div className="size-full rounded-xl overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm text-muted-foreground flex flex-col items-center justify-center gap-3 p-3">
                   <HugeiconsIcon icon={User03Icon} className="size-8 text-muted-foreground/50" />
                   <Button
                     variant="outline"

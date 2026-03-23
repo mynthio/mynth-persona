@@ -608,7 +608,7 @@ export default function FloatingLines({
   return (
     <div
       ref={containerRef}
-      className="w-full h-full relative overflow-hidden floating-lines-container"
+      className="size-full relative overflow-hidden floating-lines-container"
       style={{
         mixBlendMode: mixBlendMode,
       }}

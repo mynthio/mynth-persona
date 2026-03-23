@@ -9,9 +9,9 @@ interface LoadingSpinnerProps {
 
 export function LoadingSpinner({ className, size = "md" }: LoadingSpinnerProps) {
   const sizeClasses = {
-    sm: "w-8 h-8",
-    md: "w-12 h-12",
-    lg: "w-16 h-16",
+    sm: "size-8",
+    md: "size-12",
+    lg: "size-16",
   } as const;
 
   return (
@@ -45,7 +45,7 @@ export function LoadingSpinner({ className, size = "md" }: LoadingSpinnerProps) 
 export function CompactSpinner({ className }: { className?: string }) {
   return (
     <div className={cn("inline-flex items-center justify-center", className)}>
-      <div className="relative w-5 h-5">
+      <div className="relative size-5">
         {/* Gradient ring (compact) */}
         <div
           className={cn(

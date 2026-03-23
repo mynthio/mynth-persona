@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/command";
 import { useUserChatsQuery } from "@/app/_queries/use-user-chats.query";
 import { cn } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
+import { Kbd } from "@/components/ui/kbd";
 
 interface ChatSearchDialogProps {
   open: boolean;
@@ -83,7 +85,7 @@ export function ChatSearchDialog({
           <CommandList className="max-h-[min(50vh,400px)] p-2">
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
-                <div className="size-8 rounded-full border-2 border-primary/20 border-t-primary animate-spin" />
+                <Spinner className="size-8" />
                 <span className="text-sm text-muted-foreground">
                   Searching...
                 </span>
@@ -129,7 +131,7 @@ export function ChatSearchDialog({
                     />
                   </div>
                   <div className="flex-1 min-w-0 overflow-hidden">
-                    <p className="text-sm font-medium truncate text-foreground/90 overflow-hidden text-ellipsis whitespace-nowrap">
+                    <p className="text-sm font-medium truncate text-foreground/90">
                       {chat.title || "Untitled Chat"}
                     </p>
                     {chat.updatedAt && (
@@ -167,25 +169,17 @@ export function ChatSearchDialog({
           <div className="relative px-4 py-2.5 flex items-center justify-between text-[11px] text-muted-foreground/50">
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 rounded bg-muted/50 dark:bg-white/5 font-mono">
-                  ↑
-                </kbd>
-                <kbd className="px-1.5 py-0.5 rounded bg-muted/50 dark:bg-white/5 font-mono">
-                  ↓
-                </kbd>
+                <Kbd>↑</Kbd>
+                <Kbd>↓</Kbd>
                 <span className="ml-1">Navigate</span>
               </span>
               <span className="flex items-center gap-1">
-                <kbd className="px-1.5 py-0.5 rounded bg-muted/50 dark:bg-white/5 font-mono">
-                  ↵
-                </kbd>
+                <Kbd>↵</Kbd>
                 <span className="ml-1">Open</span>
               </span>
             </div>
             <span className="flex items-center gap-1">
-              <kbd className="px-1.5 py-0.5 rounded bg-muted/50 dark:bg-white/5 font-mono">
-                Esc
-              </kbd>
+              <Kbd>Esc</Kbd>
               <span className="ml-1">Close</span>
             </span>
           </div>

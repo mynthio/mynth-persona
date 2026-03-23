@@ -19,7 +19,7 @@ export default function HelpCryptoPage() {
 
       {/* Content */}
       <div className="mt-8 bg-surface rounded-2xl p-8">
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
           <p className="text-surface-foreground text-[1.1rem] leading-relaxed">
             Hey, prsna.app explorer! We're keeping things simple and private
             here – your AI personas, chats, and universes stay just yours. No
@@ -38,7 +38,7 @@ export default function HelpCryptoPage() {
           <h2 className="text-2xl font-medium text-surface-foreground mt-8">
             Quick Steps to Get Sparks
           </h2>
-          <ol className="list-decimal pl-6 space-y-4 text-surface-foreground/90">
+          <ol className="list-decimal pl-6 flex flex-col gap-4 text-surface-foreground/90">
             <li>
               <span className="font-semibold text-surface-foreground">
                 Grab a Wallet:

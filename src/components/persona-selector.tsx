@@ -378,7 +378,7 @@ function PersonaSelectorContent() {
             No personas found
           </div>
         ) : (
-          <div className="space-y-1 p-2">
+          <div className="flex flex-col gap-1 p-2">
             {allPersonas.map((persona) => {
               const isSelected = selectedPersonas.some(
                 (p) => p.id === persona.id

@@ -37,7 +37,7 @@ const FAQ_ITEMS: FaqItem[] = [
         <p className="mt-2">
           <strong>Key features:</strong>
         </p>
-        <ul className="list-disc pl-6 space-y-1">
+        <ul className="list-disc pl-6 flex flex-col gap-1">
           <li>
             <strong>Universal access:</strong> Same 100 messages per 2 hours
             limit for all users (Free, Spark, Flame, and Blaze)
@@ -122,7 +122,7 @@ const FAQ_ITEMS: FaqItem[] = [
         <p>
           Yep! Refunds are based on usage since we have a free tier for testing:
         </p>
-        <ul className="list-disc pl-6 space-y-1">
+        <ul className="list-disc pl-6 flex flex-col gap-1">
           <li>
             Under 50% of monthly quota used = refund available (full or partial)
           </li>

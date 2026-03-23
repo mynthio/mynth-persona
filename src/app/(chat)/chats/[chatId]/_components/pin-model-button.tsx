@@ -37,7 +37,7 @@ export function PinModelButton({
       <button
         onClick={handleClick}
         className={cn(
-          "flex items-center justify-center w-[32px] h-[32px] rounded-[10px] transition-all duration-150",
+          "flex items-center justify-center size-[32px] rounded-[10px] transition-all duration-150",
           "hover:bg-surface-200/50 active:scale-95",
           "opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100",
           {
@@ -49,11 +49,11 @@ export function PinModelButton({
       >
         {pinned ? (
           <HugeiconsIcon icon={PinIcon}
-            className="w-[16px] h-[16px] text-blue-600"
+            className="size-[16px] text-blue-600"
           />
         ) : (
           <HugeiconsIcon icon={PinOffIcon}
-            className="w-[16px] h-[16px] text-surface-foreground/40"
+            className="size-[16px] text-surface-foreground/40"
           />
         )}
       </button>

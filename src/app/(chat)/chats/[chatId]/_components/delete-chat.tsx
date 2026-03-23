@@ -44,11 +44,11 @@ export function DeleteChat() {
           Delete
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="-mt-8 w-96 max-w-[calc(100vw-3rem)] rounded-lg bg-gray-50 p-6 text-gray-900 outline outline-gray-200 dark:outline-gray-300">
+      <AlertDialogContent className="-mt-8 w-96 max-w-[calc(100vw-3rem)] rounded-lg bg-card p-6 text-card-foreground outline outline-border">
         <AlertDialogTitle className="-mt-1.5 mb-1 text-lg font-onest font-medium">
           Delete chat?
         </AlertDialogTitle>
-        <AlertDialogDescription className="mb-6 text-base text-gray-600">
+        <AlertDialogDescription className="mb-6 text-base text-muted-foreground">
           You can’t undo this action.
         </AlertDialogDescription>
         <AlertDialogFooter className="gap-4 sm:gap-4">

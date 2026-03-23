@@ -80,7 +80,7 @@ export default async function ChatDetailPage({
               activeBranch={leafId}
             >
               <div className="flex h-full items-start w-full">
-                <div className="flex flex-col items-start w-full h-full min-h-screen [&>*:nth-child(2)]:h-full [&>*:nth-child(2)]:flex-1">
+                <div className="flex flex-col items-start size-full min-h-screen [&>*:nth-child(2)]:h-full [&>*:nth-child(2)]:flex-1">
                   <ChatTopBar className="shrink-0" />
 
                   {hasNoMessages && <ChatIntro />}

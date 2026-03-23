@@ -59,7 +59,7 @@ export default function ScenariosPage() {
 
   if (isLoading || !initialData) {
     return (
-      <div className="w-full h-full">
+      <div className="size-full">
         <TopBar
           left={<TopBarSidebarTrigger />}
           center={
@@ -80,7 +80,7 @@ export default function ScenariosPage() {
         <div className="px-6 py-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex flex-col space-y-3">
+              <div key={i} className="flex flex-col gap-3">
                 <Skeleton className="h-[220px] w-full rounded-xl" />
               </div>
             ))}
@@ -91,7 +91,7 @@ export default function ScenariosPage() {
   }
 
   return (
-    <div className="w-full h-full">
+    <div className="size-full">
       <TopBar
         left={<TopBarSidebarTrigger />}
         center={

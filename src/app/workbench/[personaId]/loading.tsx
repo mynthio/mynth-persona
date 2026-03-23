@@ -4,7 +4,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 
 export default function PersonaLoadingPage() {
   return (
-    <div className="w-full h-full min-h-[80vh] flex items-center justify-center">
+    <div className="size-full min-h-[80vh] flex items-center justify-center">
       <HugeiconsIcon icon={Loading02Icon} className="animate-spin" />
     </div>
   );

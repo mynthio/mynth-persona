@@ -55,7 +55,7 @@ export function PersonaCard({ persona, index }: PersonaCardProps) {
         <img
           src={getImageUrl(persona.profileImageIdMedia)}
           alt={persona.publicName}
-          className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+          className="size-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
         />
 
         {/* Video overlay - only rendered when hovered and has video */}
@@ -68,7 +68,7 @@ export function PersonaCard({ persona, index }: PersonaCardProps) {
             playsInline
             preload="none"
             autoPlay
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 size-full object-cover"
           />
         )}
 

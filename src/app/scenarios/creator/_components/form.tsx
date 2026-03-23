@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
 import {
   MultiSelect,
   MultiSelectContent,
@@ -50,7 +51,7 @@ function FormSection({
         <span className="text-[0.85rem] font-mono shrink-0 truncate text-surface-foreground/50 uppercase">
           {title}
         </span>
-        <hr className="border-0 bg-surface-foreground/5 h-[2px] w-full" />
+        <Separator className="bg-surface-foreground/5 h-[2px]" />
       </div>
 
       <div className="mt-4 sm:mt-6 flex flex-col gap-3 sm:gap-[12px]">{children}</div>
@@ -211,7 +212,7 @@ export default function ScenarioCreatorForm() {
 
   return (
     <form
-      className="space-y-6 sm:space-y-12"
+      className="flex flex-col gap-6 sm:gap-12"
       onSubmit={(e) => {
         e.preventDefault();
         form.handleSubmit();
@@ -225,7 +226,7 @@ export default function ScenarioCreatorForm() {
             You can use the following template variables in any field of your
             scenario:
           </p>
-          <ul className="list-disc list-inside space-y-1 mt-2">
+          <ul className="list-disc list-inside flex flex-col gap-1 mt-2">
             <li>
               <code className="bg-muted px-1.5 py-0.5 rounded font-mono text-xs break-all">
                 {"{"}
@@ -330,7 +331,7 @@ export default function ScenarioCreatorForm() {
               }}
               multiple
             >
-              <div className="space-y-[12px] w-full">
+              <div className="flex flex-col gap-[12px] w-full">
                 <div className="flex flex-col gap-[2px]">
                   <PersonaSelectorValue>
                     {(persona, removePersona) => {
@@ -470,9 +471,9 @@ export default function ScenarioCreatorForm() {
               AI and user a starting point.
             </FieldDescription>
 
-            <div className="space-y-3 sm:space-y-[12px] w-full">
+            <div className="flex flex-col gap-3 sm:gap-[12px] w-full">
               {startingMessages.map((message, index) => (
-                <div key={index} className="space-y-1 sm:space-y-[4px]">
+                <div key={index} className="flex flex-col gap-1 sm:gap-[4px]">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-xs sm:text-sm font-medium capitalize">
                       {message.role}
@@ -660,9 +661,9 @@ export default function ScenarioCreatorForm() {
           </form.Field>
         </FormSection>
 
-        <div className="pt-4 sm:pt-6 space-y-3 sm:space-y-[12px]">
+        <div className="pt-4 sm:pt-6 flex flex-col gap-3 sm:gap-[12px]">
           {submitError && (
-            <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-[12px] p-3 sm:p-[12px]">
+            <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-[12px] p-3 sm:p-[12px]">
               {submitError}
             </div>
           )}

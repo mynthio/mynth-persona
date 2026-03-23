@@ -114,7 +114,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
   return (
     <div
       ref={containerRef}
-      className="w-full h-full max-w-3xl mx-auto transition-[padding] duration-300 relative z-0"
+      className="size-full max-w-3xl mx-auto transition-[padding] duration-300 relative z-0"
       style={{ paddingBottom: dynamicPaddingBottom }}
     >
       {isLoadingMore && (

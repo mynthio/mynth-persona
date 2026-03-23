@@ -97,7 +97,7 @@ export default function GalleryContent() {
             <img
               src={getImageUrl(img.id, "thumb")}
               alt="Persona image"
-              className="w-full h-full object-cover"
+              className="size-full object-cover"
               draggable={false}
             />
           </div>
@@ -200,11 +200,11 @@ function GalleryImageInProgress({
       {Array.from({ length: tilesToRender }).map((_, index) => (
         <div
           key={`${runId}-loading-${index}`}
-          className="aspect-square w-full h-full min-w-32 min-h-32 rounded-md overflow-hidden relative bg-gradient-to-br from-muted/50 to-background/60 border border-border"
+          className="aspect-square size-full min-w-32 min-h-32 rounded-md overflow-hidden relative bg-gradient-to-br from-muted/50 to-background/60 border border-border"
         >
           <div className="absolute inset-0 flex items-center justify-center">
             {isFailed || isPartialCompletion ? (
-              <div className="flex flex-col items-center gap-2 text-red-400">
+              <div className="flex flex-col items-center gap-2 text-destructive">
                 <HugeiconsIcon icon={ImageNotFound02Icon} size={28} />
                 <div className="text-[11px]">Failed to generate</div>
               </div>
@@ -218,7 +218,7 @@ function GalleryImageInProgress({
             )}
           </div>
 
-          <div className="w-full h-full bg-zinc-100 dark:bg-zinc-900" />
+          <div className="size-full bg-zinc-100 dark:bg-zinc-900" />
         </div>
       ))}
     </>

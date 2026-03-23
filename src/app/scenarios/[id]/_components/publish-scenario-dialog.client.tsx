@@ -116,7 +116,7 @@ function PublishScenarioForm(props: PublishScenarioFormProps) {
 
   return (
     <form
-      className="space-y-[24px] mt-[24px] max-w-[400px] mx-auto"
+      className="flex flex-col gap-[24px] mt-[24px] max-w-[400px] mx-auto"
       onSubmit={(e) => {
         e.preventDefault();
         form.handleSubmit();
@@ -239,9 +239,9 @@ function PublishScenarioForm(props: PublishScenarioFormProps) {
         }}
       </form.Field>
 
-      <div className="space-y-[12px] pt-[12px]">
+      <div className="flex flex-col gap-[12px] pt-[12px]">
         {submitError && (
-          <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-[12px] p-[12px]">
+          <div className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-[12px] p-[12px]">
             {submitError}
           </div>
         )}
@@ -266,7 +266,7 @@ function PublishInfo() {
         </Button>
       </PopoverTrigger>
       <PopoverContent side="top" className="max-w-[420px]">
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <h3 className="text-[1.05rem] font-[500] font-onest">
             Publishing scenario
           </h3>

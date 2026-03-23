@@ -235,7 +235,7 @@ export function ImageDetailsDialog({
 
             <div className="relative z-10 flex h-full flex-col p-3 sm:p-5 lg:p-6">
               <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 space-y-1.5">
+                <div className="min-w-0 flex flex-col gap-1.5">
                   <div
                     className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/30 px-2 py-0.5 text-[10px] font-medium tracking-[0.08em] text-white/82 uppercase backdrop-blur-md"
                     title={isPublished ? "Live in Art Gallery" : "Private Library"}
@@ -309,8 +309,8 @@ export function ImageDetailsDialog({
 
           <section className="flex min-h-0 flex-1 flex-col bg-[linear-gradient(180deg,rgba(24,24,28,0.95)_0%,rgba(15,15,18,0.98)_100%)]">
             <ScrollArea className="min-h-0 flex-1">
-              <div className="space-y-6 px-4 py-4 sm:px-5 sm:py-5">
-                <div className="space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+              <div className="flex flex-col gap-6 px-4 py-4 sm:px-5 sm:py-5">
+                <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-3">
                   <p className="text-[11px] font-medium tracking-[0.16em] text-white/50 uppercase">
                     Actions
                   </p>
@@ -369,7 +369,7 @@ export function ImageDetailsDialog({
                     ))}
                 </div>
 
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                   <div>
                     <p className="text-[11px] font-medium tracking-[0.16em] text-white/50 uppercase">
                       Image Information

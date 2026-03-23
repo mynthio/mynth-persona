@@ -9,8 +9,8 @@ export function CreateSection() {
   return (
     <section className="relative py-20 md:py-32 pb-12 md:pb-16 px-5 sm:px-6 md:px-16 overflow-hidden bg-background">
       {/* Animated gradient orbs */}
-      <div className="absolute top-1/4 left-1/4 w-72 h-72 sm:w-96 sm:h-96 bg-primary/20 rounded-full blur-[128px] animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-72 h-72 sm:w-96 sm:h-96 bg-pink-500/15 rounded-full blur-[128px] animate-pulse delay-1000" />
+      <div className="absolute top-1/4 left-1/4 size-72 sm:size-96 bg-primary/20 rounded-full blur-[128px] animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 size-72 sm:size-96 bg-pink-500/15 rounded-full blur-[128px] animate-pulse delay-1000" />
       <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/90 to-background" />
 
       <div className="relative max-w-4xl mx-auto text-center">

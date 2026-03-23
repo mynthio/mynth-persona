@@ -296,7 +296,7 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
       </div>
       {/* Base image as poster and fallback */}
       <img
-        className="w-full h-full block absolute           
+        className="size-full block absolute           
           top-0 left-0 right-0 bottom-0 
           object-top object-cover "
         src={getImageUrl(persona.profileImageIdMedia)}
@@ -308,7 +308,7 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
       {hasVideo && videoUrl ? (
         <video
           ref={videoRef}
-          className={`w-full h-full absolute top-0 left-0 right-0 bottom-0 object-cover transition-opacity duration-200 ${
+          className={`size-full absolute top-0 left-0 right-0 bottom-0 object-cover transition-opacity duration-200 ${
             isVideoVisible ? "opacity-100" : "opacity-0"
           }`}
           src={videoUrl}

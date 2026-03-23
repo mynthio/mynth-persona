@@ -27,8 +27,8 @@ export default async function ChatsPage({ searchParams }: PageProps<"/chats">) {
   if (!randomPersona) return null;
 
   return (
-    <div className="w-full h-full">
-      <div className="max-w-3xl mx-auto space-y-[48px] pt-[48px]">
+    <div className="size-full">
+      <div className="max-w-3xl mx-auto flex flex-col gap-[48px] pt-[48px]">
         <h1 className="text-center font-onest text-[2.7rem] capitalize">
           {randomPersona.publicName}
         </h1>
@@ -46,7 +46,7 @@ export default async function ChatsPage({ searchParams }: PageProps<"/chats">) {
               width={220}
               height={320}
               src={getImageUrl(randomPersona.profileImageIdMedia!, "full")}
-              className="object-cover w-full h-full absolute top-0 left-0 rounded-[32px] blur-[12px] opacity-50 -z-1"
+              className="object-cover size-full absolute top-0 left-0 rounded-[32px] blur-[12px] opacity-50 -z-1"
               alt={randomPersona.publicName!}
               loading="lazy"
             />

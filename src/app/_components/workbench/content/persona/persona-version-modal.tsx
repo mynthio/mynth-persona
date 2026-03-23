@@ -96,9 +96,9 @@ export default function PersonaVersionModal() {
             <MiniWaveLoader size="md" aria-label="Loading version" />
           </div>
         ) : data ? (
-          <div className="space-y-4 max-h-[60vh] overflow-auto pr-1">
+          <div className="flex flex-col gap-4 max-h-[60vh] overflow-auto pr-1">
             {fields.map((f) => (
-              <div key={`${f.label}`} className="space-y-1">
+              <div key={`${f.label}`} className="flex flex-col gap-1">
                 <div className="font-semibold">{f.label}</div>
                 <div className="text-sm whitespace-pre-wrap break-words">
                   {f.value || "—"}

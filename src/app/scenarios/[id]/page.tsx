@@ -85,7 +85,7 @@ export default async function ScenarioPage({
 
   return (
     <>
-      <div className="w-full h-full pb-16">
+      <div className="size-full pb-16">
         <TopBar
           left={<TopBarSidebarTrigger />}
           center={
@@ -164,12 +164,12 @@ export default async function ScenarioPage({
             <img
               src={scenario.backgroundImageUrl}
               alt={scenario.title}
-              className="absolute left-0 top-0 w-full h-full object-cover object-center"
+              className="absolute left-0 top-0 size-full object-cover object-center"
             />
           )}
         </div>
 
-        <div className="max-w-[720px] mx-auto mt-6 px-4 space-y-8">
+        <div className="max-w-[720px] mx-auto mt-6 px-4 flex flex-col gap-8">
           {/* Header Section */}
           <div className="flex justify-between items-start gap-4">
             <div className="flex-1 min-w-0">
@@ -190,7 +190,7 @@ export default async function ScenarioPage({
           )}
 
           {/* Personas Section */}
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <div className="flex items-center gap-4">
               <h2 className="text-sm font-mono uppercase text-muted-foreground tracking-wider">
                 Personas
@@ -211,7 +211,7 @@ export default async function ScenarioPage({
                               scenarioPersona.persona.profileImageIdMedia
                             )}
                             alt={scenarioPersona.persona.title ?? ""}
-                            className="absolute top-0 left-0 w-full h-full object-cover object-top"
+                            className="absolute top-0 left-0 size-full object-cover object-top"
                           />
                         )}
                       </div>
@@ -242,7 +242,7 @@ export default async function ScenarioPage({
           </div>
 
           {/* Scenario Content */}
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <div className="flex items-center gap-4">
               <h2 className="text-sm font-mono uppercase text-muted-foreground tracking-wider">
                 Scenario
@@ -257,7 +257,7 @@ export default async function ScenarioPage({
           </div>
 
           {/* User Character */}
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <div className="flex items-center gap-4">
               <h2 className="text-sm font-mono uppercase text-muted-foreground tracking-wider">
                 User Character
@@ -265,7 +265,7 @@ export default async function ScenarioPage({
               <Separator className="flex-1" />
             </div>
             <Card>
-              <CardContent className="space-y-3">
+              <CardContent className="flex flex-col gap-3">
                 <h3 className="text-xl font-onest font-medium">
                   {scenario.content.suggested_user_name}
                 </h3>
@@ -279,14 +279,14 @@ export default async function ScenarioPage({
           {/* Starting Messages */}
           {scenario.content.starting_messages &&
             scenario.content.starting_messages.length > 0 && (
-              <div className="space-y-4">
+              <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-4">
                   <h2 className="text-sm font-mono uppercase text-muted-foreground tracking-wider">
                     Starting Messages
                   </h2>
                   <Separator className="flex-1" />
                 </div>
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                   {scenario.content.starting_messages.map((message, i) => (
                     <div className="flex justify-start" key={i}>
                       <Card className="max-w-[85%] rounded-2xl">
@@ -302,7 +302,7 @@ export default async function ScenarioPage({
 
           {/* Style Guidelines */}
           {scenario.content.style_guidelines && (
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               <div className="flex items-center gap-4">
                 <h2 className="text-sm font-mono uppercase text-muted-foreground tracking-wider">
                   Style Guidelines
@@ -319,7 +319,7 @@ export default async function ScenarioPage({
 
           {/* System Prompt Override */}
           {scenario.content.system_prompt_override && (
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               <div className="flex items-center gap-4">
                 <h2 className="text-sm font-mono uppercase text-muted-foreground tracking-wider">
                   System Prompt Override
@@ -337,7 +337,7 @@ export default async function ScenarioPage({
           {/* Suggested Models */}
           {scenario.suggestedAiModels &&
             scenario.suggestedAiModels.length > 0 && (
-              <div className="space-y-4">
+              <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-4">
                   <h2 className="text-sm font-mono uppercase text-muted-foreground tracking-wider">
                     Suggested Models
@@ -346,7 +346,7 @@ export default async function ScenarioPage({
                 </div>
                 <Card>
                   <CardContent>
-                    <ul className="space-y-2">
+                    <ul className="flex flex-col gap-2">
                       {scenario.suggestedAiModels.map((model, i) => (
                         <li key={i} className="flex items-center gap-2">
                           <Badge variant="outline">{model}</Badge>

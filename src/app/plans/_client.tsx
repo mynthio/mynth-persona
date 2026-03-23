@@ -30,11 +30,11 @@ export function Plans() {
             whileTap={{ scale: 0.98 }}
           >
             {/* Background gradient overlay */}
-            <div className="absolute -z-5 top-0 left-0 w-full h-full bg-gradient-to-t from-black/40 to-black/20" />
+            <div className="absolute -z-5 top-0 left-0 size-full bg-gradient-to-t from-black/40 to-black/20" />
 
             {/* Animated background image */}
             <motion.img
-              className="-z-10 absolute bottom-0 left-0 w-full h-full object-cover"
+              className="-z-10 absolute bottom-0 left-0 size-full object-cover"
               src="/period_bg.jpg"
               loading="lazy"
               alt="Period background"
@@ -245,7 +245,7 @@ function Plan(props: PlanProps) {
       </div>
 
       {props.features && (
-        <div className="px-[2rem] pb-[1.5rem] mt-[1.3rem] h-full space-y-[8px]">
+        <div className="px-[2rem] pb-[1.5rem] mt-[1.3rem] h-full flex flex-col gap-[8px]">
           {props.features.map((feature, idx) => (
             <div
               key={idx}
@@ -279,11 +279,11 @@ function Plan(props: PlanProps) {
         )}
       </div>
 
-      <StarsBackground className="absolute -z-3 top-0 left-0 w-full h-full" />
+      <StarsBackground className="absolute -z-3 top-0 left-0 size-full" />
 
-      <div className="absolute -z-5 top-0 left-0 w-full h-full bg-gradient-to-tr from-primary/50 via-primary-80 to-primary" />
+      <div className="absolute -z-5 top-0 left-0 size-full bg-gradient-to-tr from-primary/50 via-primary-80 to-primary" />
       <img
-        className="-z-10 absolute bottom-0 left-0 w-full h-full object-cover"
+        className="-z-10 absolute bottom-0 left-0 size-full object-cover"
         src={props.imageUrl}
         loading="lazy"
         alt={`${props.name} plan background`}

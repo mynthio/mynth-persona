@@ -128,7 +128,7 @@ export default function PersonaCreator({
   };
 
   return (
-    <section className="relative min-h-[75vh] flex flex-col items-center justify-center overflow-hidden bg-background">
+    <section className="relative min-h-[75vh] flex flex-col items-center justify-center overflow-hidden bg-transparent">
       <div className="relative z-10 w-full max-w-3xl mx-auto px-5 sm:px-6 md:px-8">
         {/* Header */}
         <motion.div

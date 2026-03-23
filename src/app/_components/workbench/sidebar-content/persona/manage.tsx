@@ -126,7 +126,7 @@ export default function WorkbenchSidebarManage() {
 
   return (
     <div className="h-full min-h-0 flex flex-col">
-      <div className="flex-1 min-h-0 p-3 space-y-3">
+      <div className="flex-1 min-h-0 p-3 flex flex-col gap-3">
         {/* Publish status card */}
         <div className="rounded-xl border border-border/30 bg-card/20 backdrop-blur-sm overflow-hidden">
           <div className="p-4">
@@ -174,7 +174,7 @@ export default function WorkbenchSidebarManage() {
 
           <Separator className="bg-border/20" />
 
-          <div className="p-4 space-y-3">
+          <div className="p-4 flex flex-col gap-3">
             {isPublished && (
               <Alert className="border-amber-500/20 bg-amber-500/5 text-amber-600 dark:text-amber-400">
                 <AlertTriangle className="h-4 w-4 text-amber-500" />
@@ -189,7 +189,7 @@ export default function WorkbenchSidebarManage() {
             )}
 
             {/* Status detail */}
-            <div className="rounded-lg bg-card/30 border border-border/20 p-3 space-y-1.5">
+            <div className="rounded-lg bg-card/30 border border-border/20 p-3 flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-medium text-foreground/70 uppercase tracking-wider">
                   Status
@@ -297,7 +297,7 @@ export default function WorkbenchSidebarManage() {
               Publishing your persona makes it permanent and public.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="flex flex-col gap-4 py-4">
             <p className="text-sm text-muted-foreground">
               Once you publish your persona, it becomes publicly discoverable
               and can generate content on the platform.
@@ -473,7 +473,7 @@ function VoiceCard({
 
       <Separator className="bg-border/20" />
 
-      <div className="p-4 space-y-3">
+      <div className="p-4 flex flex-col gap-3">
         <div className="flex gap-2">
           <VoicePicker
             currentVoiceId={voiceId}

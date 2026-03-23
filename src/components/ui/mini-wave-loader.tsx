@@ -44,15 +44,15 @@ export const MiniWaveLoader = React.memo(function MiniWaveLoader({
   const phase = phases[phaseIndex] ?? 0;
 
   const sizeClasses = {
-    xs: "w-1.5 h-1.5 gap-0.5",
-    sm: "w-2 h-2 gap-0.5",
-    md: "w-2.5 h-2.5 gap-0.5",
-    lg: "w-3 h-3 gap-1",
+    xs: "size-1.5 gap-0.5",
+    sm: "size-2 gap-0.5",
+    md: "size-2.5 gap-0.5",
+    lg: "size-3 gap-1",
   } as const;
 
-  const [dotW, dotH, gap] = React.useMemo(() => {
+  const [dotSize, gap] = React.useMemo(() => {
     const parts = sizeClasses[size].split(" ");
-    return [parts[0], parts[1], parts[2]] as const;
+    return [parts[0], parts[1]] as const;
   }, [size]);
 
   return (
@@ -79,8 +79,7 @@ export const MiniWaveLoader = React.memo(function MiniWaveLoader({
           <div
             key={i}
             className={cn(
-              dotW,
-              dotH,
+              dotSize,
               "rounded-[2px] transition-colors duration-200",
               colorClass
             )}

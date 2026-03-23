@@ -4,7 +4,6 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import {
-  Loading02Icon,
   PlusSignIcon,
   Delete02Icon,
 } from "@hugeicons/core-free-icons";
@@ -16,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Popover,
   PopoverContent,
@@ -164,7 +164,7 @@ export default function CustomCreatorForm() {
         </p>
       </div>
 
-      {errors._form && <p className="text-red-500 text-sm">{errors._form}</p>}
+      {errors._form && <p className="text-destructive text-sm">{errors._form}</p>}
 
       <div className="flex flex-col gap-[20px]">
         <Field label="Name" error={errors.name}>
@@ -294,18 +294,8 @@ export default function CustomCreatorForm() {
           disabled={isSubmitting}
           className="font-onest font-bold px-[32px] h-[48px] text-[1rem]"
         >
-          {isSubmitting ? (
-            <>
-              <HugeiconsIcon
-                icon={Loading02Icon}
-                className="animate-spin mr-2"
-                size={16}
-              />
-              Creating...
-            </>
-          ) : (
-            "Create Persona"
-          )}
+          {isSubmitting && <Spinner data-icon="inline-start" />}
+          {isSubmitting ? "Creating..." : "Create Persona"}
         </Button>
       </div>
     </motion.div>
@@ -334,7 +324,7 @@ function Field({
         )}
       </Label>
       {children}
-      {error && <p className="text-red-500 text-xs mt-0.5">{error}</p>}
+      {error && <p className="text-destructive text-xs mt-0.5">{error}</p>}
     </div>
   );
 }
@@ -370,7 +360,7 @@ function AddPropertyPopover({ onAdd }: { onAdd: (property: string) => void }) {
             setIsOpen(false);
           }}
         >
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <div>
               <p className="font-onest text-[0.75rem] font-medium text-surface-foreground/50 mb-[6px] px-[4px]">
                 Property name

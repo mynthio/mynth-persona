@@ -8,7 +8,7 @@ import { DISCORD_INVITE_URL } from "@/lib/constants";
 
 export default function ScenarioCreatorPage() {
   return (
-    <div className="w-full h-full">
+    <div className="size-full">
       <TopBar left={<TopBarSidebarTrigger />} />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-6 pb-6 sm:pt-12 sm:pb-12">
         <div className="max-w-xl mx-auto">

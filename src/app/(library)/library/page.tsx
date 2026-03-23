@@ -5,11 +5,11 @@ import { DISCORD_INVITE_URL } from "@/lib/constants";
 
 export default function LibraryPage() {
   return (
-    <div className="w-full h-full max-w-xl mx-auto text-center text-balance mt-10 container flex items-center justify-center">
+    <div className="size-full max-w-xl mx-auto text-center text-balance mt-10 container flex items-center justify-center">
       <div className="flex flex-col items-center justify-center gap-6 px-4">
         <HugeiconsIcon icon={HeartCheckIcon} className="size-10 text-muted-foreground" />
 
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <p className="text-lg">
             Welcome to your library! We&apos;re still working on the library
             home page, but you can browse all your content using the menu above.

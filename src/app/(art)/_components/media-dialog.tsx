@@ -99,7 +99,7 @@ export function MediaDialog() {
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
         showCloseButton={false}
-        className="sm:max-w-full max-w-full rounded-none w-full h-full p-0 gap-0 bg-none bg-transparent border-none lg:overflow-hidden overflow-y-auto flex flex-col outline-none"
+        className="sm:max-w-full max-w-full rounded-none size-full p-0 gap-0 bg-none bg-transparent border-none lg:overflow-hidden overflow-y-auto flex flex-col outline-none"
       >
         <DialogClose asChild className="fixed left-4 top-4 z-50">
           <Button size="lg">
@@ -117,7 +117,7 @@ export function MediaDialog() {
                 loading="lazy"
                 alt="Generated image"
                 src={getImageUrl(data.id)}
-                className="absolute top-0 w-full h-full object-contain"
+                className="absolute top-0 size-full object-contain"
               />
               {/* <DialogClose className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white lg:hidden z-10">
                 <HugeiconsIcon icon={Cancel01Icon} strokeWidth={1.5} />

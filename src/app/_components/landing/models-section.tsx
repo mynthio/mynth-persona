@@ -159,7 +159,7 @@ export function ModelsSection() {
         </motion.div>
 
         {/* Standard & Premium Tiers */}
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           {(["standard", "premium"] as TierKey[]).map((tier, index) => {
             const tierIcon = tierMeta[tier].icon;
             const count = tierBuckets[tier].length;

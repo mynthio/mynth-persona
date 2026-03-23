@@ -82,11 +82,11 @@ function ScenarioCard({
 
       {scenario.backgroundImageUrl && (
         <>
-          <div className="absolute left-0 top-0 w-full h-full bg-linear-to-tr from-primary via-primary/80 to-primary/10 -z-10" />
+          <div className="absolute left-0 top-0 size-full bg-linear-to-tr from-primary via-primary/80 to-primary/10 -z-10" />
           <img
             src={scenario.backgroundImageUrl}
             alt={scenario.title}
-            className="absolute left-0 top-0 w-full h-full object-cover object-center -z-20"
+            className="absolute left-0 top-0 size-full object-cover object-center -z-20"
           />
         </>
       )}

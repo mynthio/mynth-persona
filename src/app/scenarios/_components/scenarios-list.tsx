@@ -85,7 +85,7 @@ export function ScenariosList({ initialData, eventFilter }: ScenariosListProps) 
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {scenarios.map((scenario) => (
           <ScenarioCard key={scenario.id} scenario={scenario} />
@@ -128,7 +128,7 @@ function ScenarioCard({ scenario }: { scenario: Scenario }) {
               <img
                 src={scenario.backgroundImageUrl}
                 alt={scenario.title}
-                className="w-full h-full object-cover object-center transition-transform group-hover:scale-105 duration-300"
+                className="size-full object-cover object-center transition-transform group-hover:scale-105 duration-300"
               />
             </div>
             <div className="absolute inset-0 z-10 bg-gradient-to-tr from-background/95 via-background/80 to-background/60" />

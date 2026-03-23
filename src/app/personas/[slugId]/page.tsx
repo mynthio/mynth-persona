@@ -125,7 +125,7 @@ export default async function PersonaPublicPage({
   const displayName = getDisplayName(persona.publicName, data);
 
   return (
-    <div className="w-full h-full pb-16">
+    <div className="size-full pb-16">
       <TopBar left={<TopBarSidebarTrigger />} />
 
       <div className="max-w-[720px] mx-auto px-4">
@@ -156,12 +156,12 @@ export default async function PersonaPublicPage({
 
         {/* Avatar - overlapping banner */}
         <div className="flex justify-center -mt-20 md:-mt-24 relative z-10">
-          <div className="w-40 h-40 md:w-[200px] md:h-[200px] rounded-2xl border-4 border-background overflow-hidden shadow-lg">
+          <div className="size-40 md:size-[200px] rounded-2xl border-4 border-background overflow-hidden shadow-lg">
             <img
               src={getPersonaImageUrl(persona.profileImageIdMedia)}
               alt={displayName}
               draggable={false}
-              className="w-full h-full object-cover object-top select-none"
+              className="size-full object-cover object-top select-none"
             />
           </div>
         </div>

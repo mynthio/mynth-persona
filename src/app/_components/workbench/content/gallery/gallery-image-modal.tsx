@@ -90,7 +90,7 @@ export default function GalleryImageModal() {
                 <img
                   src={fullUrl!}
                   alt="Persona image"
-                  className="relative z-10 w-full h-full object-contain select-none"
+                  className="relative z-10 size-full object-contain select-none"
                   draggable={false}
                 />
               </>
@@ -103,7 +103,7 @@ export default function GalleryImageModal() {
               <MiniWaveLoader size="md" aria-label="Loading details" />
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="text-sm text-muted-foreground">
                   {data?.generation?.tokensCost != null ? (
@@ -136,7 +136,7 @@ export default function GalleryImageModal() {
               </div>
 
               {data?.generation && (
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                   <div className="text-xs uppercase tracking-wide text-muted-foreground">
                     Settings
                   </div>

@@ -98,7 +98,7 @@ export function ChatMessageImages({
             <img
               src={getMediaImageUrl(img.id, "thumb")}
               alt="Message image"
-              className="object-cover object-top w-full h-full"
+              className="object-cover object-top size-full"
             />
           </button>
         ))}
@@ -133,7 +133,7 @@ export function ChatMessageImages({
                 <img
                   src={img.imageUrl}
                   alt="Generated image"
-                  className="object-cover object-top w-full h-full"
+                  className="object-cover object-top size-full"
                 />
               </button>
             ));
@@ -186,7 +186,7 @@ export function ChatMessageImages({
                 <img
                   src={imageUrl}
                   alt="Generated image"
-                  className="object-cover object-top w-full h-full"
+                  className="object-cover object-top size-full"
                 />
               </button>
             );
@@ -228,7 +228,7 @@ export function ChatMessageImages({
           showCloseButton={false}
         >
           <DialogTitle className="sr-only">Image viewer</DialogTitle>
-          <div className="relative w-full h-full flex items-center justify-center">
+          <div className="relative size-full flex items-center justify-center">
             {lightboxImage && (
               <>
                 <img

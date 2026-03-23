@@ -812,7 +812,7 @@ function AddCustomPropertyPopover({
             setIsOpen(false);
           }}
         >
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <div>
               <p className="font-onest text-[0.75rem] font-medium text-surface-foreground/50 mb-[6px] px-[4px]">
                 Property name

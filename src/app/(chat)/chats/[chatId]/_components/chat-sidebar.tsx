@@ -141,7 +141,7 @@ function CharacterSection() {
   const hasCharacter = !!settings.user_persona?.name;
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <SectionLabel>Your character</SectionLabel>
         <Button
@@ -155,7 +155,7 @@ function CharacterSection() {
       </div>
 
       {hasCharacter ? (
-        <div className="space-y-1 rounded-lg border border-border/40 bg-muted/30 p-3">
+        <div className="flex flex-col gap-1 rounded-lg border border-border/40 bg-muted/30 p-3">
           <div className="flex items-center gap-2">
             <HugeiconsIcon icon={User03Icon} className="size-3.5 shrink-0 text-muted-foreground" />
             <p className="truncate text-xs font-medium text-foreground">
@@ -193,7 +193,7 @@ function ScenarioSection() {
   const hasScenario = !!scenarioText;
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <SectionLabel>Scenario</SectionLabel>
         <Button
@@ -207,7 +207,7 @@ function ScenarioSection() {
       </div>
 
       {hasScenario ? (
-        <div className="space-y-1 rounded-lg border border-border/40 bg-muted/30 p-3">
+        <div className="flex flex-col gap-1 rounded-lg border border-border/40 bg-muted/30 p-3">
           <div className="flex items-start gap-2">
             <HugeiconsIcon icon={ScrollVerticalIcon} className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
             <p className="line-clamp-4 text-xs leading-relaxed text-muted-foreground">
@@ -264,7 +264,7 @@ function VoiceSection() {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <SectionLabel>Voice</SectionLabel>
         {isOverride && (
@@ -467,7 +467,7 @@ function SceneImageSection() {
   const busy = isGenerating || !!activeRun;
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       {activeRun && (
         <ChatSettingsSceneImageInProgress
           runId={activeRun.runId}
@@ -619,7 +619,7 @@ function SavedBranchesSection() {
   const switchBranch = useSwitchBranch();
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <SectionLabel>Saved branches</SectionLabel>
 
       {isPinnedLoading ? (
@@ -629,7 +629,7 @@ function SavedBranchesSection() {
           No saved branches yet. Pin a message to save its conversation path.
         </p>
       ) : (
-        <div className="space-y-1">
+        <div className="flex flex-col gap-1">
           {pinnedBranches.map((pin) => {
             const isActive = branchId === pin.id;
             return (

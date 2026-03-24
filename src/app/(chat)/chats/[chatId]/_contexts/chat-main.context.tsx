@@ -7,6 +7,7 @@ import {
   useState,
   useCallback,
   useEffect,
+  useRef,
 } from "react";
 import type { ReactNode } from "react";
 import type {
@@ -15,6 +16,10 @@ import type {
 } from "@/schemas/backend/chats/chat.schema";
 import type { TextGenerationModelId } from "@/config/shared/models/text-generation-models.config";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  useAuthorNoteHistory,
+  type AuthorNoteHistoryItem,
+} from "../_hooks/use-author-note-history.hook";
 
 export interface ChatContextValue {
   chatId: string;
@@ -27,10 +32,12 @@ export interface ChatContextValue {
   modelId?: TextGenerationModelId;
   editMessageId: string | null;
   authorNote: string | null;
+  authorNoteHistory: AuthorNoteHistoryItem[];
   setSettings: (settings: ChatSettings) => void;
   setEditMessageId: (id: string | null) => void;
   setModelId: (id?: TextGenerationModelId) => void;
   setAuthorNote: (note: string | null) => void;
+  addAuthorNoteToHistory: () => void;
 }
 
 const ChatMainContext = createContext<ChatContextValue | undefined>(undefined);
@@ -76,9 +83,23 @@ export function ChatMainProvider({
     initialSettings.author_note ?? null
   );
 
+  const authorNoteRef = useRef(authorNote);
+  useEffect(() => {
+    authorNoteRef.current = authorNote;
+  }, [authorNote]);
+
   const setAuthorNote = useCallback((note: string | null) => {
     setAuthorNoteState(note);
   }, []);
+
+  const { history: authorNoteHistory, addToHistory } = useAuthorNoteHistory();
+
+  const addAuthorNoteToHistory = useCallback(() => {
+    const note = authorNoteRef.current;
+    if (note) {
+      addToHistory(note);
+    }
+  }, [addToHistory]);
 
   const isMobile = useIsMobile();
   // On mobile, sidebar is hidden by default; on desktop, it's open by default
@@ -114,7 +135,9 @@ export function ChatMainProvider({
       setEditMessageId: setEditMessageIdState,
       setSettings,
       authorNote,
+      authorNoteHistory,
       setAuthorNote,
+      addAuthorNoteToHistory,
     }),
     [
       chatId,
@@ -130,7 +153,9 @@ export function ChatMainProvider({
       setEditMessageIdState,
       setSettings,
       authorNote,
+      authorNoteHistory,
       setAuthorNote,
+      addAuthorNoteToHistory,
     ]
   );
 

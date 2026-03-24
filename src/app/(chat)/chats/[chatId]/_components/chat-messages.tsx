@@ -36,7 +36,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
   const { setMessages, regenerate } = useChatActions();
   const storeApi = useChatStoreApi();
 
-  const { chatId, modelId, authorNote } = useChatMain();
+  const { chatId, modelId, authorNote, addAuthorNoteToHistory } = useChatMain();
   const { scrollRestoreRef } = useChatBranchesContext();
 
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -166,15 +166,16 @@ export default function ChatMessages(props: ChatMessagesProps) {
           <ButtonGroup className="mt-[12px]">
             <Button
               variant="outline"
-              onClick={() =>
+              onClick={() => {
+                addAuthorNoteToHistory();
                 regenerate({
                   body: {
                     event: "regenerate",
                     modelId,
                     authorNote,
                   },
-                })
-              }
+                });
+              }}
             >
               Retry
             </Button>

@@ -25,7 +25,7 @@ type EditMessageProps = {
 };
 
 export function EditMessage(props: EditMessageProps) {
-  const { setEditMessageId, modelId, authorNote } = useChatMain();
+  const { setEditMessageId, modelId, authorNote, addAuthorNoteToHistory } = useChatMain();
   const { regenerate, setMessages } = useChatActions();
   const { addMessageToBranch } = useChatBranchesContext();
   const messages = useChatMessages();
@@ -72,6 +72,7 @@ export function EditMessage(props: EditMessageProps) {
       ),
     );
 
+    addAuthorNoteToHistory();
     regenerate({
       messageId: editedMessage.id,
       body: {

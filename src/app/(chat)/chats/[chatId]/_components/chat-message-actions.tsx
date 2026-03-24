@@ -87,7 +87,7 @@ function ChatMessageRegenerate(props: ChatMessageRegenerateProps) {
 
   const { regenerate } = useChatActions();
   const status = useChatStatus();
-  const { modelId, authorNote } = useChatMain();
+  const { modelId, authorNote, addAuthorNoteToHistory } = useChatMain();
   const { addMessageToBranch } = useChatBranchesContext();
 
   return (
@@ -102,6 +102,7 @@ function ChatMessageRegenerate(props: ChatMessageRegenerateProps) {
           createdAt: new Date(Date.now() - 1000),
         });
 
+        addAuthorNoteToHistory();
         regenerate({
           messageId,
           body: {

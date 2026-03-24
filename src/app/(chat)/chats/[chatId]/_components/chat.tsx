@@ -34,6 +34,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
@@ -137,7 +138,7 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
   const { sendMessage, regenerate, stop } = useChatActions();
   const status = useChatStatus();
   const messages = useChatMessages();
-  const { modelId, authorNote, setAuthorNote } = useChatMain();
+  const { modelId, authorNote, setAuthorNote, authorNoteHistory, addAuthorNoteToHistory } = useChatMain();
   const canStream = useChatCanStream();
   const isContinuing = useChatStore((s) => s.isContinuing);
   const isImpersonating = useChatStore((s) => s.isImpersonating);
@@ -161,11 +162,13 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
     if (!hasText || !canStream) return;
 
     if (status === "error") {
+      addAuthorNoteToHistory();
       regenerate({
         body: { event: "regenerate", modelId, authorNote },
       });
     }
 
+    addAuthorNoteToHistory();
     sendMessage(
       {
         text,
@@ -223,6 +226,7 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
     continueAbortRef.current = abortController;
 
     try {
+      addAuthorNoteToHistory();
       const response = await fetch(`/api/chats/${chatId}/continue`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -404,7 +408,7 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
                   align="end"
                   side="top"
                   sideOffset={12}
-                  className="w-[min(26rem,calc(100vw-2rem))] rounded-xl p-4 shadow-xl"
+                  className="w-[min(26rem,calc(100vw-2rem))] max-h-[min(32rem,calc(100vh-6rem))] rounded-xl p-4 shadow-xl overflow-hidden flex flex-col"
                 >
                   <div className="mb-3 flex items-center justify-between">
                     <span className="text-sm font-medium text-foreground">
@@ -459,6 +463,27 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
                       </Button>
                     </div>
                   ) : null}
+                  {authorNoteHistory.length > 0 && (
+                    <div className="mt-3 shrink-0">
+                      <Separator className="mb-3" />
+                      <p className="mb-2 text-[11px] font-medium text-muted-foreground/60">
+                        Recent notes
+                      </p>
+                      <div className="flex max-h-[140px] flex-col gap-1 overflow-y-auto">
+                        {authorNoteHistory.map((item) => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            className="w-full rounded-lg px-3 py-2 text-left text-xs leading-relaxed text-muted-foreground/80 hover:bg-muted/60 hover:text-foreground transition-colors truncate"
+                            onClick={() => setAuthorNote(item.content)}
+                            title={item.content}
+                          >
+                            {item.content}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </PopoverContent>
               </Popover>
 

@@ -14,39 +14,67 @@ export const impersonateV1: PromptDefinitionImpersonate = {
     const processText = (text: string) =>
       replacePlaceholders(text.trim(), { userName, personaName });
 
+    // User character block
     const userBlock =
-      args.user && args.user.enabled
-        ? `\nUser character: ${args.user.name}\n${
-            args.user.character ? processText(args.user.character) : ""
-          }\n\n`
+      args.user && args.user.enabled && args.user.character
+        ? `\nYour character profile:\nName: ${userName}\n${processText(args.user.character)}\n`
         : "";
 
-    const scenarioBlock = args.scenario?.scenario_text?.trim()
-      ? `\nScenario: ${processText(args.scenario.scenario_text)}\n\n`
-      : "";
-
-    return `You are playing the role of ${userName}. ${
-      args.user?.character ? processText(args.user.character) : ""
+    // Persona context block — who the user is talking to
+    const personaCharacterParts: string[] = [];
+    personaCharacterParts.push(
+      `${args.character.gender === "other" ? "They are" : args.character.gender === "male" ? "He is" : "She is"} ${args.character.age}. ${args.character.gender}.`
+    );
+    if (args.character.appearance) {
+      personaCharacterParts.push(`Appearance: ${args.character.appearance}`);
+    }
+    if (args.character.personality) {
+      personaCharacterParts.push(
+        `Personality: ${processText(args.character.personality)}`
+      );
+    }
+    if (args.character.background) {
+      personaCharacterParts.push(
+        `Background: ${processText(args.character.background)}`
+      );
     }
 
-${scenarioBlock}
+    const personaContextBlock = `\nYou are talking to ${personaName}.\n${personaName}: ${personaCharacterParts.join(" ")}\n`;
 
-Play and act as the User and User character only. Never play or act as ${personaName}. Write the next message in the conversation. Use plain text for dialogues and write all actions and other things between asterisks.`;
+    // Scenario block
+    const scenarioBlock = args.scenario?.scenario_text?.trim()
+      ? `\nScenario: ${processText(args.scenario.scenario_text)}\n`
+      : "";
+
+    // Style guidelines from scenario
+    const styleBlock = args.scenario?.style_guidelines?.trim()
+      ? `\nStyle: ${processText(args.scenario.style_guidelines)}\n`
+      : "";
+
+    // Author note
+    const authorNoteBlock = args.authorNote?.trim()
+      ? `\n<<AUTHOR NOTE: ${args.authorNote.trim()}>>\n`
+      : "";
+
+    return `You are writing as ${userName} in a roleplay conversation.${userBlock}${personaContextBlock}${scenarioBlock}${styleBlock}${authorNoteBlock}
+WRITING STYLE — STRICTLY MATCH ${userName.toUpperCase()}'S MESSAGES:
+- In this conversation, the "assistant" messages are ${userName}'s own writing. These are your ONLY style reference. Ignore the "user" messages for style purposes — those are ${personaName}'s lines, not ${userName}'s.
+- Mirror ${userName}'s exact vocabulary, slang, abbreviations, emoji usage, punctuation habits, and sentence structure.
+- Match ${userName}'s typical message length precisely — if they write one-liners, write a one-liner. If they write paragraphs, write a paragraph.
+- Match ${userName}'s formatting: capitalization style, paragraph breaks, use of ellipses, exclamation marks, etc.
+- If ${userName} mixes languages, code-switches, or uses informal text-speak, replicate that exactly.
+- Do NOT impose a "writing quality" standard. Write at ${userName}'s level, not above it.
+
+CONVERSATION FLOW:
+- Read the most recent "user" message (from ${personaName}) to understand what you are responding to. React to it naturally.
+- Continue from where the conversation left off — pick up the emotional tone, topic, and energy of the last exchange.
+- Stay consistent with what ${userName} has already said, done, and felt in this conversation.
+- Advance the scene by introducing a thought, question, action, or reaction — never just echo ${personaName}.
+
+CONTENT RULES:
+- Write ONLY as ${userName}. Never write dialogue, actions, or thoughts for ${personaName}.
+- Use asterisks (*) for actions, inner thoughts, and physical descriptions.
+- Use plain text for spoken dialogue.
+- Output only the message text — no labels, no narration outside of ${userName}'s perspective, no meta-commentary.`;
   },
 };
-
-// Your roleplay partner is ${personaName}.
-// ${personaName}'s profile:
-// ${
-//   args.character.gender === "other"
-//     ? "They are"
-//     : args.character.gender === "male"
-//     ? "He is"
-//     : "She is"
-// } (${args.character.age}). ${args.character.gender}. Appearance: ${
-//       args.character.appearance
-//     }. Personality: ${args.character.personality}. Background: ${
-//       args.character.background
-//     }. Motivations: ${args.character.motivations}. Skills: ${
-//       args.character.skills
-//     }.

@@ -61,6 +61,10 @@ export interface RoleplayRenderArgs {
   scenario?: ChatSettingsScenario | null;
 }
 
+export interface ImpersonateRenderArgs extends RoleplayRenderArgs {
+  authorNote?: string | null;
+}
+
 export interface StoryRenderArgs {
   character: PersonaVersionRoleplayData;
 }
@@ -86,7 +90,7 @@ export interface PromptDefinitionStory extends PromptDefinitionBase {
 export interface PromptDefinitionImpersonate extends PromptDefinitionBase {
   id: SystemPromptIdForChat<"impersonate">;
   mode: "impersonate";
-  render: PromptDefinitionRenderFunction<RoleplayRenderArgs>;
+  render: PromptDefinitionRenderFunction<ImpersonateRenderArgs>;
 }
 
 // Persona system prompt definitions

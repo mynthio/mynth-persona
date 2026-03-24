@@ -250,6 +250,7 @@ export async function POST(
     character: roleplayData,
     user: chatSettings.user_persona,
     scenario: chatSettings.scenario,
+    authorNote: chatSettings.author_note,
   });
 
   logger.debug({ system }, "System Prompt");

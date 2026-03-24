@@ -148,7 +148,7 @@ export function ChatTopBar({ className }: { className?: string }) {
         center={
           <TopBarTitle>
             <HugeiconsIcon icon={Message02Icon} strokeWidth={1.5} />
-            {persona.name}
+            {title || persona.name}
           </TopBarTitle>
         }
         right={

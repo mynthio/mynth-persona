@@ -4,6 +4,10 @@ import { extractPersonaMessageText } from "@/lib/utils";
 import { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 import { generateText } from "ai";
 
+function sanitizeTitle(raw: string): string {
+  return raw.replace(/^[*\s"'`"'`]+|[*\s"'`"'`]+$/g, "").trim();
+}
+
 export async function generateChatTitle(
   messages: PersonaUIMessage[],
   additionalContext?: string | null
@@ -12,27 +16,19 @@ export async function generateChatTitle(
     .map((message) => `${message.role}: ${extractPersonaMessageText(message)}`)
     .join("\n\n");
 
-  const prompt = `You're a helpful assistant that generates titles for role-playing chat conversations.
+  const prompt = `Generate a concise title (max 8 words) for this role-play conversation. Output ONLY the plain title — no markdown, no quotes, no formatting.
 
-  Here is the conversation:
-
-  ${messagesAsText}
-
-  ${
+Conversation:
+${messagesAsText}${
     additionalContext
       ? `
-  Here is the additional context:
 
-  ${additionalContext}
-  `
+Context: ${additionalContext}`
       : ""
-  }
-
-  Generate a title for the conversation. Output the title and a title only as a single and concise sentence, with max 8 words. Do not use any formatting or markdown.
-  `;
+  }`;
 
   const openRouter = getOpenRouter();
-  const model = openRouter("mistralai/ministral-3b-2512", {
+  const model = openRouter("bytedance-seed/seed-2.0-mini", {
     models: ["deepseek/deepseek-v3.2"],
   });
 
@@ -41,7 +37,9 @@ export async function generateChatTitle(
     prompt,
   });
 
-  logger.debug({ text: result.text }, "Generated chat title");
+  const title = sanitizeTitle(result.text);
 
-  return result.text;
+  logger.debug({ text: title }, "Generated chat title");
+
+  return title;
 }

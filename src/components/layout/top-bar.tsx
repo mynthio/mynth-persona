@@ -63,9 +63,11 @@ const TopBar = React.forwardRef<HTMLDivElement, TopBarProps>(
       <TopBarSection className="shrink-0">
         <TopBarSectionContent>{left}</TopBarSectionContent>
       </TopBarSection>
-      <TopBarSection>
+      <TopBarSection className="min-w-0">
         {center && (
-          <TopBarSectionContent className="px-2">{center}</TopBarSectionContent>
+          <TopBarSectionContent className="px-2 min-w-0 max-w-full truncate">
+            <div className="truncate min-w-0">{center}</div>
+          </TopBarSectionContent>
         )}
       </TopBarSection>
       <TopBarSection className="justify-self-end shrink-0">
@@ -92,7 +94,7 @@ function TopBarSidebarTrigger() {
 
 function TopBarTitle({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-center text-sm gap-1.5 cursor-default select-none [&>svg]:size-3.5 truncate overflow-hidden max-w-full">
+    <div className="flex items-center text-sm gap-1.5 cursor-default select-none [&>svg]:shrink-0 [&>svg]:size-3.5 truncate min-w-0">
       {children}
     </div>
   );

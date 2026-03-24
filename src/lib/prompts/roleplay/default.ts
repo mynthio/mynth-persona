@@ -7,7 +7,7 @@ import { renderAuthorNote } from "./types";
  * Provides a balanced, general-purpose roleplay experience.
  */
 export const renderDefaultRoleplayPrompt: RoleplayPromptRenderer = (
-  args: RoleplayPromptArgs
+  args: RoleplayPromptArgs,
 ): string => {
   const userName = args.user?.name || "User";
   const personaName = args.character.name;
@@ -35,8 +35,8 @@ export const renderDefaultRoleplayPrompt: RoleplayPromptRenderer = (
     args.character.gender === "other"
       ? "You are"
       : args.character.gender === "male"
-      ? "He is"
-      : "She is"
+        ? "He is"
+        : "She is"
   } (${args.character.age}). ${args.character.v2?.natural ?? ""}.
 
 ${userBlock}${scenarioBlock}${lastCheckpointSummaryBlock}

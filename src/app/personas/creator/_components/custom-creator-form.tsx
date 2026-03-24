@@ -3,10 +3,7 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
-import {
-  PlusSignIcon,
-  Delete02Icon,
-} from "@hugeicons/core-free-icons";
+import { PlusSignIcon, Delete02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { snakeCase, spaceCase } from "case-anything";
 import { usePostHog } from "posthog-js/react";
@@ -164,7 +161,9 @@ export default function CustomCreatorForm() {
         </p>
       </div>
 
-      {errors._form && <p className="text-destructive text-sm">{errors._form}</p>}
+      {errors._form && (
+        <p className="text-destructive text-sm">{errors._form}</p>
+      )}
 
       <div className="flex flex-col gap-[20px]">
         <Field label="Name" error={errors.name}>

@@ -1,10 +1,7 @@
 "use client";
 
 import type { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
-import {
-  useChatActions,
-  useChatStatus,
-} from "../_store/hooks";
+import { useChatActions, useChatStatus } from "../_store/hooks";
 import { Button } from "@/components/ui/button";
 import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
@@ -39,7 +36,14 @@ type ChatMessageActionsProps = {
 };
 
 export function ChatMessageActions(props: ChatMessageActionsProps) {
-  const { message, isStreaming, audioId, isGeneratingAudio, onAudioGenerated, onGeneratingAudioChange } = props;
+  const {
+    message,
+    isStreaming,
+    audioId,
+    isGeneratingAudio,
+    onAudioGenerated,
+    onGeneratingAudioChange,
+  } = props;
 
   const { editMessageId } = useChatMain();
 
@@ -197,7 +201,12 @@ function PinMessageButton({ message }: { message: PersonaUIMessage }) {
           }}
           autoFocus
         />
-        <Button size="xs" className="w-full" onClick={handleSave} disabled={saving}>
+        <Button
+          size="xs"
+          className="w-full"
+          onClick={handleSave}
+          disabled={saving}
+        >
           {saving ? "Saving…" : "Save"}
         </Button>
       </PopoverContent>

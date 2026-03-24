@@ -51,11 +51,11 @@ export async function POST(req: NextRequest) {
             message: "NOWPAYMENTS_IPN_SECRET missing",
           },
         },
-        "NOWPayments IPN secret is not configured"
+        "NOWPayments IPN secret is not configured",
       );
       return NextResponse.json(
         { error: "Server misconfiguration" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -72,11 +72,11 @@ export async function POST(req: NextRequest) {
           },
           error: { name: "AuthError", message: "No HMAC signature sent" },
         },
-        "NOWPayments IPN signature header missing"
+        "NOWPayments IPN signature header missing",
       );
       return NextResponse.json(
         { error: "No HMAC signature sent" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
           },
           payload,
         },
-        "NOWPayments IPN signature mismatch"
+        "NOWPayments IPN signature mismatch",
       );
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
           invoice_id: payload.invoice_id,
         },
       },
-      "NOWPayments IPN payload received"
+      "NOWPayments IPN payload received",
     );
 
     const orderId = payload.order_id;
@@ -189,12 +189,12 @@ export async function POST(req: NextRequest) {
               invoice_id: payload.invoice_id,
             },
           },
-          "NOWPayments IPN transaction not found"
+          "NOWPayments IPN transaction not found",
         );
 
         return NextResponse.json(
           { error: "Transaction not found" },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
@@ -277,12 +277,12 @@ export async function POST(req: NextRequest) {
         },
         error: normalizedError,
       },
-      "NOWPayments IPN handling failed"
+      "NOWPayments IPN handling failed",
     );
 
     return NextResponse.json(
       { error: "Error handling webhook" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

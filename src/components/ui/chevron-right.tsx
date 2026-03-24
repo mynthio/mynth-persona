@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import type { Transition } from 'motion/react';
-import { motion, useAnimation } from 'motion/react';
-import type { HTMLAttributes } from 'react';
-import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
-import { cn } from '@/lib/utils';
+import type { Transition } from "motion/react";
+import { motion, useAnimation } from "motion/react";
+import type { HTMLAttributes } from "react";
+import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import { cn } from "@/lib/utils";
 
 export interface ChevronRightIconHandle {
   startAnimation: () => void;
@@ -30,31 +30,31 @@ const ChevronRightIcon = forwardRef<
   useImperativeHandle(ref, () => {
     isControlledRef.current = true;
     return {
-      startAnimation: () => controls.start('animate'),
-      stopAnimation: () => controls.start('normal'),
+      startAnimation: () => controls.start("animate"),
+      stopAnimation: () => controls.start("normal"),
     };
   });
 
   const handleMouseEnter = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (!isControlledRef.current) {
-        controls.start('animate');
+        controls.start("animate");
       } else {
         onMouseEnter?.(e);
       }
     },
-    [controls, onMouseEnter]
+    [controls, onMouseEnter],
   );
 
   const handleMouseLeave = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (!isControlledRef.current) {
-        controls.start('normal');
+        controls.start("normal");
       } else {
         onMouseLeave?.(e);
       }
     },
-    [controls, onMouseLeave]
+    [controls, onMouseLeave],
   );
 
   return (
@@ -89,6 +89,6 @@ const ChevronRightIcon = forwardRef<
   );
 });
 
-ChevronRightIcon.displayName = 'ChevronRightIcon';
+ChevronRightIcon.displayName = "ChevronRightIcon";
 
 export { ChevronRightIcon };

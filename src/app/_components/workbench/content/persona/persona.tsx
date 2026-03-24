@@ -1,6 +1,17 @@
 "use client";
 
-import { BookOpen01Icon, BubbleChatIcon, EyeIcon, Idea01Icon, Image02Icon, Mic01Icon, PuzzleIcon, SparklesIcon, ToolsIcon, User03Icon } from "@hugeicons/core-free-icons";
+import {
+  BookOpen01Icon,
+  BubbleChatIcon,
+  EyeIcon,
+  Idea01Icon,
+  Image02Icon,
+  Mic01Icon,
+  PuzzleIcon,
+  SparklesIcon,
+  ToolsIcon,
+  User03Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { usePersonaVersionQuery } from "@/app/_queries/use-persona-version.query";
 import { usePersonaQuery } from "@/app/_queries/use-persona.query";
@@ -26,8 +37,7 @@ function Persona() {
 
   const personaId = params.personaId;
   const { data: persona } = usePersonaQuery(personaId);
-  const { isLoading, data: personaVersion } =
-    usePersonaVersionQuery(personaId);
+  const { isLoading, data: personaVersion } = usePersonaVersionQuery(personaId);
 
   if (isLoading)
     return (
@@ -71,7 +81,10 @@ function Persona() {
                 </div>
               ) : (
                 <div className="size-full rounded-xl overflow-hidden border border-border/40 bg-card/50 backdrop-blur-sm text-muted-foreground flex flex-col items-center justify-center gap-3 p-3">
-                  <HugeiconsIcon icon={User03Icon} className="size-8 text-muted-foreground/50" />
+                  <HugeiconsIcon
+                    icon={User03Icon}
+                    className="size-8 text-muted-foreground/50"
+                  />
                   <Button
                     variant="outline"
                     size="sm"

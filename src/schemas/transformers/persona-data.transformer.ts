@@ -9,7 +9,7 @@ import { snakeCase } from "case-anything";
  * - Validates the result against personaDataSchema
  */
 function formatExtensionKeys(
-  extensions?: Record<string, string> | null
+  extensions?: Record<string, string> | null,
 ): Record<string, string> | undefined {
   if (!extensions) return undefined;
 
@@ -21,7 +21,7 @@ function formatExtensionKeys(
 }
 
 export function transformCreatorPersonaGenerateToPersonaData(
-  input: CreatorPersonaGenerate
+  input: CreatorPersonaGenerate,
 ): PersonaData {
   return personaDataSchema.parse({
     name: input.name,

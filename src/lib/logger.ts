@@ -25,7 +25,7 @@ export function logAiSdkUsage(
     component: string;
     useCase: string;
     provider?: string;
-  }
+  },
 ): void {
   const { component, useCase, provider = "openrouter" } = params;
 

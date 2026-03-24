@@ -12,13 +12,13 @@ const PersonaSidebar = dynamic(
   () => import("./sidebar-content/persona/persona-sidebar"),
   {
     ssr: false,
-  }
+  },
 );
 const GallerySidebar = dynamic(
   () => import("./sidebar-content/gallery/gallery-sidebar"),
   {
     ssr: false,
-  }
+  },
 );
 
 const workbenchModeToSidebarComponent: Record<string, React.ComponentType> = {

@@ -47,7 +47,7 @@ export async function getChatByIdForUserCached(chatId: string, userId: string) {
     {
       tags: [`chat:${chatId}`],
       revalidate: CHAT_CACHE_TTL_SECONDS,
-    }
+    },
   );
 
   return runner();
@@ -91,7 +91,7 @@ export async function getChatForPageCached(chatId: string, userId: string) {
     {
       tags: [`chat:${chatId}`],
       revalidate: CHAT_CACHE_TTL_SECONDS,
-    }
+    },
   );
 
   return runner();
@@ -106,7 +106,7 @@ export async function getChatForPageCached(chatId: string, userId: string) {
  */
 export async function validateChatOwnershipCached(
   chatId: string,
-  userId: string
+  userId: string,
 ) {
   const runner = unstable_cache(
     async () => {
@@ -119,7 +119,7 @@ export async function validateChatOwnershipCached(
     {
       tags: [`chat:${chatId}`],
       revalidate: CHAT_CACHE_TTL_SECONDS,
-    }
+    },
   );
 
   return runner();
@@ -133,7 +133,7 @@ export async function validateChatOwnershipCached(
  */
 export async function getChatWithPersonaVoiceCached(
   chatId: string,
-  userId: string
+  userId: string,
 ) {
   const runner = unstable_cache(
     async () => {
@@ -165,7 +165,7 @@ export async function getChatWithPersonaVoiceCached(
     {
       tags: [`chat:${chatId}`],
       revalidate: CHAT_CACHE_TTL_SECONDS,
-    }
+    },
   );
 
   return runner();
@@ -179,7 +179,7 @@ export async function getChatWithPersonaVoiceCached(
  */
 export async function getChatWithSettingsCached(
   chatId: string,
-  userId: string
+  userId: string,
 ) {
   const runner = unstable_cache(
     async () => {
@@ -191,7 +191,7 @@ export async function getChatWithSettingsCached(
     {
       tags: [`chat:${chatId}`],
       revalidate: CHAT_CACHE_TTL_SECONDS,
-    }
+    },
   );
 
   return runner();

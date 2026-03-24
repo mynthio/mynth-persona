@@ -9,7 +9,7 @@ import { and, eq } from "drizzle-orm";
 
 export async function updatePersonaVoiceAction(
   personaId: string,
-  voiceId: string | null
+  voiceId: string | null,
 ) {
   const { userId } = await auth();
 

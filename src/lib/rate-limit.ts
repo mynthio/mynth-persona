@@ -120,7 +120,7 @@ export const CHAT_RATE_LIMITS = {
 export const rateLimitGuard = async (
   rateLimitter: Ratelimit,
   identifier: string,
-  cost: number = 1
+  cost: number = 1,
 ) => {
   // Use for testing
   // return {
@@ -156,7 +156,7 @@ export const rateLimitGuard = async (
         }),
         {
           status: 429,
-        }
+        },
       ),
     };
   }

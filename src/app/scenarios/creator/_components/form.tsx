@@ -1,6 +1,11 @@
 "use client";
 
-import { Delete02Icon, InformationCircleIcon, StarIcon, User03Icon } from "@hugeicons/core-free-icons";
+import {
+  Delete02Icon,
+  InformationCircleIcon,
+  StarIcon,
+  User03Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useForm } from "@tanstack/react-form";
 import { useState, useRef } from "react";
@@ -54,7 +59,9 @@ function FormSection({
         <Separator className="bg-surface-foreground/5 h-[2px]" />
       </div>
 
-      <div className="mt-4 sm:mt-6 flex flex-col gap-3 sm:gap-[12px]">{children}</div>
+      <div className="mt-4 sm:mt-6 flex flex-col gap-3 sm:gap-[12px]">
+        {children}
+      </div>
     </div>
   );
 }
@@ -76,7 +83,7 @@ export default function ScenarioCreatorForm() {
       .string()
       .min(
         50,
-        "Scenario content must be at least 50 characters (approximately 10 words)"
+        "Scenario content must be at least 50 characters (approximately 10 words)",
       )
       .max(100000, "Scenario content is too long (maximum 100,000 characters)"),
     suggested_user_name: z.string(),
@@ -86,7 +93,7 @@ export default function ScenarioCreatorForm() {
         .string()
         .min(
           25,
-          "User character must be at least 25 characters (approximately 5 words)"
+          "User character must be at least 25 characters (approximately 5 words)",
         )
         .max(50000, "User character is too long (maximum 50,000 characters)"),
     ]),
@@ -96,7 +103,7 @@ export default function ScenarioCreatorForm() {
         .string()
         .max(
           50000,
-          "Style guidelines are too long (maximum 50,000 characters)"
+          "Style guidelines are too long (maximum 50,000 characters)",
         ),
     ]),
   });
@@ -158,7 +165,7 @@ export default function ScenarioCreatorForm() {
       try {
         // Filter out empty starting messages
         const nonEmptyMessages = startingMessages.filter(
-          (msg) => msg.text.trim() !== ""
+          (msg) => msg.text.trim() !== "",
         );
 
         // Transform personas to required format
@@ -219,8 +226,13 @@ export default function ScenarioCreatorForm() {
       }}
     >
       <Alert className="text-sm sm:text-base">
-        <HugeiconsIcon icon={InformationCircleIcon} className="size-4 shrink-0" />
-        <AlertTitle className="text-sm sm:text-base">Template Variables</AlertTitle>
+        <HugeiconsIcon
+          icon={InformationCircleIcon}
+          className="size-4 shrink-0"
+        />
+        <AlertTitle className="text-sm sm:text-base">
+          Template Variables
+        </AlertTitle>
         <AlertDescription className="text-xs sm:text-sm">
           <p>
             You can use the following template variables in any field of your
@@ -285,8 +297,8 @@ export default function ScenarioCreatorForm() {
                         field.handleChange(
                           insertTemplate(
                             "{{persona.1.name}}",
-                            field.state.value
-                          )
+                            field.state.value,
+                          ),
                         )
                       }
                     >
@@ -298,7 +310,7 @@ export default function ScenarioCreatorForm() {
                       type="button"
                       onClick={() =>
                         field.handleChange(
-                          insertTemplate("{{user.name}}", field.state.value)
+                          insertTemplate("{{user.name}}", field.state.value),
                         )
                       }
                     >
@@ -346,7 +358,7 @@ export default function ScenarioCreatorForm() {
                               <img
                                 src={getImageUrl(
                                   persona.profileImageIdMedia,
-                                  "thumb"
+                                  "thumb",
                                 )}
                                 alt={
                                   persona.publicName ||
@@ -356,7 +368,10 @@ export default function ScenarioCreatorForm() {
                                 className="object-cover size-full"
                               />
                             ) : (
-                              <HugeiconsIcon icon={User03Icon} className="text-surface-foreground/50 size-[14px]" />
+                              <HugeiconsIcon
+                                icon={User03Icon}
+                                className="text-surface-foreground/50 size-[14px]"
+                              />
                             )}
                           </div>
                           <span className="text-xs sm:text-sm font-medium truncate flex-1 min-w-0">
@@ -368,12 +383,11 @@ export default function ScenarioCreatorForm() {
                               variant={isPrimary ? "default" : "outline"}
                               onClick={() =>
                                 setPrimaryPersonaId(
-                                  isPrimary ? null : persona.id
+                                  isPrimary ? null : persona.id,
                                 )
                               }
                             >
-                              <HugeiconsIcon icon={StarIcon}
-                              />
+                              <HugeiconsIcon icon={StarIcon} />
                             </Button>
                             <Button
                               size="sm"
@@ -485,7 +499,7 @@ export default function ScenarioCreatorForm() {
                         type="button"
                         onClick={() =>
                           setStartingMessages(
-                            startingMessages.filter((_, i) => i !== index)
+                            startingMessages.filter((_, i) => i !== index),
                           )
                         }
                       >

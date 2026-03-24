@@ -80,7 +80,7 @@ export function ChatMainProvider({
   const [editMessageId, setEditMessageIdState] = useState<string | null>(null);
 
   const [authorNote, setAuthorNoteState] = useState<string | null>(
-    initialSettings.author_note ?? null
+    initialSettings.author_note ?? null,
   );
 
   const authorNoteRef = useRef(authorNote);
@@ -156,7 +156,7 @@ export function ChatMainProvider({
       authorNoteHistory,
       setAuthorNote,
       addAuthorNoteToHistory,
-    ]
+    ],
   );
 
   return (

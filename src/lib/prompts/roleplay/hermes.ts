@@ -9,7 +9,7 @@ import { encode } from "@toon-format/toon";
  * Uses a structured format with clear sections and concise instructions.
  */
 export const renderHermesRoleplayPrompt: RoleplayPromptRenderer = (
-  args: RoleplayPromptArgs
+  args: RoleplayPromptArgs,
 ): string => {
   const userName = args.user?.name || "User";
   const personaName = args.character.name;
@@ -28,13 +28,13 @@ export const renderHermesRoleplayPrompt: RoleplayPromptRenderer = (
 
   if (args.character.personality) {
     characterParts.push(
-      `Personality: ${processText(args.character.personality)}`
+      `Personality: ${processText(args.character.personality)}`,
     );
   }
 
   if (args.character.background) {
     characterParts.push(
-      `Background: ${processText(args.character.background)}`
+      `Background: ${processText(args.character.background)}`,
     );
   }
 
@@ -48,7 +48,7 @@ export const renderHermesRoleplayPrompt: RoleplayPromptRenderer = (
 
   if (args.character.motivations) {
     characterParts.push(
-      `Motivations: ${processText(args.character.motivations)}`
+      `Motivations: ${processText(args.character.motivations)}`,
     );
   }
 

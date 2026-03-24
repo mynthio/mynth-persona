@@ -10,8 +10,7 @@ export class RunwareQwenImage2Pro extends RunwareImageGenerationBase {
 
   protected readonly DISPLAY_NAME = "Qwen Image 2.0 Pro";
 
-  protected readonly RUNWARE_MODEL_ID =
-    "alibaba:qwen-image@2.0-pro" as const;
+  protected readonly RUNWARE_MODEL_ID = "alibaba:qwen-image@2.0-pro" as const;
 
   protected getDefaultWidth(): number {
     return 768;

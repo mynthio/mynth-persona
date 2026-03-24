@@ -22,7 +22,7 @@ export async function uploadToBunny(filePath: string, body: UploadBody) {
 
   if (!response.ok) {
     throw new Error(
-      `Failed to upload file: ${response.status} ${response.statusText}`
+      `Failed to upload file: ${response.status} ${response.statusText}`,
     );
   }
 

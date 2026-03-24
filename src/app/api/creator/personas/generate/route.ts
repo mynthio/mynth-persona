@@ -65,7 +65,7 @@ export async function POST(req: Request) {
   const rateLimitIdentifier = userId ? userId : await getIpAddress();
   const rateLimitResult = await rateLimitGuard(
     rateLimitter,
-    rateLimitIdentifier
+    rateLimitIdentifier,
   );
 
   if (!rateLimitResult.success) {
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
         ...json,
       },
     },
-    "Creator - Persona Generate"
+    "Creator - Persona Generate",
   );
 
   if (userId && json.personaId) {
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
       where: and(
         eq(personas.id, json.personaId),
         eq(personas.userId, userId),
-        ne(personas.visibility, "deleted")
+        ne(personas.visibility, "deleted"),
       ),
       columns: {
         id: true,
@@ -111,7 +111,7 @@ export async function POST(req: Request) {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
     }
   }
@@ -166,7 +166,7 @@ export async function POST(req: Request) {
         const thinkingUsage = await thinkingResult.usage;
         logAiSdkUsage(
           { response: thinkingResponse, usage: thinkingUsage },
-          { component: "generation:text:stream", useCase: "persona_thinking" }
+          { component: "generation:text:stream", useCase: "persona_thinking" },
         );
 
         // ============================================================
@@ -191,7 +191,7 @@ export async function POST(req: Request) {
 
           if (!thinkingStopSent) {
             controller.enqueue(
-              new TextEncoder().encode('","isThinking":false,"persona":')
+              new TextEncoder().encode('","isThinking":false,"persona":'),
             );
             thinkingStopSent = true;
           }
@@ -199,7 +199,7 @@ export async function POST(req: Request) {
         }
 
         const personaData = JSON.parse(
-          personaDataJson
+          personaDataJson,
         ) as CreatorPersonaGenerate;
 
         // Log Phase 2 usage
@@ -210,7 +210,7 @@ export async function POST(req: Request) {
           {
             component: "generation:text:complete",
             useCase: "persona_extraction",
-          }
+          },
         );
 
         // ============================================================

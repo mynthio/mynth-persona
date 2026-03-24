@@ -66,7 +66,7 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
    * Override to put them at root level or use different structure
    */
   protected buildReferenceImagesRequest(
-    referenceImages: string[]
+    referenceImages: string[],
   ): Record<string, any> {
     if (referenceImages.length === 0) {
       return {};
@@ -108,7 +108,7 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
 
         if (!response.ok) {
           throw new Error(
-            `Failed to fetch image from URL: ${response.status} ${response.statusText}`
+            `Failed to fetch image from URL: ${response.status} ${response.statusText}`,
           );
         }
 
@@ -130,7 +130,7 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
             error: errorMessage,
             url: imageUrl,
           },
-          `Image fetch attempt ${attempt}/${maxAttempts} failed`
+          `Image fetch attempt ${attempt}/${maxAttempts} failed`,
         );
 
         if (isLastAttempt) break;
@@ -146,7 +146,7 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
     throw new Error(
       `Failed to fetch image after ${maxAttempts} attempts. Last error: ${
         lastError instanceof Error ? lastError.message : String(lastError)
-      }`
+      }`,
     );
   }
 
@@ -155,7 +155,7 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
    */
   private async fetchImageBufferFromUrlSafe(
     imageUrl: string,
-    index: number
+    index: number,
   ): Promise<{ index: number; buffer: Buffer } | null> {
     try {
       const buffer = await this.fetchImageBufferFromUrl(imageUrl);
@@ -167,7 +167,7 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
           url: imageUrl,
           index,
         },
-        `Failed to fetch image ${index}, continuing with others`
+        `Failed to fetch image ${index}, continuing with others`,
       );
       return null;
     }
@@ -179,7 +179,7 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
 
   async generate(
     prompt: string,
-    options?: GenerateOptions
+    options?: GenerateOptions,
   ): Promise<ImageGenerationResult> {
     const width = options?.width ?? this.getDefaultWidth();
     const height = options?.height ?? this.getDefaultHeight();
@@ -222,7 +222,7 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
       });
 
       const imageBuffer = await this.fetchImageBufferFromUrl(
-        images[0].imageURL as string
+        images[0].imageURL as string,
       );
 
       return {
@@ -238,7 +238,7 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
           provider: this.internalId,
           model: this.modelId,
         },
-        `Error generating image with ${this.displayName}`
+        `Error generating image with ${this.displayName}`,
       );
       throw error;
     }
@@ -246,7 +246,7 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
 
   async generateMultiple(
     prompt: string,
-    options?: GenerateOptions
+    options?: GenerateOptions,
   ): Promise<MultiImageGenerationResult> {
     const width = options?.width ?? this.getDefaultWidth();
     const height = options?.height ?? this.getDefaultHeight();
@@ -295,7 +295,7 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
       const fetchPromises = images.map((img, index) =>
         img.imageURL
           ? this.fetchImageBufferFromUrlSafe(img.imageURL as string, index)
-          : Promise.resolve(null)
+          : Promise.resolve(null),
       );
 
       const fetchResults = await Promise.all(fetchPromises);
@@ -318,7 +318,7 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
       // If ALL images failed, throw an error
       if (successfulImages.length === 0) {
         throw new Error(
-          `All ${numberResults} image(s) failed to generate or fetch`
+          `All ${numberResults} image(s) failed to generate or fetch`,
         );
       }
 
@@ -335,7 +335,7 @@ export abstract class RunwareImageGenerationBase extends ImageGenerationBase {
           provider: this.internalId,
           model: this.modelId,
         },
-        `Error generating images with ${this.displayName}`
+        `Error generating images with ${this.displayName}`,
       );
       throw error;
     }

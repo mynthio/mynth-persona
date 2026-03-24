@@ -7,7 +7,7 @@ import { sql } from "drizzle-orm";
  */
 export async function getLatestLeafForMessage(
   chatId: string,
-  messageId: string
+  messageId: string,
 ): Promise<string | null> {
   const res = await db.execute(
     sql<{ id: string }>`
@@ -30,7 +30,7 @@ export async function getLatestLeafForMessage(
       from chain
       order by depth desc
       limit 1;
-    `
+    `,
   );
 
   return (res.rows[0]?.id as string | undefined) ?? null;

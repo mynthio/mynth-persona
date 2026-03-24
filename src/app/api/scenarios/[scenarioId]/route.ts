@@ -8,7 +8,7 @@ import { logger } from "@/lib/logger";
 
 export async function GET(
   _request: NextRequest,
-  ctx: RouteContext<"/api/scenarios/[scenarioId]">
+  ctx: RouteContext<"/api/scenarios/[scenarioId]">,
 ) {
   const { scenarioId } = await ctx.params;
 
@@ -21,10 +21,7 @@ export async function GET(
     // - Private scenarios can only be accessed by creator
     // - Deleted scenarios are never accessible
     const accessCondition = userId
-      ? or(
-          eq(scenarios.visibility, "public"),
-          eq(scenarios.creatorId, userId)
-        )
+      ? or(eq(scenarios.visibility, "public"), eq(scenarios.creatorId, userId))
       : eq(scenarios.visibility, "public");
 
     // Fetch the scenario with creator information
@@ -33,7 +30,7 @@ export async function GET(
         eq(scenarios.id, scenarioId),
         ne(scenarios.visibility, "deleted"),
         isNull(scenarios.deletedAt),
-        accessCondition
+        accessCondition,
       ),
       with: {
         creator: {
@@ -126,11 +123,11 @@ export async function GET(
           scenario_id: scenarioId,
         },
       },
-      "Error fetching scenario"
+      "Error fetching scenario",
     );
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

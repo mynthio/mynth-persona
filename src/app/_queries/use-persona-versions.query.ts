@@ -4,7 +4,7 @@ import { fetcher } from "@/lib/fetcher";
 
 export const usePersonaVersionsQuery = (
   personaId?: string | null,
-  config?: SWRConfiguration
+  config?: SWRConfiguration,
 ) => {
   return useSWR<PublicPersonaVersion[]>(
     personaId ? `/api/personas/${personaId}/versions` : null,
@@ -13,6 +13,6 @@ export const usePersonaVersionsQuery = (
       revalidateIfStale: false,
       revalidateOnFocus: false,
       ...config,
-    }
+    },
   );
 };

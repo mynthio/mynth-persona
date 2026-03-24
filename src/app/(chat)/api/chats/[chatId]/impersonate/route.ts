@@ -86,7 +86,7 @@ const normalizeError = (error: unknown): Record<string, unknown> => {
 
 // Minimal error serializer for generation errors to avoid logging stream chunks
 const toMinimalError = (
-  error: unknown
+  error: unknown,
 ): { name?: string; message: string; code?: string | number } => {
   const candidate =
     error &&
@@ -125,7 +125,7 @@ const toMinimalError = (
 
 export async function POST(
   req: Request,
-  ctx: RouteContext<"/api/chats/[chatId]/impersonate">
+  ctx: RouteContext<"/api/chats/[chatId]/impersonate">,
 ) {
   /**
    * AUTH
@@ -181,7 +181,7 @@ export async function POST(
       }),
       {
         status: 403,
-      }
+      },
     );
   }
 
@@ -234,7 +234,7 @@ export async function POST(
       extraBody: {
         transforms: ["middle-out"],
       },
-    }
+    },
   );
 
   /**
@@ -242,7 +242,7 @@ export async function POST(
    */
   const systemPromptDefinition = getDefaultSystemPromptDefinitionForMode(
     "chat",
-    "impersonate"
+    "impersonate",
   );
   if (!systemPromptDefinition) throw new Error("Ups!");
 
@@ -260,8 +260,8 @@ export async function POST(
       msg.role === "user"
         ? { ...msg, role: "assistant" as const }
         : msg.role === "assistant"
-        ? { ...msg, role: "user" as const }
-        : msg
+          ? { ...msg, role: "user" as const }
+          : msg,
     ),
   ]);
 
@@ -287,7 +287,7 @@ export async function POST(
           component: "api:impersonate",
           error: toMinimalError(error),
         },
-        "Text generation failed"
+        "Text generation failed",
       );
 
       await trackChatError({

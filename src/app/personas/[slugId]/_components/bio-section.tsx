@@ -81,9 +81,7 @@ export function BioSection({ data }: { data: PersonaData }) {
 function InfoCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border bg-muted/50 px-4 py-3 flex flex-col gap-0.5">
-      <span className="text-xs text-muted-foreground font-medium">
-        {label}
-      </span>
+      <span className="text-xs text-muted-foreground font-medium">{label}</span>
       <span className="text-sm font-medium text-foreground">{value}</span>
     </div>
   );

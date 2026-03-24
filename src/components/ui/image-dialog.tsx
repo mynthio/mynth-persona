@@ -28,7 +28,7 @@ function ImageDialogOverlay({
       data-slot="image-dialog-overlay"
       className={cn(
         "fixed inset-0 z-50 bg-black/60 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-        className
+        className,
       )}
       {...props}
     />
@@ -62,7 +62,7 @@ function ImageDialogContent({
           // Positioning + animations similar to shadcn but without default panel UI
           "fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 w-full max-w-[min(96vw,1120px)] outline-hidden",
           "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-          className
+          className,
         )}
         {...props}
       >
@@ -80,7 +80,7 @@ function ImageDialogContent({
               "hover:text-foreground hover:bg-background/90",
               "shadow-sm transition-colors",
               "p-2",
-              "focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+              "focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background",
             )}
           >
             <XIcon className="size-4" />
@@ -94,7 +94,7 @@ function ImageDialogContent({
             // Mobile: stacked, normal scroll within dialog content area
             "flex flex-col max-h-[calc(100vh-56px)] overflow-y-auto",
             // Desktop+: split layout, fixed height, no outer scroll
-            "md:grid md:grid-cols-[1.2fr_1fr] md:items-stretch md:h-[calc(100vh-56px)] md:overflow-hidden"
+            "md:grid md:grid-cols-[1.2fr_1fr] md:items-stretch md:h-[calc(100vh-56px)] md:overflow-hidden",
           )}
         >
           {/* Left: Image */}

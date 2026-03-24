@@ -67,8 +67,8 @@ export async function setPersonaProfileImage(mediaId: string) {
     .where(
       and(
         eq(personas.id, mediaWithPersona.personaId),
-        eq(personas.userId, userId)
-      )
+        eq(personas.userId, userId),
+      ),
     );
 
   return {

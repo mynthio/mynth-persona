@@ -22,10 +22,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Build where clause - userId filter ensures user owns the media
-  const whereConditions = [
-    eq(media.type, "image"),
-    eq(media.userId, userId),
-  ];
+  const whereConditions = [eq(media.type, "image"), eq(media.userId, userId)];
 
   if (personaId) {
     whereConditions.push(eq(media.personaId, personaId));

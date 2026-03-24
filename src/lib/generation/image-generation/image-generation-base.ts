@@ -65,7 +65,7 @@ export abstract class ImageGenerationBase {
    */
   abstract generate(
     prompt: string,
-    options?: GenerateOptions
+    options?: GenerateOptions,
   ): Promise<ImageGenerationResult>;
 
   /**
@@ -74,6 +74,6 @@ export abstract class ImageGenerationBase {
    */
   abstract generateMultiple(
     prompt: string,
-    options?: GenerateOptions
+    options?: GenerateOptions,
   ): Promise<MultiImageGenerationResult>;
 }

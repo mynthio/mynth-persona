@@ -37,7 +37,13 @@ export async function editAssistantMessageAction(
   // Get the message to find its chatId and verify it's an assistant message
   const message = await db.query.messages.findFirst({
     where: eq(messages.id, messageId),
-    columns: { id: true, chatId: true, role: true, parentId: true, metadata: true },
+    columns: {
+      id: true,
+      chatId: true,
+      role: true,
+      parentId: true,
+      metadata: true,
+    },
   });
 
   if (!message) {
@@ -84,7 +90,7 @@ export async function editAssistantMessageAction(
     role: "assistant",
     parts: [{ type: "text", text }],
     metadata: {
-      ...(message.metadata as Record<string, unknown> ?? {}),
+      ...((message.metadata as Record<string, unknown>) ?? {}),
       parentId: message.parentId,
     },
     createdAt: new Date(),

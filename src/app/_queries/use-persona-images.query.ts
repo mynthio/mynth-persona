@@ -4,7 +4,7 @@ import { fetcher } from "@/lib/fetcher";
 
 export const usePersonaImagesQuery = (
   personaId?: string | null,
-  config?: SWRConfiguration
+  config?: SWRConfiguration,
 ) => {
   return useSWR<PublicPersonaImage[]>(
     personaId ? `/api/images?personaId=${personaId}` : null,
@@ -13,7 +13,7 @@ export const usePersonaImagesQuery = (
       revalidateIfStale: false,
       revalidateOnFocus: false,
       ...config,
-    }
+    },
   );
 };
 
@@ -22,10 +22,14 @@ export const usePersonaImagesMutation = (personaId: string) => {
 
   return (
     mutator: (
-      data: PublicPersonaImage[] | undefined
-    ) => PublicPersonaImage[] | undefined
+      data: PublicPersonaImage[] | undefined,
+    ) => PublicPersonaImage[] | undefined,
   ) =>
-    mutate<PublicPersonaImage[]>(`/api/images?personaId=${personaId}`, mutator, {
-      revalidate: false,
-    });
+    mutate<PublicPersonaImage[]>(
+      `/api/images?personaId=${personaId}`,
+      mutator,
+      {
+        revalidate: false,
+      },
+    );
 };

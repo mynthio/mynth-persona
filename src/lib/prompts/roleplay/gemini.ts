@@ -7,7 +7,7 @@ import type { RoleplayPromptArgs, RoleplayPromptRenderer } from "./types";
  * [PLACEHOLDER: Add custom system prompt content here]
  */
 export const renderGeminiRoleplayPrompt: RoleplayPromptRenderer = (
-  args: RoleplayPromptArgs
+  args: RoleplayPromptArgs,
 ): string => {
   const userName = args.user?.name || "User";
   const personaName = args.character.name;
@@ -40,8 +40,8 @@ export const renderGeminiRoleplayPrompt: RoleplayPromptRenderer = (
     args.character.gender === "other"
       ? "You are"
       : args.character.gender === "male"
-      ? "He is"
-      : "She is"
+        ? "He is"
+        : "She is"
   } (${args.character.age}). ${args.character.v2?.natural ?? ""}.
 
 ${userBlock}${scenarioBlock}${lastCheckpointSummaryBlock}${authorNoteBlock}

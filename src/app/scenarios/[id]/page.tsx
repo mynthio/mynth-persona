@@ -1,4 +1,12 @@
-import { AngryBirdIcon, FeatherIcon, Globe02Icon, LockIcon, Menu05Icon, MoreVerticalIcon, PencilEdit02Icon } from "@hugeicons/core-free-icons";
+import {
+  AngryBirdIcon,
+  FeatherIcon,
+  Globe02Icon,
+  LockIcon,
+  Menu05Icon,
+  MoreVerticalIcon,
+  PencilEdit02Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Response } from "@/components/ai-elements/response";
 import { Button } from "@/components/ui/button";
@@ -39,8 +47,8 @@ export default async function ScenarioPage({
           eq(scenariosTable.id, id),
           or(
             eq(scenariosTable.visibility, "public"),
-            userId ? eq(scenariosTable.creatorId, userId) : undefined
-          )
+            userId ? eq(scenariosTable.creatorId, userId) : undefined,
+          ),
         ),
       with: {
         creator: {
@@ -145,7 +153,9 @@ export default async function ScenarioPage({
 
             {scenario.status && (
               <Badge variant="secondary" className="backdrop-blur-sm">
-                {scenario.status === "community" && <HugeiconsIcon icon={AngryBirdIcon} />}
+                {scenario.status === "community" && (
+                  <HugeiconsIcon icon={AngryBirdIcon} />
+                )}
                 {scenario.status}
               </Badge>
             )}
@@ -208,7 +218,7 @@ export default async function ScenarioPage({
                         {scenarioPersona.persona.profileImageIdMedia && (
                           <img
                             src={getImageUrl(
-                              scenarioPersona.persona.profileImageIdMedia
+                              scenarioPersona.persona.profileImageIdMedia,
                             )}
                             alt={scenarioPersona.persona.title ?? ""}
                             className="absolute top-0 left-0 size-full object-cover object-top"

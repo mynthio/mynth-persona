@@ -73,7 +73,7 @@ const promptsByModelAndStyle: Partial<Record<string, RoleplayPromptRenderer>> =
  */
 export function getSystemPromptRendererForRoleplay(
   modelId?: ModelId,
-  style?: RoleplayPromptStyle
+  style?: RoleplayPromptStyle,
 ): RoleplayPromptRenderer {
   const effectiveStyle = style ?? "default";
 
@@ -116,7 +116,7 @@ export function getSystemPromptRendererForRoleplay(
 export function renderRoleplaySystemPrompt(
   args: RoleplayPromptArgs,
   modelId?: ModelId,
-  style?: RoleplayPromptStyle
+  style?: RoleplayPromptStyle,
 ): string {
   const renderer = getSystemPromptRendererForRoleplay(modelId, style);
   return renderer(args);

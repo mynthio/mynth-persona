@@ -17,35 +17,35 @@ export const roleplaySummarySchema = z.object({
   appearance: z
     .string()
     .describe(
-      "Single comma-separated string of visual descriptors (e.g., slender athletic build, upright posture, oval face, high cheekbones)—include body type, skin tone/ethnicity, hair color/style, eyes, notable features, clothing/style; no articles/prepositions/sentences/trailing period; under 100 words."
+      "Single comma-separated string of visual descriptors (e.g., slender athletic build, upright posture, oval face, high cheekbones)—include body type, skin tone/ethnicity, hair color/style, eyes, notable features, clothing/style; no articles/prepositions/sentences/trailing period; under 100 words.",
     ),
   personality: z
     .string()
     .describe(
-      "Concise description of traits, speaking style, quirks, and behaviors; semicolon-separated fragments; under 50 tokens."
+      "Concise description of traits, speaking style, quirks, and behaviors; semicolon-separated fragments; under 50 tokens.",
     ),
   background: z
     .string()
     .describe(
-      "Key history, relationships, and formative events; 1-2 short sentences or fragments; under 50 tokens."
+      "Key history, relationships, and formative events; 1-2 short sentences or fragments; under 50 tokens.",
     ),
   interests: z
     .string()
     .optional()
     .describe(
-      "Optional: Hobbies, pursuits, or passions if present in data; comma-separated list; omit if not relevant; under 30 tokens."
+      "Optional: Hobbies, pursuits, or passions if present in data; comma-separated list; omit if not relevant; under 30 tokens.",
     ),
   skills: z
     .string()
     .optional()
     .describe(
-      "Optional: Abilities and knowledge domains if present; comma-separated list; omit if not relevant; under 30 tokens."
+      "Optional: Abilities and knowledge domains if present; comma-separated list; omit if not relevant; under 30 tokens.",
     ),
   motivations: z
     .string()
     .optional()
     .describe(
-      "Optional: Goals, aspirations, motivations, and occupation if present; 1 short sentence or fragments; omit if not relevant; under 40 tokens."
+      "Optional: Goals, aspirations, motivations, and occupation if present; 1 short sentence or fragments; omit if not relevant; under 40 tokens.",
     ),
 });
 
@@ -61,12 +61,12 @@ export type RoleplaySummary = z.infer<typeof roleplaySummarySchema>;
  */
 export const roleplaySummaryV2Schema = z.object({
   structured: roleplayDataV2Structured.describe(
-    "Structured character data with explicit fields"
+    "Structured character data with explicit fields",
   ),
   natural: z
     .string()
     .describe(
-      "Third-person natural language description of the character. Written as flowing prose covering appearance, speech patterns, background, and personality. Do NOT include name, gender, or age - those are handled separately. Example: 'She is an accountant with long black hair and a confident figure. She speaks with a slight southern drawl, often using formal business terminology. Growing up in a small town, she worked her way through college. She tends to be analytical and reserved, though she has a dry sense of humor.'"
+      "Third-person natural language description of the character. Written as flowing prose covering appearance, speech patterns, background, and personality. Do NOT include name, gender, or age - those are handled separately. Example: 'She is an accountant with long black hair and a confident figure. She speaks with a slight southern drawl, often using formal business terminology. Growing up in a small town, she worked her way through college. She tends to be analytical and reserved, though she has a dry sense of humor.'",
     ),
 });
 
@@ -168,7 +168,7 @@ export async function generateRoleplaySummaryV2(data: unknown): Promise<{
  * Convert V2 summary to the RoleplayDataV2 format used in the database
  */
 export function convertV2SummaryToRoleplayData(
-  summary: RoleplaySummaryV2
+  summary: RoleplaySummaryV2,
 ): RoleplayDataV2 {
   return {
     structured: summary.structured,

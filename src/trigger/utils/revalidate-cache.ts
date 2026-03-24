@@ -15,7 +15,7 @@ export async function revalidateCacheTag(tag: string): Promise<void> {
   if (!baseUrl) {
     logger.warn(
       { tag },
-      "NEXT_PUBLIC_URL not set, skipping cache revalidation"
+      "NEXT_PUBLIC_URL not set, skipping cache revalidation",
     );
     return;
   }
@@ -23,7 +23,7 @@ export async function revalidateCacheTag(tag: string): Promise<void> {
   if (!secret) {
     logger.warn(
       { tag },
-      "INTERNAL_REVALIDATION_SECRET not set, skipping cache revalidation"
+      "INTERNAL_REVALIDATION_SECRET not set, skipping cache revalidation",
     );
     return;
   }
@@ -42,7 +42,7 @@ export async function revalidateCacheTag(tag: string): Promise<void> {
       const errorBody = await response.text().catch(() => "Unknown error");
       logger.error(
         { tag, status: response.status, error: errorBody },
-        "Cache revalidation request failed"
+        "Cache revalidation request failed",
       );
       return;
     }
@@ -51,7 +51,7 @@ export async function revalidateCacheTag(tag: string): Promise<void> {
   } catch (error) {
     logger.error(
       { tag, error: error instanceof Error ? error.message : String(error) },
-      "Failed to call cache revalidation endpoint"
+      "Failed to call cache revalidation endpoint",
     );
   }
 }

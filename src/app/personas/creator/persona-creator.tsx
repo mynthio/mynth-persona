@@ -1,6 +1,10 @@
 "use client";
 
-import { ShuffleIcon, SparklesIcon, StarsIcon } from "@hugeicons/core-free-icons";
+import {
+  ShuffleIcon,
+  SparklesIcon,
+  StarsIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -139,7 +143,10 @@ export default function PersonaCreator({
         >
           {/* Badge */}
           <div className="inline-flex items-center gap-2 rounded-full border border-border/40 bg-card/40 px-4 py-2 text-xs uppercase tracking-[0.2em] text-foreground/70 shadow-[0_10px_30px_-18px_rgba(124,58,237,0.55)] mb-6">
-            <HugeiconsIcon icon={SparklesIcon} className="size-4 text-primary/90" />
+            <HugeiconsIcon
+              icon={SparklesIcon}
+              className="size-4 text-primary/90"
+            />
             Persona Creator
           </div>
 
@@ -250,7 +257,11 @@ export default function PersonaCreator({
                               size="icon"
                               className="size-10 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-all"
                             >
-                              <HugeiconsIcon icon={ShuffleIcon} strokeWidth={1.5} className="size-5" />
+                              <HugeiconsIcon
+                                icon={ShuffleIcon}
+                                strokeWidth={1.5}
+                                className="size-5"
+                              />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -273,7 +284,11 @@ export default function PersonaCreator({
                     )}
                   >
                     Generate
-                    <HugeiconsIcon icon={StarsIcon} strokeWidth={1.8} className="size-4" />
+                    <HugeiconsIcon
+                      icon={StarsIcon}
+                      strokeWidth={1.8}
+                      className="size-4"
+                    />
                   </Button>
                 </div>
               </div>
@@ -321,7 +336,11 @@ export function ModelSelector({
   return (
     <Select value={defaultValue} onValueChange={onModelSelect}>
       <SelectTrigger className="w-auto max-w-[180px] h-9 rounded-xl border-border/40 bg-card/50 hover:bg-card/80 text-muted-foreground hover:text-foreground transition-colors text-sm">
-        <HugeiconsIcon icon={StarsIcon} strokeWidth={1.5} className="size-4 mr-1.5 opacity-60" />
+        <HugeiconsIcon
+          icon={StarsIcon}
+          strokeWidth={1.5}
+          className="size-4 mr-1.5 opacity-60"
+        />
         <SelectValue placeholder="Select model" />
       </SelectTrigger>
       <SelectContent className="rounded-xl">

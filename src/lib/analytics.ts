@@ -28,19 +28,18 @@ type BaseProperties = {
 function capture(
   userId: string,
   event: string,
-  properties: Record<string, unknown>
+  properties: Record<string, unknown>,
 ) {
   if (!posthog) return;
 
-  posthog
-    .capture({
-      distinctId: hashSensitive(userId),
-      event,
-      properties: {
-        ...properties,
-        $process_person_profile: false,
-      } as BaseProperties & Record<string, unknown>,
-    });
+  posthog.capture({
+    distinctId: hashSensitive(userId),
+    event,
+    properties: {
+      ...properties,
+      $process_person_profile: false,
+    } as BaseProperties & Record<string, unknown>,
+  });
 }
 
 // Chat messaging events

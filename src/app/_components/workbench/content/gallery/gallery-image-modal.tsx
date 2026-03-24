@@ -1,6 +1,10 @@
 "use client";
 
-import { Download04Icon, Loading02Icon, User03Icon } from "@hugeicons/core-free-icons";
+import {
+  Download04Icon,
+  Loading02Icon,
+  User03Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useImageId } from "@/hooks/use-image-id.hook";
 import { useParams } from "next/navigation";
@@ -27,14 +31,14 @@ export default function GalleryImageModal() {
 
   const { data, isLoading } = useSWR(
     isOpen && imageId ? `/api/images/${imageId}` : null,
-    fetcher
+    fetcher,
   );
   const { mutate } = useSWRConfig();
   const [isSettingProfileImage, setIsSettingProfileImage] = useState(false);
 
   const fullUrl = useMemo(
     () => (imageId ? getImageUrl(imageId, "full") : null),
-    [imageId]
+    [imageId],
   );
 
   const handleClose = () => setImageId(null);
@@ -119,7 +123,10 @@ export default function GalleryImageModal() {
                     disabled={!imageId || isSettingProfileImage}
                   >
                     {isSettingProfileImage ? (
-                      <HugeiconsIcon icon={Loading02Icon} className="animate-spin" />
+                      <HugeiconsIcon
+                        icon={Loading02Icon}
+                        className="animate-spin"
+                      />
                     ) : (
                       <HugeiconsIcon icon={User03Icon} />
                     )}
@@ -144,16 +151,20 @@ export default function GalleryImageModal() {
                     {data.generation.aiModel && (
                       <>
                         <div className="text-muted-foreground">Model</div>
-                        <div>{getModelDisplayName(data.generation.aiModel)}</div>
+                        <div>
+                          {getModelDisplayName(data.generation.aiModel)}
+                        </div>
                       </>
                     )}
                     {(() => {
                       const dimensions = getModelDimensions(
-                        data.generation.aiModel
+                        data.generation.aiModel,
                       );
                       return dimensions ? (
                         <>
-                          <div className="text-muted-foreground">Dimensions</div>
+                          <div className="text-muted-foreground">
+                            Dimensions
+                          </div>
                           <div>
                             {dimensions.width} × {dimensions.height} px
                           </div>
@@ -184,16 +195,22 @@ export default function GalleryImageModal() {
                         </div>
                       </>
                     )}
-                    {data.visibility === "public" && data.nsfw && data.nsfw !== "sfw" && (
-                      <>
-                        <div className="text-muted-foreground">
-                          Content Rating
-                        </div>
-                        <div className="capitalize">
-                          {data.nsfw === "suggestive" ? "Suggestive" : data.nsfw === "explicit" ? "Explicit" : data.nsfw}
-                        </div>
-                      </>
-                    )}
+                    {data.visibility === "public" &&
+                      data.nsfw &&
+                      data.nsfw !== "sfw" && (
+                        <>
+                          <div className="text-muted-foreground">
+                            Content Rating
+                          </div>
+                          <div className="capitalize">
+                            {data.nsfw === "suggestive"
+                              ? "Suggestive"
+                              : data.nsfw === "explicit"
+                                ? "Explicit"
+                                : data.nsfw}
+                          </div>
+                        </>
+                      )}
                     {data.generation.settings?.userNote && (
                       <>
                         <div className="text-muted-foreground">Note</div>

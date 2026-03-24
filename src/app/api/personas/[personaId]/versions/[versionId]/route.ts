@@ -6,7 +6,7 @@ import { and, eq, ne } from "drizzle-orm";
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ personaId: string; versionId: string }> }
+  { params }: { params: Promise<{ personaId: string; versionId: string }> },
 ) {
   const { userId } = await auth();
 
@@ -23,7 +23,7 @@ export async function GET(
     const persona = await db.query.personas.findFirst({
       where: and(
         eq(personas.id, personaId),
-        ne(personas.visibility, "deleted")
+        ne(personas.visibility, "deleted"),
       ),
       columns: {
         userId: true,
@@ -53,7 +53,7 @@ export async function GET(
     personaVersion = await db.query.personaVersions.findFirst({
       where: and(
         eq(personaVersions.id, versionId),
-        eq(personaVersions.personaId, personaId)
+        eq(personaVersions.personaId, personaId),
       ),
       with: {
         persona: {

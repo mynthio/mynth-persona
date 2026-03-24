@@ -13,7 +13,7 @@ export function replacePlaceholders(
   }: {
     userName?: string | null;
     personaName: string;
-  }
+  },
 ): string {
   return text
     .replaceAll("{{user.name}}", userName || "USER")

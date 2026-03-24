@@ -17,7 +17,7 @@ type GetChatMessagesResponseData = {
 
 export async function getChatMessagesData(
   chatId: string,
-  { messageId, limit, strict }: GetChatMessagesOptions = {}
+  { messageId, limit, strict }: GetChatMessagesOptions = {},
 ): Promise<GetChatMessagesResponseData> {
   // Determine the leafId to use for the thread
   const leafId = messageId
@@ -65,7 +65,7 @@ export async function getChatMessagesData(
         limit ${effectiveLimit}
       ) limited
       order by depth desc;
-    `
+    `,
   );
 
   const items: PersonaUIMessage[] = result.rows.map((r) => {

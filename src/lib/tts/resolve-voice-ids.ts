@@ -19,9 +19,13 @@ export type ResolvedVoices = {
  */
 export async function resolveVoiceIds(
   chatId: string,
-  userId: string
+  userId: string,
 ): Promise<
-  | { success: true; data: ResolvedVoices; chat: Awaited<ReturnType<typeof getChatWithPersonaVoiceCached>> }
+  | {
+      success: true;
+      data: ResolvedVoices;
+      chat: Awaited<ReturnType<typeof getChatWithPersonaVoiceCached>>;
+    }
   | { success: false; error: string }
 > {
   const chat = await getChatWithPersonaVoiceCached(chatId, userId);

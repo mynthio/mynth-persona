@@ -44,7 +44,7 @@ type GenerateMessageImageResult = {
 export const generateMessageImage = async (
   messageId: string,
   chatId: string,
-  options?: GenerateMessageImageOptions
+  options?: GenerateMessageImageOptions,
 ): Promise<ActionResult<GenerateMessageImageResult>> => {
   const { userId } = await auth();
 
@@ -132,7 +132,7 @@ export const generateMessageImage = async (
   // Check concurrent job limit using KV store
   const concurrentJobResult = await incrementConcurrentImageJob(
     userId,
-    planId as PlanId
+    planId as PlanId,
   );
   if (!concurrentJobResult.success) {
     return {
@@ -151,7 +151,7 @@ export const generateMessageImage = async (
   const rateLimitResult = await imageRateLimitGuard(
     BetaMessageImageGenerationsRateLimit,
     userId,
-    cost
+    cost,
   );
   if (!rateLimitResult.success) {
     return {
@@ -176,7 +176,7 @@ export const generateMessageImage = async (
     },
     {
       tags: [`user:${userId}`, `chat:${chatId}`, `message:${messageId}`],
-    }
+    },
   );
 
   trackImageGenerationSubmitted({

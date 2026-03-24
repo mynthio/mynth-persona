@@ -3,6 +3,7 @@
 This document distills product and analyst research grounded in the current codebase to identify features most likely to attract users, improve activation/conversion, and deepen retention. It proposes a now/next/later focus with measurable outcomes.
 
 ## Context Snapshot (What We Have Today)
+
 - Persona creation and versioning
   - Create, enhance, and publish personas; set current version; persona events logged (create, edit, image generate, revert, clone)
   - Strong type safety and public vs. backend schema separation prevents sensitive data exposure
@@ -19,13 +20,16 @@ This document distills product and analyst research grounded in the current code
   - Pricing page scaffolded; some sidebar areas marked Work In Progress (Chats, Images)
 
 ## Core User Segments (Hypotheses)
+
 - RP enthusiasts seeking believable, consistent characters (chat-first)
 - Writers/storytellers wanting persona-driven narrative scaffolding (story-first)
 - Visual creators wanting quick persona imagery with quality control (image-first)
 - Tinkerers/builders who remix or clone personas (community-first)
 
 ## Key Opportunity Areas
-1) Guided Onboarding + Templates (Activation lift)
+
+1. Guided Onboarding + Templates (Activation lift)
+
 - Problem: Cold-start friction when crafting the first persona; users need examples and guardrails.
 - Proposal:
   - Starter kits: “Archetypes” (e.g., Mentor, Rival, Detective) that pre-fill persona fields and prompts
@@ -33,7 +37,8 @@ This document distills product and analyst research grounded in the current code
   - One-click “Generate First Image” with recommended defaults based on archetype
 - Metrics: Persona creation completion rate, time-to-first-image, D1 retention
 
-2) Rich Gallery & Persona Media (Retention + Shareability)
+2. Rich Gallery & Persona Media (Retention + Shareability)
+
 - Problem: Current image UX is minimal; creators want to curate persona visuals.
 - Proposal:
   - Gallery with favorites, tags, and cover image selection per persona version
@@ -41,7 +46,8 @@ This document distills product and analyst research grounded in the current code
   - Lightweight moderation pipeline (NSFW toggle, tags, report) for future public sharing
 - Metrics: Images per active user, repeat generations per session, CSAT on image outcomes
 
-3) Advanced Image Controls with Cost Transparency (Conversion)
+3. Advanced Image Controls with Cost Transparency (Conversion)
+
 - Problem: Power users want control; new users need clarity on cost vs. quality.
 - Proposal:
   - “Basic/Advanced” toggle: basic uses quality tiers; advanced unlocks model selection, size, steps, and style hints
@@ -49,7 +55,8 @@ This document distills product and analyst research grounded in the current code
   - Save presets per persona; per-preset estimated token cost
 - Metrics: Checkout conversion, ARPU, image retry rate, cancel rate after estimator view
 
-4) Public Persona Pages + Clone/Use (Growth loop)
+4. Public Persona Pages + Clone/Use (Growth loop)
+
 - Problem: Discovery/acquisition relies on existing traffic; personas are inherently shareable.
 - Proposal:
   - Public persona profiles (read-only) with gallery, short summary, and “Clone Persona”/“Open in Chat” CTA
@@ -57,7 +64,8 @@ This document distills product and analyst research grounded in the current code
   - Basic community signals (views, clones) with future likes/bookmarks
 - Metrics: New signups from shared links, clone rate, % traffic to signups, search impressions
 
-5) Chat Branching UI + Memory/Summary (Engagement)
+5. Chat Branching UI + Memory/Summary (Engagement)
+
 - Problem: Depth of conversation and revisitation depend on navigable branches and memory.
 - Proposal:
   - Visual thread map for branches (existing data supports this) with easy backtrack/fork
@@ -65,7 +73,8 @@ This document distills product and analyst research grounded in the current code
   - “Return to this branch later” reminders; pin favorite branches
 - Metrics: Session length, return-to-branch rate, conversations per persona, D7 retention
 
-6) Social Sharing & Embeds (Acquisition)
+6. Social Sharing & Embeds (Acquisition)
+
 - Problem: Creations are valuable content; make them portable.
 - Proposal:
   - Export persona cards (image + summary) and embeddable widgets for blogs/portfolio
@@ -73,17 +82,15 @@ This document distills product and analyst research grounded in the current code
 - Metrics: Share events, referral signups, inbound traffic quality
 
 ## Prioritization (Now / Next / Later)
+
 - Now (2–3 weeks): Activation & Conversion
   1. Guided Onboarding + Templates
   2. Advanced Image Controls with token estimator (Basic/Advanced)
-- Next (4–6 weeks): Growth & Retention
-  3. Public Persona Pages + Clone/Use (MVP, behind feature flag)
-  4. Rich Gallery & Persona Media (cover image, favorites, tags)
-- Later (6–10 weeks): Depth
-  5. Chat Branching UI + Memory/Summary
-  6. Social Sharing & Embeds
+- Next (4–6 weeks): Growth & Retention 3. Public Persona Pages + Clone/Use (MVP, behind feature flag) 4. Rich Gallery & Persona Media (cover image, favorites, tags)
+- Later (6–10 weeks): Depth 5. Chat Branching UI + Memory/Summary 6. Social Sharing & Embeds
 
 ## Implementation Notes (Grounded in Code)
+
 - Templates & Onboarding
   - Leverage prompt registry (system vs. user prompts) to add archetype templates and expose preset rendering
   - Use shared schemas to ensure only safe fields are presented in the creation UI
@@ -100,6 +107,7 @@ This document distills product and analyst research grounded in the current code
   - Add summarization via existing text-generation provider; store per-branch summaries to reduce token costs
 
 ## Experiment Plan & KPIs
+
 - Onboarding Templates A/B
   - Hypothesis: Templates reduce friction and improve activation
   - Success: +20–30% persona creation completion, −30% time-to-first-image, +10% D1 retention
@@ -111,6 +119,7 @@ This document distills product and analyst research grounded in the current code
   - Success: >10% of new signups from shared links, >20% clone/use action rate on public personas
 
 ## Risks & Mitigations
+
 - Content safety and IP
   - Add report/visibility controls, basic tag filters, opt-in public publishing; document NSFW handling
 - Cost overruns via heavy image runs
@@ -121,14 +130,17 @@ This document distills product and analyst research grounded in the current code
   - Use Basic/Advanced split; progressive disclosure; default sensible options
 
 ## Recommendation: Focus Now
+
 - Ship “Guided Onboarding + Templates” and “Advanced Image Controls + Token Estimator” in parallel tracks.
 - Prepare “Public Persona Pages (MVP)” behind a feature flag to validate growth potential early.
 
 ## Measurement & Reporting
+
 - Add analytics events for persona creation steps, image generation settings, estimator views, publish/clone actions
 - Weekly review of activation (A0→A2 funnel), monetization (checkout conversion, ARPU), and retention (D1/D7)
 
 ## Backlog (High-Value Later Items)
+
 - Multi-character scene generation and storyboards
 - Persona marketplace with search/tags, ratings, and moderation
 - Collaboration (shared editing, comments), team workspaces

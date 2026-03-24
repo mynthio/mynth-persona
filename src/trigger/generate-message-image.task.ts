@@ -7,7 +7,10 @@ import { z } from "zod";
 
 import logsnag from "@/lib/logsnag";
 import { revalidateCacheTag } from "./utils/revalidate-cache";
-import { getImagesPerGeneration, ImageModelId } from "@/config/shared/image-models";
+import {
+  getImagesPerGeneration,
+  ImageModelId,
+} from "@/config/shared/image-models";
 import { ImageGenerationFactory } from "@/lib/generation/image-generation/image-generation-factory";
 import { processImage } from "@/lib/image-processing/image-processor";
 import { uploadToBunny } from "@/lib/upload";
@@ -61,7 +64,7 @@ type GeneratedMessageImageResult = {
 
 async function processAndSaveMessageImage(
   imageResult: ImageGenerationResult,
-  index: number
+  index: number,
 ): Promise<GeneratedMessageImageResult | null> {
   try {
     const [processedImage, processedThumbnail] = await processImage(
@@ -76,7 +79,7 @@ async function processAndSaveMessageImage(
             position: "top",
           },
         },
-      ]
+      ],
     );
 
     const mediaId = `med_${nanoid(32)}`;
@@ -101,7 +104,7 @@ async function processAndSaveMessageImage(
         error: error instanceof Error ? error.message : String(error),
         index,
       },
-      `Failed to process/save message image ${index}`
+      `Failed to process/save message image ${index}`,
     );
     return null;
   }
@@ -222,7 +225,7 @@ export const generateMessageImageTask = task({
         {
           numberResults: imagesPerGeneration,
           ...(referenceImages.length > 0 ? { referenceImages } : {}),
-        }
+        },
       );
     } catch (error) {
       console.error(error);
@@ -231,7 +234,7 @@ export const generateMessageImageTask = task({
       // Log original error for debugging
       logger.error(
         { error: errorMessage, messageId, chatId },
-        "Image generation failed"
+        "Image generation failed",
       );
 
       // Check if it's a content moderation error
@@ -249,12 +252,12 @@ export const generateMessageImageTask = task({
 
     const processedResults = await Promise.all(
       generateImageResult.images.map((imageResult, index) =>
-        processAndSaveMessageImage(imageResult, index)
-      )
+        processAndSaveMessageImage(imageResult, index),
+      ),
     );
 
     const successfulResults = processedResults.filter(
-      (result): result is GeneratedMessageImageResult => result !== null
+      (result): result is GeneratedMessageImageResult => result !== null,
     );
 
     if (successfulResults.length === 0) {
@@ -270,7 +273,7 @@ export const generateMessageImageTask = task({
           generateImageResult.images.length - successfulResults.length,
         successful: successfulResults.length,
       },
-      "Message image generation completed"
+      "Message image generation completed",
     );
 
     const firstImage = successfulResults[0];
@@ -333,7 +336,6 @@ export const generateMessageImageTask = task({
           updatedAt: new Date(),
         })
         .where(eq(messages.id, messageId));
-
     });
 
     // Invalidate chat cache after message media metadata update

@@ -45,14 +45,14 @@ export type ChatImageGenerationState = {
 
 export type ChatImageGenerationActions = {
   setImageGenerationRuns: (
-    runs: Record<string, ChatImageGenerationRun>
+    runs: Record<string, ChatImageGenerationRun>,
   ) => void;
 
   addImageGenerationRun: (runId: string, run: ChatImageGenerationRun) => void;
 
   updateImageGenerationRun: (
     runId: string,
-    update: Partial<ChatImageGenerationRun>
+    update: Partial<ChatImageGenerationRun>,
   ) => void;
 
   removeImageGenerationRun: (runId: string) => void;
@@ -66,7 +66,7 @@ export type ChatImageGenerationActions = {
         chatId: string;
         startedAt: number;
       }
-    >
+    >,
   ) => void;
 
   addSceneImageGenerationRun: (
@@ -76,7 +76,7 @@ export type ChatImageGenerationActions = {
       publicAccessToken: string;
       chatId: string;
       startedAt: number;
-    }
+    },
   ) => void;
 
   removeSceneImageGenerationRun: (runId: string) => void;
@@ -150,7 +150,7 @@ export const useChatImageGenerationStore = create<ChatImageGenerationStore>(
         delete newRuns[runId];
         return { sceneImageGenerationRuns: newRuns };
       }),
-  })
+  }),
 );
 
 export default useChatImageGenerationStore;

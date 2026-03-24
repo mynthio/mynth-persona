@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       if (isNaN(publishedAtDate.getTime())) {
         return NextResponse.json(
           { error: "Invalid cursorPublishedAt format" },
-          { status: 400 }
+          { status: 400 },
         );
       }
       cursor = {
@@ -44,10 +44,10 @@ export async function GET(request: NextRequest) {
             lt(personas.publishedAt, cursor.publishedAt),
             and(
               eq(personas.publishedAt, cursor.publishedAt),
-              lt(personas.id, cursor.id)
-            )
+              lt(personas.id, cursor.id),
+            ),
           )
-        : undefined
+        : undefined,
     );
 
     // Fetch one extra item to determine if there are more pages
@@ -107,11 +107,11 @@ export async function GET(request: NextRequest) {
           include_nsfw: includeNsfw,
         },
       },
-      "Error fetching public personas"
+      "Error fetching public personas",
     );
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

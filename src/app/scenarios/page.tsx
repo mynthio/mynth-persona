@@ -43,7 +43,7 @@ export default function ScenariosPage() {
           queryParams.set("event", eventFilter);
         }
         const response = await fetch(
-          `/api/scenarios?${queryParams.toString()}`
+          `/api/scenarios?${queryParams.toString()}`,
         );
         const data = await response.json();
         setInitialData(data);

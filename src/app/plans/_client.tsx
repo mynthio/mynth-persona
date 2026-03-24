@@ -1,6 +1,9 @@
 "use client";
 
-import { CheckmarkCircle02Icon, Loading02Icon } from "@hugeicons/core-free-icons";
+import {
+  CheckmarkCircle02Icon,
+  Loading02Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   CheckoutButton,
@@ -251,7 +254,10 @@ function Plan(props: PlanProps) {
               key={idx}
               className="flex items-start gap-[10px] text-primary-foreground/90"
             >
-              <HugeiconsIcon icon={CheckmarkCircle02Icon} className="size-4 mt-[2px] opacity-90 flex-shrink-0" />
+              <HugeiconsIcon
+                icon={CheckmarkCircle02Icon}
+                className="size-4 mt-[2px] opacity-90 flex-shrink-0"
+              />
               <span className="text-[0.85rem] leading-tight">{feature}</span>
             </div>
           ))}

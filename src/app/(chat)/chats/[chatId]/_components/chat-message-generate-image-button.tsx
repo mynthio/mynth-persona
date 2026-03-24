@@ -274,11 +274,7 @@ function ImageModelCommandItem({
 
   return (
     <CommandItem
-      value={[
-        model.displayName,
-        model.id,
-        `${imageCount} image`,
-      ].join(" ")}
+      value={[model.displayName, model.id, `${imageCount} image`].join(" ")}
       disabled={disabled}
       onSelect={() => onSelect(model.id, mode)}
       className="group rounded-lg border border-transparent px-2.5 py-2 data-[selected=true]:border-border/70 data-[selected=true]:bg-muted/60 dark:data-[selected=true]:bg-white/[0.05]"

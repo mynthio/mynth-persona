@@ -40,7 +40,7 @@ export async function GET(request: Request) {
   const paginationCondition = cursor
     ? or(
         lt(chats.updatedAt, cursor.updatedAt),
-        and(eq(chats.updatedAt, cursor.updatedAt), lt(chats.id, cursor.id))
+        and(eq(chats.updatedAt, cursor.updatedAt), lt(chats.id, cursor.id)),
       )
     : undefined;
 

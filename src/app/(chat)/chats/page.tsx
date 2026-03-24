@@ -11,14 +11,14 @@ const getRandomPersona = unstable_cache(
       .select()
       .from(personas)
       .where(
-        and(eq(personas.visibility, "public"), eq(personas.nsfwRating, "sfw"))
+        and(eq(personas.visibility, "public"), eq(personas.nsfwRating, "sfw")),
       )
       .orderBy(sql`RANDOM()`)
       .limit(1);
     return result.length === 0 ? null : result[0];
   },
   ["random-persona"],
-  { revalidate: 300 }
+  { revalidate: 300 },
 );
 
 export default async function ChatsPage({ searchParams }: PageProps<"/chats">) {

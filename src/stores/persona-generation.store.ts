@@ -31,7 +31,7 @@ export type PersonaGenerationActions = {
       onData?: (data: any) => void;
       onError?: (error: any) => void;
       onFinish?: (data: any) => void;
-    }
+    },
   ) => void;
   clearStreamingData: () => void;
   setIsGenerating: (isGenerating: boolean) => void;
@@ -46,7 +46,7 @@ export type PersonaGenerationActions = {
         expectedImageCount: number;
         startedAt?: number;
       }
-    >
+    >,
   ) => void;
   addImageGenerationRun: (
     runId: string,
@@ -56,7 +56,7 @@ export type PersonaGenerationActions = {
       personaId: string;
       expectedImageCount: number;
       startedAt?: number;
-    }
+    },
   ) => void;
   removeImageGenerationRun: (runId: string) => void;
 };
@@ -111,7 +111,7 @@ export const usePersonaGenerationStore = create<PersonaGenerationStore>(
         delete newRuns[runId];
         return { imageGenerationRuns: newRuns };
       }),
-  })
+  }),
 );
 
 export default usePersonaGenerationStore;

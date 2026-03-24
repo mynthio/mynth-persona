@@ -17,7 +17,7 @@ export const useUserChatsQuery = (
     cursorUpdatedAt?: string | null;
     cursorId?: string | null;
   } | null,
-  config?: SWRConfiguration
+  config?: SWRConfiguration,
 ) => {
   // If params is explicitly null, disable fetching
   // Otherwise, build the query string and key
@@ -49,9 +49,9 @@ export const useUserChatsMutation = () => {
 
   return (
     mutator: (
-      data: UserChatsResponse | undefined
+      data: UserChatsResponse | undefined,
     ) => UserChatsResponse | undefined,
-    options?: MutatorOptions
+    options?: MutatorOptions,
   ) =>
     mutate<UserChatsResponse>(`/api/chats`, mutator, {
       revalidate: false,

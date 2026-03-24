@@ -3,7 +3,11 @@
 import { useContext } from "react";
 import { useStore } from "zustand/react";
 import { useShallow } from "zustand/react/shallow";
-import { ChatStoreContext, type ChatStore, type ChatStoreState } from "./chat-store";
+import {
+  ChatStoreContext,
+  type ChatStore,
+  type ChatStoreState,
+} from "./chat-store";
 
 // ---------------------------------------------------------------------------
 // Internal context accessor
@@ -47,15 +51,27 @@ export function useMessageCount() {
 
 /** Returns `true` when any activity is in progress (streaming, continuing, impersonating, etc.) */
 export function useChatBusy() {
-  return useStore(useChatStoreContext(), (s) =>
-    s.status === "streaming" || s.status === "submitted" || s.isContinuing || s.isImpersonating
+  return useStore(
+    useChatStoreContext(),
+    (s) =>
+      s.status === "streaming" ||
+      s.status === "submitted" ||
+      s.isContinuing ||
+      s.isImpersonating,
   );
 }
 
 /** Returns `true` when a new generation/stream can safely start */
 export function useChatCanStream() {
-  return useStore(useChatStoreContext(), (s) =>
-    !( s.status === "streaming" || s.status === "submitted" || s.isContinuing || s.isImpersonating )
+  return useStore(
+    useChatStoreContext(),
+    (s) =>
+      !(
+        s.status === "streaming" ||
+        s.status === "submitted" ||
+        s.isContinuing ||
+        s.isImpersonating
+      ),
   );
 }
 

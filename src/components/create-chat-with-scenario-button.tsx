@@ -60,7 +60,7 @@ export function CreateChatWithScenarioButton({
               mutate((state) =>
                 state
                   ? { ...state, data: [createdChat, ...state.data] }
-                  : undefined
+                  : undefined,
               );
               push(`/chats/${createdChat.id}`);
             })
@@ -74,7 +74,7 @@ export function CreateChatWithScenarioButton({
               `Failed to create chat, please try again later or contact support.`,
             success:
               "Chat created successfully, you're going to be redirected to chat now.",
-          }
+          },
         );
       }}
     />

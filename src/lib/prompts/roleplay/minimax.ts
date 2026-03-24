@@ -17,7 +17,7 @@ import { renderAuthorNote } from "./types";
  * - Single action/dialogue per reply for dynamic back-and-forth
  */
 export const renderMiniMaxRoleplayPrompt: RoleplayPromptRenderer = (
-  args: RoleplayPromptArgs
+  args: RoleplayPromptArgs,
 ): string => {
   const userName = args.user?.name || "User";
   const personaName = args.character.name;
@@ -45,8 +45,8 @@ export const renderMiniMaxRoleplayPrompt: RoleplayPromptRenderer = (
     args.character.gender === "other"
       ? "You are"
       : args.character.gender === "male"
-      ? "He is"
-      : "She is"
+        ? "He is"
+        : "She is"
   } (${args.character.age}). ${args.character.v2?.natural ?? ""}.
 
 ${userBlock}${scenarioBlock}${lastCheckpointSummaryBlock}

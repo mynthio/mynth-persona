@@ -11,7 +11,10 @@ import {
 } from "react";
 import { BranchesByParent } from "@/services/chat/get-chat-branches";
 import { ROOT_BRANCH_PARENT_ID } from "@/lib/constants";
-import { usePinnedBranches, type PinnedMessage } from "../_hooks/use-pinned-branches.hook";
+import {
+  usePinnedBranches,
+  type PinnedMessage,
+} from "../_hooks/use-pinned-branches.hook";
 
 // Scroll restoration info for branch switching
 export interface ScrollRestoreInfo {
@@ -26,11 +29,11 @@ export interface ChatBranchesContextValue {
   setActiveId: (id?: string) => void;
   addMessageToBranch: (
     parentId: string | null | undefined,
-    message: { id: string; createdAt: string | Date }
+    message: { id: string; createdAt: string | Date },
   ) => void;
   removeMessageFromBranch: (
     parentId: string | null | undefined,
-    messageId: string
+    messageId: string,
   ) => void;
   // Scroll restoration for branch switching
   scrollRestoreRef: React.MutableRefObject<ScrollRestoreInfo | null>;
@@ -46,7 +49,7 @@ export interface ChatBranchesContextValue {
 }
 
 const ChatBranchesContext = createContext<ChatBranchesContextValue | undefined>(
-  undefined
+  undefined,
 );
 
 export function ChatBranchesProvider({
@@ -67,8 +70,12 @@ export function ChatBranchesProvider({
   const [isSwitchingBranch, setIsSwitchingBranch] = useState(false);
 
   // Pinned branches
-  const { pinnedBranches, pinMessage, unpinMessage, isLoading: isPinnedLoading } =
-    usePinnedBranches(chatId);
+  const {
+    pinnedBranches,
+    pinMessage,
+    unpinMessage,
+    isLoading: isPinnedLoading,
+  } = usePinnedBranches(chatId);
 
   // Ref to store pending scroll restoration info
   const scrollRestoreRef = useRef<ScrollRestoreInfo | null>(null);
@@ -77,13 +84,13 @@ export function ChatBranchesProvider({
     (id?: string) => {
       setBranchId(id ?? null);
     },
-    [setBranchId]
+    [setBranchId],
   );
 
   const addMessageToBranch = useCallback(
     (
       parentId: string | null | undefined,
-      message: { id: string; createdAt: string | Date }
+      message: { id: string; createdAt: string | Date },
     ) => {
       setBranchesState((prev) => {
         const key = parentId ?? ROOT_BRANCH_PARENT_ID;
@@ -104,7 +111,7 @@ export function ChatBranchesProvider({
         return { ...prev, [key]: sortedBranch };
       });
     },
-    [setBranchesState]
+    [setBranchesState],
   );
 
   const removeMessageFromBranch = (
@@ -129,9 +136,7 @@ export function ChatBranchesProvider({
   // Captures the parent message's position relative to viewport
   const prepareScrollRestore = useCallback((parentId: string | null) => {
     // Find the parent message element
-    const selector = parentId
-      ? `[data-message-id="${parentId}"]`
-      : null;
+    const selector = parentId ? `[data-message-id="${parentId}"]` : null;
 
     if (selector) {
       const parentElement = document.querySelector(selector);
@@ -168,7 +173,18 @@ export function ChatBranchesProvider({
       unpinMessage,
       isPinnedLoading,
     }),
-    [branchId, setActiveId, branchesState, addMessageToBranch, prepareScrollRestore, isSwitchingBranch, pinnedBranches, pinMessage, unpinMessage, isPinnedLoading]
+    [
+      branchId,
+      setActiveId,
+      branchesState,
+      addMessageToBranch,
+      prepareScrollRestore,
+      isSwitchingBranch,
+      pinnedBranches,
+      pinMessage,
+      unpinMessage,
+      isPinnedLoading,
+    ],
   );
 
   return (
@@ -183,7 +199,7 @@ export function useChatBranchesContext() {
 
   if (!ctx) {
     throw new Error(
-      "useChatBranchesContext must be used within a ChatBranchesProvider"
+      "useChatBranchesContext must be used within a ChatBranchesProvider",
     );
   }
 

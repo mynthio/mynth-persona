@@ -25,7 +25,7 @@ export const personaExtendableBuiltInPropertyNamesSchema =
 
 export const personaNonExtendableBuiltInPropertyNamesSchema =
   personaBuiltInPropertyNamesSchema.exclude(
-    personaExtendableBuiltInPropertyNamesSchema.options
+    personaExtendableBuiltInPropertyNamesSchema.options,
   );
 
 export const personaCustomPropertyNameSchema = z
@@ -43,9 +43,9 @@ export const personaNewCustomPropertyNameSchema =
   personaCustomPropertyNameSchema.refine(
     (property) =>
       !personaNonExtendableBuiltInPropertyNamesSchema.options.includes(
-        property as any
+        property as any,
       ),
     {
       message: "Property is not a non-extendable built-in property",
-    }
+    },
   );

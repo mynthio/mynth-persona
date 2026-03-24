@@ -105,7 +105,13 @@ export function useChatScroll({
     const addedHeight =
       (containerRef.current?.scrollHeight ?? 0) - previousHeightRef.current;
     window.scrollTo(0, previousScrollYRef.current + addedHeight);
-  }, [firstMessageId, containerRef, justPrependedRef, previousHeightRef, previousScrollYRef]);
+  }, [
+    firstMessageId,
+    containerRef,
+    justPrependedRef,
+    previousHeightRef,
+    previousScrollYRef,
+  ]);
 
   // Effect 4: Scroll restoration after branch switch (narrowed deps)
   // Previously depended on [messages, scrollRestoreRef] which re-ran on every

@@ -1,6 +1,18 @@
 "use client";
 
-import { ArrowReloadVerticalIcon, ArrowUpRight01Icon, Cancel01Icon, Image02Icon, InformationCircleIcon, PencilEdit02Icon, PinIcon, ScrollVerticalIcon, SparklesIcon, User03Icon, VolumeHighIcon } from "@hugeicons/core-free-icons";
+import {
+  ArrowReloadVerticalIcon,
+  ArrowUpRight01Icon,
+  Cancel01Icon,
+  Image02Icon,
+  InformationCircleIcon,
+  PencilEdit02Icon,
+  PinIcon,
+  ScrollVerticalIcon,
+  SparklesIcon,
+  User03Icon,
+  VolumeHighIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
@@ -51,8 +63,11 @@ import { getVoiceById } from "@/config/shared/voices.config";
 
 // Lazy load VoicePicker for client-side only rendering
 const VoicePicker = dynamic(
-  () => import("@/components/voice-picker").then((mod) => ({ default: mod.VoicePicker })),
-  { ssr: false }
+  () =>
+    import("@/components/voice-picker").then((mod) => ({
+      default: mod.VoicePicker,
+    })),
+  { ssr: false },
 );
 
 const SIDEBAR_WIDTH = "18rem";
@@ -157,7 +172,10 @@ function CharacterSection() {
       {hasCharacter ? (
         <div className="flex flex-col gap-1 rounded-lg border border-border/40 bg-muted/30 p-3">
           <div className="flex items-center gap-2">
-            <HugeiconsIcon icon={User03Icon} className="size-3.5 shrink-0 text-muted-foreground" />
+            <HugeiconsIcon
+              icon={User03Icon}
+              className="size-3.5 shrink-0 text-muted-foreground"
+            />
             <p className="truncate text-xs font-medium text-foreground">
               {settings.user_persona?.name}
             </p>
@@ -209,7 +227,10 @@ function ScenarioSection() {
       {hasScenario ? (
         <div className="flex flex-col gap-1 rounded-lg border border-border/40 bg-muted/30 p-3">
           <div className="flex items-start gap-2">
-            <HugeiconsIcon icon={ScrollVerticalIcon} className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+            <HugeiconsIcon
+              icon={ScrollVerticalIcon}
+              className="mt-0.5 size-3.5 shrink-0 text-muted-foreground"
+            />
             <p className="line-clamp-4 text-xs leading-relaxed text-muted-foreground">
               {scenarioText}
             </p>
@@ -221,7 +242,10 @@ function ScenarioSection() {
           onClick={() => navigateSettings("scenario")}
           className="flex w-full items-center gap-2 rounded-lg border border-dashed border-border/50 p-3 text-xs text-muted-foreground transition-colors hover:border-border hover:text-foreground"
         >
-          <HugeiconsIcon icon={ScrollVerticalIcon} className="size-3.5 shrink-0" />
+          <HugeiconsIcon
+            icon={ScrollVerticalIcon}
+            className="size-3.5 shrink-0"
+          />
           <span>Add a scenario</span>
         </button>
       )}
@@ -283,7 +307,10 @@ function VoiceSection() {
       {voice ? (
         <div className="rounded-xl border border-border/40 bg-muted/30 p-3">
           <div className="flex items-start gap-2">
-            <HugeiconsIcon icon={VolumeHighIcon} className="size-3.5 shrink-0 text-muted-foreground" />
+            <HugeiconsIcon
+              icon={VolumeHighIcon}
+              className="size-3.5 shrink-0 text-muted-foreground"
+            />
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-medium text-foreground">
                 {voice.displayName}
@@ -292,7 +319,10 @@ function VoiceSection() {
                 Custom voice override for this chat
               </p>
             </div>
-            <Badge variant="secondary" className="ml-auto h-4 px-1.5 py-0 text-[10px]">
+            <Badge
+              variant="secondary"
+              className="ml-auto h-4 px-1.5 py-0 text-[10px]"
+            >
               Override
             </Badge>
           </div>
@@ -324,8 +354,13 @@ function VoiceSection() {
       ) : (
         <div className="rounded-lg border border-dashed border-border/50 p-3">
           <div className="flex items-center gap-2 mb-2">
-            <HugeiconsIcon icon={VolumeHighIcon} className="size-3.5 shrink-0 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">Using persona default</span>
+            <HugeiconsIcon
+              icon={VolumeHighIcon}
+              className="size-3.5 shrink-0 text-muted-foreground"
+            />
+            <span className="text-xs text-muted-foreground">
+              Using persona default
+            </span>
           </div>
           <VoicePicker
             currentVoiceId={voiceId ?? null}
@@ -343,9 +378,7 @@ function VoiceSection() {
                   />
                   Choose voice override
                 </span>
-                <span className="text-[11px] text-muted-foreground">
-                  Open
-                </span>
+                <span className="text-[11px] text-muted-foreground">Open</span>
               </Button>
             }
           />
@@ -366,15 +399,15 @@ function SceneImageSection() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const addSceneImageGenerationRun = useChatImageGenerationStore(
-    (state) => state.addSceneImageGenerationRun
+    (state) => state.addSceneImageGenerationRun,
   );
   const sceneImageGenerationRuns = useChatImageGenerationStore(
-    (state) => state.sceneImageGenerationRuns
+    (state) => state.sceneImageGenerationRuns,
   );
 
   const activeRun = useMemo(() => {
     const runs = Object.values(sceneImageGenerationRuns).filter(
-      (run) => run.chatId === chatId
+      (run) => run.chatId === chatId,
     );
     return runs.length > 0 ? runs[0] : null;
   }, [sceneImageGenerationRuns, chatId]);
@@ -524,7 +557,10 @@ function SceneImageSection() {
                 </>
               ) : (
                 <>
-                  <HugeiconsIcon icon={ArrowReloadVerticalIcon} className="size-3" />
+                  <HugeiconsIcon
+                    icon={ArrowReloadVerticalIcon}
+                    className="size-3"
+                  />
                   <span>Generate</span>
                 </>
               )}
@@ -547,7 +583,8 @@ function SceneImageSection() {
                       {model.displayName}
                     </span>
                     {model.cost >= 2 && (
-                      <HugeiconsIcon icon={SparklesIcon}
+                      <HugeiconsIcon
+                        icon={SparklesIcon}
                         className="text-amber-400"
                         size={14}
                       />
@@ -615,7 +652,8 @@ function SceneImageSection() {
 // Saved Branches Section
 // ---------------------------------------------------------------------------
 function SavedBranchesSection() {
-  const { pinnedBranches, unpinMessage, branchId, isPinnedLoading } = useChatBranchesContext();
+  const { pinnedBranches, unpinMessage, branchId, isPinnedLoading } =
+    useChatBranchesContext();
   const switchBranch = useSwitchBranch();
 
   return (
@@ -639,7 +677,7 @@ function SavedBranchesSection() {
                   "group flex cursor-pointer items-start gap-2 rounded-lg border p-2.5 transition-colors hover:bg-muted/40",
                   isActive
                     ? "border-primary/30 bg-primary/5"
-                    : "border-border/40 bg-transparent"
+                    : "border-border/40 bg-transparent",
                 )}
                 onClick={() => switchBranch(pin.id)}
               >
@@ -649,7 +687,9 @@ function SavedBranchesSection() {
                 />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[11px] font-medium text-foreground">
-                    {pin.pinnedLabel || pin.contentPreview?.slice(0, 40) || "Saved branch"}
+                    {pin.pinnedLabel ||
+                      pin.contentPreview?.slice(0, 40) ||
+                      "Saved branch"}
                   </p>
                   {pin.contentPreview && (
                     <Tooltip>
@@ -658,7 +698,10 @@ function SavedBranchesSection() {
                           {pin.contentPreview}
                         </p>
                       </TooltipTrigger>
-                      <TooltipContent side="left" className="max-w-[240px] text-xs">
+                      <TooltipContent
+                        side="left"
+                        className="max-w-[240px] text-xs"
+                      >
                         {pin.contentPreview}
                       </TooltipContent>
                     </Tooltip>

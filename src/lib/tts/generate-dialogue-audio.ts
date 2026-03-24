@@ -13,7 +13,7 @@ import { type ResolvedVoices } from "./resolve-voice-ids";
  */
 export async function generateDialogueAudio(
   parts: DialoguePart[],
-  voices: ResolvedVoices
+  voices: ResolvedVoices,
 ): Promise<Buffer> {
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) {
@@ -40,13 +40,13 @@ export async function generateDialogueAudio(
         inputs,
         model_id: "eleven_v3",
       }),
-    }
+    },
   );
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => "Unknown error");
     throw new Error(
-      `ElevenLabs API error: ${response.status} ${response.statusText} - ${errorText}`
+      `ElevenLabs API error: ${response.status} ${response.statusText} - ${errorText}`,
     );
   }
 

@@ -51,7 +51,7 @@ export const migratePersonaImagesToMediaTask = task({
         }
 
         logger.info(
-          `Processing batch: ${offset + 1} to ${offset + imageBatch.length}`
+          `Processing batch: ${offset + 1} to ${offset + imageBatch.length}`,
         );
 
         // Process each image in the batch
@@ -68,12 +68,12 @@ export const migratePersonaImagesToMediaTask = task({
 
             if (!fullImageResponse.ok) {
               throw new Error(
-                `Failed to download full image: ${fullImageResponse.status} ${fullImageResponse.statusText}`
+                `Failed to download full image: ${fullImageResponse.status} ${fullImageResponse.statusText}`,
               );
             }
 
             const fullImageBuffer = Buffer.from(
-              await fullImageResponse.arrayBuffer()
+              await fullImageResponse.arrayBuffer(),
             );
 
             // Download thumbnail from CDN
@@ -82,12 +82,12 @@ export const migratePersonaImagesToMediaTask = task({
 
             if (!thumbImageResponse.ok) {
               throw new Error(
-                `Failed to download thumbnail: ${thumbImageResponse.status} ${thumbImageResponse.statusText}`
+                `Failed to download thumbnail: ${thumbImageResponse.status} ${thumbImageResponse.statusText}`,
               );
             }
 
             const thumbImageBuffer = Buffer.from(
-              await thumbImageResponse.arrayBuffer()
+              await thumbImageResponse.arrayBuffer(),
             );
 
             // Upload to new media paths
@@ -179,7 +179,7 @@ export const migratePersonaImagesToMediaTask = task({
 
             profileUpdateCount++;
             logger.info(
-              `Updated persona ${persona.id} profile image to ${newMediaId}`
+              `Updated persona ${persona.id} profile image to ${newMediaId}`,
             );
           }
         }

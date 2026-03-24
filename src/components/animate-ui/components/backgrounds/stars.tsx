@@ -113,7 +113,7 @@ function StarsBackground({
       offsetX.set(newOffsetX);
       offsetY.set(newOffsetY);
     },
-    [offsetX, offsetY, factor]
+    [offsetX, offsetY, factor],
   );
 
   return (

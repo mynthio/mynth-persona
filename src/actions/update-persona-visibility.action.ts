@@ -11,7 +11,7 @@ export type PersonaVisibility = "private" | "deleted";
 
 export async function updatePersonaVisibilityAction(
   personaId: string,
-  visibility: PersonaVisibility
+  visibility: PersonaVisibility,
 ) {
   const { userId } = await auth();
 
@@ -23,7 +23,7 @@ export async function updatePersonaVisibilityAction(
     where: and(
       eq(personas.id, personaId),
       eq(personas.userId, userId),
-      ne(personas.visibility, "deleted")
+      ne(personas.visibility, "deleted"),
     ),
     columns: {
       id: true,
@@ -46,7 +46,7 @@ export async function updatePersonaVisibilityAction(
     // Prevent unpublishing public personas
     if (persona.visibility === "public") {
       throw new Error(
-        "Cannot unpublish a public persona. By publishing, you granted us a perpetual license to use the persona for content generation. If you have an exceptional reason for removal (such as legal concerns or policy violations), please contact us at hi@prsna.app or Discord."
+        "Cannot unpublish a public persona. By publishing, you granted us a perpetual license to use the persona for content generation. If you have an exceptional reason for removal (such as legal concerns or policy violations), please contact us at hi@prsna.app or Discord.",
       );
     }
 
@@ -71,7 +71,7 @@ export async function updatePersonaVisibilityAction(
     // Prevent deleting public personas
     if (persona.visibility === "public") {
       throw new Error(
-        "Cannot delete a public persona. By publishing, you granted us a perpetual license to use the persona for content generation. If you have an exceptional reason for removal (such as legal concerns or policy violations), please contact us at hi@prsna.app or Discord."
+        "Cannot delete a public persona. By publishing, you granted us a perpetual license to use the persona for content generation. If you have an exceptional reason for removal (such as legal concerns or policy violations), please contact us at hi@prsna.app or Discord.",
       );
     }
 

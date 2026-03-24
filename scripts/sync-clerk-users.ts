@@ -56,18 +56,18 @@ async function fetchClerkUsers(): Promise<ClerkUser[]> {
           Authorization: `Bearer ${secretKey}`,
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     console.log(
-      `📡 Response status: ${response.status} ${response.statusText}`
+      `📡 Response status: ${response.status} ${response.statusText}`,
     );
 
     if (!response.ok) {
       const errorText = await response.text.text();
       console.error(`❌ API Error Response:`, errorText);
       throw new Error(
-        `Failed to fetch users from Clerk: ${response.status} ${response.statusText}`
+        `Failed to fetch users from Clerk: ${response.status} ${response.statusText}`,
       );
     }
 
@@ -92,7 +92,7 @@ async function fetchClerkUsers(): Promise<ClerkUser[]> {
   }
 
   console.log(
-    `\n✅ Successfully fetched ${allUsers.length} total users from Clerk`
+    `\n✅ Successfully fetched ${allUsers.length} total users from Clerk`,
   );
   return allUsers;
 }
@@ -113,7 +113,7 @@ async function syncUsersToDatabase(clerkUsers: ClerkUser[]) {
   console.log(
     "🔍 Existing user IDs:",
     Array.from(existingUserIds).slice(0, 5),
-    existingUserIds.size > 5 ? "..." : ""
+    existingUserIds.size > 5 ? "..." : "",
   );
 
   let newUsersCount = 0;
@@ -174,13 +174,13 @@ async function syncUsersToDatabase(clerkUsers: ClerkUser[]) {
   console.log(`• Total Clerk users analyzed: ${clerkUsers.length}`);
   console.log(`• Current database users: ${existingUsers.length}`);
   console.log(
-    `• Database users after sync: ${existingUsers.length + newUsersCount}`
+    `• Database users after sync: ${existingUsers.length + newUsersCount}`,
   );
 
   if (DRY_RUN) {
     console.log("\n🧪 DRY RUN COMPLETE - No changes made to database");
     console.log(
-      "💡 To actually sync the users, set DRY_RUN = false in the script"
+      "💡 To actually sync the users, set DRY_RUN = false in the script",
     );
     return;
   }
@@ -199,7 +199,7 @@ async function syncUsersToDatabase(clerkUsers: ClerkUser[]) {
       console.log(
         `\n💾 Inserting user ${i + 1}/${
           newUsersToAdd.length
-        }: ${name} (${email})`
+        }: ${name} (${email})`,
       );
 
       // Insert new user
@@ -223,7 +223,7 @@ async function syncUsersToDatabase(clerkUsers: ClerkUser[]) {
       console.log(`   🎫 Token record inserted`);
 
       console.log(
-        `   🎉 Successfully added: ${name} (${email}) - ID: ${clerkUser.id}`
+        `   🎉 Successfully added: ${name} (${email}) - ID: ${clerkUser.id}`,
       );
     } catch (error) {
       console.error(`   ❌ Failed to add user ${clerkUser.id}:`, error);
@@ -254,7 +254,7 @@ async function main() {
     }
     console.log("✅ CLERK_SECRET_KEY is set");
     console.log(
-      `🔑 Database URL: ${process.env.DATABASE_URL.substring(0, 20)}...`
+      `🔑 Database URL: ${process.env.DATABASE_URL.substring(0, 20)}...`,
     );
 
     // Fetch users from Clerk

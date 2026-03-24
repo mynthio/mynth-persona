@@ -30,7 +30,7 @@ export type UseUserPersonasParams = {
 
 export const useUserPersonasQuery = (
   params?: UseUserPersonasParams,
-  config?: SWRConfiguration
+  config?: SWRConfiguration,
 ) => {
   const query = new URLSearchParams();
   if (params?.q) query.set("q", params.q);
@@ -49,7 +49,7 @@ export const useUserPersonasQuery = (
 
 export const useUserPersonasMutation = (
   params?: UseUserPersonasParams,
-  options?: MutatorOptions
+  options?: MutatorOptions,
 ) => {
   const { mutate } = useSWRConfig();
   const { isSignedIn } = useAuth();
@@ -66,9 +66,9 @@ export const useUserPersonasMutation = (
 
   return (
     mutator: (
-      data: UserPersonasResponse | undefined
+      data: UserPersonasResponse | undefined,
     ) => UserPersonasResponse | undefined,
-    opts?: MutatorOptions
+    opts?: MutatorOptions,
   ) =>
     mutate<UserPersonasResponse | undefined>(key, mutator, {
       revalidate: false,

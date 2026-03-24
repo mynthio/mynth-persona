@@ -15,7 +15,7 @@ export const regenerateMessagePayloadSchema = z.object({
         z.object({
           type: z.literal("text"),
           text: z.string(),
-        })
+        }),
       ),
       metadata: z
         .object({

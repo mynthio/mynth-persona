@@ -26,7 +26,7 @@ export type UpdatePersonaVersionRoleplayDataV2Args = {
  * Does not generate the summary itself; expects summary to be provided.
  */
 export async function updatePersonaVersionRoleplayData(
-  args: UpdatePersonaVersionRoleplayDataArgs
+  args: UpdatePersonaVersionRoleplayDataArgs,
 ): Promise<PersonaVersionRoleplayData> {
   const { personaVersionId, summary, personaData } = args;
 
@@ -64,7 +64,7 @@ export async function updatePersonaVersionRoleplayData(
  * Populates V1 fields from V2 structured data for backwards compatibility.
  */
 export async function updatePersonaVersionRoleplayDataV2(
-  args: UpdatePersonaVersionRoleplayDataV2Args
+  args: UpdatePersonaVersionRoleplayDataV2Args,
 ): Promise<PersonaVersionRoleplayData> {
   const { personaVersionId, summaryV2, personaData } = args;
 

@@ -15,14 +15,14 @@ type CreatePersonaVersionPayload = {
 };
 
 export const createPersonaVersion = async (
-  payload: CreatePersonaVersionPayload
+  payload: CreatePersonaVersionPayload,
 ) => {
   const id = `prv_${nanoid()}`;
 
   const title =
     payload.title && payload.title.length < 3
       ? payload.data.name
-      : payload.title ?? payload.data.name;
+      : (payload.title ?? payload.data.name);
 
   await db.transaction(async (tx) => {
     let versionNumber = payload.versionNumber;

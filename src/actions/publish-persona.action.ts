@@ -21,7 +21,7 @@ export async function publishPersonaAction(personaId: string) {
     where: and(
       eq(personas.id, personaId),
       eq(personas.userId, userId),
-      ne(personas.visibility, "deleted")
+      ne(personas.visibility, "deleted"),
     ),
     columns: {
       id: true,
@@ -82,7 +82,7 @@ export async function publishPersonaAction(personaId: string) {
       personaId,
       userId,
       versionId: persona.currentVersionId,
-    }
+    },
   );
 
   return {

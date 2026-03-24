@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ imageId: string }> }
+  { params }: { params: Promise<{ imageId: string }> },
 ) {
   try {
     const { userId } = await auth();
@@ -69,7 +69,7 @@ export async function GET(
     console.error("Error fetching image:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

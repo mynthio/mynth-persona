@@ -43,16 +43,15 @@ export function PinModelButton({
           {
             "opacity-100": pinned,
           },
-          className
+          className,
         )}
         aria-label={pinned ? "Unpin model" : "Pin model"}
       >
         {pinned ? (
-          <HugeiconsIcon icon={PinIcon}
-            className="size-[16px] text-blue-600"
-          />
+          <HugeiconsIcon icon={PinIcon} className="size-[16px] text-blue-600" />
         ) : (
-          <HugeiconsIcon icon={PinOffIcon}
+          <HugeiconsIcon
+            icon={PinOffIcon}
             className="size-[16px] text-surface-foreground/40"
           />
         )}
@@ -68,8 +67,11 @@ export function PinModelButton({
       className={cn("size-6 rounded-sm [&>svg]:size-2", className)}
       aria-label={pinned ? "Unpin model" : "Pin model"}
     >
-      {pinned ? <HugeiconsIcon icon={Cancel01Icon} strokeWidth={1.5} /> : <HugeiconsIcon icon={PinIcon} strokeWidth={1.5} />}
+      {pinned ? (
+        <HugeiconsIcon icon={Cancel01Icon} strokeWidth={1.5} />
+      ) : (
+        <HugeiconsIcon icon={PinIcon} strokeWidth={1.5} />
+      )}
     </Button>
   );
 }
-

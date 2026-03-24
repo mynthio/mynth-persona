@@ -60,7 +60,7 @@ export const personaGenerationModels: PersonaGenerationModel[] = [
 
 // Derived: Array of model IDs for validation
 export const personaGenerationModelIds = personaGenerationModels.map(
-  (model) => model.id
+  (model) => model.id,
 ) as [string, ...string[]];
 
 // Derived: Type for model IDs

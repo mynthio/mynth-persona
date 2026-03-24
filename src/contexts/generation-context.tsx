@@ -17,9 +17,7 @@ export type GenerationContextValue = {
 };
 
 // Context to share generation state across sections and footer within the Home tree
-const GenerationContext = createContext<GenerationContextValue | null>(
-  null
-);
+const GenerationContext = createContext<GenerationContextValue | null>(null);
 GenerationContext.displayName = "GenerationContext";
 
 export function GenerationContextProvider({
@@ -38,14 +36,14 @@ export function GenerationContextProvider({
     () => (callback: () => void) => {
       resetCallbackRef.current = callback;
     },
-    []
+    [],
   );
 
   const resetGeneration = useMemo(
     () => () => {
       resetCallbackRef.current?.();
     },
-    []
+    [],
   );
 
   return (
@@ -68,7 +66,7 @@ export function useGenerationContext(): GenerationContextValue {
   const ctx = useContext(GenerationContext);
   if (ctx === null) {
     throw new Error(
-      "useGenerationContext must be used within a GenerationContext.Provider"
+      "useGenerationContext must be used within a GenerationContext.Provider",
     );
   }
 

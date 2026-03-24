@@ -19,12 +19,12 @@ const SCHEMA = z.object({
   prompt: z
     .string()
     .describe(
-      "The final prompt for the image generation model. Do not exceed 3000 characters."
+      "The final prompt for the image generation model. Do not exceed 3000 characters.",
     ),
 });
 
 export async function craftImagePromptForSceneImage(
-  payload: CraftImagePromptForSceneImagePayload
+  payload: CraftImagePromptForSceneImagePayload,
 ): Promise<{ prompt: string }> {
   const { personaData, chatSettings, modelName } = payload;
 

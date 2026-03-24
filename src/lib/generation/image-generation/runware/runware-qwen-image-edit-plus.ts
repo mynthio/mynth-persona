@@ -43,7 +43,7 @@ export class RunwareQwenImageEditPlus extends RunwareImageGenerationBase {
    * Override default behavior which puts them in inputs
    */
   protected buildReferenceImagesRequest(
-    referenceImages: string[]
+    referenceImages: string[],
   ): Record<string, any> {
     // Qwen requires referenceImages at root, even if empty
     return {

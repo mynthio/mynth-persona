@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface GradientButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface GradientButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
   className?: string;
 }
@@ -18,7 +17,7 @@ export default function GradientButton({
         variant="ghost"
         className={cn(
           "relative h-9 px-4 rounded-md overflow-hidden transition-all duration-500",
-          className
+          className,
         )}
         {...props}
       >

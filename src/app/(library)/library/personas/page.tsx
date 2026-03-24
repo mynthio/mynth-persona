@@ -1,4 +1,10 @@
-import { ArrowRight01Icon, Sad01Icon, Search01Icon, User03Icon, UserGroupIcon } from "@hugeicons/core-free-icons";
+import {
+  ArrowRight01Icon,
+  Sad01Icon,
+  Search01Icon,
+  User03Icon,
+  UserGroupIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
@@ -108,7 +114,7 @@ async function getPersonas(
   userId: string,
   cursorCreatedAt?: string,
   cursorId?: string,
-  searchQuery?: string
+  searchQuery?: string,
 ): Promise<PaginatedPersonasResult> {
   // Parse cursor if both params are present
   let cursor:
@@ -131,7 +137,7 @@ async function getPersonas(
   const baseCondition = and(
     eq(personas.userId, userId),
     ne(personas.visibility, "deleted"),
-    searchCondition
+    searchCondition,
   );
 
   const whereCondition = cursor
@@ -141,9 +147,9 @@ async function getPersonas(
           lt(personas.createdAt, cursor.createdAt),
           and(
             eq(personas.createdAt, cursor.createdAt),
-            lt(personas.id, cursor.id)
-          )
-        )
+            lt(personas.id, cursor.id),
+          ),
+        ),
       )
     : baseCondition;
 
@@ -291,7 +297,8 @@ export default async function PersonasPage({
             />
             <InputGroupAddon align="inline-end">
               <InputGroupButton type="submit">
-                <HugeiconsIcon icon={Search01Icon}
+                <HugeiconsIcon
+                  icon={Search01Icon}
                   strokeWidth={1.5}
                   className="size-4 text-muted-foreground"
                 />
@@ -304,7 +311,8 @@ export default async function PersonasPage({
           <Empty className="rounded-xl bg-linear-to-br from-background/80 via-card/80 to-muted/60 backdrop-blur-sm">
             <EmptyHeader>
               <EmptyMedia variant="icon" className="size-14">
-                <HugeiconsIcon icon={Sad01Icon}
+                <HugeiconsIcon
+                  icon={Sad01Icon}
                   strokeWidth={1.5}
                   className="size-8 text-muted-foreground"
                 />
@@ -334,14 +342,15 @@ export default async function PersonasPage({
                             <img
                               src={getImageUrl(
                                 persona.profileImageIdMedia,
-                                "thumb"
+                                "thumb",
                               )}
                               alt={persona.title || "Persona"}
                               className="size-10 rounded-sm object-cover"
                             />
                           ) : (
                             <div className="size-10 rounded-sm border border-border bg-linear-to-br from-muted/50 to-background/60 flex items-center justify-center">
-                              <HugeiconsIcon icon={User03Icon}
+                              <HugeiconsIcon
+                                icon={User03Icon}
                                 className="size-5 text-muted-foreground"
                                 strokeWidth={1.5}
                               />
@@ -361,13 +370,14 @@ export default async function PersonasPage({
                                     year: "numeric",
                                     month: "long",
                                     day: "numeric",
-                                  }
+                                  },
                                 )
                               : "recently"}
                           </ItemDescription>
                         </ItemContent>
                         <ItemActions>
-                          <HugeiconsIcon icon={ArrowRight01Icon}
+                          <HugeiconsIcon
+                            icon={ArrowRight01Icon}
                             strokeWidth={1.5}
                             className="size-4 text-muted-foreground"
                           />

@@ -24,4 +24,3 @@ export class RunwareRiverflow2Fast extends RunwareImageGenerationBase {
     return 1280;
   }
 }
-

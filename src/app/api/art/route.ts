@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     ? nsfwParams.split(",").map((level) => level.trim())
     : [];
   const validNsfwLevels = nsfwLevels.filter((level) =>
-    ["sfw", "suggestive", "explicit"].includes(level)
+    ["sfw", "suggestive", "explicit"].includes(level),
   ) as ("sfw" | "suggestive" | "explicit")[];
 
   const tags = tagsParam
@@ -43,8 +43,8 @@ export async function GET(req: NextRequest) {
       whereConditions.push(
         sql`${media.tags} @> ARRAY[${sql.join(
           tags.map((tag) => sql`${tag}`),
-          sql`, `
-        )}]::text[]`
+          sql`, `,
+        )}]::text[]`,
       );
     }
 
@@ -116,7 +116,7 @@ export async function GET(req: NextRequest) {
     console.error("Error fetching art:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

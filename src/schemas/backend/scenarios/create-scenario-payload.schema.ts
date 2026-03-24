@@ -20,7 +20,7 @@ const scenarioPersonaSchema = z.object({
  * Suggested AI models validation
  */
 const suggestedModelsSchema = z.array(
-  z.enum(validModelIds as [string, ...string[]])
+  z.enum(validModelIds as [string, ...string[]]),
 );
 
 /**
@@ -50,8 +50,6 @@ export const createScenarioPayloadSchema = scenarioFormFieldsSchema.extend({
   suggestedAiModels: suggestedModelsSchema.optional().default([]),
 });
 
-export type CreateScenarioPayload = z.infer<
-  typeof createScenarioPayloadSchema
->;
+export type CreateScenarioPayload = z.infer<typeof createScenarioPayloadSchema>;
 
 export type ScenarioPersona = z.infer<typeof scenarioPersonaSchema>;

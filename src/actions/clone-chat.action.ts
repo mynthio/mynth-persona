@@ -112,7 +112,11 @@ function remapMessageMetadata(
   }
 
   const checkpoint = originalMetadata.checkpoint;
-  if (checkpoint && typeof checkpoint === "object" && !Array.isArray(checkpoint)) {
+  if (
+    checkpoint &&
+    typeof checkpoint === "object" &&
+    !Array.isArray(checkpoint)
+  ) {
     const checkpointData = checkpoint as Record<string, unknown>;
     remappedMetadata.checkpoint = {
       ...checkpointData,
@@ -163,8 +167,7 @@ export async function cloneChatAction({
     // Resolve leaf ID if not provided
     resolvedLeafId = leafId ?? null;
     if (!resolvedLeafId) {
-      resolvedLeafId =
-        (await redis.get<string>(`chat:${chatId}:leaf`)) ?? null;
+      resolvedLeafId = (await redis.get<string>(`chat:${chatId}:leaf`)) ?? null;
     }
 
     if (!resolvedLeafId) {
@@ -199,7 +202,7 @@ export async function cloneChatAction({
             join thread on thread.parent_id = pm.id
           )
           select * from thread
-        `
+        `,
       );
       const threadRows = result.rows as {
         id: string;
@@ -281,7 +284,7 @@ export async function cloneChatAction({
 
   if (!newLeafId && orderedSourceMessages.length > 0) {
     const latestMsg = orderedSourceMessages.reduce((latest, msg) =>
-      coerceDate(msg.createdAt) > coerceDate(latest.createdAt) ? msg : latest
+      coerceDate(msg.createdAt) > coerceDate(latest.createdAt) ? msg : latest,
     );
     newLeafId = idMap.get(latestMsg.id) ?? null;
   }
@@ -304,7 +307,7 @@ export async function cloneChatAction({
           personaId: cp.personaId,
           personaVersionId: cp.personaVersionId,
           settings: cp.settings,
-        }))
+        })),
       );
     }
 

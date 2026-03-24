@@ -1,6 +1,15 @@
 "use client";
 
-import { AlertCircleIcon, CancelCircleIcon, CheckmarkCircle02Icon, Clock01Icon, Delete02Icon, Globe02Icon, Image02Icon, VolumeHighIcon } from "@hugeicons/core-free-icons";
+import {
+  AlertCircleIcon,
+  CancelCircleIcon,
+  CheckmarkCircle02Icon,
+  Clock01Icon,
+  Delete02Icon,
+  Globe02Icon,
+  Image02Icon,
+  VolumeHighIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
@@ -144,7 +153,10 @@ export default function WorkbenchSidebarManage() {
                   variant="default"
                   className="text-[10px] bg-emerald-500/15 text-emerald-500 border-emerald-500/20"
                 >
-                  <HugeiconsIcon icon={CheckmarkCircle02Icon} className="size-3" />
+                  <HugeiconsIcon
+                    icon={CheckmarkCircle02Icon}
+                    className="size-3"
+                  />
                   Published
                 </Badge>
               ) : isPending ? (
@@ -224,7 +236,10 @@ export default function WorkbenchSidebarManage() {
 
             {!hasProfileImage && (
               <div className="flex items-center gap-2 rounded-lg bg-card/30 border border-border/20 p-3">
-                <HugeiconsIcon icon={Image02Icon} className="size-4 text-muted-foreground shrink-0" />
+                <HugeiconsIcon
+                  icon={Image02Icon}
+                  className="size-4 text-muted-foreground shrink-0"
+                />
                 <p className="text-[11px] text-muted-foreground">
                   A profile image is required to publish your persona.
                 </p>
@@ -449,10 +464,7 @@ function VoiceCard({
             </span>
           </div>
           {currentVoice ? (
-            <Badge
-              variant="secondary"
-              className="text-[10px]"
-            >
+            <Badge variant="secondary" className="text-[10px]">
               {currentVoice.displayName}
             </Badge>
           ) : (

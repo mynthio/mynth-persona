@@ -38,7 +38,7 @@ export const useChatPersonas = () => {
 
   if (!context) {
     throw new Error(
-      "useChatPersonas must be used within a ChatPersonasProvider"
+      "useChatPersonas must be used within a ChatPersonasProvider",
     );
   }
 

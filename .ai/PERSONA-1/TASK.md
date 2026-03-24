@@ -76,10 +76,11 @@ We're going to use redis for 2 things here.
 When user starts a new chat we fetch persona to verify ownership, including the persona current version. If the fetched version does not have roleplay_data defined and ready to go, we generate it, by using some fast model, to generate roleplay data based on persona data. We update persona version with generated roleplay_data and we continue with creating a chat and a session normally with AI SDK.
 
 **Roleplay data structure:**
+
 - appearance: Short but detailed, comma-separated description of the persona's appearance
 - summary: Short as possible version of entire persona data for AI model to roleplay and know the persona
 
-*Note: Scenario generation based on persona data can be considered for future implementation to enhance roleplay experience.*
+_Note: Scenario generation based on persona data can be considered for future implementation to enhance roleplay experience._
 
 ## On continuation
 
@@ -120,6 +121,7 @@ The sidebar should switch tabs based on the active content type and route. Ensur
 ## Chat settings (Frontend)
 
 For v1, implement only two settings in the chat settings sidebar:
+
 - Model selection
 - User persona: split into three fields — name, appearance (short and detailed, comma-separated), and overview (general, concise summary)
 

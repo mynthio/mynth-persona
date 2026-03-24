@@ -278,16 +278,16 @@ export const DEFAULT_IMAGE_MODEL_ID: ImageModelId =
   "google/gemini-flash-image-2.5";
 
 const CREATIVE_UI_MODEL_ORDER_INDEX = new Map(
-  CREATIVE_UI_MODEL_ORDER.map((modelId, index) => [modelId, index] as const)
+  CREATIVE_UI_MODEL_ORDER.map((modelId, index) => [modelId, index] as const),
 );
 
 const REFERENCE_UI_MODEL_ORDER_INDEX = new Map(
-  REFERENCE_UI_MODEL_ORDER.map((modelId, index) => [modelId, index] as const)
+  REFERENCE_UI_MODEL_ORDER.map((modelId, index) => [modelId, index] as const),
 );
 
 const sortModelsByUiOrder = (
   models: ReadonlyArray<(typeof IMAGE_MODELS)[ImageModelId]>,
-  orderIndex: ReadonlyMap<ImageModelId, number>
+  orderIndex: ReadonlyMap<ImageModelId, number>,
 ) => {
   return [...models].sort((a, b) => {
     const aRank = orderIndex.get(a.id) ?? Number.MAX_SAFE_INTEGER;
@@ -318,7 +318,7 @@ type GetImagesPerGenerationOptions = {
 
 export const getImagesPerGeneration = (
   modelId: ImageModelId,
-  options?: GetImagesPerGenerationOptions
+  options?: GetImagesPerGenerationOptions,
 ): number => {
   const model = IMAGE_MODELS[modelId];
   if (!model) return 1;
@@ -337,7 +337,7 @@ export const getImagesPerGeneration = (
 // Helper to get model display name with fallback to model ID
 // Handles legacy/removed models by falling back to the model ID
 export const getModelDisplayName = (
-  modelId: string | null | undefined
+  modelId: string | null | undefined,
 ): string => {
   if (!modelId) return "Unknown";
   const model = IMAGE_MODELS[modelId as ImageModelId];
@@ -347,7 +347,7 @@ export const getModelDisplayName = (
 // Helper to get model dimensions (width x height) with fallback
 // Returns null if model not found or dimensions not available
 export const getModelDimensions = (
-  modelId: string | null | undefined
+  modelId: string | null | undefined,
 ): { width: number; height: number } | null => {
   if (!modelId) return null;
   const model = IMAGE_MODELS[modelId as ImageModelId];
@@ -376,8 +376,10 @@ export const isModelEditOnly = (modelId: ImageModelId): boolean => {
 // Helper to get reference-capable models ordered for character/reference flows
 export const getReferenceImageModels = () => {
   return sortModelsByUiOrder(
-    Object.values(IMAGE_MODELS).filter((model) => model.supportsReferenceImages),
-    REFERENCE_UI_MODEL_ORDER_INDEX
+    Object.values(IMAGE_MODELS).filter(
+      (model) => model.supportsReferenceImages,
+    ),
+    REFERENCE_UI_MODEL_ORDER_INDEX,
   );
 };
 
@@ -385,8 +387,8 @@ export const getReferenceImageModels = () => {
 export const getGenerationModels = () => {
   return sortModelsByUiOrder(
     Object.values(IMAGE_MODELS).filter(
-      (model) => !("editOnly" in model && model.editOnly === true)
+      (model) => !("editOnly" in model && model.editOnly === true),
     ),
-    CREATIVE_UI_MODEL_ORDER_INDEX
+    CREATIVE_UI_MODEL_ORDER_INDEX,
   );
 };

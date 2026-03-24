@@ -27,7 +27,7 @@ export const MiniWaveLoader = React.memo(function MiniWaveLoader({
     const forward = Array.from({ length: cols }, (_, i) => i);
     const backward = Array.from(
       { length: Math.max(0, cols - 2) },
-      (_, i) => cols - 2 - i
+      (_, i) => cols - 2 - i,
     );
     return [...forward, ...backward];
   }, [cols]);
@@ -72,8 +72,8 @@ export const MiniWaveLoader = React.memo(function MiniWaveLoader({
           distance < 0.5
             ? "bg-zinc-600 dark:bg-zinc-400"
             : distance < 1.5
-            ? "bg-zinc-300 dark:bg-zinc-600"
-            : "bg-zinc-200/70 dark:bg-zinc-700/60";
+              ? "bg-zinc-300 dark:bg-zinc-600"
+              : "bg-zinc-200/70 dark:bg-zinc-700/60";
 
         return (
           <div
@@ -81,7 +81,7 @@ export const MiniWaveLoader = React.memo(function MiniWaveLoader({
             className={cn(
               dotSize,
               "rounded-[2px] transition-colors duration-200",
-              colorClass
+              colorClass,
             )}
           />
         );

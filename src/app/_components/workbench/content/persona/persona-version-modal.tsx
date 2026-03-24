@@ -27,7 +27,7 @@ export default function PersonaVersionModal() {
 
   const { data, isLoading } = usePersonaVersionQuery(
     personaId,
-    (versionId as string) || undefined
+    (versionId as string) || undefined,
   );
 
   const [isReverting, setIsReverting] = useState(false);

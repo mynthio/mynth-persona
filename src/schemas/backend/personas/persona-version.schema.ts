@@ -13,37 +13,37 @@ export const roleplayDataV2Structured = z.object({
   appearance: z
     .string()
     .describe(
-      "Comma-separated list of physical attributes: body type, skin tone, hair color/style, eye color, facial features, clothing style, posture, distinguishing marks, and other visual characteristics"
+      "Comma-separated list of physical attributes: body type, skin tone, hair color/style, eye color, facial features, clothing style, posture, distinguishing marks, and other visual characteristics",
     ),
   speech: z
     .string()
     .describe(
-      "Comma-separated list of speech characteristics: accent/dialect, vocabulary level, speech patterns, verbal tics, tone qualities, speaking pace, catchphrases, and other vocal traits"
+      "Comma-separated list of speech characteristics: accent/dialect, vocabulary level, speech patterns, verbal tics, tone qualities, speaking pace, catchphrases, and other vocal traits",
     ),
   background: z
     .string()
     .describe(
-      "Comma-separated list of background elements: occupation, education, key relationships, formative events, upbringing, past experiences, current situation, and other biographical details"
+      "Comma-separated list of background elements: occupation, education, key relationships, formative events, upbringing, past experiences, current situation, and other biographical details",
     ),
   personality: z
     .string()
     .describe(
-      "Comma-separated list of personality traits and behaviors: core traits, temperament, emotional patterns, quirks, habits, values, fears, coping mechanisms, social tendencies, and other behavioral characteristics"
+      "Comma-separated list of personality traits and behaviors: core traits, temperament, emotional patterns, quirks, habits, values, fears, coping mechanisms, social tendencies, and other behavioral characteristics",
     ),
   quirks: z
     .string()
     .describe(
-      "Comma-separated list of habits and quirks: mannerisms, routines, nervous habits, personal rituals, idiosyncrasies"
+      "Comma-separated list of habits and quirks: mannerisms, routines, nervous habits, personal rituals, idiosyncrasies",
     ),
   relationships: z
     .string()
     .describe(
-      "Comma-separated list of key relationships: partners, family members, close friends, mentors, rivals, and their nature"
+      "Comma-separated list of key relationships: partners, family members, close friends, mentors, rivals, and their nature",
     ),
   goals: z
     .string()
     .describe(
-      "Comma-separated list of motivations and goals: life ambitions, current objectives, desires, aspirations"
+      "Comma-separated list of motivations and goals: life ambitions, current objectives, desires, aspirations",
     ),
 });
 
@@ -56,7 +56,7 @@ export type RoleplayDataV2Structured = z.infer<typeof roleplayDataV2Structured>;
 export const roleplayDataV2Natural = z
   .string()
   .describe(
-    "Third-person natural language description covering appearance, speech patterns, background, and personality. Written as flowing prose without mentioning name, gender, or age."
+    "Third-person natural language description covering appearance, speech patterns, background, and personality. Written as flowing prose without mentioning name, gender, or age.",
   );
 
 export type RoleplayDataV2Natural = z.infer<typeof roleplayDataV2Natural>;

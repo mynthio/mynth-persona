@@ -26,7 +26,7 @@ const SCHEMA_DEFAULT = z.object({
   prompt: z
     .string()
     .describe(
-      "The final prompt for the image generation model. Do not exceed 3000 characters."
+      "The final prompt for the image generation model. Do not exceed 3000 characters.",
     ),
 });
 
@@ -34,18 +34,18 @@ const SCHEMA_WITH_NEGATIVE_PROMPT = z.object({
   prompt: z
     .string()
     .describe(
-      "The final prompt for the image generation model. Do not exceed 3000 characters."
+      "The final prompt for the image generation model. Do not exceed 3000 characters.",
     ),
   negativePrompt: z
     .string()
     .optional()
     .describe(
-      "The negative prompt for the image generation model. Only used if the model supports it."
+      "The negative prompt for the image generation model. Only used if the model supports it.",
     ),
 });
 
 export async function craftImagePromptForPersona(
-  payload: CraftImagePromptForPersonaPayload
+  payload: CraftImagePromptForPersonaPayload,
 ): Promise<{ prompt: string; negativePrompt?: string }> {
   const personaData = payload.personaData;
   const { modelName } = payload;
@@ -117,7 +117,7 @@ Generate a positive prompt and negative prompt. Do not explain or add commentary
   // Fetch user-level prompt (first non-system default) and render it
   const prompt = getDefaultUserPromptDefinitionForMode(
     "image",
-    "persona"
+    "persona",
   ).render({
     persona: personaData,
     style,

@@ -116,12 +116,12 @@ export async function POST(req: NextRequest) {
         },
         error: normalizedError,
       },
-      "Clerk webhook handling failed"
+      "Clerk webhook handling failed",
     );
 
     return NextResponse.json(
       { error: "Error verifying webhook" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

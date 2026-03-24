@@ -14,7 +14,7 @@ const STORAGE_KEY = "show-nsfw";
 export function usePersistedNsfwFilter() {
   const [includeNsfw, setIncludeNsfwUrl] = useQueryState(
     "nsfw",
-    parseAsBoolean.withDefault(true)
+    parseAsBoolean.withDefault(true),
   );
 
   // On mount, sync from localStorage if no URL param
@@ -50,7 +50,7 @@ export function usePersistedNsfwFilter() {
       // Set to null if true to remove from URL (cleaner URLs)
       setIncludeNsfwUrl(value ? null : false);
     },
-    [setIncludeNsfwUrl]
+    [setIncludeNsfwUrl],
   );
 
   return [includeNsfw, setIncludeNsfw] as const;

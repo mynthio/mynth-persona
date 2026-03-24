@@ -7,7 +7,10 @@ export default function LibraryPage() {
   return (
     <div className="size-full max-w-xl mx-auto text-center text-balance mt-10 container flex items-center justify-center">
       <div className="flex flex-col items-center justify-center gap-6 px-4">
-        <HugeiconsIcon icon={HeartCheckIcon} className="size-10 text-muted-foreground" />
+        <HugeiconsIcon
+          icon={HeartCheckIcon}
+          className="size-10 text-muted-foreground"
+        />
 
         <div className="flex flex-col gap-3">
           <p className="text-lg">

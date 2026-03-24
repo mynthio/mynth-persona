@@ -24,7 +24,9 @@ export class RunwareGPTImage1 extends RunwareImageGenerationBase {
     return 1536;
   }
 
-  protected getPerRequestConfig(): { providerSettings?: { openai?: { quality?: string } } } {
+  protected getPerRequestConfig(): {
+    providerSettings?: { openai?: { quality?: string } };
+  } {
     return {
       providerSettings: {
         openai: {

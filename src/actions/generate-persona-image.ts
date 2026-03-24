@@ -45,7 +45,7 @@ type GeneratePersonaImageResult = {
 
 export const generatePersonaImage = async (
   personaId: string,
-  settings: GeneratePersonaImageSettings
+  settings: GeneratePersonaImageSettings,
 ): Promise<ActionResult<GeneratePersonaImageResult>> => {
   const { userId } = await auth();
 
@@ -64,7 +64,7 @@ export const generatePersonaImage = async (
   // Check concurrent job limit using KV store
   const concurrentJobResult = await incrementConcurrentImageJob(
     userId,
-    planId as PlanId
+    planId as PlanId,
   );
   if (!concurrentJobResult.success) {
     return {
@@ -99,7 +99,7 @@ export const generatePersonaImage = async (
     where: and(
       eq(personas.id, personaId),
       eq(personas.userId, userId),
-      ne(personas.visibility, "deleted")
+      ne(personas.visibility, "deleted"),
     ),
     with: {
       currentVersion: true,
@@ -145,7 +145,7 @@ export const generatePersonaImage = async (
     },
     {
       tags: [`user:${userId}`],
-    }
+    },
   );
 
   trackImageGenerationSubmitted({

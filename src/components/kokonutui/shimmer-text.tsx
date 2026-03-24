@@ -33,7 +33,7 @@ export default function ShimmerText({
         <motion.h1
           className={cn(
             "font-medium bg-gradient-to-r from-neutral-950 via-neutral-400 to-neutral-950 dark:from-white dark:via-neutral-600 dark:to-white bg-[length:200%_100%] bg-clip-text text-transparent",
-            className
+            className,
           )}
           animate={{
             backgroundPosition: ["200% center", "-200% center"],

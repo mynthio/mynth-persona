@@ -22,7 +22,7 @@ const FAILURE_STATUSES = new Set([
 ]);
 
 const parseRunOutput = (
-  output: unknown
+  output: unknown,
 ): ChatImageGenerationRunOutput | undefined => {
   if (!output || typeof output !== "object") {
     return undefined;
@@ -31,17 +31,14 @@ const parseRunOutput = (
   const maybeOutput = output as Record<string, unknown>;
 
   // Check for new multi-image format
-  if (
-    Array.isArray(maybeOutput.images) &&
-    maybeOutput.images.length > 0
-  ) {
+  if (Array.isArray(maybeOutput.images) && maybeOutput.images.length > 0) {
     const images = maybeOutput.images
       .filter(
         (img: unknown) =>
           img &&
           typeof img === "object" &&
           typeof (img as Record<string, unknown>).imageUrl === "string" &&
-          typeof (img as Record<string, unknown>).mediaId === "string"
+          typeof (img as Record<string, unknown>).mediaId === "string",
       )
       .map((img: unknown) => ({
         imageUrl: (img as Record<string, unknown>).imageUrl as string,
@@ -75,10 +72,10 @@ export function ChatMessageImageInProgress({
   run: runEntry,
 }: ChatMessageImageInProgressProps) {
   const removeImageGenerationRun = useChatImageGenerationStore(
-    (state) => state.removeImageGenerationRun
+    (state) => state.removeImageGenerationRun,
   );
   const updateImageGenerationRun = useChatImageGenerationStore(
-    (state) => state.updateImageGenerationRun
+    (state) => state.updateImageGenerationRun,
   );
 
   const { run } = useRun(runEntry.runId, {

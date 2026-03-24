@@ -10,7 +10,7 @@ export function transformToPublicPersonaImage(image: {
 }
 
 export function transformToPublicPersonaImages(
-  images: Array<{ id: string }>
+  images: Array<{ id: string }>,
 ): PublicPersonaImage[] {
   return images.map(transformToPublicPersonaImage);
 }

@@ -1,4 +1,9 @@
-import { ArrowRight01Icon, File01Icon, Sad01Icon, Search01Icon } from "@hugeicons/core-free-icons";
+import {
+  ArrowRight01Icon,
+  File01Icon,
+  Sad01Icon,
+  Search01Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { db } from "@/db/drizzle";
 import { scenarios } from "@/db/schema";
@@ -105,7 +110,7 @@ async function getScenarios(
   userId: string,
   cursorCreatedAt?: string,
   cursorId?: string,
-  searchQuery?: string
+  searchQuery?: string,
 ): Promise<PaginatedScenariosResult> {
   let cursor:
     | {
@@ -127,7 +132,7 @@ async function getScenarios(
   const baseCondition = and(
     eq(scenarios.creatorId, userId),
     ne(scenarios.visibility, "deleted"),
-    searchCondition
+    searchCondition,
   );
 
   const whereCondition = cursor
@@ -137,9 +142,9 @@ async function getScenarios(
           lt(scenarios.createdAt, cursor.createdAt),
           and(
             eq(scenarios.createdAt, cursor.createdAt),
-            lt(scenarios.id, cursor.id)
-          )
-        )
+            lt(scenarios.id, cursor.id),
+          ),
+        ),
       )
     : baseCondition;
 
@@ -285,7 +290,8 @@ export default async function ScenariosPage({
             />
             <InputGroupAddon align="inline-end">
               <InputGroupButton type="submit">
-                <HugeiconsIcon icon={Search01Icon}
+                <HugeiconsIcon
+                  icon={Search01Icon}
                   strokeWidth={1.5}
                   className="size-4 text-muted-foreground"
                 />
@@ -298,7 +304,8 @@ export default async function ScenariosPage({
           <Empty className="rounded-xl bg-linear-to-br from-background/80 via-card/80 to-muted/60 backdrop-blur-sm">
             <EmptyHeader>
               <EmptyMedia variant="icon" className="size-14">
-                <HugeiconsIcon icon={Sad01Icon}
+                <HugeiconsIcon
+                  icon={Sad01Icon}
                   strokeWidth={1.5}
                   className="size-8 text-muted-foreground"
                 />
@@ -332,7 +339,8 @@ export default async function ScenariosPage({
                             />
                           ) : (
                             <div className="size-10 rounded-sm border border-border bg-linear-to-br from-muted/50 to-background/60 flex items-center justify-center">
-                              <HugeiconsIcon icon={File01Icon}
+                              <HugeiconsIcon
+                                icon={File01Icon}
                                 className="size-5 text-muted-foreground"
                                 strokeWidth={1.5}
                               />
@@ -352,13 +360,14 @@ export default async function ScenariosPage({
                                     year: "numeric",
                                     month: "long",
                                     day: "numeric",
-                                  }
+                                  },
                                 )
                               : "recently"}
                           </ItemDescription>
                         </ItemContent>
                         <ItemActions>
-                          <HugeiconsIcon icon={ArrowRight01Icon}
+                          <HugeiconsIcon
+                            icon={ArrowRight01Icon}
                             strokeWidth={1.5}
                             className="size-4 text-muted-foreground"
                           />

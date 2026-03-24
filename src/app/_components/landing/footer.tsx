@@ -18,7 +18,10 @@ export function Footer() {
             >
               Explore
             </Link>
-            <Link href="/art" className="hover:text-foreground transition-colors">
+            <Link
+              href="/art"
+              className="hover:text-foreground transition-colors"
+            >
               Art
             </Link>
             <Link
@@ -29,7 +32,11 @@ export function Footer() {
             </Link>
           </div>
           <div className="text-sm text-muted-foreground">
-            Made with <HugeiconsIcon icon={HeartCheckIcon} className="inline ml-1 mb-0.5" />
+            Made with{" "}
+            <HugeiconsIcon
+              icon={HeartCheckIcon}
+              className="inline ml-1 mb-0.5"
+            />
           </div>
         </div>
       </div>

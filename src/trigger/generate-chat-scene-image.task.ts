@@ -121,7 +121,7 @@ export const generateChatSceneImageTask = task({
       // Log original error for debugging
       logger.error(
         { error: errorMessage, chatId },
-        "Scene image generation failed"
+        "Scene image generation failed",
       );
 
       // Check if it's a content moderation error
@@ -154,7 +154,7 @@ export const generateChatSceneImageTask = task({
             position: "top",
           },
         },
-      ]
+      ],
     );
 
     // Upload to Bunny.net storage
@@ -167,7 +167,7 @@ export const generateChatSceneImageTask = task({
     const uploadMainImage = uploadToBunny(mainFilePath, processedImage);
     const uploadThumbnailImage = uploadToBunny(
       thumbnailFilePath,
-      processedThumbnail
+      processedThumbnail,
     );
 
     await Promise.all([uploadMainImage, uploadThumbnailImage]);

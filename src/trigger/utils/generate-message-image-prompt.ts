@@ -24,7 +24,7 @@ const SCHEMA = z.object({
   prompt: z
     .string()
     .describe(
-      "The final prompt for the image generation model. Do not exceed 3000 characters."
+      "The final prompt for the image generation model. Do not exceed 3000 characters.",
     ),
 });
 
@@ -33,20 +33,20 @@ const SCHEMA = z.object({
  */
 function getContextMessages(
   messages: PersonaUIMessage[],
-  targetMessageId: string
+  targetMessageId: string,
 ): PersonaUIMessage[] {
   const targetIndex = messages.findIndex((m) => m.id === targetMessageId);
 
   if (targetIndex === -1) {
     return messages.slice(
-      -MESSAGE_IMAGE_PROMPT_CONTEXT_CONFIG.conversationWindow
+      -MESSAGE_IMAGE_PROMPT_CONTEXT_CONFIG.conversationWindow,
     );
   }
 
   const messagesUpToTarget = messages.slice(0, targetIndex + 1);
 
   return messagesUpToTarget.slice(
-    -MESSAGE_IMAGE_PROMPT_CONTEXT_CONFIG.conversationWindow
+    -MESSAGE_IMAGE_PROMPT_CONTEXT_CONFIG.conversationWindow,
   );
 }
 
@@ -62,10 +62,10 @@ function trimForPrompt(text: string, maxCharacters: number): string {
 
 function getRecentCheckpointSummaries(
   messages: PersonaUIMessage[],
-  targetMessageId: string
+  targetMessageId: string,
 ): string[] {
   const targetIndex = messages.findIndex(
-    (message) => message.id === targetMessageId
+    (message) => message.id === targetMessageId,
   );
   const messagesUpToTarget =
     targetIndex === -1 ? messages : messages.slice(0, targetIndex + 1);
@@ -88,8 +88,8 @@ function getRecentCheckpointSummaries(
     .map((checkpoint) =>
       trimForPrompt(
         checkpoint,
-        MESSAGE_IMAGE_PROMPT_CONTEXT_CONFIG.maxCharactersPerCheckpoint
-      )
+        MESSAGE_IMAGE_PROMPT_CONTEXT_CONFIG.maxCharactersPerCheckpoint,
+      ),
     );
 }
 
@@ -97,7 +97,7 @@ function getRecentCheckpointSummaries(
  * Character mode: Uses reference image for consistent character appearance
  */
 export async function craftImagePromptForMessageCharacterMode(
-  payload: CraftImagePromptForMessagePayload
+  payload: CraftImagePromptForMessagePayload,
 ): Promise<{ prompt: string }> {
   const {
     messages,
@@ -123,11 +123,10 @@ export async function craftImagePromptForMessageCharacterMode(
     .map((msg) => {
       const text = trimForPrompt(
         extractPersonaMessageText(msg),
-        MESSAGE_IMAGE_PROMPT_CONTEXT_CONFIG.maxCharactersPerMessage
+        MESSAGE_IMAGE_PROMPT_CONTEXT_CONFIG.maxCharactersPerMessage,
       );
       const role = msg.role === "user" ? "User" : "Character";
-      const targetLabel =
-        msg.id === targetMessageId ? " (TARGET MESSAGE)" : "";
+      const targetLabel = msg.id === targetMessageId ? " (TARGET MESSAGE)" : "";
 
       return `
 ### ${role}${targetLabel}
@@ -138,7 +137,7 @@ ${text}`;
 
   const checkpointContext = getRecentCheckpointSummaries(
     messages,
-    targetMessageId
+    targetMessageId,
   );
   const scenarioContext = chatSettings?.scenario?.scenario_text?.trim();
   const scenarioStyleGuidelines =
@@ -248,7 +247,7 @@ Generate the final prompt for character-mode image generation from the target me
  * Creative mode: Includes character appearance in prompt (no reference image)
  */
 export async function craftImagePromptForMessageCreativeMode(
-  payload: CraftImagePromptForMessagePayload
+  payload: CraftImagePromptForMessagePayload,
 ): Promise<{ prompt: string }> {
   const { messages, targetMessageId, personaData, chatSettings } = payload;
 
@@ -268,7 +267,7 @@ export async function craftImagePromptForMessageCreativeMode(
     .map((msg) => {
       const text = trimForPrompt(
         extractPersonaMessageText(msg),
-        MESSAGE_IMAGE_PROMPT_CONTEXT_CONFIG.maxCharactersPerMessage
+        MESSAGE_IMAGE_PROMPT_CONTEXT_CONFIG.maxCharactersPerMessage,
       );
       const role = msg.role === "user" ? "User" : "Character";
       return `
@@ -280,7 +279,7 @@ ${text}`;
 
   const checkpointContext = getRecentCheckpointSummaries(
     messages,
-    targetMessageId
+    targetMessageId,
   );
   const personaAppearance = personaData?.appearance || "";
   const personaSummary = personaData?.summary || "";
@@ -314,13 +313,11 @@ ${personaSummary ? `Character summary: ${personaSummary}\n\n` : ""}${
       : ""
   }
 
-${
-  scenarioContext ? `Scenario context: ${scenarioContext}\n\n` : ""
-}${
+${scenarioContext ? `Scenario context: ${scenarioContext}\n\n` : ""}${
     scenarioStyleGuidelines
       ? `Scenario style guidance: ${scenarioStyleGuidelines}\n\n`
       : ""
-}Last messages from the role-playing chat:
+  }Last messages from the role-playing chat:
 
 ${conversationContext}
 

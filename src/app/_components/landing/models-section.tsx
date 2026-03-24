@@ -1,6 +1,12 @@
 "use client";
 
-import { ArrowRight01Icon, CrownIcon, DatabaseLightningIcon, Leaf02Icon, StarsIcon } from "@hugeicons/core-free-icons";
+import {
+  ArrowRight01Icon,
+  CrownIcon,
+  DatabaseLightningIcon,
+  Leaf02Icon,
+  StarsIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { motion } from "motion/react";
 import { textGenerationModels } from "@/config/shared/models/text-generation-models.config";
@@ -91,7 +97,10 @@ export function ModelsSection() {
           className="text-center mb-16"
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-border/50 bg-card/50 px-4 py-2 text-xs uppercase tracking-[0.2em] text-foreground/70 shadow-[0_12px_30px_-18px_rgba(124,58,237,0.35)]">
-            <HugeiconsIcon icon={DatabaseLightningIcon} className="size-4 text-primary/80" />
+            <HugeiconsIcon
+              icon={DatabaseLightningIcon}
+              className="size-4 text-primary/80"
+            />
             Model Roster
           </div>
 
@@ -119,7 +128,8 @@ export function ModelsSection() {
             <div className="relative p-6 sm:p-8 md:p-10">
               <div className="flex items-center gap-3 mb-4">
                 <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1.5">
-                  <HugeiconsIcon icon={Leaf02Icon}
+                  <HugeiconsIcon
+                    icon={Leaf02Icon}
                     className="size-4 text-emerald-600 dark:text-emerald-300"
                   />
                   <span className="text-sm font-medium text-emerald-600 dark:text-emerald-300">
@@ -179,7 +189,8 @@ export function ModelsSection() {
                       <div
                         className={`inline-flex items-center gap-2 rounded-full ${tierMeta[tier].bgColor} px-3 py-1.5`}
                       >
-                        <HugeiconsIcon icon={tierIcon}
+                        <HugeiconsIcon
+                          icon={tierIcon}
                           className={`size-4 ${tierMeta[tier].textColor}`}
                         />
                         <span

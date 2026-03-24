@@ -40,8 +40,8 @@ export async function createScenarioAction(payload: CreateScenarioPayload) {
         ne(personas.visibility, "deleted"),
         or(
           eq(personas.userId, userId), // User owns this persona
-          eq(personas.visibility, "public") // Persona is public
-        )
+          eq(personas.visibility, "public"), // Persona is public
+        ),
       ),
       columns: { id: true },
     });
@@ -49,7 +49,7 @@ export async function createScenarioAction(payload: CreateScenarioPayload) {
     // Check if all requested personas are accessible
     if (accessiblePersonas.length !== personaIds.length) {
       throw new Error(
-        "One or more personas not found or you don't have access to them"
+        "One or more personas not found or you don't have access to them",
       );
     }
   }

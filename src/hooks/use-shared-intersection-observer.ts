@@ -6,7 +6,9 @@ type ObserverCallback = (isIntersecting: boolean) => void;
 let sharedObserver: IntersectionObserver | null = null;
 const observerRegistry = new Map<Element, ObserverCallback>();
 
-function getSharedObserver(threshold: number = 0.25): IntersectionObserver | null {
+function getSharedObserver(
+  threshold: number = 0.25,
+): IntersectionObserver | null {
   if (!sharedObserver && typeof IntersectionObserver !== "undefined") {
     sharedObserver = new IntersectionObserver(
       (entries) => {
@@ -17,7 +19,7 @@ function getSharedObserver(threshold: number = 0.25): IntersectionObserver | nul
           }
         }
       },
-      { threshold }
+      { threshold },
     );
   }
   return sharedObserver;
@@ -45,7 +47,7 @@ function unregisterElement(element: Element): void {
  */
 export function useSharedIntersectionObserver<T extends Element>(): [
   React.RefObject<T | null>,
-  boolean
+  boolean,
 ] {
   const ref = useRef<T | null>(null);
   const [isIntersecting, setIsIntersecting] = useState(false);
@@ -71,7 +73,7 @@ export function useSharedIntersectionObserver<T extends Element>(): [
 export function useSharedIntersectionEffect<T extends Element>(
   ref: React.RefObject<T | null>,
   onIntersect: () => void,
-  enabled: boolean = true
+  enabled: boolean = true,
 ): void {
   const hasTriggeredRef = useRef(false);
   const callbackRef = useRef(onIntersect);

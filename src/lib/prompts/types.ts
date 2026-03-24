@@ -22,10 +22,10 @@ export type PromptVersion = `v${number}`;
 export type SystemPromptIdForChat<M extends ChatPromptMode = ChatPromptMode> =
   `system.chat.${M}.${PromptVersion}`;
 export type SystemPromptIdForPersona<
-  M extends PersonaPromptMode = PersonaPromptMode
+  M extends PersonaPromptMode = PersonaPromptMode,
 > = `system.persona.${M}.${PromptVersion}`;
 export type SystemPromptIdForImage<
-  M extends ImagePromptMode = ImagePromptMode
+  M extends ImagePromptMode = ImagePromptMode,
 > = `system.image.${M}.${PromptVersion}`;
 
 // Specific ID types for additional persona prompts (not default modes)
@@ -39,7 +39,7 @@ export type SystemPromptIdForPersonaExtract =
 export type UserPromptIdForChat<M extends ChatPromptMode = ChatPromptMode> =
   `prompt.chat.${M}.${PromptVersion}`;
 export type UserPromptIdForPersona<
-  M extends PersonaPromptMode = PersonaPromptMode
+  M extends PersonaPromptMode = PersonaPromptMode,
 > = `prompt.persona.${M}.${PromptVersion}`;
 export type UserPromptIdForImage<M extends ImagePromptMode = ImagePromptMode> =
   `prompt.image.${M}.${PromptVersion}`;
@@ -100,8 +100,7 @@ export interface PromptDefinitionPersonaGenerate extends PromptDefinitionBase {
   render: () => string;
 }
 
-export interface PromptDefinitionPersonaGenerateThinking
-  extends PromptDefinitionBase {
+export interface PromptDefinitionPersonaGenerateThinking extends PromptDefinitionBase {
   id: SystemPromptIdForPersonaGenerateThinking;
   mode: "generate-thinking";
   render: () => string;
@@ -127,8 +126,7 @@ export interface PromptDefinitionPersonaPublish extends PromptDefinitionBase {
 }
 
 // New: Persona property action system prompt definition
-export interface PromptDefinitionPersonaPropertyAction
-  extends PromptDefinitionBase {
+export interface PromptDefinitionPersonaPropertyAction extends PromptDefinitionBase {
   id: SystemPromptIdForPersonaPropertyAction;
   mode: "property-action";
   render: PromptDefinitionRenderFunction<{
@@ -137,8 +135,7 @@ export interface PromptDefinitionPersonaPropertyAction
   }>;
 }
 
-export interface PromptDefinitionPromptPersonaPublish
-  extends PromptDefinitionBase {
+export interface PromptDefinitionPromptPersonaPublish extends PromptDefinitionBase {
   id: UserPromptIdForPersona<"publish">;
   mode: "publish";
   render: PromptDefinitionRenderFunction<{ persona: PersonaData }>;
@@ -152,8 +149,7 @@ export interface PromptDefinitionImagePersona extends PromptDefinitionBase {
 }
 
 // Non-system (user) prompt definitions
-export interface PromptDefinitionPromptImagePersona
-  extends PromptDefinitionBase {
+export interface PromptDefinitionPromptImagePersona extends PromptDefinitionBase {
   id: UserPromptIdForImage<"persona">;
   mode: "persona";
   render: PromptDefinitionRenderFunction<{

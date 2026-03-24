@@ -13,12 +13,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       publishedAt: personas.publishedAt,
     })
     .from(personas)
-    .where(
-      and(eq(personas.visibility, "public"), isNotNull(personas.slug))
-    ).limit(30).catch((error) => {
+    .where(and(eq(personas.visibility, "public"), isNotNull(personas.slug)))
+    .limit(30)
+    .catch((error) => {
       console.error(error);
       return [];
-    })
+    });
 
   const personaUrls: MetadataRoute.Sitemap = publicPersonas
     .filter((p) => p.slug)

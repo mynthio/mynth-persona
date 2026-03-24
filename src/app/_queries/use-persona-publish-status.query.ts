@@ -16,7 +16,7 @@ export type PersonaPublishStatus = {
 
 export const usePersonaPublishStatusQuery = (
   personaId?: string | null,
-  config?: SWRConfiguration
+  config?: SWRConfiguration,
 ) => {
   return useSWR<PersonaPublishStatus>(
     personaId ? `/api/personas/${personaId}/publish-status` : null,
@@ -25,6 +25,6 @@ export const usePersonaPublishStatusQuery = (
       revalidateIfStale: false,
       revalidateOnFocus: false,
       ...config,
-    }
+    },
   );
 };

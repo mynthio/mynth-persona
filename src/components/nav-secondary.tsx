@@ -1,4 +1,8 @@
-import { CreditCardIcon, DiscordIcon, MoreHorizontalIcon } from "@hugeicons/core-free-icons";
+import {
+  CreditCardIcon,
+  DiscordIcon,
+  MoreHorizontalIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   SidebarGroup,

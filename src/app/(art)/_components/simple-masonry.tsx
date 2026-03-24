@@ -30,7 +30,7 @@ export function SimpleMasonry<T>({
       const width = containerRef.current.offsetWidth;
       let newColumns = Math.max(
         1,
-        Math.floor((width + gap) / (columnWidth + gap))
+        Math.floor((width + gap) / (columnWidth + gap)),
       );
 
       if (maxColumnCount) {

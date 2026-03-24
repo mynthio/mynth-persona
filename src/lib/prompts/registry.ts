@@ -104,27 +104,27 @@ export type LegacyChatPromptMode = "story" | "impersonate";
 // System defaults (new explicit API)
 export function getDefaultSystemPromptDefinitionForMode(
   useCase: "chat",
-  mode: LegacyChatPromptMode
+  mode: LegacyChatPromptMode,
 ): PromptDefinitionStory | PromptDefinitionImpersonate;
 export function getDefaultSystemPromptDefinitionForMode(
   useCase: "persona",
-  mode: "generate"
+  mode: "generate",
 ): PromptDefinitionPersonaGenerate;
 export function getDefaultSystemPromptDefinitionForMode(
   useCase: "persona",
-  mode: "enhance"
+  mode: "enhance",
 ): PromptDefinitionPersonaEnhance;
 export function getDefaultSystemPromptDefinitionForMode(
   useCase: "persona",
-  mode: "publish"
+  mode: "publish",
 ): PromptDefinitionPersonaPublish;
 export function getDefaultSystemPromptDefinitionForMode(
   useCase: "image",
-  mode: "persona"
+  mode: "persona",
 ): PromptDefinitionImagePersona;
 export function getDefaultSystemPromptDefinitionForMode(
   useCase: PromptUseCase,
-  mode: LegacyChatPromptMode | PersonaPromptMode | "persona"
+  mode: LegacyChatPromptMode | PersonaPromptMode | "persona",
 ): PromptDefinition {
   const defaultPromptId = (
     DEFAULT_SYSTEM_PROMPTS_BY_USE_CASE[useCase] as Record<string, PromptId>
@@ -138,15 +138,15 @@ export function getDefaultSystemPromptDefinitionForMode(
 // User (non-system) defaults
 export function getDefaultUserPromptDefinitionForMode(
   useCase: "persona",
-  mode: "publish"
+  mode: "publish",
 ): PromptDefinitionPromptPersonaPublish;
 export function getDefaultUserPromptDefinitionForMode(
   useCase: "image",
-  mode: "persona"
+  mode: "persona",
 ): PromptDefinitionPromptImagePersona;
 export function getDefaultUserPromptDefinitionForMode(
   useCase: PromptUseCase,
-  mode: LegacyChatPromptMode | PersonaPromptMode | "persona"
+  mode: LegacyChatPromptMode | PersonaPromptMode | "persona",
 ): PromptDefinition {
   const defaults = DEFAULT_PROMPTS_BY_USE_CASE[useCase] as Record<
     string,
@@ -163,27 +163,27 @@ export function getDefaultUserPromptDefinitionForMode(
 // Note: For roleplay mode, use @/lib/prompts/roleplay instead
 export function getDefaultPromptDefinitionForMode(
   useCase: "chat",
-  mode: LegacyChatPromptMode
+  mode: LegacyChatPromptMode,
 ): PromptDefinitionStory | PromptDefinitionImpersonate;
 export function getDefaultPromptDefinitionForMode(
   useCase: "persona",
-  mode: "generate"
+  mode: "generate",
 ): PromptDefinitionPersonaGenerate;
 export function getDefaultPromptDefinitionForMode(
   useCase: "persona",
-  mode: "enhance"
+  mode: "enhance",
 ): PromptDefinitionPersonaEnhance;
 export function getDefaultPromptDefinitionForMode(
   useCase: "persona",
-  mode: "publish"
+  mode: "publish",
 ): PromptDefinitionPersonaPublish;
 export function getDefaultPromptDefinitionForMode(
   useCase: "image",
-  mode: "persona"
+  mode: "persona",
 ): PromptDefinitionImagePersona;
 export function getDefaultPromptDefinitionForMode(
   useCase: PromptUseCase,
-  mode: LegacyChatPromptMode | PersonaPromptMode | "persona"
+  mode: LegacyChatPromptMode | PersonaPromptMode | "persona",
 ): PromptDefinition {
   return getDefaultSystemPromptDefinitionForMode(useCase as any, mode as any);
 }

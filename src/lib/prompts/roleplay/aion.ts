@@ -18,7 +18,7 @@ function renderOptionalBlock(title: string, value?: string | null) {
  * Optimized for short, high-momentum roleplay with strong character grounding.
  */
 export const renderAionRoleplayPrompt: RoleplayPromptRenderer = (
-  args: RoleplayPromptArgs
+  args: RoleplayPromptArgs,
 ): string => {
   const userName = args.user?.name || "User";
   const personaName = args.character.name;
@@ -34,9 +34,13 @@ export const renderAionRoleplayPrompt: RoleplayPromptRenderer = (
   pushLine(
     characterLines,
     "Appearance",
-    structured ? processText(structured.appearance) : args.character.appearance
+    structured ? processText(structured.appearance) : args.character.appearance,
   );
-  pushLine(characterLines, "Speech", structured && processText(structured.speech));
+  pushLine(
+    characterLines,
+    "Speech",
+    structured && processText(structured.speech),
+  );
   pushLine(
     characterLines,
     "Personality",
@@ -44,7 +48,7 @@ export const renderAionRoleplayPrompt: RoleplayPromptRenderer = (
       ? processText(structured.personality)
       : args.character.personality
         ? processText(args.character.personality)
-        : null
+        : null,
   );
   pushLine(
     characterLines,
@@ -53,29 +57,37 @@ export const renderAionRoleplayPrompt: RoleplayPromptRenderer = (
       ? processText(structured.background)
       : args.character.background
         ? processText(args.character.background)
-        : null
+        : null,
   );
-  pushLine(characterLines, "Quirks", structured && processText(structured.quirks));
+  pushLine(
+    characterLines,
+    "Quirks",
+    structured && processText(structured.quirks),
+  );
   pushLine(
     characterLines,
     "Relationships",
-    structured && processText(structured.relationships)
+    structured && processText(structured.relationships),
   );
-  pushLine(characterLines, "Goals", structured && processText(structured.goals));
+  pushLine(
+    characterLines,
+    "Goals",
+    structured && processText(structured.goals),
+  );
   pushLine(
     characterLines,
     "Interests",
-    args.character.interests ? processText(args.character.interests) : null
+    args.character.interests ? processText(args.character.interests) : null,
   );
   pushLine(
     characterLines,
     "Skills",
-    args.character.skills ? processText(args.character.skills) : null
+    args.character.skills ? processText(args.character.skills) : null,
   );
   pushLine(
     characterLines,
     "Motivations",
-    args.character.motivations ? processText(args.character.motivations) : null
+    args.character.motivations ? processText(args.character.motivations) : null,
   );
 
   const userBlock =
@@ -89,31 +101,31 @@ export const renderAionRoleplayPrompt: RoleplayPromptRenderer = (
     "Scenario",
     args.scenario?.scenario_text
       ? processText(args.scenario.scenario_text)
-      : null
+      : null,
   );
   const styleGuidelinesBlock = renderOptionalBlock(
     "Style Guidelines",
     args.scenario?.style_guidelines
       ? processText(args.scenario.style_guidelines)
-      : null
+      : null,
   );
   const checkpointBlock = renderOptionalBlock(
     "Story State",
-    args.lastCheckpointSummary ? args.lastCheckpointSummary : null
+    args.lastCheckpointSummary ? args.lastCheckpointSummary : null,
   );
   const scenarioOverrideBlock = renderOptionalBlock(
     "Scenario Override",
     args.scenario?.system_prompt_override
       ? processText(args.scenario.system_prompt_override)
-      : null
+      : null,
   );
   const authorNoteBlock = renderOptionalBlock(
     "Author Note",
-    args.authorNote ? processText(args.authorNote) : null
+    args.authorNote ? processText(args.authorNote) : null,
   );
   const characterEssenceBlock = renderOptionalBlock(
     "Character Essence",
-    args.character.v2?.natural ? processText(args.character.v2.natural) : null
+    args.character.v2?.natural ? processText(args.character.v2.natural) : null,
   );
 
   return `You are ${personaName}. Write only ${personaName}'s next in-character reply in an ongoing roleplay.

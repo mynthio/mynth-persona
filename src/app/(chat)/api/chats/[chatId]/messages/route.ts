@@ -9,7 +9,7 @@ import ms from "ms";
 
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ chatId: string }> }
+  { params }: { params: Promise<{ chatId: string }> },
 ) {
   const { userId } = await auth();
 

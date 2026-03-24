@@ -69,7 +69,7 @@ export function ArtGrid() {
 
       return `/api/art?${params.toString()}`;
     },
-    [filterParamsString]
+    [filterParamsString],
   );
 
   const { data, error, size, setSize, isValidating, isLoading } =

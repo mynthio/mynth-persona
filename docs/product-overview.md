@@ -3,12 +3,14 @@
 Mynth Persona is a creator-focused app for designing, evolving, and publishing AI personas you can chat with, narrate stories about, and visualize through generated images. It blends structured persona authoring with multiple generation modes (text and image) and offers a simple, token-based pricing model.
 
 ## Value Proposition
+
 - Create and maintain rich, versioned personas with clear publishing controls.
 - Engage with personas via two distinct chat modes: roleplay (first/second‑person) and story (third‑person narration).
 - Generate persona images across quality tiers with unified model selection and provider abstraction.
 - Start free with daily tokens and scale usage via transparent, token‑based pricing.
 
 ## Core User Flows
+
 1. Authentication and Access
    - Sign in with a modern authentication experience.
    - Free usage is protected by rate limits and daily token resets.
@@ -31,6 +33,7 @@ Mynth Persona is a creator-focused app for designing, evolving, and publishing A
    - Checkout flow creates a payment session and redirects to the provider; webhooks record successful purchases.
 
 ## Feature Breakdown
+
 - Persona Authoring & Management
   - Structured fields cover appearance, personality, physical traits, age, style, and more.
   - Version history enables safe iteration and publishing.
@@ -53,6 +56,7 @@ Mynth Persona is a creator-focused app for designing, evolving, and publishing A
   - Background tasks support image generation and publish operations.
 
 ## Integrations
+
 - Authentication: Clerk for sign‑in and user state.
 - Text Generation: OpenRouter-powered models (e.g., Gemini for roleplay summaries) used where appropriate.
 - Image Generation: Runware SDK powering FLUX and other models with unified configuration.
@@ -61,21 +65,25 @@ Mynth Persona is a creator-focused app for designing, evolving, and publishing A
 - Tracking: Event logging for persona generation outcomes.
 
 ## Data & Security
+
 - Schema Separation
   - Shared (frontend‑safe) schemas expose only public persona data.
   - Backend‑only schemas include sensitive fields (e.g., user IDs) and are never sent to the client.
 - Transformations ensure API routes return only public shapes, reducing accidental data exposure.
 
 ## Current Limitations & WIP Areas
+
 - Some sidebar sections (Chats, Images) indicate work‑in‑progress states in parts of the UI.
 - Pricing page layout exists with a simple, transparent message; detailed tables and skeletons are marked for enhancement.
 
 ## Who It’s For
+
 - Creators and writers crafting consistent characters for roleplay or long‑form stories.
 - Visual storytellers and persona designers who want quick, high‑quality image renditions.
 - Product teams experimenting with persona‑driven UX or content experiences.
 
 ## Future Opportunities (Inferred)
+
 - Expanded persona property actions and editing tools.
 - More granular image controls (styles, loras, shot types) exposed to users.
 - Richer gallery/library experiences to organize persona assets.

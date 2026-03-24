@@ -54,7 +54,10 @@ export function PersonasSection({
               className="hidden md:flex shrink-0 items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
             >
               View all
-              <HugeiconsIcon icon={ArrowRight01Icon} className="size-4 group-hover:translate-x-1 transition-transform" />
+              <HugeiconsIcon
+                icon={ArrowRight01Icon}
+                className="size-4 group-hover:translate-x-1 transition-transform"
+              />
             </Link>
           )}
         </motion.div>

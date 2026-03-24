@@ -83,7 +83,7 @@ function decodeStack(value?: string): CursorStackEntry[] {
 async function getImages(
   userId: string,
   cursorCreatedAt?: string,
-  cursorId?: string
+  cursorId?: string,
 ): Promise<PaginatedImagesResult> {
   let cursor:
     | {
@@ -101,7 +101,7 @@ async function getImages(
   const baseCondition = and(
     eq(media.userId, userId),
     eq(media.type, "image"),
-    eq(media.visibility, "private") // Assuming library shows private images, adjust if needed
+    eq(media.visibility, "private"), // Assuming library shows private images, adjust if needed
   );
 
   // We want to show all images, not just private ones, but user's images.
@@ -119,8 +119,8 @@ async function getImages(
         eq(media.type, "image"),
         or(
           lt(media.createdAt, cursor.createdAt),
-          and(eq(media.createdAt, cursor.createdAt), lt(media.id, cursor.id))
-        )
+          and(eq(media.createdAt, cursor.createdAt), lt(media.id, cursor.id)),
+        ),
       )
     : and(eq(media.userId, userId), eq(media.type, "image"));
 
@@ -251,7 +251,8 @@ export default async function ImagesPage({ searchParams }: ImagesPageProps) {
           <Empty className="rounded-xl bg-linear-to-br from-background/80 via-card/80 to-muted/60 backdrop-blur-sm">
             <EmptyHeader>
               <EmptyMedia variant="icon" className="size-14">
-                <HugeiconsIcon icon={Image02Icon}
+                <HugeiconsIcon
+                  icon={Image02Icon}
                   strokeWidth={1.5}
                   className="size-8 text-muted-foreground"
                 />

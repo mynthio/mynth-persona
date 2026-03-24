@@ -49,12 +49,12 @@ export type ConcurrentJobCheckResult =
  */
 export const incrementConcurrentImageJob = async (
   userId: string,
-  planId: PlanId
+  planId: PlanId,
 ): Promise<ConcurrentJobCheckResult> => {
   // Check if user is whitelisted
   const whitelistedUserIds =
     process.env.RATE_LIMIT_WHITELIST_USER_IDS?.split(",").map((id) =>
-      id.trim()
+      id.trim(),
     ) || [];
   if (whitelistedUserIds.includes(userId)) {
     return { success: true };
@@ -86,7 +86,7 @@ export const incrementConcurrentImageJob = async (
         limit,
         current: newCount,
       },
-      "Concurrent image job incremented"
+      "Concurrent image job incremented",
     );
 
     return { success: true };
@@ -97,7 +97,7 @@ export const incrementConcurrentImageJob = async (
         userId,
         planId,
       },
-      "Failed to increment concurrent image job counter"
+      "Failed to increment concurrent image job counter",
     );
     // On error, fail open to avoid blocking users
     return { success: true };
@@ -111,7 +111,7 @@ export const incrementConcurrentImageJob = async (
  * @param userId - The user ID to decrement jobs for
  */
 export const decrementConcurrentImageJob = async (
-  userId: string
+  userId: string,
 ): Promise<void> => {
   const key = getJobCountKey(userId);
 
@@ -127,7 +127,7 @@ export const decrementConcurrentImageJob = async (
           userId,
           newCount: currentCount - 1,
         },
-        "Concurrent image job decremented"
+        "Concurrent image job decremented",
       );
     }
   } catch (error) {
@@ -136,7 +136,7 @@ export const decrementConcurrentImageJob = async (
         error,
         userId,
       },
-      "Failed to decrement concurrent image job counter"
+      "Failed to decrement concurrent image job counter",
     );
     // Don't throw - decrementing is best effort
   }

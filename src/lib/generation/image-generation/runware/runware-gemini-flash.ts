@@ -1,7 +1,6 @@
 import { RunwareImageGenerationBase } from "./runware-base";
 
-const RUNWARE_GEMINI_FLASH_ID =
-  "runware/gemini-flash-image-2.5" as const;
+const RUNWARE_GEMINI_FLASH_ID = "runware/gemini-flash-image-2.5" as const;
 const GEMINI_FLASH_MODEL_ID = "google/gemini-flash-image-2.5" as const;
 
 export class RunwareGeminiFlash extends RunwareImageGenerationBase {

@@ -6,7 +6,7 @@ import type { NextRequest } from "next/server";
 
 export async function GET(
   _req: NextRequest,
-  ctx: RouteContext<"/api/art/[mediaId]/comments">
+  ctx: RouteContext<"/api/art/[mediaId]/comments">,
 ) {
   try {
     const { mediaId } = await ctx.params;
@@ -32,7 +32,7 @@ export async function GET(
     console.error("Error fetching comments:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

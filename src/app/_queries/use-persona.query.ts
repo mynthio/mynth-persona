@@ -8,7 +8,7 @@ import { fetcher } from "@/lib/fetcher";
 
 export const usePersonaQuery = (
   id?: string | null,
-  config?: SWRConfiguration
+  config?: SWRConfiguration,
 ) => {
   return useSWR<PublicPersona>(id ? `/api/personas/${id}` : null, fetcher, {
     revalidateIfStale: false,
@@ -16,4 +16,3 @@ export const usePersonaQuery = (
     ...config,
   });
 };
-

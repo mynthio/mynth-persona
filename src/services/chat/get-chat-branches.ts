@@ -8,7 +8,7 @@ export type BranchesByParent = Record<
 >;
 
 export async function getChatBranches(
-  chatId: string
+  chatId: string,
 ): Promise<BranchesByParent> {
   const result = await db.execute(
     sql<{ parent_id: string | null; children: unknown }>`
@@ -25,7 +25,7 @@ export async function getChatBranches(
       where m.chat_id = ${chatId}
       group by m.parent_id
       having count(*) > 1;
-    `
+    `,
   );
 
   const branchesByParent: BranchesByParent = {};

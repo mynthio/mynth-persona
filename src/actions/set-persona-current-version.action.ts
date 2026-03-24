@@ -8,7 +8,7 @@ import "server-only";
 
 export async function setPersonaCurrentVersion(
   personaId: string,
-  versionId: string
+  versionId: string,
 ) {
   const { userId } = await auth();
 
@@ -20,7 +20,7 @@ export async function setPersonaCurrentVersion(
   const maybeVersion = await db.query.personaVersions.findFirst({
     where: and(
       eq(personaVersions.id, versionId),
-      eq(personaVersions.personaId, personaId)
+      eq(personaVersions.personaId, personaId),
     ),
     columns: {
       id: true,

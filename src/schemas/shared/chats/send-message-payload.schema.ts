@@ -12,7 +12,7 @@ export const sendMessagePayloadSchema = z.object({
       z.object({
         type: z.literal("text"),
         text: z.string(),
-      })
+      }),
     ),
   }),
   parentId: z.string().or(z.null()),

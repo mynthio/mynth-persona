@@ -12,7 +12,7 @@ const GalleryContent = dynamic(() => import("./content/gallery/gallery"), {
 });
 const PersonaVersionModal = dynamic(
   () => import("./content/persona/persona-version-modal"),
-  { ssr: false }
+  { ssr: false },
 );
 
 export default function WorkbenchContent() {

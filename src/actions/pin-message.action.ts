@@ -46,7 +46,10 @@ export async function pinMessageAction(payload: {
       metadata: sql`COALESCE(${messages.metadata}, '{}'::jsonb) || ${JSON.stringify(patch)}::jsonb`,
     })
     .where(
-      and(eq(messages.id, payload.messageId), eq(messages.chatId, payload.chatId))
+      and(
+        eq(messages.id, payload.messageId),
+        eq(messages.chatId, payload.chatId),
+      ),
     );
 
   return { success: true } as const;

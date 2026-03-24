@@ -96,7 +96,13 @@ function Events() {
     revalidateIfStale: false,
   });
 
-  if (isLoading) return <HugeiconsIcon icon={Loading02Icon} className="animate-spinner-linear-spin" />;
+  if (isLoading)
+    return (
+      <HugeiconsIcon
+        icon={Loading02Icon}
+        className="animate-spinner-linear-spin"
+      />
+    );
 
   return data?.length
     ? data.map((version) => <Event key={version.id} version={version} />)
@@ -206,7 +212,7 @@ function Prompt({ prompt, setPrompt }: PromptProps) {
     {
       revalidateIfStale: false,
       revalidateOnFocus: false,
-    }
+    },
   );
 
   const handleClick = async () => {

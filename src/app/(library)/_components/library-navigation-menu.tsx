@@ -1,6 +1,10 @@
 "use client";
 
-import { FeatherIcon, Image02Icon, UserGroupIcon } from "@hugeicons/core-free-icons";
+import {
+  FeatherIcon,
+  Image02Icon,
+  UserGroupIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { usePathname } from "next/navigation";
 

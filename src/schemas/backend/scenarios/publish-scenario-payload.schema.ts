@@ -9,7 +9,7 @@ import { publishScenarioFormSchema } from "@/schemas/shared/scenario.schema";
 export const publishScenarioPayloadSchema = publishScenarioFormSchema.and(
   z.object({
     scenarioId: z.string().min(1, "Scenario ID is required"),
-  })
+  }),
 );
 
 export type PublishScenarioPayload = z.infer<

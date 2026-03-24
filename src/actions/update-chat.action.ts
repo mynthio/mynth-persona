@@ -12,7 +12,7 @@ import { updateTag } from "next/cache";
 
 export const updateChatAction = async (
   chatId: string,
-  payload: UpdateChatPayload
+  payload: UpdateChatPayload,
 ) => {
   await chatIdSchema.parseAsync(chatId);
   await updateChatPayloadSchema.strict().parseAsync(payload);
@@ -47,7 +47,7 @@ export const updateChatAction = async (
           ${expr},
           ${pgPath},
           COALESCE((${expr} #> ${pgPath})::jsonb, '{}') || ${JSON.stringify(
-            value
+            value,
           )}::jsonb
         )`;
       } else {

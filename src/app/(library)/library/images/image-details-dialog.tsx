@@ -7,11 +7,7 @@ import {
   ViewOffSlashIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useImageId } from "@/hooks/use-image-id.hook";
 import { fetcher } from "@/lib/fetcher";
@@ -59,12 +55,12 @@ export function ImageDetailsDialog({
 
   const { data, isLoading, mutate } = useSWR(
     isOpen && imageId ? `/api/images/${imageId}` : null,
-    fetcher
+    fetcher,
   );
 
   const fullUrl = useMemo(
     () => (imageId ? getImageUrl(imageId, "full") : null),
-    [imageId]
+    [imageId],
   );
 
   const dimensions = useMemo(
@@ -72,7 +68,7 @@ export function ImageDetailsDialog({
       data?.generation?.aiModel
         ? getModelDimensions(data.generation.aiModel)
         : null,
-    [data?.generation?.aiModel]
+    [data?.generation?.aiModel],
   );
 
   const detailItems = useMemo<DetailItem[]>(() => {
@@ -212,7 +208,7 @@ export function ImageDetailsDialog({
         className={cn(
           "w-[calc(100vw-1.5rem)] max-w-[calc(100vw-1.5rem)] sm:w-[calc(100vw-3rem)] sm:max-w-[calc(100vw-3rem)] 2xl:w-[1500px] 2xl:max-w-[1500px] p-0 overflow-hidden border border-white/10 [&_button]:cursor-pointer [&_a[data-slot='button']]:cursor-pointer",
           "bg-black/90 shadow-[0_40px_120px_-30px_rgba(0,0,0,0.8)]",
-          "backdrop-blur-xl"
+          "backdrop-blur-xl",
         )}
       >
         <DialogTitle className="sr-only">Image details</DialogTitle>
@@ -238,12 +234,14 @@ export function ImageDetailsDialog({
                 <div className="min-w-0 flex flex-col gap-1.5">
                   <div
                     className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-black/30 px-2 py-0.5 text-[10px] font-medium tracking-[0.08em] text-white/82 uppercase backdrop-blur-md"
-                    title={isPublished ? "Live in Art Gallery" : "Private Library"}
+                    title={
+                      isPublished ? "Live in Art Gallery" : "Private Library"
+                    }
                   >
                     <span
                       className={cn(
                         "size-1.5 shrink-0 rounded-full",
-                        isPublished ? "bg-emerald-400" : "bg-zinc-300"
+                        isPublished ? "bg-emerald-400" : "bg-zinc-300",
                       )}
                       aria-hidden
                     />
@@ -303,7 +301,6 @@ export function ImageDetailsDialog({
                   <Spinner className="size-7 text-white" />
                 )}
               </div>
-
             </div>
           </section>
 
@@ -348,7 +345,10 @@ export function ImageDetailsDialog({
                         {isUnpublishing ? (
                           <Spinner className="size-4" />
                         ) : (
-                          <HugeiconsIcon icon={ViewOffSlashIcon} className="size-4" />
+                          <HugeiconsIcon
+                            icon={ViewOffSlashIcon}
+                            className="size-4"
+                          />
                         )}
                         Unpublish from Art Gallery
                       </Button>
@@ -362,7 +362,10 @@ export function ImageDetailsDialog({
                         {isPublishing ? (
                           <Spinner className="size-4" />
                         ) : (
-                          <HugeiconsIcon icon={Share08Icon} className="size-4" />
+                          <HugeiconsIcon
+                            icon={Share08Icon}
+                            className="size-4"
+                          />
                         )}
                         Publish to Art Gallery
                       </Button>

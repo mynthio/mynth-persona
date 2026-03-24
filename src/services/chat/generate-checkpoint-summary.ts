@@ -19,7 +19,7 @@ export async function generateCheckpointSummary(args: {
 
   const messagesAsText = messagesSinceLastCheckpoint
     .map(
-      (message) => `[${message.role}]: ${extractPersonaMessageText(message)}`
+      (message) => `[${message.role}]: ${extractPersonaMessageText(message)}`,
     )
     .join("\n\n");
 

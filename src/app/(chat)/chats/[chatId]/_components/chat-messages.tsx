@@ -14,7 +14,10 @@ import { useChatMain } from "../_contexts/chat-main.context";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Link } from "@/components/ui/link";
 import { ApiChatMessagesResponse } from "@/app/(chat)/api/chats/[chatId]/messages/route";
-import { useChatScroll, type ScrollActions } from "../_hooks/use-chat-scroll.hook";
+import {
+  useChatScroll,
+  type ScrollActions,
+} from "../_hooks/use-chat-scroll.hook";
 import { ChatMessage } from "./chat-message";
 
 function getErrorObject(error: string) {
@@ -51,9 +54,7 @@ export default function ChatMessages(props: ChatMessagesProps) {
   isLoadingMoreRef.current = isLoadingMore;
 
   const isBusy = useChatBusy();
-  const dynamicPaddingBottom = isBusy
-    ? "clamp(160px, 24vh, 360px)"
-    : "128px";
+  const dynamicPaddingBottom = isBusy ? "clamp(160px, 24vh, 360px)" : "128px";
 
   // Refs for prepend scroll correction — shared with useChatScroll via loadMore closure
   const previousHeightRef = useRef(0);

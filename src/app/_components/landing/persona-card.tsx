@@ -1,6 +1,13 @@
 "use client";
 
-import { CheckmarkBadge02Icon, FemaleSymbolIcon, HeartCheckIcon, MaleSymbolIcon, PlayIcon, SignatureIcon } from "@hugeicons/core-free-icons";
+import {
+  CheckmarkBadge02Icon,
+  FemaleSymbolIcon,
+  HeartCheckIcon,
+  MaleSymbolIcon,
+  PlayIcon,
+  SignatureIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useCallback, useRef, useState } from "react";
 import { motion } from "motion/react";

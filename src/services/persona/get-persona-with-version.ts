@@ -10,7 +10,7 @@ type GetPersonaWithVersionParams = {
 };
 
 export const getPersonaWithVersion = async (
-  params: GetPersonaWithVersionParams
+  params: GetPersonaWithVersionParams,
 ): Promise<PersonaWithVersion> => {
   const { userId, personaId, versionId } = params;
 
@@ -25,7 +25,7 @@ type GetPersonaWithCurrentVersionParams = {
 };
 
 export const getPersonaWithCurrentVersion = async (
-  params: GetPersonaWithCurrentVersionParams
+  params: GetPersonaWithCurrentVersionParams,
 ): Promise<PersonaWithVersion> => {
   const { userId, personaId } = params;
 
@@ -33,7 +33,7 @@ export const getPersonaWithCurrentVersion = async (
     where: and(
       eq(personas.id, personaId),
       eq(personas.userId, userId),
-      ne(personas.visibility, "deleted")
+      ne(personas.visibility, "deleted"),
     ),
     with: {
       currentVersion: true,
@@ -63,7 +63,7 @@ type GetPersonaWithSpecificVersionParams = {
 };
 
 export const getPersonaWithSpecificVersion = async (
-  params: GetPersonaWithSpecificVersionParams
+  params: GetPersonaWithSpecificVersionParams,
 ): Promise<PersonaWithVersion> => {
   const { userId, personaId, versionId } = params;
 
@@ -71,7 +71,7 @@ export const getPersonaWithSpecificVersion = async (
     where: and(
       eq(personas.id, personaId),
       eq(personas.userId, userId),
-      ne(personas.visibility, "deleted")
+      ne(personas.visibility, "deleted"),
     ),
     with: {
       versions: {

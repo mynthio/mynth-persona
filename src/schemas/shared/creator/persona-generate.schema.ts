@@ -7,16 +7,16 @@ export const creatorPersonaGenerateSchema = z.object({
     .optional()
     .nullable()
     .describe(
-      "Optional short note for the user: how you approached the prompt and suggested follow-ups. Keep it brief and actionable. One sentence only."
+      "Optional short note for the user: how you approached the prompt and suggested follow-ups. Keep it brief and actionable. One sentence only.",
     ),
   name: z.string().describe("Character's full name or alias."),
   age: z
     .preprocess(
       (val) => (typeof val === "number" ? String(val) : val),
-      z.union([z.string(), z.number()])
+      z.union([z.string(), z.number()]),
     )
     .describe(
-      "Character's age. Use number. Only if age is unkown, use 'unknown' or max 3 sentence to describe age."
+      "Character's age. Use number. Only if age is unkown, use 'unknown' or max 3 sentence to describe age.",
     ),
   gender: z
     .union([z.literal("male"), z.literal("female"), z.literal("other")])
@@ -34,7 +34,7 @@ export const creatorPersonaGenerateSchema = z.object({
   speakingStyle: z
     .string()
     .describe(
-      "Character's speaking style, mannerisms, and communication patterns."
+      "Character's speaking style, mannerisms, and communication patterns.",
     ),
   occupation: z
     .string()

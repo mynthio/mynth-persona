@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
   if (!body || typeof body.tag !== "string") {
     return Response.json(
       { error: "Missing or invalid 'tag' in request body" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
   if (tag.length === 0 || tag.length > 256) {
     return Response.json(
       { error: "Tag must be between 1 and 256 characters" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 

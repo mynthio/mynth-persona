@@ -103,7 +103,7 @@ const normalizeError = (error: unknown): Record<string, unknown> => {
 
 // Minimal error serializer for generation errors to avoid logging stream chunks
 const toMinimalError = (
-  error: unknown
+  error: unknown,
 ): { name?: string; message: string; code?: string | number } => {
   const candidate =
     error &&
@@ -142,7 +142,7 @@ const toMinimalError = (
 
 export async function POST(
   req: Request,
-  ctx: RouteContext<"/api/chats/[chatId]/chat">
+  ctx: RouteContext<"/api/chats/[chatId]/chat">,
 ) {
   /**
    * AUTH
@@ -245,13 +245,13 @@ export async function POST(
   ];
 
   const lastCheckpointIndex = messagesHistory.findLastIndex(
-    (message) => !!message.metadata?.checkpoint
+    (message) => !!message.metadata?.checkpoint,
   );
   const previousCheckpointIndex =
     lastCheckpointIndex > 0
       ? messagesHistory.findLastIndex(
           (message, i) =>
-            !!message.metadata?.checkpoint && lastCheckpointIndex !== i
+            !!message.metadata?.checkpoint && lastCheckpointIndex !== i,
         )
       : 0;
 
@@ -290,7 +290,7 @@ export async function POST(
     // When sending a new message, last message must not be a user message
     if (lastMessage?.role === "user") {
       throw new Error(
-        "Invalid Message and Event: Cannot send when last message is user"
+        "Invalid Message and Event: Cannot send when last message is user",
       );
     }
   }
@@ -300,7 +300,7 @@ export async function POST(
     // Exception: root assistant message regeneration (empty history is allowed)
     if (messagesHistory.length > 0 && lastMessage?.role === "user") {
       throw new Error(
-        "Invalid Message and Event: Cannot regenerate when last message is user"
+        "Invalid Message and Event: Cannot regenerate when last message is user",
       );
     }
   }
@@ -348,7 +348,7 @@ export async function POST(
       extraBody: {
         transforms: ["middle-out"],
       },
-    }
+    },
   );
 
   /**
@@ -379,7 +379,7 @@ export async function POST(
   const messagesTillCheckpoint = messagesHistory.slice(
     indexOfCheckpointToUse && indexOfCheckpointToUse > 0
       ? indexOfCheckpointToUse
-      : 0
+      : 0,
   );
 
   // console.log(JSON.stringify({ messagesTillCheckpoint }, null, 2));
@@ -432,7 +432,7 @@ export async function POST(
               component: "api:chat",
               error: toMinimalError(error),
             },
-            "Text generation failed"
+            "Text generation failed",
           );
 
           await redis.del(`chat:${chatId}:leaf`).catch((error) => {
@@ -442,7 +442,7 @@ export async function POST(
                 component: "api:chat",
                 error: normalizeError(error),
               },
-              "Failed to clear chat leaf in KV store"
+              "Failed to clear chat leaf in KV store",
             );
 
             // Let's don't break the flow just because of this
@@ -522,7 +522,7 @@ export async function POST(
           model: model.modelId,
           provider: model.provider,
         },
-        "Metadata"
+        "Metadata",
       );
     },
   });
@@ -535,7 +535,7 @@ export async function POST(
       ? await generateCheckpointSummary({
           messagesSinceLastCheckpoint: [
             ...messagesHistory.slice(
-              lastCheckpointIndex > 0 ? lastCheckpointIndex + 1 : 0
+              lastCheckpointIndex > 0 ? lastCheckpointIndex + 1 : 0,
             ),
             ...(payload.message ? [payload.message] : []),
           ],
@@ -573,7 +573,7 @@ export async function POST(
     const newTitle = shouldUpdateTitle
       ? await generateChatTitle(
           [...messagesHistory, ...(payload.message ? [payload.message] : [])],
-          chatSettings.scenario?.scenario_text
+          chatSettings.scenario?.scenario_text,
         )
       : undefined;
 
@@ -591,7 +591,7 @@ export async function POST(
         shouldUpdateAuthorNote,
         msgLength: `== ${messagesHistory.length}`,
       },
-      "Should update title and model"
+      "Should update title and model",
     );
 
     await redis.del(`chat:${chatId}:leaf`).catch((error) => {
@@ -601,7 +601,7 @@ export async function POST(
           component: "api:chat",
           error: normalizeError(error),
         },
-        "Failed to clear chat leaf in KV store"
+        "Failed to clear chat leaf in KV store",
       );
 
       // Let's don't break the flow just because of this

@@ -16,12 +16,12 @@ export const personaDataSchema = z.object({
   personality: z
     .string()
     .describe(
-      "Traits, temperament, interactions, emotions (required for depth)"
+      "Traits, temperament, interactions, emotions (required for depth)",
     ),
   background: z
     .string()
     .describe(
-      "History, upbringing, key events (required for meaningful story)"
+      "History, upbringing, key events (required for meaningful story)",
     ),
   summary: z
     .string()
@@ -38,7 +38,7 @@ export const personaDataSchema = z.object({
     .record(z.string(), z.string())
     .optional()
     .describe(
-      "Optional key-value object; AI adds only if relevant (e.g., {'skills': 'Stealth, Lockpicking', 'universe': 'Cyberpunk dystopia'})"
+      "Optional key-value object; AI adds only if relevant (e.g., {'skills': 'Stealth, Lockpicking', 'universe': 'Cyberpunk dystopia'})",
     ),
 });
 

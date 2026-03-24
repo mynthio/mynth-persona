@@ -12,7 +12,7 @@ if (!url)
   throw new Error(
     `Connection string to ${
       process.env.NODE_ENV ? "Neon" : "local"
-    } Postgres not found.`
+    } Postgres not found.`,
   );
 
 export default defineConfig({

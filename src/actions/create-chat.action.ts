@@ -25,12 +25,12 @@ export const createChatAction = async (personaId: string) => {
         and(
           eq(personasTable.id, personaId),
           eq(personasTable.userId, userId),
-          eq(personasTable.visibility, "private")
+          eq(personasTable.visibility, "private"),
         ),
         and(
           eq(personasTable.id, personaId),
-          eq(personasTable.visibility, "public")
-        )
+          eq(personasTable.visibility, "public"),
+        ),
       ),
     columns: {
       id: true,
@@ -56,7 +56,7 @@ export const createChatAction = async (personaId: string) => {
           table.id,
           persona.visibility === "public"
             ? persona.publicVersionId!
-            : persona.currentVersionId!
+            : persona.currentVersionId!,
         ),
       columns: {
         id: true,
@@ -70,7 +70,7 @@ export const createChatAction = async (personaId: string) => {
           id: string;
           data: PersonaData;
           roleplayData?: PersonaVersionRoleplayData;
-        }
+        },
     );
 
   const rolePlayData = version.roleplayData;
@@ -83,11 +83,11 @@ export const createChatAction = async (personaId: string) => {
       {
         personaId: version.id,
       },
-      "Missing Persona Roleplay Data. Generating and Updating with V2."
+      "Missing Persona Roleplay Data. Generating and Updating with V2.",
     );
 
     const { summary: summaryV2 } = await generateRoleplaySummaryV2(
-      version.data
+      version.data,
     );
     await updatePersonaVersionRoleplayDataV2({
       personaVersionId: version.id,

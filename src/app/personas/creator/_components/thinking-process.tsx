@@ -31,7 +31,11 @@ export function ThinkingProcess({
       <div className="flex items-center justify-between gap-3 mb-3">
         <div className="flex items-center gap-2 text-surface-foreground/70">
           <span className="inline-flex size-7 items-center justify-center rounded-full bg-linear-to-br from-indigo-500/15 via-fuchsia-500/10 to-transparent">
-            <HugeiconsIcon icon={SparklesIcon} size={14} className="text-indigo-500" />
+            <HugeiconsIcon
+              icon={SparklesIcon}
+              size={14}
+              className="text-indigo-500"
+            />
           </span>
           <span className="text-[0.85rem] font-onest font-medium tracking-wide">
             Shaping your persona

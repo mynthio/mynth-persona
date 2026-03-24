@@ -9,13 +9,15 @@ This directory contains the prompt system architecture for the Mynth Persona app
 **Roleplay prompts have been moved to a simplified system at `src/lib/prompts/roleplay/`.**
 
 The new roleplay prompt system:
+
 - Uses simple function exports with typed args (no IDs or versioning)
 - Supports model-specific prompts for fine-tuning per AI model
 - Ready for style variations (concise, rich, dialogue focused)
 
 See `src/lib/prompts/roleplay/index.ts` for usage:
+
 ```typescript
-import { getSystemPromptRendererForRoleplay } from '@/lib/prompts/roleplay';
+import { getSystemPromptRendererForRoleplay } from "@/lib/prompts/roleplay";
 
 // Get prompt renderer for a specific model (falls back to default)
 const renderer = getSystemPromptRendererForRoleplay(modelId, style);
@@ -60,12 +62,12 @@ src/lib/prompts/
 Defines the foundational types:
 
 ```typescript
-type PromptKind = "system" | "prompt"
-type PromptId = `${PromptKind}.${string}`
+type PromptKind = "system" | "prompt";
+type PromptId = `${PromptKind}.${string}`;
 
 interface PromptDefinition<T extends Record<string, any> = {}> {
-  id: PromptId
-  render(args: T): string
+  id: PromptId;
+  render(args: T): string;
 }
 ```
 
@@ -78,6 +80,7 @@ interface PromptDefinition<T extends Record<string, any> = {}> {
 ### 3. Template Files
 
 Each template exports a prompt definition with:
+
 - Unique ID following the naming convention
 - `render()` function that accepts typed arguments
 - Clear TypeScript interfaces for render arguments
@@ -87,7 +90,7 @@ Each template exports a prompt definition with:
 ### Roleplay Prompts (New Simplified System)
 
 ```typescript
-import { getSystemPromptRendererForRoleplay } from '@/lib/prompts/roleplay';
+import { getSystemPromptRendererForRoleplay } from "@/lib/prompts/roleplay";
 
 // Get renderer for a specific model (optional, falls back to default)
 const renderer = getSystemPromptRendererForRoleplay(modelId);
@@ -103,27 +106,27 @@ const systemPrompt = renderer({
 ### Legacy System Prompts (Story, Impersonate, etc.)
 
 ```typescript
-import { getDefaultPromptDefinitionForMode } from '@/lib/prompts/registry'
+import { getDefaultPromptDefinitionForMode } from "@/lib/prompts/registry";
 
 // Get default system prompt for story mode
-const systemPrompt = getDefaultPromptDefinitionForMode('chat', 'story')
-const rendered = systemPrompt.render({ character: personaData })
+const systemPrompt = getDefaultPromptDefinitionForMode("chat", "story");
+const rendered = systemPrompt.render({ character: personaData });
 ```
 
 ### Retrieving User Prompts
 
 ```typescript
-import { getDefaultUserPromptDefinitionForMode } from '@/lib/prompts/registry'
+import { getDefaultUserPromptDefinitionForMode } from "@/lib/prompts/registry";
 
 // Get user prompt template for image generation
-const userPrompt = getDefaultUserPromptDefinitionForMode('image', 'persona')
+const userPrompt = getDefaultUserPromptDefinitionForMode("image", "persona");
 const rendered = userPrompt.render({
   persona: personaData,
-  style: 'realistic',
-  shotType: 'portrait',
+  style: "realistic",
+  shotType: "portrait",
   nsfw: false,
-  userNote: 'Make it vibrant'
-})
+  userNote: "Make it vibrant",
+});
 ```
 
 ## Guidelines for Contributors
@@ -139,18 +142,19 @@ const rendered = userPrompt.render({
    - File: `{kind}.{category}.{subcategory}.{version}.ts`
 
 3. **Create the template file**:
+
    ```typescript
-   import { PromptDefinition } from '../../types'
-   
+   import { PromptDefinition } from "../../types";
+
    export const myPromptV1: PromptDefinition<{
-     arg1: string
-     arg2: boolean
+     arg1: string;
+     arg2: boolean;
    }> = {
-     id: 'system.category.subcategory.v1',
+     id: "system.category.subcategory.v1",
      render({ arg1, arg2 }) {
-       return `Your prompt template with ${arg1}`
-     }
-   }
+       return `Your prompt template with ${arg1}`;
+     },
+   };
    ```
 
 4. **Register in registry.ts**:
@@ -171,6 +175,7 @@ const rendered = userPrompt.render({
 ### Testing
 
 Always test new prompts by:
+
 1. Running `pnpm typecheck` to ensure type safety
 2. Testing the render function with realistic data
 3. Verifying the prompt produces expected AI responses
@@ -178,18 +183,21 @@ Always test new prompts by:
 ## Best Practices
 
 ### For System Prompts
+
 - Be specific about the AI's role and behavior
 - Include clear instructions and constraints
 - Use consistent formatting and structure
 - Consider model limitations and context windows
 
 ### For User Prompts
+
 - Make templates flexible with good default values
 - Include optional parameters for customization
 - Validate required vs optional arguments
 - Provide clear parameter documentation
 
 ### For Both
+
 - Keep prompts focused on a single responsibility
 - Use descriptive variable names in templates
 - Include comments for complex logic

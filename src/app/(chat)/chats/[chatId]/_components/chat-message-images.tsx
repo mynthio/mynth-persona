@@ -36,13 +36,13 @@ export function ChatMessageImages({
 }: ChatMessageImagesProps) {
   const { chatId, settings, setSettings } = useChatMain();
   const [lightboxImage, setLightboxImage] = useState<LightboxImage | null>(
-    null
+    null,
   );
   const [isSettingSceneImage, setIsSettingSceneImage] = useState(false);
 
   const images = useMemo(
     () => media?.filter((m) => m.type === "image") ?? [],
-    [media]
+    [media],
   );
 
   const hasRuns = inProgressRuns.length > 0;
@@ -150,14 +150,17 @@ export function ChatMessageImages({
                   >
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="flex flex-col items-center gap-2 text-destructive p-4 text-center">
-                        <HugeiconsIcon icon={ImageNotFound02Icon} strokeWidth={1.5} />
+                        <HugeiconsIcon
+                          icon={ImageNotFound02Icon}
+                          strokeWidth={1.5}
+                        />
                         <div className="text-xs font-medium">
                           Failed to generate
                         </div>
                       </div>
                     </div>
                   </div>
-                )
+                ),
               );
               return [...completedImages, ...errorTiles];
             }
@@ -202,7 +205,10 @@ export function ChatMessageImages({
                 <div className="absolute inset-0 flex items-center justify-center">
                   {isFailed ? (
                     <div className="flex flex-col items-center gap-2 text-destructive p-4 text-center">
-                      <HugeiconsIcon icon={ImageNotFound02Icon} strokeWidth={1.5} />
+                      <HugeiconsIcon
+                        icon={ImageNotFound02Icon}
+                        strokeWidth={1.5}
+                      />
                       <div className="text-xs font-medium">
                         {getImageGenerationErrorMessage(run.errorCode)}
                       </div>
@@ -214,7 +220,7 @@ export function ChatMessageImages({
                   )}
                 </div>
               </div>
-            )
+            ),
           );
         })}
       </div>
@@ -245,7 +251,11 @@ export function ChatMessageImages({
                     onClick={handleSetAsSceneImage}
                     disabled={isSettingSceneImage}
                   >
-                    <HugeiconsIcon icon={Image03Icon} className="size-4" strokeWidth={1.5} />
+                    <HugeiconsIcon
+                      icon={Image03Icon}
+                      className="size-4"
+                      strokeWidth={1.5}
+                    />
                     {isSettingSceneImage ? "Setting..." : "Set as Scene Image"}
                   </Button>
                 )}

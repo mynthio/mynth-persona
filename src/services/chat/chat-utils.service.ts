@@ -23,7 +23,7 @@ export interface ChatModelSelectionResult {
  */
 export function selectTextGenerationModel(
   payloadModelId: string | undefined,
-  chatSettingsModel: string | null | undefined
+  chatSettingsModel: string | null | undefined,
 ): ChatModelSelectionResult {
   // Priority: payload.modelId → chatSettings.model → DEFAULT_CHAT_MODEL
   // Falls back if payload model is invalid
@@ -56,7 +56,7 @@ export function selectTextGenerationModel(
  */
 export function checkPremiumModelAccess(
   modelTier: string,
-  planId: PlanId
+  planId: PlanId,
 ): Response | null {
   // Block free users from premium models
   if (modelTier === "premium" && planId === "free") {
@@ -66,7 +66,7 @@ export function checkPremiumModelAccess(
       }),
       {
         status: 403,
-      }
+      },
     );
   }
 
@@ -108,7 +108,7 @@ export function selectRateLimiter(modelTier: string, planId: PlanId) {
 export async function checkChatRateLimit(
   modelTier: string,
   planId: PlanId,
-  userId: string
+  userId: string,
 ) {
   const rateLimiter = selectRateLimiter(modelTier, planId);
   const rateLimitResult = await rateLimitGuard(rateLimiter, userId);

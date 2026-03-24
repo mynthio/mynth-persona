@@ -53,8 +53,11 @@ import { DEFAULT_CHARACTER_VOICE_IDS } from "@/lib/constants";
 import { toast } from "sonner";
 
 const PinModelButton = dynamic(
-  () => import("./pin-model-button").then((mod) => ({ default: mod.PinModelButton })),
-  { ssr: false }
+  () =>
+    import("./pin-model-button").then((mod) => ({
+      default: mod.PinModelButton,
+    })),
+  { ssr: false },
 );
 
 type ChatSettingsProps = {
@@ -447,8 +450,7 @@ function ChatSettingsVoice() {
   const isOverride = !!chatVoiceId;
 
   // Resolve what voice is currently active
-  const resolvedVoiceId =
-    chatVoiceId || DEFAULT_CHARACTER_VOICE_IDS["female"];
+  const resolvedVoiceId = chatVoiceId || DEFAULT_CHARACTER_VOICE_IDS["female"];
   const resolvedVoice = getVoiceById(resolvedVoiceId);
 
   async function handleVoiceChange(voiceId: string) {
@@ -521,7 +523,7 @@ function ChatSettingsModel() {
     return chatConfig.models
       .map(({ modelId }) => textGenerationModels[modelId])
       .filter((model): model is TextGenerationModelConfig =>
-        Boolean(model && model.enabled)
+        Boolean(model && model.enabled),
       )
       .filter((model) => {
         const matchesQuery =
@@ -598,7 +600,7 @@ function ModelCard(props: {
         "group bg-white rounded-[24px] px-[16px] py-[12px] cursor-pointer",
         {
           "border-[3px] border-surface-200": isSelected,
-        }
+        },
       )}
       onClick={onSelect}
     >

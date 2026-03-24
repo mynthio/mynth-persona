@@ -41,7 +41,7 @@ export default async function WorkbenchPersonaPage({
 
     publicPersona = transformToPublicPersona(personaWithVersion as any);
     publicPersonaVersion = transformToPublicPersonaVersion(
-      (personaWithVersion as any).version
+      (personaWithVersion as any).version,
     );
   } catch (_e) {
     // Surface as 404 if persona is not accessible to this user

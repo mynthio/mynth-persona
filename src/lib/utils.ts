@@ -12,7 +12,7 @@ export const getAudioUrl = (audioId: string) => {
 
 export const getImageUrl = (
   mediaId: string,
-  variant: "full" | "thumb" = "full"
+  variant: "full" | "thumb" = "full",
 ) => {
   const suffix = variant === "thumb" ? "_thumb" : "";
   return `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/media/${mediaId}${suffix}.webp`;
@@ -20,7 +20,7 @@ export const getImageUrl = (
 
 export const getMediaImageUrl = (
   mediaId: string,
-  variant: "full" | "thumb" = "full"
+  variant: "full" | "thumb" = "full",
 ) => {
   const suffix = variant === "thumb" ? "_thumb" : "";
   return `${process.env.NEXT_PUBLIC_CDN_BASE_URL}/media/${mediaId}${suffix}.webp`;
@@ -38,14 +38,14 @@ export type WeightedId = { id: string; priority: number };
  */
 export function pickByWeightedPriority(
   config: WeightedId[],
-  totalPicks: number = 3
+  totalPicks: number = 3,
 ): { main: string; fallbacks: string[] } {
   if (!Array.isArray(config) || config.length === 0) {
     return { main: "", fallbacks: [] };
   }
 
   const valid = config.filter(
-    (m) => m && typeof m.priority === "number" && m.priority > 0
+    (m) => m && typeof m.priority === "number" && m.priority > 0,
   );
   const pool = valid.length > 0 ? valid : config;
 

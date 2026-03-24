@@ -20,11 +20,11 @@ import { useState, useEffect } from "react";
 export function ArtFilters() {
   const [tags, setTags] = useQueryState(
     "tags",
-    parseAsArrayOf(parseAsString).withDefault([])
+    parseAsArrayOf(parseAsString).withDefault([]),
   );
   const [nsfw, setNsfw] = useQueryState(
     "nsfw",
-    parseAsArrayOf(parseAsString).withDefault([])
+    parseAsArrayOf(parseAsString).withDefault([]),
   );
   const [tagsQuery, setTagsQuery] = useState(tags.join(", "));
   const debouncedTags = useDebounce(tagsQuery, 500);
@@ -43,7 +43,7 @@ export function ArtFilters() {
     setNsfw((prev) =>
       prev.includes(value)
         ? prev.filter((item) => item !== value)
-        : [...prev, value]
+        : [...prev, value],
     );
   };
 

@@ -29,7 +29,7 @@ export type PaginatedScenariosResult = {
 };
 
 export const getPaginatedScenarios = async (
-  params: GetPaginatedScenariosParams
+  params: GetPaginatedScenariosParams,
 ): Promise<PaginatedScenariosResult> => {
   const { userId, cursor, event } = params;
 
@@ -37,8 +37,8 @@ export const getPaginatedScenarios = async (
     not(eq(scenarios.visibility, "deleted")),
     or(
       eq(scenarios.visibility, "public"),
-      userId ? eq(scenarios.creatorId, userId) : undefined
-    )
+      userId ? eq(scenarios.creatorId, userId) : undefined,
+    ),
   );
 
   const eventCondition = event ? eq(scenarios.event, event) : undefined;
@@ -48,8 +48,8 @@ export const getPaginatedScenarios = async (
         lt(scenarios.createdAt, cursor.createdAt),
         and(
           eq(scenarios.createdAt, cursor.createdAt),
-          lt(scenarios.id, cursor.id)
-        )
+          lt(scenarios.id, cursor.id),
+        ),
       )
     : undefined;
 

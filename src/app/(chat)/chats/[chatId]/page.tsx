@@ -29,7 +29,7 @@ export default async function ChatDetailPage({
   const { areSettingsOpen } = await searchParams.then(
     (searchParamsResolved) => ({
       areSettingsOpen: !!searchParamsResolved.s,
-    })
+    }),
   );
 
   // Use cached chat fetch for page rendering - automatically invalidated via updateTag

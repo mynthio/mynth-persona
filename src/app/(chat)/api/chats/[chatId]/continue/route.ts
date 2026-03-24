@@ -85,7 +85,7 @@ const normalizeError = (error: unknown): Record<string, unknown> => {
 
 // Minimal error serializer for generation errors to avoid logging stream chunks
 const toMinimalError = (
-  error: unknown
+  error: unknown,
 ): { name?: string; message: string; code?: string | number } => {
   const candidate =
     error &&
@@ -124,7 +124,7 @@ const toMinimalError = (
 
 export async function POST(
   req: Request,
-  ctx: RouteContext<"/api/chats/[chatId]/continue">
+  ctx: RouteContext<"/api/chats/[chatId]/continue">,
 ) {
   /**
    * AUTH
@@ -210,13 +210,13 @@ export async function POST(
    * CHECKPOINT SUPPORT
    */
   const lastCheckpointIndex = messagesHistory.findLastIndex(
-    (message) => !!message.metadata?.checkpoint
+    (message) => !!message.metadata?.checkpoint,
   );
   const previousCheckpointIndex =
     lastCheckpointIndex > 0
       ? messagesHistory.findLastIndex(
           (message, i) =>
-            !!message.metadata?.checkpoint && lastCheckpointIndex !== i
+            !!message.metadata?.checkpoint && lastCheckpointIndex !== i,
         )
       : 0;
 
@@ -249,7 +249,7 @@ export async function POST(
       extraBody: {
         transforms: ["middle-out"],
       },
-    }
+    },
   );
 
   /**
@@ -270,7 +270,7 @@ export async function POST(
   const messagesTillCheckpoint = messagesHistory.slice(
     indexOfCheckpointToUse && indexOfCheckpointToUse > 0
       ? indexOfCheckpointToUse
-      : 0
+      : 0,
   );
 
   const messages = await convertToModelMessages(messagesTillCheckpoint);
@@ -297,7 +297,7 @@ export async function POST(
           component: "api:continue",
           error: toMinimalError(error),
         },
-        "Text generation failed (continue)"
+        "Text generation failed (continue)",
       );
 
       await trackChatError({
@@ -337,7 +337,7 @@ export async function POST(
                   outputTokens: finalData.usage.outputTokens,
                 },
                 model: textGenerationModel.modelId,
-              }
+              },
             )}::jsonb`,
             updatedAt: sql`now()`,
           })
@@ -354,7 +354,7 @@ export async function POST(
           component: "api:continue",
           error: normalizeError(error),
         },
-        "Failed to clear chat leaf in KV store"
+        "Failed to clear chat leaf in KV store",
       );
     });
 

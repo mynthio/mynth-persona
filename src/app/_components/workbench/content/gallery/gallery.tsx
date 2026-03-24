@@ -1,6 +1,9 @@
 "use client";
 
-import { AlertCircleIcon, ImageNotFound02Icon } from "@hugeicons/core-free-icons";
+import {
+  AlertCircleIcon,
+  ImageNotFound02Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { usePersonaImagesQuery } from "@/app/_queries/use-persona-images.query";
 import { useParams } from "next/navigation";
@@ -143,7 +146,7 @@ function GalleryImageInProgress({
         actualImageCount = output.images.length;
         mutateImages((prev) => {
           const newImages = output.images!.filter(
-            (img) => !prev?.some((p) => p.id === img.mediaId)
+            (img) => !prev?.some((p) => p.id === img.mediaId),
           );
           if (newImages.length === 0) return prev;
           return [
@@ -163,7 +166,8 @@ function GalleryImageInProgress({
       }
 
       // If partial completion (some images failed), show error state briefly before removing
-      const hasPartialFailure = actualImageCount > 0 && actualImageCount < expectedImageCount;
+      const hasPartialFailure =
+        actualImageCount > 0 && actualImageCount < expectedImageCount;
       const hasCompleteFailure = actualImageCount === 0;
 
       if (hasPartialFailure) {
@@ -185,14 +189,19 @@ function GalleryImageInProgress({
     status === "CRASHED" ||
     status === "SYSTEM_FAILURE" ||
     status === "TIMED_OUT";
-  
+
   // Check for partial completion
   const output = run?.output as RunOutput | undefined;
   const actualImageCount = output?.images?.length ?? (output?.mediaId ? 1 : 0);
-  const isPartialCompletion = status === "COMPLETED" && actualImageCount > 0 && actualImageCount < expectedImageCount;
+  const isPartialCompletion =
+    status === "COMPLETED" &&
+    actualImageCount > 0 &&
+    actualImageCount < expectedImageCount;
 
   // For partial completion, only render tiles for the missing images
-  const tilesToRender = isPartialCompletion ? expectedImageCount - actualImageCount : expectedImageCount;
+  const tilesToRender = isPartialCompletion
+    ? expectedImageCount - actualImageCount
+    : expectedImageCount;
 
   // Render loading tiles for expected images (or just failed ones for partial completion)
   return (

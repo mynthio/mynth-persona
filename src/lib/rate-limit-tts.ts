@@ -24,12 +24,12 @@ const TtsRateLimit = new RateLimiterRedis({
  * Returns true if allowed, false if rate limited.
  */
 export const ttsRateLimitGuard = async (
-  identifier: string
+  identifier: string,
 ): Promise<boolean> => {
   // Check if user is whitelisted
   const whitelistedUserIds =
     process.env.RATE_LIMIT_WHITELIST_USER_IDS?.split(",").map((id) =>
-      id.trim()
+      id.trim(),
     ) || [];
   if (whitelistedUserIds.includes(identifier)) {
     return true;
@@ -53,14 +53,14 @@ export const ttsRateLimitGuard = async (
  * Use when an operation fails and you want to refund the consumed point.
  */
 export const ttsRateLimitRestore = async (
-  identifier: string
+  identifier: string,
 ): Promise<void> => {
   try {
     await TtsRateLimit.reward(identifier, 1);
   } catch (error) {
     logger.error(
       { error, identifier },
-      "Failed to restore TTS rate limit point"
+      "Failed to restore TTS rate limit point",
     );
   }
 };

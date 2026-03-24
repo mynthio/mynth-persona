@@ -14,9 +14,7 @@ import { generateDialogueAudio } from "@/lib/tts/generate-dialogue-audio";
 import { uploadToBunny } from "@/lib/upload";
 import { extractPersonaMessageText } from "@/lib/utils";
 import { ActionResult } from "@/types/action-result.type";
-import {
-  PersonaUIMessage,
-} from "@/schemas/shared/messages/persona-ui-message.schema";
+import { PersonaUIMessage } from "@/schemas/shared/messages/persona-ui-message.schema";
 import { logger } from "@/lib/logger";
 import { trackAudioGenerated, flushAnalytics } from "@/lib/analytics";
 

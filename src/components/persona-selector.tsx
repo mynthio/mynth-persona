@@ -1,5 +1,11 @@
 "use client";
-import { Cancel01Icon, CheckmarkSquare02Icon, Globe02Icon, SquareIcon, User03Icon } from "@hugeicons/core-free-icons";
+import {
+  Cancel01Icon,
+  CheckmarkSquare02Icon,
+  Globe02Icon,
+  SquareIcon,
+  User03Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "./ui/button";
 import { ButtonGroup } from "./ui/button-group";
@@ -101,7 +107,7 @@ export function usePersonaSelector() {
   const context = useContext(PersonaSelectorContext);
   if (!context) {
     throw new Error(
-      "usePersonaSelector must be used within PersonaSelector component"
+      "usePersonaSelector must be used within PersonaSelector component",
     );
   }
   return context;
@@ -188,7 +194,7 @@ type PersonaSelectorValueProps = {
   children: (
     persona: Persona,
     removePersona: () => void,
-    index: number
+    index: number,
   ) => ReactNode;
 };
 
@@ -198,7 +204,7 @@ export function PersonaSelectorValue({ children }: PersonaSelectorValueProps) {
   return (
     <>
       {selectedPersonas.map((persona, index) =>
-        children(persona, () => removePersona(persona.id), index)
+        children(persona, () => removePersona(persona.id), index),
       )}
     </>
   );
@@ -222,7 +228,7 @@ export function PersonaChip({
     <div
       className={cn(
         "inline-flex items-center gap-[8px] px-[12px] py-[6px] rounded-[8px] bg-surface-100 border border-surface-200",
-        className
+        className,
       )}
     >
       <div className="shrink-0 size-[24px] rounded-[6px] overflow-hidden bg-surface-200 flex items-center justify-center">
@@ -235,7 +241,10 @@ export function PersonaChip({
             className="object-cover"
           />
         ) : (
-          <HugeiconsIcon icon={User03Icon} className="text-surface-foreground/50 size-[14px]" />
+          <HugeiconsIcon
+            icon={User03Icon}
+            className="text-surface-foreground/50 size-[14px]"
+          />
         )}
       </div>
 
@@ -284,7 +293,7 @@ function PersonaSelectorContent() {
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
         revalidateFirstPage: false,
-      }
+      },
     );
 
   useEffect(() => {
@@ -311,7 +320,7 @@ function PersonaSelectorContent() {
       const isSelected = selectedPersonas.some((p) => p.id === persona.id);
       if (isSelected) {
         setSelectedPersonas(
-          selectedPersonas.filter((p) => p.id !== persona.id)
+          selectedPersonas.filter((p) => p.id !== persona.id),
         );
       } else {
         setSelectedPersonas([...selectedPersonas, persona]);
@@ -381,7 +390,7 @@ function PersonaSelectorContent() {
           <div className="flex flex-col gap-1 p-2">
             {allPersonas.map((persona) => {
               const isSelected = selectedPersonas.some(
-                (p) => p.id === persona.id
+                (p) => p.id === persona.id,
               );
               return (
                 <button
@@ -389,7 +398,7 @@ function PersonaSelectorContent() {
                   onClick={() => handleSelect(persona)}
                   className={cn(
                     "w-full flex items-center py-[12px] rounded-[12px] px-[24px] gap-[12px] transition-colors",
-                    isSelected && "bg-surface-100"
+                    isSelected && "bg-surface-100",
                   )}
                 >
                   <div className="shrink-0 size-[32px] rounded-[12px] overflow-hidden bg-surface-100 flex items-center justify-center">
@@ -402,7 +411,10 @@ function PersonaSelectorContent() {
                         className="object-cover"
                       />
                     ) : (
-                      <HugeiconsIcon icon={User03Icon} className="text-surface-foreground/50" />
+                      <HugeiconsIcon
+                        icon={User03Icon}
+                        className="text-surface-foreground/50"
+                      />
                     )}
                   </div>
 
@@ -413,7 +425,10 @@ function PersonaSelectorContent() {
                     <div className="text-xs text-muted-foreground flex items-center gap-2">
                       {persona.visibility === "public" && (
                         <>
-                          <HugeiconsIcon icon={Globe02Icon} className="text-blue-500" />
+                          <HugeiconsIcon
+                            icon={Globe02Icon}
+                            className="text-blue-500"
+                          />
                           <span>•</span>
                         </>
                       )}
@@ -424,7 +439,10 @@ function PersonaSelectorContent() {
                   </div>
 
                   {isSelected && (
-                    <HugeiconsIcon icon={CheckmarkSquare02Icon} className="shrink-0 text-primary" />
+                    <HugeiconsIcon
+                      icon={CheckmarkSquare02Icon}
+                      className="shrink-0 text-primary"
+                    />
                   )}
                 </button>
               );

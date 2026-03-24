@@ -74,8 +74,7 @@ export function ChatMessageAudioButton({
   const handleGenerate = () => {
     onGeneratingChange(true);
     toast.info("Generating speech", {
-      description:
-        "This takes about 10 seconds. It will auto-play when ready.",
+      description: "This takes about 10 seconds. It will auto-play when ready.",
     });
 
     generateMessageAudio(messageId, chatId)
@@ -180,10 +179,7 @@ export function ChatMessageAudioButton({
       aria-label={isPlaying ? "Pause audio" : "Play audio"}
       title={isPlaying ? "Pause audio" : "Play audio"}
     >
-      <HugeiconsIcon
-        icon={isPlaying ? PauseIcon : PlayIcon}
-        size={14}
-      />
+      <HugeiconsIcon icon={isPlaying ? PauseIcon : PlayIcon} size={14} />
     </Button>
   );
 }

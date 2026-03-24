@@ -31,7 +31,7 @@ async function processPersonaVersionSafe(personaVersion: {
   try {
     // Generate V2 summary (AI SDK handles retry internally)
     const { summary: summaryV2 } = await generateRoleplaySummaryV2(
-      personaVersion.data
+      personaVersion.data,
     );
 
     // Update database with V2 data
@@ -52,7 +52,7 @@ async function processPersonaVersionSafe(personaVersion: {
         personaVersionId: personaVersion.id,
         error: errorMessage,
       },
-      "Failed to migrate persona version"
+      "Failed to migrate persona version",
     );
     return {
       success: false,
@@ -96,7 +96,7 @@ export const migrateRoleplaySummariesV2Task = task({
         if (consecutiveBatchFailures >= MAX_CONSECUTIVE_FAILURES) {
           logger.error("Too many consecutive batch failures, aborting");
           throw new Error(
-            `Aborted after ${MAX_CONSECUTIVE_FAILURES} consecutive batch failures`
+            `Aborted after ${MAX_CONSECUTIVE_FAILURES} consecutive batch failures`,
           );
         }
 
@@ -124,7 +124,7 @@ export const migrateRoleplaySummariesV2Task = task({
             batchSize: batch.length,
             totalProcessed,
           },
-          `Processing batch ${offset + 1} to ${offset + batch.length}`
+          `Processing batch ${offset + 1} to ${offset + batch.length}`,
         );
 
         // Process batch in parallel
@@ -133,8 +133,8 @@ export const migrateRoleplaySummariesV2Task = task({
             processPersonaVersionSafe({
               id: pv.id,
               data: pv.data as PersonaData,
-            })
-          )
+            }),
+          ),
         );
 
         // Collect results
@@ -162,7 +162,7 @@ export const migrateRoleplaySummariesV2Task = task({
           consecutiveBatchFailures++;
           logger.warn(
             { consecutiveBatchFailures },
-            "Entire batch failed, no successful migrations"
+            "Entire batch failed, no successful migrations",
           );
         } else {
           consecutiveBatchFailures = 0;
@@ -178,7 +178,7 @@ export const migrateRoleplaySummariesV2Task = task({
             successRate:
               ((successCount / totalProcessed) * 100).toFixed(1) + "%",
           },
-          "Batch complete"
+          "Batch complete",
         );
 
         offset += BATCH_SIZE;
@@ -197,7 +197,7 @@ export const migrateRoleplaySummariesV2Task = task({
     } catch (error) {
       logger.error(
         { error: error instanceof Error ? error.message : String(error) },
-        "Migration failed with critical error"
+        "Migration failed with critical error",
       );
       logger.flush();
       throw error;

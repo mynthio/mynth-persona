@@ -31,7 +31,13 @@ if (typeof WebSocket === "undefined") {
 // DRY RUN can be toggled via env (defaults to false)
 const DRY_RUN = String(process.env.DRY_RUN || "false").toLowerCase() === "true";
 
-type TagCategory = "appearance" | "physical" | "age" | "personality" | "style" | "other";
+type TagCategory =
+  | "appearance"
+  | "physical"
+  | "age"
+  | "personality"
+  | "style"
+  | "other";
 
 interface TagSeed {
   name: string; // lowercase unique name (used as id too)
@@ -70,13 +76,7 @@ function buildPredefinedTags(): TagSeed[] {
       // "elegant",  // moved to style
       // "casual",   // moved to style
     ],
-    age: [
-      "young",
-      "mature",
-      "teen",
-      "adult",
-      "middle-aged",
-    ],
+    age: ["young", "mature", "teen", "adult", "middle-aged"],
     personality: [
       "sweet",
       "confident",
@@ -151,11 +151,13 @@ async function main() {
 
   // Preview sample
   console.log("\n🔎 Sample (first 10):");
-  tagSeeds.slice(0, 10).forEach((t, i) =>
-    console.log(
-      `  ${String(i + 1).padStart(2, "0")}. ${t.name} [${t.category}] visible=${t.isVisible} order=${t.sortOrder}`
-    )
-  );
+  tagSeeds
+    .slice(0, 10)
+    .forEach((t, i) =>
+      console.log(
+        `  ${String(i + 1).padStart(2, "0")}. ${t.name} [${t.category}] visible=${t.isVisible} order=${t.sortOrder}`,
+      ),
+    );
 
   if (DRY_RUN) {
     console.log("\n🧪 DRY RUN ENABLED — no database writes will be performed");
@@ -174,7 +176,7 @@ async function main() {
         category: t.category,
         isVisible: t.isVisible,
         sortOrder: t.sortOrder,
-      }))
+      })),
     )
     .onConflictDoUpdate({
       target: tags.name,

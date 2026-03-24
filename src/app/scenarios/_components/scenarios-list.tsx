@@ -1,6 +1,11 @@
 "use client";
 
-import { ArrowLeft01Icon, ArrowRight01Icon, Globe02Icon, LockIcon } from "@hugeicons/core-free-icons";
+import {
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  Globe02Icon,
+  LockIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -31,7 +36,10 @@ type ScenariosListProps = {
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-export function ScenariosList({ initialData, eventFilter }: ScenariosListProps) {
+export function ScenariosList({
+  initialData,
+  eventFilter,
+}: ScenariosListProps) {
   const [cursors, setCursors] = useState<
     Array<{ createdAt: string; id: string } | null>
   >([null]); // Stack of cursors for navigation
@@ -59,7 +67,7 @@ export function ScenariosList({ initialData, eventFilter }: ScenariosListProps) 
     {
       fallbackData: currentPage === 0 && !eventFilter ? initialData : undefined,
       keepPreviousData: true,
-    }
+    },
   );
 
   const scenarios = data?.data ?? [];
@@ -137,7 +145,12 @@ function ScenarioCard({ scenario }: { scenario: Scenario }) {
 
         <div className="relative z-20 h-full flex flex-col justify-between p-6">
           <div className="flex items-center gap-2">
-            <Badge variant={scenario.visibility === "public" ? "secondary" : "outline"} className="gap-1.5">
+            <Badge
+              variant={
+                scenario.visibility === "public" ? "secondary" : "outline"
+              }
+              className="gap-1.5"
+            >
               {scenario.visibility === "public" ? (
                 <HugeiconsIcon icon={Globe02Icon} className="h-3 w-3" />
               ) : (

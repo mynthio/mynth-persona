@@ -25,7 +25,7 @@ export function ChatIntro() {
   const { modelId } = useChatMain();
 
   const autoplayPlugin = useRef(
-    Autoplay({ delay: 12000, stopOnInteraction: true })
+    Autoplay({ delay: 12000, stopOnInteraction: true }),
   );
 
   if (messagesCount > 0) return null;
@@ -33,7 +33,7 @@ export function ChatIntro() {
   const persona = personas[0];
   const tips = getModelTips(modelId);
   const modelDisplayName = modelId
-    ? textGenerationModels[modelId]?.displayName ?? null
+    ? (textGenerationModels[modelId]?.displayName ?? null)
     : null;
 
   return (
@@ -52,7 +52,11 @@ export function ChatIntro() {
                 <CarouselItem key={tip.id}>
                   <div className="w-full max-w-full min-w-0 flex flex-col">
                     <div className="text-muted-foreground/80 flex items-center gap-2 justify-center mb-2 w-full wrap-anywhere">
-                      <HugeiconsIcon icon={Idea01Icon} strokeWidth={1.5} className="size-3.5" />
+                      <HugeiconsIcon
+                        icon={Idea01Icon}
+                        strokeWidth={1.5}
+                        className="size-3.5"
+                      />
                       <p className="text-md">{modelDisplayName}</p>
                     </div>
                     <p className="text-center text-balance wrap-anywhere text-muted-foreground">

@@ -7,7 +7,7 @@ import "server-only";
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ personaId: string }> }
+  { params }: { params: Promise<{ personaId: string }> },
 ) {
   const { userId } = await auth();
 
@@ -40,7 +40,7 @@ export async function GET(
     transformToPublicPersonaVersion({
       ...v,
       persona: { userId: persona.userId },
-    } as any)
+    } as any),
   );
 
   return Response.json(publicVersions);

@@ -111,7 +111,7 @@ export function VoicePicker({
 
       audio.play();
     },
-    [playingId, stopAudio]
+    [playingId, stopAudio],
   );
 
   const handleSelect = useCallback(
@@ -120,7 +120,7 @@ export function VoicePicker({
       onVoiceChange(voiceId);
       setOpen(false);
     },
-    [onVoiceChange, stopAudio]
+    [onVoiceChange, stopAudio],
   );
 
   const handleOpenChange = useCallback(
@@ -128,28 +128,27 @@ export function VoicePicker({
       if (!isOpen) stopAudio();
       setOpen(isOpen);
     },
-    [stopAudio]
+    [stopAudio],
   );
 
-  const triggerNode =
-    trigger ?? (
-      <Button
-        variant="outline"
-        size="sm"
-        className="h-9 w-full justify-between rounded-xl border border-border/40 bg-card/30 px-3 text-[12px] font-medium hover:bg-card/60"
-      >
-        <span className="flex min-w-0 items-center gap-2">
-          <HugeiconsIcon icon={VolumeHighIcon} className="size-3.5 shrink-0" />
-          <span className="truncate">
-            {currentVoice ? "Change voice" : "Choose voice"}
-          </span>
+  const triggerNode = trigger ?? (
+    <Button
+      variant="outline"
+      size="sm"
+      className="h-9 w-full justify-between rounded-xl border border-border/40 bg-card/30 px-3 text-[12px] font-medium hover:bg-card/60"
+    >
+      <span className="flex min-w-0 items-center gap-2">
+        <HugeiconsIcon icon={VolumeHighIcon} className="size-3.5 shrink-0" />
+        <span className="truncate">
+          {currentVoice ? "Change voice" : "Choose voice"}
         </span>
-        <HugeiconsIcon
-          icon={ArrowRight01Icon}
-          className="size-3.5 shrink-0 text-muted-foreground"
-        />
-      </Button>
-    );
+      </span>
+      <HugeiconsIcon
+        icon={ArrowRight01Icon}
+        className="size-3.5 shrink-0 text-muted-foreground"
+      />
+    </Button>
+  );
 
   if (isMobile) {
     return (

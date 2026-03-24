@@ -25,7 +25,8 @@ type EditMessageProps = {
 };
 
 export function EditMessage(props: EditMessageProps) {
-  const { setEditMessageId, modelId, authorNote, addAuthorNoteToHistory } = useChatMain();
+  const { setEditMessageId, modelId, authorNote, addAuthorNoteToHistory } =
+    useChatMain();
   const { regenerate, setMessages } = useChatActions();
   const { addMessageToBranch } = useChatBranchesContext();
   const messages = useChatMessages();
@@ -154,9 +155,7 @@ export function EditMessage(props: EditMessageProps) {
 
         // Replace the current message with the new one and remove all
         // descendants — the new branch has no children yet.
-        const editedIndex = messages.findIndex(
-          (m) => m.id === props.messageId,
-        );
+        const editedIndex = messages.findIndex((m) => m.id === props.messageId);
         const kept = messages.slice(0, editedIndex);
         kept.push({ ...messages[editedIndex], ...newMessage });
         setMessages(kept);

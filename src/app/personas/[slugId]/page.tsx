@@ -1,4 +1,8 @@
-import { AngryBirdIcon, HeartCheckIcon, Message01Icon } from "@hugeicons/core-free-icons";
+import {
+  AngryBirdIcon,
+  HeartCheckIcon,
+  Message01Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { db } from "@/db/drizzle";
 import { personas } from "@/db/schema";
@@ -22,7 +26,7 @@ const getPersonaImageUrl = (profileImageIdMedia?: string | null) =>
 
 const getDisplayName = (
   personaPublicName?: string | null,
-  personaData?: PersonaData
+  personaData?: PersonaData,
 ) => personaPublicName ?? personaData?.name ?? "Unknown Persona";
 
 export const revalidate = 0;
@@ -139,7 +143,9 @@ export default async function PersonaPublicPage({
           {/* Status Badge */}
           <div className="absolute top-4 left-4 z-10">
             <Badge variant="secondary" className="backdrop-blur-sm">
-              {persona.status === "community" && <HugeiconsIcon icon={AngryBirdIcon} />}
+              {persona.status === "community" && (
+                <HugeiconsIcon icon={AngryBirdIcon} />
+              )}
               {persona.status}
             </Badge>
           </div>
@@ -147,7 +153,10 @@ export default async function PersonaPublicPage({
           {/* NSFW Badge */}
           {persona.nsfwRating && persona.nsfwRating !== "sfw" && (
             <div className="absolute top-4 right-4 z-10">
-              <Badge variant="destructive" className="backdrop-blur-sm uppercase">
+              <Badge
+                variant="destructive"
+                className="backdrop-blur-sm uppercase"
+              >
                 {persona.nsfwRating}
               </Badge>
             </div>

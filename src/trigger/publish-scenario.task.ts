@@ -83,7 +83,7 @@ export const publishScenarioTask = schemaTask({
     if (scenario.publishStatus === "success") {
       logger.warn(
         { scenarioId, publishStatus: scenario.publishStatus },
-        "Scenario is already published"
+        "Scenario is already published",
       );
       return {
         success: false,
@@ -95,7 +95,7 @@ export const publishScenarioTask = schemaTask({
     if (scenario.publishStatus === "flagged") {
       logger.warn(
         { scenarioId, publishStatus: scenario.publishStatus },
-        "Scenario is flagged and cannot be published"
+        "Scenario is flagged and cannot be published",
       );
       return {
         success: false,
@@ -108,7 +108,7 @@ export const publishScenarioTask = schemaTask({
      * Content moderation check
      */
     const contentModerationResult = await contentModerationCheck(
-      scenario.content as ScenarioContent
+      scenario.content as ScenarioContent,
     );
     logger.info({ contentModerationResult }, "Content moderation result");
 
@@ -134,7 +134,7 @@ export const publishScenarioTask = schemaTask({
      */
     const { tags } = await generateTags(scenario.content as ScenarioContent);
     const tagsNormalized = tags.map((tag) =>
-      slugify(tag, { lower: true, trim: true, strict: true })
+      slugify(tag, { lower: true, trim: true, strict: true }),
     );
     logger.debug({ tagsNormalized }, "Generated tags");
 
@@ -142,21 +142,21 @@ export const publishScenarioTask = schemaTask({
      * Generate background image prompt
      */
     const backgroundImagePrompt = await generateBackgroundImagePrompt(
-      scenario.content as ScenarioContent
+      scenario.content as ScenarioContent,
     );
     logger.debug(
       { backgroundImagePrompt },
-      "Generated background image prompt"
+      "Generated background image prompt",
     );
 
     const backgroundImageGenerated = await generateBackgroundImage(
-      backgroundImagePrompt
+      backgroundImagePrompt,
     );
     const backgroundImageProcessed = await processBackgroundImage(
-      backgroundImageGenerated.image
+      backgroundImageGenerated.image,
     );
     const backgroundImageUrl = await uploadBackgroundImage(
-      backgroundImageProcessed
+      backgroundImageProcessed,
     );
     logger.debug({ backgroundImageUrl }, "Uploaded background image");
 
@@ -265,7 +265,7 @@ async function contentModerationCheck(scenario: ScenarioContent) {
     {
       component: "generation:text:complete",
       useCase: "content_moderation_check",
-    }
+    },
   );
 
   return result.object;
@@ -304,7 +304,7 @@ async function generateTitleAndDescription(scenario: ScenarioContent) {
       {
         component: "generation:text:complete",
         useCase: "generate_title_and_description",
-      }
+      },
     );
 
     return result.object;
@@ -344,7 +344,7 @@ async function generateTags(scenario: ScenarioContent) {
     {
       component: "generation:text:complete",
       useCase: "generate_tags",
-    }
+    },
   );
 
   return result.object;
@@ -387,7 +387,7 @@ async function generateBackgroundImagePrompt(scenario: ScenarioContent) {
     {
       component: "generation:text:complete",
       useCase: "generate_background_image_prompt",
-    }
+    },
   );
 
   return result.text;
@@ -395,7 +395,7 @@ async function generateBackgroundImagePrompt(scenario: ScenarioContent) {
 
 async function generateBackgroundImage(prompt: string) {
   const imageGenerationModel = ImageGenerationFactory.byModelId(
-    "black-forest-labs/flux-dev"
+    "black-forest-labs/flux-dev",
   );
 
   const result = await imageGenerationModel.generate(prompt, {

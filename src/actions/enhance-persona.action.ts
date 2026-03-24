@@ -20,27 +20,33 @@ import { getDefaultPromptDefinitionForMode } from "@/lib/prompts/registry";
 
 // Utility function to format extension keys to snake_case (lowercase)
 const formatExtensionKeys = (
-  extensions?: Record<string, string>
+  extensions?: Record<string, string>,
 ): Record<string, string> => {
   if (!extensions) return {};
 
-  return Object.entries(extensions).reduce((acc, [key, value]) => {
-    const formattedKey = snakeCase(key);
-    acc[formattedKey] = value;
-    return acc;
-  }, {} as Record<string, string>);
+  return Object.entries(extensions).reduce(
+    (acc, [key, value]) => {
+      const formattedKey = snakeCase(key);
+      acc[formattedKey] = value;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
 };
 
 // Normalize extension keys and return a new object with keys sorted alphabetically
 const normalizeAndSortExtensions = (
-  extensions?: Record<string, string>
+  extensions?: Record<string, string>,
 ): Record<string, string> => {
   const formatted = formatExtensionKeys(extensions);
   const sortedKeys = Object.keys(formatted).sort();
-  return sortedKeys.reduce((acc, key) => {
-    acc[key] = formatted[key];
-    return acc;
-  }, {} as Record<string, string>);
+  return sortedKeys.reduce(
+    (acc, key) => {
+      acc[key] = formatted[key];
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
 };
 
 const SCHEMA = z.object({
@@ -49,73 +55,73 @@ const SCHEMA = z.object({
     .optional()
     .nullable()
     .describe(
-      "A short creative title for this persona version that reflects the updated character. Include only if the update changes the persona's theme or identity."
+      "A short creative title for this persona version that reflects the updated character. Include only if the update changes the persona's theme or identity.",
     ),
   note_for_user: z
     .string()
     .optional()
     .nullable()
     .describe(
-      "Optional one-sentence note for the user: what changed and one suggestion for next iteration. Keep it brief."
+      "Optional one-sentence note for the user: what changed and one suggestion for next iteration. Keep it brief.",
     ),
   name: z
     .string()
     .optional()
     .nullable()
     .describe(
-      "Character's full name or alias — ONLY include if the user explicitly requests a name change."
+      "Character's full name or alias — ONLY include if the user explicitly requests a name change.",
     ),
   age: z
     .preprocess(
       (val) => (typeof val === "number" ? String(val) : val),
-      z.union([z.string(), z.number()])
+      z.union([z.string(), z.number()]),
     )
     .optional()
     .nullable()
     .describe(
-      "Treat as text (convert numbers to strings). ONLY include if the user explicitly requests an age change."
+      "Treat as text (convert numbers to strings). ONLY include if the user explicitly requests an age change.",
     ),
   gender: z
     .string()
     .optional()
     .nullable()
     .describe(
-      "Gender/pronouns — ONLY include if the user explicitly requests a gender change."
+      "Gender/pronouns — ONLY include if the user explicitly requests a gender change.",
     ),
   summary: z
     .string()
     .optional()
     .nullable()
     .describe(
-      "Concise 1–2 sentences, single paragraph, no line breaks or lists. Do NOT include appearance or detailed backstory. Include only if the update impacts the essence or the user requests a summary change."
+      "Concise 1–2 sentences, single paragraph, no line breaks or lists. Do NOT include appearance or detailed backstory. Include only if the update impacts the essence or the user requests a summary change.",
     ),
   appearance: z
     .string()
     .optional()
     .nullable()
     .describe(
-      "Purely visual and stylistic description: physique/build, facial features, eyes, skin, hair, posture, wardrobe/style, color palette, materials/textures, accessories, distinctive marks. Include only if the request affects appearance or consistency requires it."
+      "Purely visual and stylistic description: physique/build, facial features, eyes, skin, hair, posture, wardrobe/style, color palette, materials/textures, accessories, distinctive marks. Include only if the request affects appearance or consistency requires it.",
     ),
   personality: z
     .string()
     .optional()
     .nullable()
     .describe(
-      "Behavioral traits and temperament: how they speak and behave; motivations, strengths, flaws, quirks, interaction style. Include only if the request affects personality or consistency requires it."
+      "Behavioral traits and temperament: how they speak and behave; motivations, strengths, flaws, quirks, interaction style. Include only if the request affects personality or consistency requires it.",
     ),
   background: z
     .string()
     .optional()
     .nullable()
     .describe(
-      "Origin and history: upbringing, environment, formative events, training/skills learned. Include only if the request affects background or consistency requires it."
+      "Origin and history: upbringing, environment, formative events, training/skills learned. Include only if the request affects background or consistency requires it.",
     ),
   occupation: z
     .string()
     .optional()
     .nullable()
     .describe(
-      "Short phrase for their role/work. Include only if the user explicitly requests a change or if necessary for coherence."
+      "Short phrase for their role/work. Include only if the user explicitly requests a change or if necessary for coherence.",
     ),
   extensions: z.preprocess((value) => {
     // If value is not an object return empty object (prevents runtime spread errors and keeps semantics of "no changes")
@@ -138,7 +144,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
     {
       prompt,
     },
-    "Enhancing persona"
+    "Enhancing persona",
   );
 
   // Get persona with current version
@@ -146,7 +152,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
     where: and(
       eq(personas.id, personaId),
       eq(personas.userId, userId),
-      ne(personas.visibility, "deleted")
+      ne(personas.visibility, "deleted"),
     ),
     with: {
       currentVersion: true,
@@ -167,7 +173,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
   const currentData = persona.currentVersion.data as PersonaData;
   const systemPrompt = getDefaultPromptDefinitionForMode(
     "persona",
-    "enhance"
+    "enhance",
   ).render({ current: currentData });
 
   userLogger.debug({ systemPrompt }, "System prompt for persona enhancement");
@@ -195,7 +201,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
         console.log(object);
         userLogger.debug(
           { data: object.object },
-          "Persona enhancement generated"
+          "Persona enhancement generated",
         );
 
         logAiSdkUsage(object, {
@@ -221,7 +227,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
         ] as const;
 
         const hasBasicChanges = basicFields.some(
-          (field) => object.object![field] !== undefined
+          (field) => object.object![field] !== undefined,
         );
 
         // Check if extensions have actually changed
@@ -321,7 +327,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
     if (!partialObjectStream) {
       userLogger.warn(
         { component: "actions:enhance-persona" },
-        "No partialObjectStream available; finishing without streaming"
+        "No partialObjectStream available; finishing without streaming",
       );
       stream.done();
       return;
@@ -332,7 +338,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
         // Normalize extension keys in streamed partials for UI merging consistency
         if ((partialObject as any)?.extensions) {
           (partialObject as any).extensions = formatExtensionKeys(
-            (partialObject as any).extensions as Record<string, string>
+            (partialObject as any).extensions as Record<string, string>,
           );
         }
         stream.update(partialObject);
@@ -349,7 +355,7 @@ export async function enhancePersonaAction(personaId: string, prompt: string) {
             name: (error as any)?.name,
           },
         },
-        "Error during streaming"
+        "Error during streaming",
       );
       stream.update({ error: "Streaming failed. Please try again." });
       stream.done();

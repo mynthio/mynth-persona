@@ -22,13 +22,13 @@ const adjustColor = (color: RGB, amount: number): RGB => {
 
   if (amount > 0) {
     return color.map((channel) =>
-      clampChannel(Math.round(channel + (255 - channel) * amount))
+      clampChannel(Math.round(channel + (255 - channel) * amount)),
     ) as RGB;
   }
 
   const factor = Math.max(0, 1 + amount);
   return color.map((channel) =>
-    clampChannel(Math.round(channel * factor))
+    clampChannel(Math.round(channel * factor)),
   ) as RGB;
 };
 
@@ -95,7 +95,7 @@ const computePalette = async (imageId: string): Promise<RGB[]> => {
     const b = data[i + 2];
 
     const key = `${quantizeChannel(r)}-${quantizeChannel(g)}-${quantizeChannel(
-      b
+      b,
     )}`;
     const bucket = buckets.get(key);
 
@@ -124,7 +124,7 @@ const computePalette = async (imageId: string): Promise<RGB[]> => {
 
   for (const candidate of candidates) {
     const isDistinct = palette.every(
-      (existing) => colorDistance(existing, candidate.color) >= 36
+      (existing) => colorDistance(existing, candidate.color) >= 36,
     );
 
     if (isDistinct || palette.length === 0) {
@@ -166,7 +166,7 @@ export const getImagePalette = cache(
       console.error("Failed to compute palette", error);
       return DEFAULT_GRADIENT.map(toCssColor);
     }
-  }
+  },
 );
 
 export const getGradientFromPalette = (colors: string[]) => {
@@ -179,5 +179,5 @@ export const getGradientFromPalette = (colors: string[]) => {
 };
 
 export const DEFAULT_GRADIENT_BACKGROUND = getGradientFromPalette(
-  DEFAULT_GRADIENT_COLORS
+  DEFAULT_GRADIENT_COLORS,
 )!;

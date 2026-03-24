@@ -27,14 +27,13 @@ import { and, eq, isNull, or } from "drizzle-orm";
 import { replacePlaceholders } from "@/lib/replace-placeholders";
 
 export const createChatWithScenarioAction = async (
-  payload: CreateChatWithScenarioPayload
+  payload: CreateChatWithScenarioPayload,
 ) => {
   const { userId } = await auth.protect();
 
   // Validate payload
-  const validatedData = await createChatWithScenarioPayloadSchema.parseAsync(
-    payload
-  );
+  const validatedData =
+    await createChatWithScenarioPayloadSchema.parseAsync(payload);
 
   // Read scenario and verify access
   const scenario = await db.query.scenarios.findFirst({
@@ -44,8 +43,8 @@ export const createChatWithScenarioAction = async (
         isNull(scenariosTable.deletedAt), // Scenario cannot be deleted
         or(
           eq(scenariosTable.visibility, "public"), // Scenario is public
-          eq(scenariosTable.creatorId, userId) // User is the creator
-        )
+          eq(scenariosTable.creatorId, userId), // User is the creator
+        ),
       ),
     columns: {
       id: true,
@@ -69,12 +68,12 @@ export const createChatWithScenarioAction = async (
         and(
           eq(personasTable.id, validatedData.personaId),
           eq(personasTable.userId, userId),
-          eq(personasTable.visibility, "private")
+          eq(personasTable.visibility, "private"),
         ),
         and(
           eq(personasTable.id, validatedData.personaId),
-          eq(personasTable.visibility, "public")
-        )
+          eq(personasTable.visibility, "public"),
+        ),
       ),
     columns: {
       id: true,
@@ -101,7 +100,7 @@ export const createChatWithScenarioAction = async (
           table.id,
           persona.visibility === "public"
             ? persona.publicVersionId!
-            : persona.currentVersionId!
+            : persona.currentVersionId!,
         ),
       columns: {
         id: true,
@@ -115,7 +114,7 @@ export const createChatWithScenarioAction = async (
           id: string;
           data: PersonaData;
           roleplayData?: PersonaVersionRoleplayData;
-        }
+        },
     );
 
   const rolePlayData = version.roleplayData;
@@ -128,11 +127,11 @@ export const createChatWithScenarioAction = async (
       {
         personaId: version.id,
       },
-      "Missing Persona Roleplay Data. Generating and Updating with V2."
+      "Missing Persona Roleplay Data. Generating and Updating with V2.",
     );
 
     const { summary: summaryV2 } = await generateRoleplaySummaryV2(
-      version.data
+      version.data,
     );
     await updatePersonaVersionRoleplayDataV2({
       personaVersionId: version.id,
@@ -217,7 +216,7 @@ export const createChatWithScenarioAction = async (
           ],
           parentId: null, // Starting messages have no parent
           metadata: null,
-        })
+        }),
       );
 
       await tx.insert(messages).values(messageValues);

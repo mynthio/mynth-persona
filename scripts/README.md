@@ -20,17 +20,20 @@ This script fetches all existing users from your Clerk organization and creates 
 #### 🚀 Quick Start
 
 1. **Install dependencies:**
+
    ```bash
    pnpm install
    ```
 
 2. **Set up environment variables** in `.env.local`:
+
    ```env
    DATABASE_URL=your_postgresql_database_url
    CLERK_SECRET_KEY=your_clerk_secret_key
    ```
 
 3. **Run in dry-run mode first** (recommended):
+
    ```bash
    pnpm run sync-users
    ```
@@ -43,12 +46,15 @@ This script fetches all existing users from your Clerk organization and creates 
 #### 🔧 Configuration
 
 ##### Dry Run Mode
+
 - **Location:** Top of `sync-clerk-users.ts`
 - **Default:** `DRY_RUN = true`
 - **Purpose:** Allows you to see exactly what would be synced without making database changes
 
 ##### Token Initialization
+
 When creating new users, the script automatically sets up:
+
 - **Starting Balance:** 1,000 tokens
 - **Daily Allowance:** 100 tokens
 - **Daily Grant Date:** Current timestamp
@@ -80,18 +86,22 @@ When creating new users, the script automatically sets up:
 The script provides comprehensive logging for every operation:
 
 ##### API Operations
+
 - Clerk API endpoint and authentication status
 - Request/response details for each batch
 - Pagination progress and total user count
 
 ##### User Analysis
+
 For each user, logs:
+
 - **Basic Info:** Name, email, Clerk ID
 - **Timestamps:** Created/updated dates
 - **Database Status:** New user or existing (skip)
 - **Records to Insert:** Exact values for both tables
 
 ##### Database Operations
+
 - Existing user count and sample IDs
 - Step-by-step insertion progress
 - Success/failure status for each operation
@@ -102,6 +112,7 @@ For each user, logs:
 The script works with these database tables:
 
 ##### `users` table
+
 ```sql
 CREATE TABLE users (
   id VARCHAR(255) PRIMARY KEY,     -- Clerk user ID
@@ -111,6 +122,7 @@ CREATE TABLE users (
 ```
 
 ##### `userTokens` table
+
 ```sql
 CREATE TABLE user_tokens (
   user_id VARCHAR(255) PRIMARY KEY REFERENCES users(id),
@@ -135,19 +147,23 @@ CREATE TABLE user_tokens (
 ##### Common Issues
 
 **"CLERK_SECRET_KEY is not set"**
+
 - Solution: Add your Clerk secret key to `.env.local`
 - Location: Clerk Dashboard → API Keys → Secret Key
 
 **"DATABASE_URL is not set"**
+
 - Solution: Add your PostgreSQL connection string to `.env.local`
 - Format: `postgresql://user:password@host:port/database`
 
 **"Failed to fetch users from Clerk"**
+
 - Check your secret key is valid and has proper permissions
 - Verify your Clerk organization has users
 - Check network connectivity
 
 **Database connection errors**
+
 - Verify your DATABASE_URL is correct
 - Ensure your database is running and accessible
 - Check that the `users` and `userTokens` tables exist
@@ -155,6 +171,7 @@ CREATE TABLE user_tokens (
 ##### Debug Mode
 
 For additional debugging, you can modify the script to:
+
 1. Add more detailed error logging
 2. Adjust the batch size (change `limit` variable)
 3. Test with a smaller subset of users first
@@ -162,6 +179,7 @@ For additional debugging, you can modify the script to:
 #### 🔄 Safe Re-running
 
 The script is designed to be safe to run multiple times:
+
 - **Idempotent:** Running twice produces the same result
 - **Duplicate Prevention:** Skips users that already exist
 - **Graceful Failures:** Individual user failures don't stop the entire process
@@ -250,4 +268,5 @@ You can customize the script by modifying:
 💡 To actually sync the users, set DRY_RUN = false in the script
 
 🧪 DRY RUN COMPLETED - Review the output above
-💡 To actually perform the sync, change DRY_RUN to false 
+💡 To actually perform the sync, change DRY_RUN to false
+```

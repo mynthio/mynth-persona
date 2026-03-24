@@ -143,7 +143,7 @@ export default function Imagine() {
                       size="sm"
                       className={cn(
                         "cursor-pointer transition-all flex-nowrap w-full",
-                        selected && "ring-2 ring-primary ring-offset-1"
+                        selected && "ring-2 ring-primary ring-offset-1",
                       )}
                       onClick={() =>
                         setOptions({
@@ -164,7 +164,10 @@ export default function Imagine() {
                                     variant="outline"
                                     className="border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300"
                                   >
-                                    <HugeiconsIcon icon={Diamond02Icon} strokeWidth={1.5} />
+                                    <HugeiconsIcon
+                                      icon={Diamond02Icon}
+                                      strokeWidth={1.5}
+                                    />
                                   </Badge>
                                 </TooltipTrigger>
                                 <TooltipContent>
@@ -218,7 +221,7 @@ export default function Imagine() {
                             "relative flex items-center justify-center size-5 rounded-full border-2 transition-all",
                             selected
                               ? "border-primary bg-primary"
-                              : "border-muted-foreground/30"
+                              : "border-muted-foreground/30",
                           )}
                         >
                           {selected && (
@@ -250,7 +253,7 @@ export default function Imagine() {
                       selected={options.style === style}
                       onClick={() => setOptions({ ...options, style })}
                     />
-                  )
+                  ),
                 )}
               </div>
             </CardContent>
@@ -367,7 +370,7 @@ function StyleCard({
         "border-2",
         selected
           ? "border-primary ring-2 ring-primary/20"
-          : "border-border hover:border-primary/50"
+          : "border-border hover:border-primary/50",
       )}
     >
       <div className="aspect-square rounded-md overflow-hidden relative">
@@ -421,7 +424,7 @@ function ShotTypeCard({
         "border-2",
         selected
           ? "border-primary ring-2 ring-primary/20"
-          : "border-border hover:border-primary/50"
+          : "border-border hover:border-primary/50",
       )}
     >
       <div className="aspect-[3/4] rounded-md overflow-hidden relative">

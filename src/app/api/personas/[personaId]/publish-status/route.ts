@@ -5,7 +5,7 @@ import { and, eq, ne } from "drizzle-orm";
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ personaId: string }> }
+  { params }: { params: Promise<{ personaId: string }> },
 ) {
   const { userId } = await auth();
 
@@ -20,7 +20,7 @@ export async function GET(
     where: and(
       eq(personas.id, personaId),
       eq(personas.userId, userId),
-      ne(personas.visibility, "deleted")
+      ne(personas.visibility, "deleted"),
     ),
     columns: {
       id: true,

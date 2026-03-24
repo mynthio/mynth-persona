@@ -39,7 +39,14 @@ import { useChatBranchesContext } from "../_contexts/chat-branches.context";
 import { useChatMain } from "../_contexts/chat-main.context";
 import { useSettingsNavigation } from "../_hooks/use-settings-navigation.hook";
 import ChatMessages from "./chat-messages";
-import { ArrowUp01Icon, ArrowUp02Icon, Forward02Icon, MaskTheater02Icon, Note01Icon, StopIcon } from "@hugeicons/core-free-icons";
+import {
+  ArrowUp01Icon,
+  ArrowUp02Icon,
+  Forward02Icon,
+  MaskTheater02Icon,
+  Note01Icon,
+  StopIcon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
 const ChatModelPickerMenu = dynamic(
@@ -138,7 +145,13 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
   const { sendMessage, regenerate, stop } = useChatActions();
   const status = useChatStatus();
   const messages = useChatMessages();
-  const { modelId, authorNote, setAuthorNote, authorNoteHistory, addAuthorNoteToHistory } = useChatMain();
+  const {
+    modelId,
+    authorNote,
+    setAuthorNote,
+    authorNoteHistory,
+    addAuthorNoteToHistory,
+  } = useChatMain();
   const canStream = useChatCanStream();
   const isContinuing = useChatStore((s) => s.isContinuing);
   const isImpersonating = useChatStore((s) => s.isImpersonating);
@@ -266,10 +279,12 @@ function ChatPrompt({ scrollActionsRef }: ChatPromptProps) {
                 // Append to the last text part
                 if (
                   part.type === "text" &&
-                  i ===
-                    lastMsg.parts.findLastIndex((p) => p.type === "text")
+                  i === lastMsg.parts.findLastIndex((p) => p.type === "text")
                 ) {
-                  return { ...part, text: (part as { type: "text"; text: string }).text + chunk };
+                  return {
+                    ...part,
+                    text: (part as { type: "text"; text: string }).text + chunk,
+                  };
                 }
                 return part;
               }),

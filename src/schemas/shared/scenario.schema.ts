@@ -33,7 +33,7 @@ export const scenarioFormFieldsSchema = z.object({
     .string()
     .min(
       50,
-      "Scenario content must be at least 50 characters (approximately 10 words)"
+      "Scenario content must be at least 50 characters (approximately 10 words)",
     )
     .max(100000, "Scenario content is too long (maximum 100,000 characters)"),
 
@@ -47,7 +47,7 @@ export const scenarioFormFieldsSchema = z.object({
     .string()
     .min(
       25,
-      "User character must be at least 25 characters (approximately 5 words)"
+      "User character must be at least 25 characters (approximately 5 words)",
     )
     .max(50000, "User character is too long (maximum 50,000 characters)")
     .optional()

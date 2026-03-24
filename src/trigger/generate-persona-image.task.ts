@@ -88,7 +88,7 @@ async function processAndSaveImage(
     runId: string;
     imageGenerationModelId: string;
     isFirstImage: boolean;
-  }
+  },
 ): Promise<GeneratedImageResult | null> {
   try {
     /**
@@ -108,7 +108,7 @@ async function processAndSaveImage(
             position: "top",
           },
         },
-      ]
+      ],
     );
 
     // Upload to Bunny.net storage using upload service
@@ -187,7 +187,7 @@ async function processAndSaveImage(
         index,
         personaId: ctx.persona.id,
       },
-      `Failed to process/save image ${index}`
+      `Failed to process/save image ${index}`,
     );
     return null;
   }
@@ -256,7 +256,7 @@ export const generatePersonaImageTask = task({
       {
         negativePrompt,
         numberResults: imagesPerGeneration,
-      }
+      },
     );
 
     // Process and save all images in parallel
@@ -275,14 +275,14 @@ export const generatePersonaImageTask = task({
         runId: ctx.run.id,
         imageGenerationModelId: imageGenerationModel.modelId,
         isFirstImage: index === 0,
-      })
+      }),
     );
 
     const processResults = await Promise.all(processPromises);
 
     // Filter out failed processing
     const successfulResults = processResults.filter(
-      (r): r is GeneratedImageResult => r !== null
+      (r): r is GeneratedImageResult => r !== null,
     );
 
     // If ALL processing failed, throw an error (this will trigger credits restore)
@@ -299,7 +299,7 @@ export const generatePersonaImageTask = task({
           generateResult.images.length - successfulResults.length,
         successful: successfulResults.length,
       },
-      "Image generation completed"
+      "Image generation completed",
     );
 
     logger.flush();

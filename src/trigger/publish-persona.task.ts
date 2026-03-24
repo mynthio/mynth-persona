@@ -40,7 +40,7 @@ export const publishPersonaTask = schemaTask({
           where: and(
             eq(personas.id, personaId),
             eq(personas.userId, userId),
-            ne(personas.visibility, "deleted")
+            ne(personas.visibility, "deleted"),
           ),
           columns: {
             id: true,
@@ -91,12 +91,12 @@ export const publishPersonaTask = schemaTask({
 
       const system = getDefaultPromptDefinitionForMode(
         "persona",
-        "publish"
+        "publish",
       ).render();
 
       const prompt = getDefaultUserPromptDefinitionForMode(
         "persona",
-        "publish"
+        "publish",
       ).render({
         persona: personaData,
       });
@@ -136,10 +136,10 @@ export const publishPersonaTask = schemaTask({
                   "style",
                   "other",
                 ]),
-              })
+              }),
             )
             .describe(
-              "Prefer known general tags (see system prompt); lowercase; hyphens allowed. Use the predefined tags when they fit; you may add additional custom tags if a relevant concept isn’t covered by the known list. Add as many relevant tags as needed and place each under the best-fitting category. Avoid duplicates."
+              "Prefer known general tags (see system prompt); lowercase; hyphens allowed. Use the predefined tags when they fit; you may add additional custom tags if a relevant concept isn’t covered by the known list. Add as many relevant tags as needed and place each under the best-fitting category. Avoid duplicates.",
             ),
         }),
         model,
@@ -186,7 +186,7 @@ export const publishPersonaTask = schemaTask({
         {
           lower: true,
           strict: true,
-        }
+        },
       );
       const genId = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 10);
       const slug = `${baseSlug}-${genId()}`;
@@ -217,7 +217,7 @@ export const publishPersonaTask = schemaTask({
               name: t.tag,
               category: t.category,
               isVisible: false,
-            }))
+            })),
           )
           .onConflictDoNothing({ target: tags.name });
 
@@ -228,7 +228,7 @@ export const publishPersonaTask = schemaTask({
               personaId,
               tagId: t.tag,
               confidence: 50,
-            }))
+            })),
           )
           .onConflictDoNothing({
             target: [personaTags.personaId, personaTags.tagId],

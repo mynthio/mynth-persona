@@ -32,9 +32,7 @@ export function ChatStoreProvider({
   }
 
   return (
-    <ChatStoreContext value={storeRef.current}>
-      {children}
-    </ChatStoreContext>
+    <ChatStoreContext value={storeRef.current}>{children}</ChatStoreContext>
   );
 }
 

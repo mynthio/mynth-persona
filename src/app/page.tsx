@@ -12,7 +12,7 @@ const HeroSection = dynamic(
   () => import("./_components/landing/hero-section").then((m) => m.HeroSection),
   {
     loading: () => <HeroSkeleton />,
-  }
+  },
 );
 
 const ModelsSection = dynamic(
@@ -20,17 +20,17 @@ const ModelsSection = dynamic(
     import("./_components/landing/models-section").then((m) => m.ModelsSection),
   {
     ssr: true,
-  }
+  },
 );
 
 const PersonasSection = dynamic(
   () =>
     import("./_components/landing/personas-section").then(
-      (m) => m.PersonasSection
+      (m) => m.PersonasSection,
     ),
   {
     loading: () => <PersonasSkeleton />,
-  }
+  },
 );
 
 const CreateSection = dynamic(
@@ -38,7 +38,7 @@ const CreateSection = dynamic(
     import("./_components/landing/create-section").then((m) => m.CreateSection),
   {
     ssr: true,
-  }
+  },
 );
 
 // Server Component that fetches data and renders async content

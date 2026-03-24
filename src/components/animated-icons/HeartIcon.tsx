@@ -27,7 +27,7 @@ const HeartIcon = forwardRef<HeartIconHandle, HeartIconProps>(
       isAnimated = true,
       ...props
     },
-    ref
+    ref,
   ) => {
     const controls = useAnimation();
     const reduced = useReducedMotion();
@@ -48,7 +48,7 @@ const HeartIcon = forwardRef<HeartIconHandle, HeartIconProps>(
         if (!isControlled.current) controls.start("animate");
         else onMouseEnter?.(e as any);
       },
-      [controls, reduced, onMouseEnter]
+      [controls, reduced, onMouseEnter],
     );
 
     const handleLeave = useCallback(
@@ -59,7 +59,7 @@ const HeartIcon = forwardRef<HeartIconHandle, HeartIconProps>(
           onMouseLeave?.(e as any);
         }
       },
-      [controls, onMouseLeave]
+      [controls, onMouseLeave],
     );
 
     const easeInOutArray: [number, number, number, number] = [0.42, 0, 0.58, 1];
@@ -115,7 +115,7 @@ const HeartIcon = forwardRef<HeartIconHandle, HeartIconProps>(
         </motion.svg>
       </motion.div>
     );
-  }
+  },
 );
 
 HeartIcon.displayName = "HeartIcon";

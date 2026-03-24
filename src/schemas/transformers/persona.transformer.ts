@@ -31,7 +31,7 @@ export function transformToPublicPersona(persona: Persona): PublicPersona {
  * Removes sensitive fields and validates the output
  */
 export function transformToPublicPersonaVersion(
-  personaVersion: any
+  personaVersion: any,
 ): PublicPersonaVersion {
   // Validate against schema to ensure type safety and proper data structure
   return publicPersonaVersionSchema.parse({
@@ -48,7 +48,9 @@ export function transformToPublicPersonaVersion(
 /**
  * Transform internal Persona to PublicPersonaListItem for public browse lists
  */
-export function transformToPublicPersonaListItem(persona: any): PublicPersonaListItem {
+export function transformToPublicPersonaListItem(
+  persona: any,
+): PublicPersonaListItem {
   return publicPersonaListItemSchema.parse({
     id: persona.id,
     slug: persona.slug ?? null,

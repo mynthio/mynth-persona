@@ -1,6 +1,14 @@
 "use client";
 
-import { Cancel01Icon, CpuIcon, Delete02Icon, Download02Icon, Download04Icon, Share08Icon, User03Icon } from "@hugeicons/core-free-icons";
+import {
+  Cancel01Icon,
+  CpuIcon,
+  Delete02Icon,
+  Download02Icon,
+  Download04Icon,
+  Share08Icon,
+  User03Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Dialog,
@@ -63,7 +71,7 @@ export function MediaDialog() {
 
   const { data, isLoading, mutate } = useSWR(
     isOpen && imageId ? `/api/media/${imageId}` : null,
-    fetcher
+    fetcher,
   );
 
   useEffect(() => {
@@ -198,7 +206,7 @@ function Comments({ mediaId }: { mediaId: string }) {
   const [showBottomShadow, setShowBottomShadow] = useState(false);
   const { userId } = useAuth();
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(
-    null
+    null,
   );
 
   const handleDeleteComment = async (commentId: string) => {
@@ -221,7 +229,7 @@ function Comments({ mediaId }: { mediaId: string }) {
           return {
             ...currentData,
             comments: currentData.comments.filter(
-              (comment: any) => comment.id !== commentId
+              (comment: any) => comment.id !== commentId,
             ),
           };
         }, false);
@@ -350,7 +358,10 @@ function Comments({ mediaId }: { mediaId: string }) {
                               className="ml-auto h-6 w-6 p-0"
                               disabled={deletingCommentId === comment.id}
                             >
-                              <HugeiconsIcon icon={Delete02Icon} className="h-3.5 w-3.5" />
+                              <HugeiconsIcon
+                                icon={Delete02Icon}
+                                className="h-3.5 w-3.5"
+                              />
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
@@ -368,7 +379,7 @@ function Comments({ mediaId }: { mediaId: string }) {
                               <AlertDialogAction
                                 onClick={() => handleDeleteComment(comment.id)}
                                 className={cn(
-                                  buttonVariants({ variant: "destructive" })
+                                  buttonVariants({ variant: "destructive" }),
                                 )}
                               >
                                 Delete

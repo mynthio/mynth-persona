@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   _request: Request,
-  { params }: { params: Promise<{ mediaId: string }> }
+  { params }: { params: Promise<{ mediaId: string }> },
 ) {
   try {
     const { mediaId } = await params;
@@ -83,7 +83,7 @@ export async function GET(
     console.error("Error fetching media:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

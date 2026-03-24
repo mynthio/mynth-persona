@@ -30,4 +30,3 @@ export class RunwareImagineArt15 extends RunwareImageGenerationBase {
     return {};
   }
 }
-

@@ -36,4 +36,3 @@ export class RunwareBismuthIllustriousMixV5 extends RunwareImageGenerationBase {
     };
   }
 }
-

@@ -45,15 +45,15 @@ export async function GET(request: Request) {
           and(
             ne(personas.userId, userId),
             eq(personas.visibility, "public"),
-            isNotNull(personas.publishedAt)
-          )
+            isNotNull(personas.publishedAt),
+          ),
         );
 
   const searchCondition = q
     ? or(
         ilike(personas.title, `%${q}%`),
         ilike(personas.headline, `%${q}%`),
-        ilike(personas.publicName, `%${q}%`)
+        ilike(personas.publicName, `%${q}%`),
       )
     : undefined;
 
@@ -62,8 +62,8 @@ export async function GET(request: Request) {
         lt(personas.createdAt, cursor.createdAt),
         and(
           eq(personas.createdAt, cursor.createdAt),
-          lt(personas.id, cursor.id)
-        )
+          lt(personas.id, cursor.id),
+        ),
       )
     : undefined;
 

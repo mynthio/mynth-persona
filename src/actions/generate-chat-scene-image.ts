@@ -28,7 +28,7 @@ type GenerateChatSceneImageResult = {
 
 export const generateChatSceneImage = async (
   chatId: string,
-  modelId: ImageModelId = DEFAULT_IMAGE_MODEL_ID
+  modelId: ImageModelId = DEFAULT_IMAGE_MODEL_ID,
 ): Promise<ActionResult<GenerateChatSceneImageResult>> => {
   const { userId } = await auth();
 
@@ -60,7 +60,7 @@ export const generateChatSceneImage = async (
   // Check concurrent job limit using KV store
   const concurrentJobResult = await incrementConcurrentImageJob(
     userId,
-    planId as PlanId
+    planId as PlanId,
   );
   if (!concurrentJobResult.success) {
     return {
@@ -108,7 +108,7 @@ export const generateChatSceneImage = async (
     },
     {
       tags: [`user:${userId}`, `chat:${chatId}`],
-    }
+    },
   );
 
   return {

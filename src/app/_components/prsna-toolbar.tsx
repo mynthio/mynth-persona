@@ -15,7 +15,7 @@ export function PrsnaToolbar({ className }: { className?: string }) {
     <div
       className={cn(
         "sticky bottom-4 w-full mx-auto max-w-2xl px-4 z-50 animate-slide-up",
-        className
+        className,
       )}
     >
       <div className="relative group">
@@ -23,7 +23,7 @@ export function PrsnaToolbar({ className }: { className?: string }) {
         <div
           className={cn(
             "absolute -inset-0.5 bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full blur-md transition-all duration-500 opacity-0 group-hover:opacity-20",
-            isFocused && "opacity-50 scale-102"
+            isFocused && "opacity-50 scale-102",
           )}
         />
 
@@ -35,7 +35,7 @@ export function PrsnaToolbar({ className }: { className?: string }) {
           <div
             className={cn(
               "relative flex items-center gap-3 p-2 pl-3 sm:pl-4 rounded-full border shadow-2xl backdrop-blur-xl transition-all duration-300 ring-1 ring-white/5 bg-background/60",
-              isFocused ? "border-white/10" : "border-transparent"
+              isFocused ? "border-white/10" : "border-transparent",
             )}
           >
             {/* AI Icon */}
@@ -43,10 +43,14 @@ export function PrsnaToolbar({ className }: { className?: string }) {
               <div
                 className={cn(
                   "text-muted-foreground/90 transition-transform duration-500",
-                  isFocused && "scale-110"
+                  isFocused && "scale-110",
                 )}
               >
-                <HugeiconsIcon icon={StarsIcon} strokeWidth={1.5} className="size-5" />
+                <HugeiconsIcon
+                  icon={StarsIcon}
+                  strokeWidth={1.5}
+                  className="size-5"
+                />
               </div>
             </div>
 
@@ -70,7 +74,11 @@ export function PrsnaToolbar({ className }: { className?: string }) {
                   type="submit"
                   className="bg-foreground text-background rounded-full size-10 flex items-center justify-center shadow-lg hover:bg-primary hover:text-primary-foreground hover:scale-110 active:scale-90 transition-all animate-pop-in"
                 >
-                  <HugeiconsIcon icon={MailSend01Icon} className="size-4" strokeWidth={1.5} />
+                  <HugeiconsIcon
+                    icon={MailSend01Icon}
+                    className="size-4"
+                    strokeWidth={1.5}
+                  />
                 </button>
               ) : (
                 <div className="text-muted-foreground/20">

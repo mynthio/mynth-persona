@@ -43,7 +43,7 @@ export function ChatSettingsSceneImageInProgress({
   onComplete,
 }: ChatSettingsSceneImageInProgressProps) {
   const removeSceneImageGenerationRun = useChatImageGenerationStore(
-    (state) => state.removeSceneImageGenerationRun
+    (state) => state.removeSceneImageGenerationRun,
   );
 
   const { run } = useRun(runId, {

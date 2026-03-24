@@ -1,7 +1,6 @@
 import { Loading02Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
-
 export default function PersonaLoadingPage() {
   return (
     <div className="size-full min-h-[80vh] flex items-center justify-center">

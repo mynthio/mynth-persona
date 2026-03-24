@@ -7,7 +7,10 @@ interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
 }
 
-export function LoadingSpinner({ className, size = "md" }: LoadingSpinnerProps) {
+export function LoadingSpinner({
+  className,
+  size = "md",
+}: LoadingSpinnerProps) {
   const sizeClasses = {
     sm: "size-8",
     md: "size-12",
@@ -21,9 +24,12 @@ export function LoadingSpinner({ className, size = "md" }: LoadingSpinnerProps) 
         className={cn(
           "absolute inset-0 rounded-full",
           "bg-[conic-gradient(var(--tw-gradient-stops))] from-primary via-fuchsia-500 to-primary",
-          "animate-spin [animation-duration:1.25s]"
+          "animate-spin [animation-duration:1.25s]",
         )}
-        style={{ maskImage: "radial-gradient(transparent 52%, black 53%)", WebkitMaskImage: "radial-gradient(transparent 52%, black 53%)" }}
+        style={{
+          maskImage: "radial-gradient(transparent 52%, black 53%)",
+          WebkitMaskImage: "radial-gradient(transparent 52%, black 53%)",
+        }}
       />
 
       {/* Soft inner glow */}
@@ -31,7 +37,7 @@ export function LoadingSpinner({ className, size = "md" }: LoadingSpinnerProps) 
         className={cn(
           "absolute inset-1 rounded-full",
           "bg-gradient-to-br from-primary/10 via-transparent to-fuchsia-500/10",
-          "blur-[1px]"
+          "blur-[1px]",
         )}
       />
 
@@ -51,9 +57,12 @@ export function CompactSpinner({ className }: { className?: string }) {
           className={cn(
             "absolute inset-0 rounded-full",
             "bg-[conic-gradient(var(--tw-gradient-stops))] from-primary via-fuchsia-500 to-primary",
-            "animate-spin [animation-duration:1.1s]"
+            "animate-spin [animation-duration:1.1s]",
           )}
-          style={{ maskImage: "radial-gradient(transparent 55%, black 56%)", WebkitMaskImage: "radial-gradient(transparent 55%, black 56%)" }}
+          style={{
+            maskImage: "radial-gradient(transparent 55%, black 56%)",
+            WebkitMaskImage: "radial-gradient(transparent 55%, black 56%)",
+          }}
         />
         {/* Subtle center */}
         <div className="absolute left-1/2 top-1/2 size-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/70" />

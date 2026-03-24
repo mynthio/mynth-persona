@@ -32,12 +32,12 @@ export async function publishScenarioAction(payload: PublishScenarioPayload) {
   // 2. Rate limiting - 5 publishes per hour
   const rateLimitResult = await rateLimitGuard(
     ScenarioPublishRateLimit,
-    userId
+    userId,
   );
 
   if (!rateLimitResult.success) {
     throw new Error(
-      "You have exceeded the scenario publish rate limit. Please try again later."
+      "You have exceeded the scenario publish rate limit. Please try again later.",
     );
   }
 
@@ -48,7 +48,7 @@ export async function publishScenarioAction(payload: PublishScenarioPayload) {
   const scenario = await db.query.scenarios.findFirst({
     where: and(
       eq(scenarios.id, validatedData.scenarioId),
-      eq(scenarios.creatorId, userId)
+      eq(scenarios.creatorId, userId),
     ),
     columns: {
       id: true,
@@ -59,7 +59,9 @@ export async function publishScenarioAction(payload: PublishScenarioPayload) {
   });
 
   if (!scenario) {
-    throw new Error("Scenario not found or you don't have permission to publish it");
+    throw new Error(
+      "Scenario not found or you don't have permission to publish it",
+    );
   }
 
   // 5. Check if scenario belongs to user (double-check)
@@ -70,7 +72,7 @@ export async function publishScenarioAction(payload: PublishScenarioPayload) {
   // 6. Check if scenario is flagged for content moderation
   if (scenario.publishStatus === "flagged") {
     throw new Error(
-      "This scenario has been flagged for inappropriate content and cannot be published. Please contact support for manual review."
+      "This scenario has been flagged for inappropriate content and cannot be published. Please contact support for manual review.",
     );
   }
 
@@ -111,11 +113,10 @@ export async function publishScenarioAction(payload: PublishScenarioPayload) {
     {
       // idempotencyKey: `publish-scenario-${validatedData.scenarioId}`,
       concurrencyKey: userId,
-    }
+    },
   );
 
   console.log(taskHandle);
-
 
   return {
     success: true,

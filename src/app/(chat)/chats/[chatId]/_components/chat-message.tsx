@@ -61,7 +61,8 @@ export const ChatMessage = React.memo(function ChatMessage(
   const isStreaming = useChatStore((state) => {
     const messages = state.messages;
     const isLastMessage =
-      messages.length > 0 && messages[messages.length - 1]?.id === props.message.id;
+      messages.length > 0 &&
+      messages[messages.length - 1]?.id === props.message.id;
     return isLastMessage && state.status === "streaming";
   });
 
@@ -169,7 +170,12 @@ export const ChatMessage = React.memo(function ChatMessage(
       <div className="flex items-center gap-3 group-[.is-user]:justify-end mt-1">
         {props.message.role === "user" ? (
           <>
-            <ChatMessageActions message={props.message} isStreaming={isStreaming} audioId={audioId} onAudioGenerated={handleAudioGenerated} />
+            <ChatMessageActions
+              message={props.message}
+              isStreaming={isStreaming}
+              audioId={audioId}
+              onAudioGenerated={handleAudioGenerated}
+            />
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild disabled={isStreaming}>
                 <button
@@ -191,7 +197,10 @@ export const ChatMessage = React.memo(function ChatMessage(
                     />
                   )}
                   <Avatar data-size="sm">
-                    <AvatarImage src={avatarUrl ?? undefined} className="object-cover" />
+                    <AvatarImage
+                      src={avatarUrl ?? undefined}
+                      className="object-cover"
+                    />
                     <AvatarFallback>U</AvatarFallback>
                   </Avatar>
                 </button>
@@ -232,11 +241,24 @@ export const ChatMessage = React.memo(function ChatMessage(
               </DropdownMenuTrigger>
 
               <DropdownMenuContent side="top" align="start" className="w-48">
-                <AssistantMessageMenuContent message={props.message} audioId={audioId} isGeneratingAudio={isGeneratingAudio} onAudioGenerated={handleAudioGenerated} onGeneratingAudioChange={setIsGeneratingAudio} />
+                <AssistantMessageMenuContent
+                  message={props.message}
+                  audioId={audioId}
+                  isGeneratingAudio={isGeneratingAudio}
+                  onAudioGenerated={handleAudioGenerated}
+                  onGeneratingAudioChange={setIsGeneratingAudio}
+                />
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <ChatMessageActions message={props.message} isStreaming={isStreaming} audioId={audioId} isGeneratingAudio={isGeneratingAudio} onAudioGenerated={handleAudioGenerated} onGeneratingAudioChange={setIsGeneratingAudio} />
+            <ChatMessageActions
+              message={props.message}
+              isStreaming={isStreaming}
+              audioId={audioId}
+              isGeneratingAudio={isGeneratingAudio}
+              onAudioGenerated={handleAudioGenerated}
+              onGeneratingAudioChange={setIsGeneratingAudio}
+            />
           </>
         )}
       </div>

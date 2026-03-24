@@ -33,13 +33,13 @@ export const useSettingsNavigation = () => {
   // Boolean open/close toggle API retained for compatibility
   const setSettingsOpen = useCallback(
     (value: boolean) => setState(value ? DEFAULT_OPEN_VALUE : null),
-    [setState]
+    [setState],
   );
 
   // Navigate to a specific section
   const navigateSettings = useCallback(
     (value: SettingsNav) => setState(value),
-    [setState]
+    [setState],
   );
 
   const areSettingsOpen = useMemo(() => state != null, [state]);

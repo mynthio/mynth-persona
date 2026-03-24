@@ -17,7 +17,7 @@ const publishMediaSchema = z.object({
 });
 
 export async function publishMediaAction(
-  input: z.infer<typeof publishMediaSchema>
+  input: z.infer<typeof publishMediaSchema>,
 ) {
   const { userId } = await auth();
 
@@ -105,7 +105,7 @@ const createMediaCommentSchema = z.object({
 });
 
 export async function createMediaCommentAction(
-  input: z.infer<typeof createMediaCommentSchema>
+  input: z.infer<typeof createMediaCommentSchema>,
 ) {
   const { userId } = await auth();
 
@@ -164,7 +164,7 @@ const unpublishMediaSchema = z.object({
 });
 
 export async function unpublishMediaAction(
-  input: z.infer<typeof unpublishMediaSchema>
+  input: z.infer<typeof unpublishMediaSchema>,
 ) {
   const { userId } = await auth();
 
@@ -184,8 +184,8 @@ export async function unpublishMediaAction(
         and(
           eq(media.id, mediaId),
           eq(media.userId, userId),
-          eq(media.visibility, "public")
-        )
+          eq(media.visibility, "public"),
+        ),
       )
       .returning({ id: media.id });
 
@@ -208,7 +208,7 @@ const deleteMediaCommentSchema = z.object({
 });
 
 export async function deleteMediaCommentAction(
-  input: z.infer<typeof deleteMediaCommentSchema>
+  input: z.infer<typeof deleteMediaCommentSchema>,
 ) {
   const { userId } = await auth();
 

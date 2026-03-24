@@ -7,27 +7,32 @@ Implement a public personas feature that allows users to publish their personas 
 ## Core Design Decisions
 
 ### 1. Reuse Existing Personas Table
+
 - **Rationale**: Maintain simplicity in chat creation logic
 - **Approach**: Add visibility flags instead of creating separate public personas table
 - **Benefit**: Existing chat system works unchanged - if user had access at chat creation time, they retain access
 
 ### 2. Immutable Public Versions
+
 - **Constraint**: Once published, the specific persona version cannot be changed
 - **Implementation**: `publicVersionId` locks the published version
 - **Benefit**: Ensures consistency for users who create chats with public personas
 
 ### 3. AI-Powered Publishing Pipeline
+
 - **Process**: Publishing triggers AI analysis instead of manual user input
 - **Benefits**: Consistent tagging, automated NSFW classification, content quality control
 - **Moderation**: Discord-based reporting for MVP, with future automated flagging
 
 ### 4. Gender as Explicit Column vs Tags
+
 - **Decision**: Use explicit `gender` enum column instead of tags
 - **Rationale**: Gender is a primary filter criterion that users expect to be reliable and consistent
 - **Benefits**: Better query performance, guaranteed presence, cleaner UI filtering
 - **Enum Values**: `['female', 'male', 'other']` with default `'other'` (simplicity)
 
 ### 5. Display Data Denormalization
+
 - **Decision**: Cache `publicName` and `publicAge` directly in personas table
 - **Rationale**: Avoid expensive joins for persona list views that show thousands of items
 - **Trade-off**: Slight data duplication for significant performance gains
@@ -105,6 +110,7 @@ The `headline` field should be a compelling one-liner that entices users to clic
 - "Playful gamer girl next door"
 
 **AI Generation Guidelines:**
+
 - Keep under 50 characters for mobile display
 - Focus on personality + role/archetype combination
 - Use active, engaging language
@@ -114,16 +120,19 @@ The `headline` field should be a compelling one-liner that entices users to clic
 ## Age Parsing, Buckets and Display
 
 **AI Age Parsing Logic:**
+
 - Extract numeric age from persona text (e.g., "25 years old" → 25)
 - Handle ranges by taking midpoint (e.g., "early 20s" → 22, "mid-30s" → 35)
 - Use descriptive terms mapping (e.g., "young adult" → 22, "mature" → 35)
 - Set -1 for completely unknown or intentionally undefined ages
 
 **Age Buckets (enum persona_age_bucket):**
+
 - `unknown`, `0-5`, `6-12`, `13-17`, `18-24`, `25-34`, `35-44`, `45-54`, `55-64`, `65-plus`
 - Assigned by publishing AI and stored in `ageBucket`
 
 **UI Display Rules:**
+
 - Show actual number when age > 0 (e.g., "25")
 - Show "Age unknown" or hide age field when age = -1
 - Enable filtering by buckets for public personas; sort unknown at the end
@@ -143,26 +152,32 @@ The `headline` field should be a compelling one-liner that entices users to clic
 ### Tag Categories
 
 **Appearance (Eyes, Hair, etc.)**
+
 - `blue-eyes`, `green-eyes`, `brown-eyes`, `hazel-eyes`
 - `long-hair`, `short-hair`, `blonde-hair`, `brunette`, `redhead`
 - `pale-skin`, `tan-skin`, `dark-skin`
 
 **Physical Attributes**
+
 - `slim`, `fit`, `curvy`, `petite`, `tall`
 - `athletic`, `elegant`, `casual`
 
 **Age**
+
 - `young`, `mature`, `teen`, `adult`, `middle-aged`
 
 **Personality Traits**
+
 - `sweet`, `confident`, `shy`, `outgoing`, `mysterious`
 - `playful`, `serious`, `caring`, `independent`, `annoying`
 
 **Style/Vibe**
+
 - `sexy`, `cute`, `elegant`, `casual`, `gothic`, `dark`
 - `romantic`, `adventurous`, `intellectual`
 
 **Other (not shown in UI filters)**
+
 - `fantasy`, `modern`, `historical`, `sci-fi`
 - `professional`, `student`, `artist`
 
@@ -204,6 +219,7 @@ The `headline` field should be a compelling one-liner that entices users to clic
 Recommended query patterns:
 
 - Must match ALL selected tags (N tags):
+
 ```sql
 SELECT p.*
 FROM personas p
@@ -215,6 +231,7 @@ HAVING COUNT(DISTINCT pt.tagId) = $2; -- N
 ```
 
 - EXISTS-per-tag (planner-friendly for small N):
+
 ```sql
 SELECT p.*
 FROM personas p
@@ -236,16 +253,19 @@ WHERE p.visibility = 'public'
 ## Content Moderation
 
 ### Automated (AI)
+
 - NSFW classification during publishing (text) and via image `isNSFW` flag (MVP)
 - Tag confidence scoring for quality control
 - Content analysis for inappropriate material
 
 ### Manual (Community)
+
 - Discord-based reporting system for MVP
 - Future: in-app reporting with automated flagging
 - Moderator review queue for flagged content
 
 ### Cleanup Strategy
+
 - Periodic cleanup of `deleted` personas not used in any chats
 - Retention policy for unused public personas
 - Analytics tracking for popular vs. unused content
@@ -253,12 +273,14 @@ WHERE p.visibility = 'public'
 ## Future Enhancements
 
 ### Analytics & Ranking (Phase 2)
+
 - Redis-based ranking system (Upstash)
 - Temporary ranking data (monthly/weekly)
 - Metrics: likes, chat creations, search appearances
 - Trending personas algorithm
 
 ### Advanced Features
+
 - User collections/favorites
 - Persona recommendations
 - Advanced search with multiple filters
@@ -267,24 +289,28 @@ WHERE p.visibility = 'public'
 ## Implementation Phases
 
 ### Phase 1: Core Infrastructure
+
 1. Database schema migration
 2. Predefined tags seeding
 3. Basic publishing workflow
 4. AI tagging integration
 
 ### Phase 2: Discovery UI
+
 1. Public personas browse page
 2. Tag-based filtering interface
 3. Search functionality
 4. Persona detail pages
 
 ### Phase 3: Community Features
+
 1. Likes system
 2. Reporting mechanism
 3. User profiles
 4. Analytics dashboard
 
 ### Phase 4: Advanced Features
+
 1. Redis ranking system
 2. Recommendation engine
 3. Advanced moderation tools
@@ -293,17 +319,20 @@ WHERE p.visibility = 'public'
 ## Technical Considerations
 
 ### Performance
+
 - Keep indexes minimal for MVP; add based on observed bottlenecks later
 - Tag-based search patterns documented above
 - Caching strategy for popular personas
 - Pagination for large result sets
 
 ### Scalability
+
 - Join table approach scales better than arrays for complex queries
 - AI processing queue prevents blocking user interactions
 - Confidence scoring enables quality-based filtering
 
 ### Security & Policy
+
 - NSFW content filtering (Explicit/Suggestive are adult-only)
 - Block publish when AI flags explicit/suggestive for age < 18
 - Image `isNSFW` flag sets persona NSFW to Explicit (MVP behavior)

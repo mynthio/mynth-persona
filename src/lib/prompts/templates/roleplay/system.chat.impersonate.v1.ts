@@ -23,19 +23,19 @@ export const impersonateV1: PromptDefinitionImpersonate = {
     // Persona context block — who the user is talking to
     const personaCharacterParts: string[] = [];
     personaCharacterParts.push(
-      `${args.character.gender === "other" ? "They are" : args.character.gender === "male" ? "He is" : "She is"} ${args.character.age}. ${args.character.gender}.`
+      `${args.character.gender === "other" ? "They are" : args.character.gender === "male" ? "He is" : "She is"} ${args.character.age}. ${args.character.gender}.`,
     );
     if (args.character.appearance) {
       personaCharacterParts.push(`Appearance: ${args.character.appearance}`);
     }
     if (args.character.personality) {
       personaCharacterParts.push(
-        `Personality: ${processText(args.character.personality)}`
+        `Personality: ${processText(args.character.personality)}`,
       );
     }
     if (args.character.background) {
       personaCharacterParts.push(
-        `Background: ${processText(args.character.background)}`
+        `Background: ${processText(args.character.background)}`,
       );
     }
 

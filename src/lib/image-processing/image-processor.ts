@@ -13,7 +13,7 @@ export type ImageVariant = {
 
 export async function processImage(
   buffer: Buffer,
-  variants: ImageVariant[]
+  variants: ImageVariant[],
 ): Promise<Buffer[]> {
   const processVariant = (variant: ImageVariant) =>
     Effect.promise(async () => {

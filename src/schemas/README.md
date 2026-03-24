@@ -22,6 +22,7 @@ src/schemas/
 ## Usage Patterns
 
 ### Frontend Code
+
 ```typescript
 // ✅ Safe - only import shared schemas
 import { PublicPersonaWithVersion } from "@/schemas/shared";
@@ -31,6 +32,7 @@ import { PublicPersonaWithVersion } from "@/schemas";
 ```
 
 ### Backend Code
+
 ```typescript
 // ✅ Full access to all schemas
 import { PersonaWithVersion, PublicPersonaWithVersion } from "@/schemas";
@@ -43,30 +45,38 @@ import { PublicPersonaData } from "@/schemas/shared";
 ```
 
 ### API Routes
+
 ```typescript
 // OLD
 import { Persona } from "@/types/persona.type";
 // Manual data filtering
 
 // NEW
-import { transformToPublicPersona, transformToPublicPersonaVersion } from "@/schemas/transformers";
+import {
+  transformToPublicPersona,
+  transformToPublicPersonaVersion,
+} from "@/schemas/transformers";
 
 // For persona endpoints
 const publicPersona = transformToPublicPersona(internalPersona);
 
 // For persona version endpoints
-const publicPersonaVersion = transformToPublicPersonaVersion(internalPersonaVersion);
+const publicPersonaVersion = transformToPublicPersonaVersion(
+  internalPersonaVersion,
+);
 ```
 
 ## Schema Types
 
 ### Shared Schemas (`/shared`)
+
 - **Public data only** - safe to expose via API
 - **No sensitive information** - user IDs, internal metadata excluded
 - **Frontend compatible** - can be bundled with client code
 - **Type-safe API contracts** - ensures consistent data shapes
 
 ### Backend Schemas (`/backend`)
+
 - **Complete data models** - includes all database fields
 - **Sensitive information** - user IDs, internal metadata, etc.
 - **Server-side only** - never bundled with client code
@@ -85,12 +95,14 @@ const publicPersonaVersion = transformToPublicPersonaVersion(internalPersonaVers
 The project is transitioning from `/src/types/persona.type.ts` to the new schema structure:
 
 ### Current Status
+
 - ✅ **New schema structure created**
 - ✅ **API routes updated** to use public schemas
 - ✅ **Query hooks updated** with proper typing
 - 🔄 **Legacy imports** still exist in many files
 
 ### Migration Strategy
+
 ```typescript
 // OLD (gradually migrate away from)
 import { PersonaData } from "@/types/persona.type";
@@ -103,7 +115,9 @@ import { PublicPersonaData } from "@/schemas/shared";
 ```
 
 ### Files to Migrate
+
 The following files still use old imports and can be migrated gradually:
+
 - Components: Use `@/schemas/shared` for public data
 - Services/Actions: Use `@/schemas/backend` for full data
 - API Routes: Already updated ✅

@@ -83,12 +83,12 @@ export type ImageRateLimitResult =
 export const imageRateLimitGuard = async (
   rateLimiter: RateLimiterRedis,
   identifier: string,
-  cost: number = 1
+  cost: number = 1,
 ): Promise<ImageRateLimitResult> => {
   // Check if user is whitelisted
   const whitelistedUserIds =
     process.env.RATE_LIMIT_WHITELIST_USER_IDS?.split(",").map((id) =>
-      id.trim()
+      id.trim(),
     ) || [];
   if (whitelistedUserIds.includes(identifier)) {
     return { success: true };
@@ -125,14 +125,14 @@ export const imageRateLimitGuard = async (
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       ),
     };
   }
 };
 
 export const getImageRateLimiterForPlan = (
-  planId: PlanId
+  planId: PlanId,
 ): RateLimiterRedis => {
   return IMAGE_GENERATIONS_RATE_LIMITERS[planId];
 };
@@ -144,7 +144,7 @@ export const getImageRateLimiterForPlan = (
 export const imageRateLimitRestore = async (
   rateLimiter: RateLimiterRedis,
   identifier: string,
-  cost: number = 1
+  cost: number = 1,
 ): Promise<void> => {
   // Skip in non-production environments
   // if (process.env.NODE_ENV !== "production") {
@@ -157,7 +157,7 @@ export const imageRateLimitRestore = async (
     // Log error but don't throw - restoring points is best effort
     logger.error(
       { error, identifier, cost },
-      "Failed to restore rate limit points"
+      "Failed to restore rate limit points",
     );
   }
 };

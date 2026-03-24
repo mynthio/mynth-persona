@@ -35,7 +35,6 @@ Follow these steps to set up the project locally.
    ```
 
 2. Open `.env.local` and fill in the required API keys:
-
    - **Database & Redis**:
      - `DATABASE_URL`: Connection string for the main database.
      - `LOCAL_DATABASE_URL`: Used for local development (defaults to Docker setup).

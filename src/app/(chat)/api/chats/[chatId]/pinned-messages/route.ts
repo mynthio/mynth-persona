@@ -9,7 +9,13 @@ import { and, eq, sql } from "drizzle-orm";
 function extractContentPreview(parts: unknown): string | null {
   if (!Array.isArray(parts)) return null;
   for (const part of parts) {
-    if (part && typeof part === "object" && "type" in part && part.type === "text" && "text" in part) {
+    if (
+      part &&
+      typeof part === "object" &&
+      "type" in part &&
+      part.type === "text" &&
+      "text" in part
+    ) {
       const text = String((part as { text: string }).text);
       return text.slice(0, 200);
     }
@@ -19,7 +25,7 @@ function extractContentPreview(parts: unknown): string | null {
 
 export async function GET(
   _req: Request,
-  { params }: { params: Promise<{ chatId: string }> }
+  { params }: { params: Promise<{ chatId: string }> },
 ) {
   const { userId } = await auth();
   if (!userId) return new Response("Unauthorized", { status: 401 });
@@ -40,8 +46,8 @@ export async function GET(
     .where(
       and(
         eq(messages.chatId, chatId),
-        eq(sql`(${messages.metadata}->>'pinned')::boolean`, true)
-      )
+        eq(sql`(${messages.metadata}->>'pinned')::boolean`, true),
+      ),
     )
     .orderBy(messages.createdAt);
 

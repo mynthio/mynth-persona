@@ -11,7 +11,7 @@ export const personaUIMessageMetadataSchema = z.object({
       z.object({
         id: z.string(),
         type: z.enum(["image", "video"]),
-      })
+      }),
     )
     .optional(),
 

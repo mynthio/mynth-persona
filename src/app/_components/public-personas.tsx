@@ -1,6 +1,16 @@
 "use client";
 
-import { AngryBirdIcon, CheckmarkBadge02Icon, FemaleSymbolIcon, Loading02Icon, MaleSymbolIcon, QuestionIcon, SignatureIcon, SkullIcon, User03Icon } from "@hugeicons/core-free-icons";
+import {
+  AngryBirdIcon,
+  CheckmarkBadge02Icon,
+  FemaleSymbolIcon,
+  Loading02Icon,
+  MaleSymbolIcon,
+  QuestionIcon,
+  SignatureIcon,
+  SkullIcon,
+  User03Icon,
+} from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { PublicPersonaListItem } from "@/schemas/shared/persona-public.schema";
 import { getImageUrl, getVideoUrl } from "@/lib/utils";
@@ -24,7 +34,7 @@ export default function PublicPersonas() {
         hasMore: boolean;
         nextPublishedAt?: string | null;
         nextId?: string | null;
-      }
+      },
     ) => {
       const base = "/api/public/personas";
       const params = new URLSearchParams();
@@ -71,7 +81,7 @@ export default function PublicPersonas() {
       const qs = params.toString();
       return `${base}?${qs}`;
     },
-    [includeNsfw]
+    [includeNsfw],
   );
 
   const { data, size, setSize, isLoading, isValidating } = useSWRInfinite<{
@@ -90,10 +100,10 @@ export default function PublicPersonas() {
 
   const items = useMemo(
     () => (data ? data.flatMap((page) => page?.data ?? []) : []),
-    [data]
+    [data],
   );
 
-  const hasMore = data ? data[data.length - 1]?.hasMore ?? false : true;
+  const hasMore = data ? (data[data.length - 1]?.hasMore ?? false) : true;
 
   // Setup infinite loader for Masonry
   const maybeLoadMore = useInfiniteLoader(
@@ -104,13 +114,14 @@ export default function PublicPersonas() {
     {
       isItemLoaded: (index, items) => items[index] != null,
       threshold: 3,
-    }
+    },
   );
 
   if (!items.length && isLoading)
     return (
       <div className="w-full p-8 flex justify-center">
-        <HugeiconsIcon icon={Loading02Icon}
+        <HugeiconsIcon
+          icon={Loading02Icon}
           className="animate-spin text-muted-foreground"
           size={24}
         />
@@ -133,7 +144,8 @@ export default function PublicPersonas() {
 
       {isValidating && items.length > 0 ? (
         <div className="w-full p-8 flex justify-center">
-          <HugeiconsIcon icon={Loading02Icon}
+          <HugeiconsIcon
+            icon={Loading02Icon}
             className="animate-spin text-muted-foreground"
             size={24}
           />
@@ -230,7 +242,7 @@ function Tile({ persona }: { persona: PublicPersonaListItem }) {
         });
       }
     },
-    hasVideo && !hasPlayedOnce
+    hasVideo && !hasPlayedOnce,
   );
 
   const onVideoEnded = useCallback(() => {

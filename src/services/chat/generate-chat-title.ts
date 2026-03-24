@@ -10,7 +10,7 @@ function sanitizeTitle(raw: string): string {
 
 export async function generateChatTitle(
   messages: PersonaUIMessage[],
-  additionalContext?: string | null
+  additionalContext?: string | null,
 ): Promise<string> {
   const messagesAsText = messages
     .map((message) => `${message.role}: ${extractPersonaMessageText(message)}`)

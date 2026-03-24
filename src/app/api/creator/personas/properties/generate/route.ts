@@ -38,7 +38,7 @@ export async function POST(req: Request) {
    */
   const rateLimitResult = await rateLimitGuard(
     PersonaCreatorAuthenticatedRateLimit,
-    userId
+    userId,
   );
 
   if (!rateLimitResult.success) {
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     {
       payload,
     },
-    "Creator - Persona Properties Generate"
+    "Creator - Persona Properties Generate",
   );
 
   // Authorize persona access and get current version
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
       and(
         eq(table.id, payload.personaId),
         eq(table.userId, userId),
-        ne(table.visibility, "deleted")
+        ne(table.visibility, "deleted"),
       ),
     columns: {
       id: true,
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
 
   // Compose system prompt using the new template
   const propertyActionSystemDef = getPromptDefinitionById(
-    "system.persona.property-action.v1"
+    "system.persona.property-action.v1",
   ) as PromptDefinitionPersonaPropertyAction;
   // Map 'create' to 'rewrite' semantics for the system prompt
   const actionForPrompt: "expand" | "rewrite" =
@@ -130,7 +130,7 @@ export async function POST(req: Request) {
         {
           component: "generation:text:complete",
           useCase: "persona_generation",
-        }
+        },
       );
 
       const propertyResult = await result.object;
@@ -173,12 +173,12 @@ export async function POST(req: Request) {
                   keepSpecialCharacters: false,
                 })}`
               : payload.action === "rewrite"
-              ? `Rewrite ${spaceCase(payload.property, {
-                  keepSpecialCharacters: false,
-                })}`
-              : `Create ${spaceCase(payload.property, {
-                  keepSpecialCharacters: false,
-                })}`,
+                ? `Rewrite ${spaceCase(payload.property, {
+                    keepSpecialCharacters: false,
+                  })}`
+                : `Create ${spaceCase(payload.property, {
+                    keepSpecialCharacters: false,
+                  })}`,
         });
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));

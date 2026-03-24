@@ -5,7 +5,10 @@ export const personaPropertyActionV1: PromptDefinitionPersonaPropertyAction = {
   mode: "property-action",
   version: "v1",
   label: "Persona property action system prompt",
-  render: ({ property, action }) => `You are an expert character editor focused on precise property-level edits for persona data.
+  render: ({
+    property,
+    action,
+  }) => `You are an expert character editor focused on precise property-level edits for persona data.
 
 Task
 - You will receive the full persona JSON in the user message.

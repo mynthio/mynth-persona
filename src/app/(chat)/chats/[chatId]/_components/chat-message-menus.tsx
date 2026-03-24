@@ -90,40 +90,46 @@ export function AssistantMessageMenuContent(
   const handleSpeech = useCallback(() => {
     props.onGeneratingAudioChange(true);
     toast.info("Generating speech", {
-      description:
-        "This takes about 10 seconds. It will auto-play when ready.",
+      description: "This takes about 10 seconds. It will auto-play when ready.",
     });
 
-    generateMessageAudio(props.message.id, chatId).then((result) => {
-      if (!result.success) {
-        props.onGeneratingAudioChange(false);
-        const { code, message: errorMessage } = result.error;
+    generateMessageAudio(props.message.id, chatId)
+      .then((result) => {
+        if (!result.success) {
+          props.onGeneratingAudioChange(false);
+          const { code, message: errorMessage } = result.error;
 
-        if (code === "RATE_LIMIT_EXCEEDED") {
-          toast.error("Rate limit exceeded", {
-            description:
-              "You've reached your TTS generation limit. Please try again later.",
-          });
-        } else if (code === "MESSAGE_TOO_LONG") {
-          toast.error("Message too long", {
-            description: errorMessage,
-          });
-        } else {
-          toast.error("Failed to generate audio", {
-            description: errorMessage,
-          });
+          if (code === "RATE_LIMIT_EXCEEDED") {
+            toast.error("Rate limit exceeded", {
+              description:
+                "You've reached your TTS generation limit. Please try again later.",
+            });
+          } else if (code === "MESSAGE_TOO_LONG") {
+            toast.error("Message too long", {
+              description: errorMessage,
+            });
+          } else {
+            toast.error("Failed to generate audio", {
+              description: errorMessage,
+            });
+          }
+          return;
         }
-        return;
-      }
 
-      props.onAudioGenerated(result.data.audioId);
-    }).catch(() => {
-      props.onGeneratingAudioChange(false);
-      toast.error("Failed to generate audio", {
-        description: "An unexpected error occurred. Please try again.",
+        props.onAudioGenerated(result.data.audioId);
+      })
+      .catch(() => {
+        props.onGeneratingAudioChange(false);
+        toast.error("Failed to generate audio", {
+          description: "An unexpected error occurred. Please try again.",
+        });
       });
-    });
-  }, [chatId, props.message.id, props.onAudioGenerated, props.onGeneratingAudioChange]);
+  }, [
+    chatId,
+    props.message.id,
+    props.onAudioGenerated,
+    props.onGeneratingAudioChange,
+  ]);
 
   return (
     <>
@@ -135,9 +141,16 @@ export function AssistantMessageMenuContent(
         <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
         Edit message
       </DropdownMenuItem>
-      <DropdownMenuItem onClick={handleSpeech} disabled={props.isGeneratingAudio}>
+      <DropdownMenuItem
+        onClick={handleSpeech}
+        disabled={props.isGeneratingAudio}
+      >
         <HugeiconsIcon icon={VolumeHighIcon} size={16} />
-        {props.isGeneratingAudio ? "Generating..." : props.audioId ? "Regenerate speech" : "Generate speech"}
+        {props.isGeneratingAudio
+          ? "Generating..."
+          : props.audioId
+            ? "Regenerate speech"
+            : "Generate speech"}
       </DropdownMenuItem>
       <DropdownMenuSeparator />
       <DeleteMessageMenuItem messageId={props.message.id} />

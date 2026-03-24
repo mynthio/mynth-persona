@@ -5,7 +5,9 @@ export const personaEnhanceV1: PromptDefinitionPersonaEnhance = {
   mode: "enhance",
   version: "v1",
   label: "Persona enhancement system prompt",
-  render: ({ current }) => `You are an expert character editor and creative partner helping to enhance and evolve character personas. You will receive the current persona data and a user request to enhance, extend, or change some aspects of the persona.
+  render: ({
+    current,
+  }) => `You are an expert character editor and creative partner helping to enhance and evolve character personas. You will receive the current persona data and a user request to enhance, extend, or change some aspects of the persona.
 
 Your primary goal is to ensure the character remains logical, consistent, and compelling after your modifications.
 

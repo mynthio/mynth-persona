@@ -44,7 +44,7 @@ export function ChatModelPickerMenu({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 300);
-  const { pinnedModelIds, isPinned, canPin, togglePin } = usePinnedModels();
+  const { pinnedModelIds, isPinned, togglePin } = usePinnedModels();
 
   const allModels = useMemo(() => {
     const searchText = debouncedQuery.trim().toLowerCase();

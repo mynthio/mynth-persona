@@ -1,8 +1,10 @@
 import { renderAionRoleplayPrompt } from "./aion";
 import { renderDefaultRoleplayPrompt } from "./default";
 import { renderGeminiRoleplayPrompt } from "./gemini";
+import { renderGLM5RoleplayPrompt } from "./glm5";
 import { renderHermesRoleplayPrompt } from "./hermes";
 import { renderKimiRoleplayPrompt } from "./kimi";
+import { renderMiMoRoleplayPrompt } from "./mimo";
 import { renderMiniMaxRoleplayPrompt } from "./minimax";
 import type {
   ModelId,
@@ -29,7 +31,11 @@ const promptsByModel: Partial<Record<string, RoleplayPromptRenderer>> = {
   "google/gemini-3-flash-preview:standard": renderGeminiRoleplayPrompt,
   "minimax/minimax-m2-her:eco": renderMiniMaxRoleplayPrompt,
   "minimax/minimax-m2-her:standard": renderMiniMaxRoleplayPrompt,
+  "minimax/minimax-m2.7:eco": renderMiniMaxRoleplayPrompt,
+  "minimax/minimax-m2.7:standard": renderMiniMaxRoleplayPrompt,
   "moonshotai/kimi-k2.5:standard": renderKimiRoleplayPrompt,
+  "xiaomi/mimo-v2-pro:standard": renderMiMoRoleplayPrompt,
+  "z-ai/glm-5:standard": renderGLM5RoleplayPrompt,
   // Example: Add model-specific prompts here
   // "anthropic/claude-haiku-4.5:premium": renderClaudeRoleplayPrompt,
 };
@@ -127,7 +133,9 @@ export {
   renderAionRoleplayPrompt,
   renderDefaultRoleplayPrompt,
   renderGeminiRoleplayPrompt,
+  renderGLM5RoleplayPrompt,
   renderHermesRoleplayPrompt,
   renderKimiRoleplayPrompt,
+  renderMiMoRoleplayPrompt,
   renderMiniMaxRoleplayPrompt,
 };

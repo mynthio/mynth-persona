@@ -17,15 +17,8 @@ export function PinModelButton({
   variant = "default",
   className,
 }: PinModelButtonProps) {
-  const { isPinned, canPin, togglePin } = usePinnedModels();
+  const { isPinned, togglePin } = usePinnedModels();
   const pinned = isPinned(modelId);
-  const canPinModel = canPin();
-
-  const showButton = pinned || canPinModel;
-
-  if (!showButton) {
-    return null;
-  }
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();

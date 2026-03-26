@@ -3,7 +3,6 @@
 import { useLocalStorage } from "@uidotdev/usehooks";
 import { useCallback, useMemo } from "react";
 
-const MAX_PINNED_MODELS = 5;
 const STORAGE_KEY = "pinned-models";
 
 export function usePinnedModels() {
@@ -18,8 +17,8 @@ export function usePinnedModels() {
   );
 
   const canPin = useCallback(
-    () => pinnedModelIds.length < MAX_PINNED_MODELS,
-    [pinnedModelIds],
+    () => true,
+    [],
   );
 
   const togglePin = useCallback(
@@ -27,10 +26,6 @@ export function usePinnedModels() {
       setPinnedModelIds((current) => {
         if (current.includes(modelId)) {
           return current.filter((id) => id !== modelId);
-        }
-
-        if (current.length >= MAX_PINNED_MODELS) {
-          return current;
         }
 
         return [...current, modelId];
@@ -45,7 +40,6 @@ export function usePinnedModels() {
       isPinned,
       canPin,
       togglePin,
-      maxPinned: MAX_PINNED_MODELS,
     }),
     [pinnedModelIds, isPinned, canPin, togglePin],
   );

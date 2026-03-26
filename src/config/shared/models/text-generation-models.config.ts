@@ -28,6 +28,10 @@ export type TextGenerationModelId =
   | "google/gemini-3-flash-preview:standard"
   | "minimax/minimax-m2-her:eco"
   | "minimax/minimax-m2-her:standard"
+  | "minimax/minimax-m2.7:eco"
+  | "minimax/minimax-m2.7:standard"
+  | "xiaomi/mimo-v2-pro:standard"
+  | "z-ai/glm-5:standard"
   | "moonshotai/kimi-k2.5:standard";
 
 export type Provider = {
@@ -818,6 +822,118 @@ export const textGenerationModels: Record<
       storesMessages: "unknown",
       additionalNotes:
         "Accessed via OpenRouter (Together AI). Kimi K2.5 is built on the K2 base with 1T total parameters (MoE architecture).",
+    },
+  },
+  "xiaomi/mimo-v2-pro:standard": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    displayName: "MiMo V2 Pro",
+    modelId: "xiaomi/mimo-v2-pro:standard",
+    openRouterModelId: "xiaomi/mimo-v2-pro",
+    uncensored: true,
+    description:
+      "Xiaomi's flagship reasoning agent with 1M context and low hallucination. Delivers precise, structured roleplay with strong character grounding and logical consistency, excelling in extended narratives that demand coherent world-building and steady pacing.",
+    style:
+      "Methodical and precise with strong reasoning backbone. Maintains character consistency through structured context tracking. Adapts pacing to scene demands—measured and deliberate in quiet moments, sharp and decisive in conflicts. Favors clear, purposeful dialogue over flowery prose.",
+    perks: [
+      "1M token context for marathon sessions",
+      "low hallucination for reliable story continuity",
+      "strong reasoning for complex character motivations",
+    ],
+    tags: ["reasoning", "long-context", "agent"],
+    tier: "standard",
+    provider: {
+      url: "https://mimo.xiaomi.com/",
+      displayName: "Xiaomi",
+      privacyPolicyUrl: "https://mimo.xiaomi.com/privacy",
+      training: "unknown",
+      storesMessages: "unknown",
+      additionalNotes:
+        "Accessed via OpenRouter. Xiaomi's MiMo-V2-Pro is optimized for agentic workloads with strong coding and reasoning capabilities.",
+    },
+  },
+  "minimax/minimax-m2.7:eco": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    displayName: "MiniMax M2.7",
+    modelId: "minimax/minimax-m2.7:eco",
+    openRouterModelId: "minimax/minimax-m2.7",
+    uncensored: true,
+    description:
+      "MiniMax's self-evolving model with exceptional character consistency and emotional intelligence. Excels at immersive, dialogue-driven roleplay with natural emotional attunement and steady personality across long sessions.",
+    style:
+      "Emotionally expressive with strong character fidelity. Reads between the lines to pick up on subtext and unspoken cues. Maintains distinct personality and tone throughout extended conversations. Naturally adaptive to pacing shifts and scene dynamics.",
+    perks: [
+      "exceptional character consistency across long sessions",
+      "strong emotional intelligence and subtext awareness",
+      "self-evolving architecture for nuanced interactions",
+    ],
+    tags: ["roleplay", "dialogue", "companion", "emotional"],
+    tier: "eco",
+    provider: {
+      url: "https://www.minimax.io/",
+      displayName: "MiniMax",
+      privacyPolicyUrl: "https://www.minimax.io/privacy",
+      training: "unknown",
+      storesMessages: "unknown",
+      additionalNotes:
+        "Accessed via OpenRouter. MiniMax M2.7 features self-evolution capabilities and Agent Teams for complex workflows.",
+    },
+  },
+  "minimax/minimax-m2.7:standard": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    displayName: "MiniMax M2.7",
+    modelId: "minimax/minimax-m2.7:standard",
+    openRouterModelId: "minimax/minimax-m2.7",
+    uncensored: true,
+    description:
+      "MiniMax's self-evolving model with exceptional character consistency and emotional intelligence. Excels at immersive, dialogue-driven roleplay with natural emotional attunement and steady personality across long sessions.",
+    style:
+      "Emotionally expressive with strong character fidelity. Reads between the lines to pick up on subtext and unspoken cues. Maintains distinct personality and tone throughout extended conversations. Naturally adaptive to pacing shifts and scene dynamics.",
+    perks: [
+      "exceptional character consistency across long sessions",
+      "strong emotional intelligence and subtext awareness",
+      "self-evolving architecture for nuanced interactions",
+    ],
+    tags: ["roleplay", "dialogue", "companion", "emotional"],
+    tier: "standard",
+    provider: {
+      url: "https://www.minimax.io/",
+      displayName: "MiniMax",
+      privacyPolicyUrl: "https://www.minimax.io/privacy",
+      training: "unknown",
+      storesMessages: "unknown",
+      additionalNotes:
+        "Accessed via OpenRouter. MiniMax M2.7 features self-evolution capabilities and Agent Teams for complex workflows.",
+    },
+  },
+  "z-ai/glm-5:standard": {
+    enabled: true,
+    isFreeVersionAvailable: false,
+    displayName: "GLM-5",
+    modelId: "z-ai/glm-5:standard",
+    openRouterModelId: "z-ai/glm-5",
+    uncensored: true,
+    description:
+      "Zhipu AI's 744B MoE flagship with strong reasoning and roleplay capabilities. Excels at maintaining character consistency in narrative, emotion, and logic, delivering immersive and naturally evolvable interactions across extended sessions.",
+    style:
+      "Structured and deliberate with deep reasoning backbone. Maintains precise character identity across emotional and narrative shifts. Adapts tone with clear logical progression—calm and measured in exposition, sharp and focused in conflict. Strong at tracking complex character relationships and motivations.",
+    perks: [
+      "200K context for extended roleplay sessions",
+      "tiered reasoning for complex character motivations",
+      "strong consistency in narrative and emotional portrayal",
+    ],
+    tags: ["reasoning", "long-context", "agent"],
+    tier: "standard",
+    provider: {
+      url: "https://z.ai/",
+      displayName: "Z.AI",
+      privacyPolicyUrl: "https://z.ai/privacy",
+      training: "unknown",
+      storesMessages: "unknown",
+      additionalNotes:
+        "Accessed via OpenRouter. GLM-5 is a 744B MoE model (40B active) released under MIT License, optimized for agentic engineering tasks.",
     },
   },
 };

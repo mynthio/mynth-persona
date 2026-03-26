@@ -98,6 +98,18 @@ export const chatConfig: ChatConfig = {
       modelId: "minimax/minimax-m2-her:standard",
     },
     {
+      modelId: "minimax/minimax-m2.7:eco",
+    },
+    {
+      modelId: "minimax/minimax-m2.7:standard",
+    },
+    {
+      modelId: "xiaomi/mimo-v2-pro:standard",
+    },
+    {
+      modelId: "z-ai/glm-5:standard",
+    },
+    {
       modelId: "moonshotai/kimi-k2.5:standard",
     },
   ],
